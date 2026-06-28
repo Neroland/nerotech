@@ -29,7 +29,7 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
     protected abstract ItemStack resultFor(ItemStack input);
 
     @Override
-    protected void serverTick(Level level, BlockPos pos, BlockState state) {
+    protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         ItemStack input = this.items.get(INPUT_SLOT);
         ItemStack result = resultFor(input);
 
@@ -48,9 +48,16 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
         int cost = (int) Math.max(0, Math.round(NeroTechConfig.machineNePerTick() * mods.energyMultiplier()));
         this.maxProgress = effectiveTicks;
 
+        // Heat throttle: a machine that's run too hard stalls until it sheds heat (base dissipation).
+        if (overheated()) {
+            return;
+        }
+
         if (energyBuffer().has(cost)) {
             energyBuffer().consume(cost);
             this.progress++;
+            addHeat(NeroTechConfig.heatPerOperation());
+            emitPollution(level, pos);
             if (this.progress >= effectiveTicks) {
                 craft(result);
                 this.progress = 0;

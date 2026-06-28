@@ -1,12 +1,14 @@
 package za.co.neroland.nerotech.forge;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ForgeRegistrationFactory;
 
 /** MinecraftForge entry point for NeroTech. */
@@ -21,6 +23,8 @@ public final class NeroTechForge {
         NeroTechCommon.init();
         ForgeRegistrationFactory.registerAll(modBusGroup);
         ForgeCapabilities.register();
+        // Periodic regional pollution decay + retention sweep (game bus; gated by interval inside tick).
+        TickEvent.ServerTickEvent.Post.BUS.addListener(event -> PollutionManager.tick(event.server()));
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ForgeClientSetup.init(modBusGroup);
         }

@@ -28,6 +28,8 @@ import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 import za.co.neroland.nerolandcore.progression.CoreGates;
 import za.co.neroland.nerolandcore.progression.ProgressionGates;
 
+import za.co.neroland.nerotech.config.NeroTechConfig;
+
 /**
  * Shared base for every NeroTech Tier-1 machine block. Centralises the directional state, the
  * server-side menu open, the block-entity ticker (driving Core's
@@ -83,6 +85,12 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
         // NeroTech is the canonical opener of INDUSTRIAL_POWER: building your first machine is the milestone.
         if (!level.isClientSide() && placer instanceof ServerPlayer serverPlayer) {
             ProgressionGates.tryOpen(serverPlayer, CoreGates.INDUSTRIAL_POWER);
+            // Record machine ownership ONLY when per-player pollution attribution is opted in (POPIA/GDPR:
+            // default off = no player data stored). UUID only, erasable via the shared data-erasure hook.
+            if (NeroTechConfig.pollutionPerPlayerAttribution()
+                    && level.getBlockEntity(pos) instanceof NeroTechMachineBlockEntity machine) {
+                machine.setOwner(serverPlayer.getUUID());
+            }
         }
     }
 

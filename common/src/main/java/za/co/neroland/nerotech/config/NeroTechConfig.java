@@ -36,6 +36,31 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> PROCESS_NE_PER_TICK = SCHEMA.intRange("machineNePerTick",
             30, 0, 1_000_000, true, "base NE/tick a processing machine consumes while working (before Efficiency)");
 
+    // --- heat (Stage 3 consequence axis) ------------------------------------
+    private static final ConfigValue<Integer> HEAT_CAPACITY = SCHEMA.intRange("heatCapacity",
+            1_000, 1, 1_000_000, true, "max heat units a machine can hold (gauge scale)");
+    private static final ConfigValue<Integer> HEAT_PER_OP = SCHEMA.intRange("heatPerOperation",
+            4, 0, 100_000, true, "heat added each working tick (generators: per burn tick)");
+    private static final ConfigValue<Integer> HEAT_DISSIPATION = SCHEMA.intRange("heatDissipationPerTick",
+            1, 0, 100_000, true, "heat shed passively each tick (extra when next to water/ice/snow)");
+    private static final ConfigValue<Integer> HEAT_THROTTLE = SCHEMA.intRange("heatThrottleThreshold",
+            800, 1, 1_000_000, true, "processing machines stall once heat reaches this (must cool to resume)");
+
+    // --- pollution (regional, periodic aggregate) ---------------------------
+    private static final ConfigValue<Integer> POLLUTION_PER_OP = SCHEMA.intRange("pollutionPerOperation",
+            2, 0, 100_000, true, "pollution a machine emits per contribution (0 disables; solar emits none)");
+    private static final ConfigValue<Integer> POLLUTION_CONTRIB_INTERVAL = SCHEMA.intRange("pollutionContributionIntervalTicks",
+            40, 1, 72_000, true, "how often (ticks) a running machine adds to its region (batched, not per-tick)");
+    private static final ConfigValue<Integer> POLLUTION_DECAY_INTERVAL = SCHEMA.intRange("pollutionDecayIntervalTicks",
+            200, 1, 72_000, true, "how often (ticks) regional pollution decays server-wide");
+    private static final ConfigValue<Integer> POLLUTION_DECAY_AMOUNT = SCHEMA.intRange("pollutionDecayAmount",
+            1, 0, 100_000, true, "pollution removed from each region per decay step");
+    private static final ConfigValue<Boolean> POLLUTION_ATTRIBUTION = SCHEMA.bool("pollutionPerPlayerAttribution",
+            false, true, "OFF by default (privacy): when true, pollution is attributed to the placing player's "
+            + "UUID (POPIA/GDPR: UUIDs only, retention-pruned, erasable via the shared data-erasure hook)");
+    private static final ConfigValue<Integer> POLLUTION_RETENTION_DAYS = SCHEMA.intRange("pollutionAttributionRetentionDays",
+            30, 0, 3_650, true, "days to keep per-player pollution attribution before pruning (0 = keep until erased)");
+
     private NeroTechConfig() {
     }
 
@@ -61,6 +86,46 @@ public final class NeroTechConfig {
 
     public static int machineNePerTick() {
         return PROCESS_NE_PER_TICK.get();
+    }
+
+    public static int heatCapacity() {
+        return HEAT_CAPACITY.get();
+    }
+
+    public static int heatPerOperation() {
+        return HEAT_PER_OP.get();
+    }
+
+    public static int heatDissipationPerTick() {
+        return HEAT_DISSIPATION.get();
+    }
+
+    public static int heatThrottleThreshold() {
+        return HEAT_THROTTLE.get();
+    }
+
+    public static int pollutionPerOperation() {
+        return POLLUTION_PER_OP.get();
+    }
+
+    public static int pollutionContributionIntervalTicks() {
+        return POLLUTION_CONTRIB_INTERVAL.get();
+    }
+
+    public static int pollutionDecayIntervalTicks() {
+        return POLLUTION_DECAY_INTERVAL.get();
+    }
+
+    public static int pollutionDecayAmount() {
+        return POLLUTION_DECAY_AMOUNT.get();
+    }
+
+    public static boolean pollutionPerPlayerAttribution() {
+        return POLLUTION_ATTRIBUTION.get();
+    }
+
+    public static int pollutionAttributionRetentionDays() {
+        return POLLUTION_RETENTION_DAYS.get();
     }
 
     /** Register the schema with Core (reads/creates {@code nerotech.properties}). Idempotent. */

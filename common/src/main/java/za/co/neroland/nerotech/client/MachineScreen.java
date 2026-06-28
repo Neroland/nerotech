@@ -24,6 +24,7 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     private static final int TROUGH = 0xFF0B1119;
     private static final int ENERGY = 0xFFE0B33A;   // amber
     private static final int WORK = 0xFF55C2F0;      // cyan
+    private static final int HEAT = 0xFFE0543A;      // red
     private static final int TITLE = 0xFFD6ECFF;
     private static final int SUBTLE = 0xFF8DA0B4;
 
@@ -55,6 +56,8 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         }
         // Energy gauge (vertical, left).
         gauge(extractor, x + 8, y + 18, 8, 48, this.menu.energyFraction(), ENERGY, true);
+        // Heat gauge (vertical, right) — the Stage-3 consequence axis.
+        gauge(extractor, x + this.imageWidth - 16, y + 18, 8, 48, this.menu.heatFraction(), HEAT, true);
         // Work-progress bar (horizontal, centre) — lit while the machine is working.
         if (this.menu.working()) {
             gauge(extractor, x + 78, y + 34, 22, 8, this.menu.workFraction(), WORK, false);

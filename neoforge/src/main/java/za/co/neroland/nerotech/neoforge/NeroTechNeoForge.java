@@ -6,10 +6,13 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import za.co.neroland.nerolandcore.platform.NeoForgeEnergyLookup;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.registry.NeoForgeRegistrationFactory;
 
@@ -24,6 +27,8 @@ public final class NeroTechNeoForge {
         NeroTechCommon.init();
         NeoForgeRegistrationFactory.registerAll(modEventBus);
         modEventBus.addListener(NeroTechNeoForge::onRegisterCapabilities);
+        // Periodic regional pollution decay + retention sweep (game bus; gated by interval inside tick).
+        NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> PollutionManager.tick(event.getServer()));
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
             NeoForgeClientSetup.init(modEventBus);
         }

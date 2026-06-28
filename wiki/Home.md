@@ -14,6 +14,8 @@ Player- and contributor-facing documentation for **NeroTech**, part of the
   Earth-metal processing dusts, with their `c:` tags.
 - [Tier-1 Machines](Machines.md) — Nero Generator, Solar Array, Ore Processor, Fabricator;
   power/energy, upgrade modules, and the `industrial_power` gate.
+- [Consequence Systems](Consequence-Systems.md) — heat (throttling, cooling) and regional
+  pollution, with opt-in per-player attribution and POPIA/GDPR handling.
 
 Add one page per block, item, machine, or system as it is built, and link it here. Keep this
 page as the index.

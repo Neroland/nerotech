@@ -23,5 +23,9 @@ public final class NeroTechCommon {
         LOGGER.info("[NeroTech] common init");
         za.co.neroland.nerotech.config.NeroTechConfig.load();
         za.co.neroland.nerotech.registry.ModRegistries.init();
+        // POPIA/GDPR: register the shared data-erasure hook so a single erase request also clears any
+        // per-player pollution attribution NeroTech stored (UUIDs only; default attribution is off).
+        za.co.neroland.nerolandcore.data.PlayerDataErasure.register(
+                za.co.neroland.nerotech.pollution.PollutionManager::erasePlayer);
     }
 }

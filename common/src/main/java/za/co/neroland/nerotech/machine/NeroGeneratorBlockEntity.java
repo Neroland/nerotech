@@ -48,13 +48,16 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
     }
 
     @Override
-    protected void serverTick(Level level, BlockPos pos, BlockState state) {
+    protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         UpgradeModifiers mods = modifiers();
         int rate = (int) Math.round(NeroTechConfig.neroGeneratorNePerTick() * mods.speedMultiplier());
         boolean roomToStore = getEnergy().getAmount() < getEnergy().getCapacity();
 
         if (this.progress > 0) {
             this.progress--;
+            // Burning runs hot and dirty — couples the generator into heat + regional pollution.
+            addHeat(NeroTechConfig.heatPerOperation());
+            emitPollution(level, pos);
             if (roomToStore) {
                 energyBuffer().generate(rate);
             }

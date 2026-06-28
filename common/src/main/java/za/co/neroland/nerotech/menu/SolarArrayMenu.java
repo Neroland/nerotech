@@ -17,7 +17,7 @@ public class SolarArrayMenu extends MachineMenu {
     public SolarArrayMenu(int id, Inventory playerInventory) {
         this(id, playerInventory,
                 new SimpleContainer(MACHINE_SLOTS + NeroTechMachineBlockEntity.UPGRADE_SLOTS),
-                new SimpleContainerData(4));
+                new SimpleContainerData(6));
     }
 
     public SolarArrayMenu(int id, Inventory playerInventory, Container container, ContainerData data) {

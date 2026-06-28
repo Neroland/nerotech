@@ -1,20 +1,29 @@
 package za.co.neroland.nerotech.machine;
 
+import java.util.UUID;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import org.jetbrains.annotations.Nullable;
+
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
 
 /**
@@ -39,7 +48,20 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     protected int progress;
     protected int maxProgress;
 
-    /** Synced to the menu: [0]=energy permille, [1]=1000, [2]=work permille, [3]=1000 when working. */
+    /** Heat (Stage 3 consequence axis): accumulates while working, sheds passively + via cooling. */
+    protected int heat;
+
+    /** Placing player's UUID — captured only when per-player pollution attribution is enabled. */
+    @Nullable
+    protected UUID ownerId;
+
+    /** Spreads pollution contributions across ticks so machines don't all flush on the same tick. */
+    private final int pollutionPhase = Math.floorMod(System.identityHashCode(this), 40);
+
+    /**
+     * Synced to the menu: [0]=energy permille, [1]=1000, [2]=work permille, [3]=1000 when working,
+     * [4]=heat permille, [5]=1000.
+     */
     protected final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
@@ -48,6 +70,8 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
                 case 1 -> 1000;
                 case 2 -> permille(progress, maxProgress);
                 case 3 -> maxProgress > 0 ? 1000 : 0;
+                case 4 -> permille(heat, NeroTechConfig.heatCapacity());
+                case 5 -> 1000;
                 default -> 0;
             };
         }
@@ -59,7 +83,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
         @Override
         public int getCount() {
-            return 4;
+            return 6;
         }
     };
 
@@ -85,6 +109,76 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         return true;
     }
 
+    // --- heat + pollution (Stage 3 consequence systems) ---------------------
+
+    @Override
+    protected final void serverTick(Level level, BlockPos pos, BlockState state) {
+        tickMachine(level, pos, state);
+        dissipateHeat(level, pos);
+    }
+
+    /** Per-machine server logic. The base shed of heat runs automatically after this each tick. */
+    protected abstract void tickMachine(Level level, BlockPos pos, BlockState state);
+
+    /** Add heat, clamped to capacity. */
+    protected void addHeat(int amount) {
+        if (amount > 0) {
+            this.heat = Math.min(NeroTechConfig.heatCapacity(), this.heat + amount);
+            setChanged();
+        }
+    }
+
+    /** Shed heat passively each tick, faster when adjacent to water/ice/snow (cooling). */
+    protected void dissipateHeat(Level level, BlockPos pos) {
+        if (this.heat <= 0) {
+            return;
+        }
+        this.heat = Math.max(0, this.heat - NeroTechConfig.heatDissipationPerTick() - coolingBonus(level, pos));
+        setChanged();
+    }
+
+    private int coolingBonus(Level level, BlockPos pos) {
+        int perCoolant = NeroTechConfig.heatDissipationPerTick();
+        int bonus = 0;
+        for (Direction side : Direction.values()) {
+            BlockState ns = level.getBlockState(pos.relative(side));
+            if (ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE) || ns.is(Blocks.BLUE_ICE)
+                    || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW)) {
+                bonus += perCoolant;
+            }
+        }
+        return bonus;
+    }
+
+    /** True once heat reaches the throttle threshold — processing machines stall until cooled. */
+    public boolean overheated() {
+        return this.heat >= NeroTechConfig.heatThrottleThreshold();
+    }
+
+    public int heat() {
+        return this.heat;
+    }
+
+    /** Capture the placing player (only stored when per-player attribution is enabled). */
+    public void setOwner(@Nullable UUID owner) {
+        this.ownerId = owner;
+    }
+
+    /**
+     * Emit this machine's pollution into its region, batched on a per-machine phase so contributions
+     * spread across ticks (never a global per-tick scan). Call from {@link #tickMachine} while working.
+     */
+    protected void emitPollution(Level level, BlockPos pos) {
+        int amount = NeroTechConfig.pollutionPerOperation();
+        if (amount <= 0 || !(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        int interval = NeroTechConfig.pollutionContributionIntervalTicks();
+        if ((serverLevel.getGameTime() + this.pollutionPhase) % interval == 0) {
+            PollutionManager.record(serverLevel, pos, amount, this.ownerId);
+        }
+    }
+
     // --- persistence (Core's super handles energy + upgrades) ----------------
 
     @Override
@@ -92,6 +186,9 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         super.saveAdditional(output);
         output.putInt("Progress", this.progress);
         output.putInt("MaxProgress", this.maxProgress);
+        output.putInt("Heat", this.heat);
+        output.putLong("OwnerMost", this.ownerId == null ? 0L : this.ownerId.getMostSignificantBits());
+        output.putLong("OwnerLeast", this.ownerId == null ? 0L : this.ownerId.getLeastSignificantBits());
         for (int i = 0; i < this.items.size(); i++) {
             output.store("Item" + i, ItemStack.OPTIONAL_CODEC, this.items.get(i));
         }
@@ -102,6 +199,10 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         super.loadAdditional(input);
         this.progress = input.getIntOr("Progress", 0);
         this.maxProgress = input.getIntOr("MaxProgress", 0);
+        this.heat = input.getIntOr("Heat", 0);
+        long ownerMost = input.getLongOr("OwnerMost", 0L);
+        long ownerLeast = input.getLongOr("OwnerLeast", 0L);
+        this.ownerId = (ownerMost == 0L && ownerLeast == 0L) ? null : new UUID(ownerMost, ownerLeast);
         for (int i = 0; i < this.items.size(); i++) {
             this.items.set(i, input.read("Item" + i, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         }

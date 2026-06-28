@@ -64,6 +64,10 @@ public abstract class MachineMenu extends AbstractContainerMenu {
         return this.data.get(3) > 0;
     }
 
+    public float heatFraction() {
+        return this.data.get(5) <= 0 ? 0f : this.data.get(4) / (float) this.data.get(5);
+    }
+
     @Override
     public boolean stillValid(Player player) {
         return this.container.stillValid(player);

@@ -27,7 +27,8 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
     }
 
     @Override
-    protected void serverTick(Level level, BlockPos pos, BlockState state) {
+    protected void tickMachine(Level level, BlockPos pos, BlockState state) {
+        // Solar is clean, cool generation — no heat, no pollution.
         // Daylight factor: 1.0 at full day, fading to 0 by night; 0 when roofed over (26.x sky-darken API).
         boolean canSeeSky = level.canSeeSky(pos.above());
         int darken = level.getSkyDarken();
