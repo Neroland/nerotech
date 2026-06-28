@@ -12,6 +12,8 @@ Player- and contributor-facing documentation for **NeroTech**, part of the
 
 - [Materials & Components](Materials-and-Components.md) — Tier-1 crafting components and
   Earth-metal processing dusts, with their `c:` tags.
+- [Tier-1 Machines](Machines.md) — Nero Generator, Solar Array, Ore Processor, Fabricator;
+  power/energy, upgrade modules, and the `industrial_power` gate.
 
 Add one page per block, item, machine, or system as it is built, and link it here. Keep this
 page as the index.

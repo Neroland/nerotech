@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "C": "nerotech:circuit_board", "X": "minecraft:redstone" },
+  "pattern": [ " X ", "XCX", " X " ],
+  "result": { "id": "nerotech:efficiency_module" } }

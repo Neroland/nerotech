@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nerotech:block/solar_array" },
+    "facing=east":  { "model": "nerotech:block/solar_array", "y": 90 },
+    "facing=south": { "model": "nerotech:block/solar_array", "y": 180 },
+    "facing=west":  { "model": "nerotech:block/solar_array", "y": 270 }
+  }
+}

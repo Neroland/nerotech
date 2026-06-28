@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "C": "nerotech:nero_coil", "F": "nerotech:machine_frame", "U": "minecraft:furnace" },
+  "pattern": [ "ICI", "CFC", "IUI" ],
+  "result": { "id": "nerotech:nero_generator" } }

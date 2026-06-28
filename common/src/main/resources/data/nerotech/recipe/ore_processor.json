@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "P": "minecraft:piston", "F": "nerotech:machine_frame", "R": "minecraft:redstone" },
+  "pattern": [ "IPI", "RFR", "III" ],
+  "result": { "id": "nerotech:ore_processor" } }

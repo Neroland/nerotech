@@ -21,6 +21,7 @@ public final class NeroTechCommon {
     /** Called once per loader during mod construction. */
     public static void init() {
         LOGGER.info("[NeroTech] common init");
+        za.co.neroland.nerotech.config.NeroTechConfig.load();
         za.co.neroland.nerotech.registry.ModRegistries.init();
     }
 }
