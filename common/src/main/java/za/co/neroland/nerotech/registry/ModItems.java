@@ -54,6 +54,10 @@ public final class ModItems {
     public static final RegistryEntry<BlockItem> ADVANCED_ORE_PROCESSOR_ITEM = blockItem("advanced_ore_processor", ModBlocks.ADVANCED_ORE_PROCESSOR);
     public static final RegistryEntry<BlockItem> ADVANCED_FABRICATOR_ITEM = blockItem("advanced_fabricator", ModBlocks.ADVANCED_FABRICATOR);
 
+    // --- Automation handoff (Stage 5) ---------------------------------------
+    public static final RegistryEntry<BlockItem> AUTO_CRAFTER_ITEM = blockItem("auto_crafter", ModBlocks.AUTO_CRAFTER);
+    public static final RegistryEntry<BlockItem> ITEM_SORTER_ITEM = blockItem("item_sorter", ModBlocks.ITEM_SORTER);
+
     // --- Upgrade modules (Core UpgradeType; classified by item) -------------
     public static final RegistryEntry<Item> SPEED_MODULE = module("speed_module", UpgradeType.SPEED);
     public static final RegistryEntry<Item> EFFICIENCY_MODULE = module("efficiency_module", UpgradeType.EFFICIENCY);
@@ -67,6 +71,7 @@ public final class ModItems {
                 IRON_DUST, COPPER_DUST, GOLD_DUST,
                 NERO_GENERATOR_ITEM, SOLAR_ARRAY_ITEM, ORE_PROCESSOR_ITEM, FABRICATOR_ITEM,
                 FUSION_REACTOR_ITEM, ADVANCED_ORE_PROCESSOR_ITEM, ADVANCED_FABRICATOR_ITEM, FUSION_CELL,
+                AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM,
                 SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE);
     }
 

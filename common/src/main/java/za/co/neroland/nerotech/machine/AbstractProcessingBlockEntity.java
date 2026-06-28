@@ -89,4 +89,9 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
     public boolean canPlaceMachineItem(int slot, ItemStack stack) {
         return slot == INPUT_SLOT && !resultFor(stack).isEmpty();
     }
+
+    @Override
+    public boolean canTakeMachineItem(int slot) {
+        return slot == OUTPUT_SLOT;
+    }
 }

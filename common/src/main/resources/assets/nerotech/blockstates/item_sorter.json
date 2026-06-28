@@ -1,0 +1,5 @@
+{ "variants": {
+  "facing=north": { "model": "nerotech:block/item_sorter" },
+  "facing=east":  { "model": "nerotech:block/item_sorter", "y": 90 },
+  "facing=south": { "model": "nerotech:block/item_sorter", "y": 180 },
+  "facing=west":  { "model": "nerotech:block/item_sorter", "y": 270 } } }

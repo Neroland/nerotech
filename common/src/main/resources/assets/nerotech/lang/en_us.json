@@ -26,6 +26,10 @@
   "item.nerotech.advanced_ore_processor": "Advanced Ore Processor",
   "block.nerotech.advanced_fabricator": "Advanced Fabricator",
   "item.nerotech.advanced_fabricator": "Advanced Fabricator",
+  "block.nerotech.auto_crafter": "Auto Crafter",
+  "item.nerotech.auto_crafter": "Auto Crafter",
+  "block.nerotech.item_sorter": "Item Sorter",
+  "item.nerotech.item_sorter": "Item Sorter",
 
   "container.nerotech.nero_generator": "Nero Generator",
   "container.nerotech.solar_array": "Solar Array",
@@ -34,6 +38,8 @@
   "container.nerotech.fusion_reactor": "Fusion Reactor",
   "container.nerotech.advanced_ore_processor": "Advanced Ore Processor",
   "container.nerotech.advanced_fabricator": "Advanced Fabricator",
+  "container.nerotech.auto_crafter": "Auto Crafter",
+  "container.nerotech.item_sorter": "Item Sorter",
 
   "message.nerotech.requires_orbit": "This machine stays inert until you've reached orbit."
 }

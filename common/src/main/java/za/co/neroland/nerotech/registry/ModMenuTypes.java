@@ -5,7 +5,9 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.menu.AutoCrafterMenu;
 import za.co.neroland.nerotech.menu.FabricatorMenu;
+import za.co.neroland.nerotech.menu.ItemSorterMenu;
 import za.co.neroland.nerotech.menu.NeroGeneratorMenu;
 import za.co.neroland.nerotech.menu.OreProcessorMenu;
 import za.co.neroland.nerotech.menu.SolarArrayMenu;
@@ -25,6 +27,10 @@ public final class ModMenuTypes {
             MENUS.register("ore_processor", key -> new MenuType<>(OreProcessorMenu::new, FeatureFlags.VANILLA_SET));
     public static final RegistryEntry<MenuType<FabricatorMenu>> FABRICATOR =
             MENUS.register("fabricator", key -> new MenuType<>(FabricatorMenu::new, FeatureFlags.VANILLA_SET));
+    public static final RegistryEntry<MenuType<AutoCrafterMenu>> AUTO_CRAFTER =
+            MENUS.register("auto_crafter", key -> new MenuType<>(AutoCrafterMenu::new, FeatureFlags.VANILLA_SET));
+    public static final RegistryEntry<MenuType<ItemSorterMenu>> ITEM_SORTER =
+            MENUS.register("item_sorter", key -> new MenuType<>(ItemSorterMenu::new, FeatureFlags.VANILLA_SET));
 
     private ModMenuTypes() {
     }

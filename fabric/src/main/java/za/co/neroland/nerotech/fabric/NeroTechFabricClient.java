@@ -4,7 +4,9 @@ import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.gui.screens.MenuScreens;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.client.AutoCrafterScreen;
 import za.co.neroland.nerotech.client.FabricatorScreen;
+import za.co.neroland.nerotech.client.ItemSorterScreen;
 import za.co.neroland.nerotech.client.NeroGeneratorScreen;
 import za.co.neroland.nerotech.client.OreProcessorScreen;
 import za.co.neroland.nerotech.client.SolarArrayScreen;
@@ -20,5 +22,7 @@ public final class NeroTechFabricClient implements ClientModInitializer {
         MenuScreens.register(ModMenuTypes.SOLAR_ARRAY.get(), SolarArrayScreen::new);
         MenuScreens.register(ModMenuTypes.ORE_PROCESSOR.get(), OreProcessorScreen::new);
         MenuScreens.register(ModMenuTypes.FABRICATOR.get(), FabricatorScreen::new);
+        MenuScreens.register(ModMenuTypes.AUTO_CRAFTER.get(), AutoCrafterScreen::new);
+        MenuScreens.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
     }
 }

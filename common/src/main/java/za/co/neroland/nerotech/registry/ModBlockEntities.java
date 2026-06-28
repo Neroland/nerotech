@@ -8,8 +8,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlockEntity;
 import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlockEntity;
+import za.co.neroland.nerotech.machine.AutoCrafterBlockEntity;
 import za.co.neroland.nerotech.machine.FabricatorBlockEntity;
 import za.co.neroland.nerotech.machine.FusionReactorBlockEntity;
+import za.co.neroland.nerotech.machine.ItemSorterBlockEntity;
 import za.co.neroland.nerotech.machine.NeroGeneratorBlockEntity;
 import za.co.neroland.nerotech.machine.OreProcessorBlockEntity;
 import za.co.neroland.nerotech.machine.SolarArrayBlockEntity;
@@ -48,6 +50,14 @@ public final class ModBlockEntities {
     public static final RegistryEntry<BlockEntityType<AdvancedFabricatorBlockEntity>> ADVANCED_FABRICATOR =
             BLOCK_ENTITIES.register("advanced_fabricator",
                     key -> new BlockEntityType<>(AdvancedFabricatorBlockEntity::new, Set.of(ModBlocks.ADVANCED_FABRICATOR.get())));
+
+    public static final RegistryEntry<BlockEntityType<AutoCrafterBlockEntity>> AUTO_CRAFTER =
+            BLOCK_ENTITIES.register("auto_crafter",
+                    key -> new BlockEntityType<>(AutoCrafterBlockEntity::new, Set.of(ModBlocks.AUTO_CRAFTER.get())));
+
+    public static final RegistryEntry<BlockEntityType<ItemSorterBlockEntity>> ITEM_SORTER =
+            BLOCK_ENTITIES.register("item_sorter",
+                    key -> new BlockEntityType<>(ItemSorterBlockEntity::new, Set.of(ModBlocks.ITEM_SORTER.get())));
 
     private ModBlockEntities() {
     }

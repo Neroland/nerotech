@@ -5,13 +5,19 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
+
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import za.co.neroland.nerolandcore.platform.NeoForgeEnergyLookup;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.registry.NeoForgeRegistrationFactory;
@@ -50,5 +56,27 @@ public final class NeroTechNeoForge {
                 (be, side) -> be.getEnergy());
         event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.ADVANCED_FABRICATOR.get(),
                 (be, side) -> be.getEnergy());
+        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.AUTO_CRAFTER.get(),
+                (be, side) -> be.getEnergy());
+        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.ITEM_SORTER.get(),
+                (be, side) -> be.getEnergy());
+
+        // Item handoff surface (Stage 5): expose every machine's sided inventory on the standard item
+        // capability so NeroLogistics / pipes / hoppers move items in and out with no NeroTech dependency.
+        itemCap(event, ModBlockEntities.NERO_GENERATOR.get());
+        itemCap(event, ModBlockEntities.SOLAR_ARRAY.get());
+        itemCap(event, ModBlockEntities.ORE_PROCESSOR.get());
+        itemCap(event, ModBlockEntities.FABRICATOR.get());
+        itemCap(event, ModBlockEntities.FUSION_REACTOR.get());
+        itemCap(event, ModBlockEntities.ADVANCED_ORE_PROCESSOR.get());
+        itemCap(event, ModBlockEntities.ADVANCED_FABRICATOR.get());
+        itemCap(event, ModBlockEntities.AUTO_CRAFTER.get());
+        itemCap(event, ModBlockEntities.ITEM_SORTER.get());
+    }
+
+    private static <T extends NeroTechMachineBlockEntity> void itemCap(RegisterCapabilitiesEvent event,
+            BlockEntityType<T> type) {
+        event.registerBlockEntity(Capabilities.Item.BLOCK, type,
+                (be, side) -> side != null ? new WorldlyContainerWrapper(be, side) : VanillaContainerWrapper.of(be));
     }
 }

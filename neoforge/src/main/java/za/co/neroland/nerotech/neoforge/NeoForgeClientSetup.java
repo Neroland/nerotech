@@ -3,7 +3,9 @@ package za.co.neroland.nerotech.neoforge;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
+import za.co.neroland.nerotech.client.AutoCrafterScreen;
 import za.co.neroland.nerotech.client.FabricatorScreen;
+import za.co.neroland.nerotech.client.ItemSorterScreen;
 import za.co.neroland.nerotech.client.NeroGeneratorScreen;
 import za.co.neroland.nerotech.client.OreProcessorScreen;
 import za.co.neroland.nerotech.client.SolarArrayScreen;
@@ -24,5 +26,7 @@ public final class NeoForgeClientSetup {
         event.register(ModMenuTypes.SOLAR_ARRAY.get(), SolarArrayScreen::new);
         event.register(ModMenuTypes.ORE_PROCESSOR.get(), OreProcessorScreen::new);
         event.register(ModMenuTypes.FABRICATOR.get(), FabricatorScreen::new);
+        event.register(ModMenuTypes.AUTO_CRAFTER.get(), AutoCrafterScreen::new);
+        event.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
     }
 }

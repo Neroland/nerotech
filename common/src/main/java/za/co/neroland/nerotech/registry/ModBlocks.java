@@ -11,8 +11,10 @@ import net.minecraft.world.level.material.MapColor;
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlock;
 import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlock;
+import za.co.neroland.nerotech.machine.AutoCrafterBlock;
 import za.co.neroland.nerotech.machine.FabricatorBlock;
 import za.co.neroland.nerotech.machine.FusionReactorBlock;
+import za.co.neroland.nerotech.machine.ItemSorterBlock;
 import za.co.neroland.nerotech.machine.NeroGeneratorBlock;
 import za.co.neroland.nerotech.machine.OreProcessorBlock;
 import za.co.neroland.nerotech.machine.SolarArrayBlock;
@@ -43,6 +45,12 @@ public final class ModBlocks {
             register("advanced_ore_processor", AdvancedOreProcessorBlock::new);
     public static final RegistryEntry<AdvancedFabricatorBlock> ADVANCED_FABRICATOR =
             register("advanced_fabricator", AdvancedFabricatorBlock::new);
+
+    // --- Automation handoff (Stage 5) ---------------------------------------
+    public static final RegistryEntry<AutoCrafterBlock> AUTO_CRAFTER =
+            register("auto_crafter", AutoCrafterBlock::new);
+    public static final RegistryEntry<ItemSorterBlock> ITEM_SORTER =
+            register("item_sorter", ItemSorterBlock::new);
 
     private static <B extends Block> RegistryEntry<B> register(String name,
             Function<BlockBehaviour.Properties, B> factory) {

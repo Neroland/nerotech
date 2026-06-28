@@ -6,8 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
@@ -37,12 +37,14 @@ import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
  * {@link #serverTick} and {@link #createMenu}.
  */
 public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEntity
-        implements Container, MenuProvider {
+        implements WorldlyContainer, MenuProvider {
 
     public static final int UPGRADE_SLOTS = 4;
 
     protected final int machineSlots;
     protected final NonNullList<ItemStack> items;
+    /** Machine I/O slot indices (excludes Core upgrade slots) — the sided handoff face for pipes/logistics. */
+    private final int[] machineFaceSlots;
 
     /** Work progress (ticks) — burn time for generators, processing time for processors. */
     protected int progress;
@@ -94,6 +96,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
                 UPGRADE_SLOTS, UpgradeModuleItem.CLASSIFIER);
         this.machineSlots = machineSlots;
         this.items = NonNullList.withSize(machineSlots, ItemStack.EMPTY);
+        this.machineFaceSlots = java.util.stream.IntStream.range(0, machineSlots).toArray();
     }
 
     private static int permille(long amount, long max) {
@@ -107,6 +110,29 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /** Whether a machine I/O slot (0..machineSlots-1) accepts {@code stack}. Override per machine. */
     public boolean canPlaceMachineItem(int slot, ItemStack stack) {
         return true;
+    }
+
+    /** Whether a machine I/O slot may be extracted from through a face (e.g. output slots). Override. */
+    public boolean canTakeMachineItem(int slot) {
+        return false;
+    }
+
+    // --- WorldlyContainer: the sided item handoff surface for pipes / NeroLogistics --------------
+    // Inputs are insertable, outputs extractable; Core upgrade slots are never exposed to automation.
+
+    @Override
+    public int[] getSlotsForFace(net.minecraft.core.Direction side) {
+        return this.machineFaceSlots;
+    }
+
+    @Override
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable net.minecraft.core.Direction side) {
+        return slot < this.machineSlots && canPlaceMachineItem(slot, stack);
+    }
+
+    @Override
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, net.minecraft.core.Direction side) {
+        return slot < this.machineSlots && canTakeMachineItem(slot);
     }
 
     // --- heat + pollution (Stage 3 consequence systems) ---------------------
