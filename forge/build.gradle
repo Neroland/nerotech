@@ -11,6 +11,7 @@ plugins {
 def mc = stonecutter.current.version
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
+def nerolandcoreVersion = project.findProperty('nerolandcore_version')
 
 if (!forgeVersion) {
     throw new GradleException("Missing forge_version_${mc} in gradle.properties")
@@ -69,6 +70,11 @@ repositories {
 dependencies {
     implementation minecraft.dependency("net.minecraftforge:forge:${forgeVersion}")
     annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.5'
+
+    // Neroland Core — REQUIRED shared foundation (machine/energy framework, progression gates, data
+    // erasure). Compile + dev-runtime classpath; NOT jar-in-jar — Core ships as its own mod and loads
+    // BEFORE NeroTech (see mods.toml dependency). Resolved from mavenLocal() (nerolandcore-forge-<mc>).
+    implementation "za.co.neroland.nerolandcore:nerolandcore-forge-${mc}:${nerolandcoreVersion}"
 
     implementation 'io.sentry:sentry:8.45.0'
     jarJar(group: 'io.sentry', name: 'sentry', version: '8.45.0')
