@@ -3,10 +3,10 @@
 Player- and contributor-facing documentation for **NeroTech**, part of the
 [Neroland ecosystem](../../neroland-mc-ecosystem/README.md). Built on **Neroland Core**.
 
-> **Status:** early alpha (version `0.0.1-alpha.1`). The cross-loader scaffold is in place on
-> Neroland Core, and the first Tier-1 materials/components have landed. Pages grow as features
-> land. Keep this wiki updated alongside code changes
-> (see [`../AGENTS.md`](../AGENTS.md) / [`../CLAUDE.md`](../CLAUDE.md)).
+> **Status:** alpha (version `0.0.1-alpha.1`), built on Neroland Core across the six cross-loader
+> cells. Phase 3 has landed: Tier-1 materials/components and machines, heat + pollution consequence
+> systems, the orbit-gated advanced tier (Fusion Reactor), and the automation handoff surface. Keep
+> this wiki updated alongside code changes (see [`../AGENTS.md`](../AGENTS.md) / [`../CLAUDE.md`](../CLAUDE.md)).
 
 ## Contents
 
@@ -20,6 +20,8 @@ Player- and contributor-facing documentation for **NeroTech**, part of the
   Starsteel (soft Nerospace coupling via Core tags/gates).
 - [Automation & Handoff](Automation.md) — Auto Crafter, Item Sorter, and the standard item-capability
   handoff surface NeroLogistics routes through.
+- [Power & the NeroPower Split](Power-and-NeroPower-Split.md) — how generation stays thin, and the
+  dated decision to keep power in NeroTech.
 
 Add one page per block, item, machine, or system as it is built, and link it here. Keep this
 page as the index.

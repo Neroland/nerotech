@@ -1,1 +1,8 @@
-{ "parent": "minecraft:block/cube_all", "textures": { "all": "nerotech:block/auto_crafter" } }
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "nerotech:block/auto_crafter_top",
+    "front": "nerotech:block/auto_crafter_front",
+    "side": "nerotech:block/auto_crafter"
+  }
+}

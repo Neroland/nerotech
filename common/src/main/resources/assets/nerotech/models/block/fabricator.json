@@ -1,4 +1,8 @@
 {
-  "parent": "minecraft:block/cube_all",
-  "textures": { "all": "nerotech:block/fabricator" }
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "nerotech:block/fabricator_top",
+    "front": "nerotech:block/fabricator_front",
+    "side": "nerotech:block/fabricator"
+  }
 }
