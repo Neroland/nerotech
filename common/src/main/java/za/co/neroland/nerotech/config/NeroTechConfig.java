@@ -73,6 +73,12 @@ public final class NeroTechConfig {
             "", true, "DEFERRED per-planet solar fallback (until a Nerospace planet-trait API exists): comma-list of "
             + "dimensionId=multiplier, e.g. nerospace:greenxertz=1.5,nerospace:glacira=0.6 (Earth defaults to 1.0)");
 
+    // --- telemetry (anonymous crash reporting; CLIENT-LOCAL opt-out, not server-synced) -----
+    private static final ConfigValue<Boolean> TELEMETRY_ENABLED = SCHEMA.bool("telemetryEnabled",
+            true, false, "anonymous error reporting to the developers (stack trace + mod/MC/loader/OS/Java "
+            + "versions only — never names, UUIDs, IPs, or world data; POPIA/GDPR-compliant). Set false to "
+            + "opt out");
+
     private NeroTechConfig() {
     }
 
@@ -154,6 +160,10 @@ public final class NeroTechConfig {
 
     public static String solarDimensionMultipliers() {
         return SOLAR_DIM_MULTIPLIERS.get();
+    }
+
+    public static boolean telemetryEnabled() {
+        return TELEMETRY_ENABLED.get();
     }
 
     /** Register the schema with Core (reads/creates {@code nerotech.properties}). Idempotent. */

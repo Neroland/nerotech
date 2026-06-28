@@ -10,6 +10,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ForgeRegistrationFactory;
+import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
 
 /** MinecraftForge entry point for NeroTech. */
 @Mod(NeroTechCommon.MOD_ID)
@@ -21,6 +22,8 @@ public final class NeroTechForge {
         // Shared init builds the DeferredRegisters via the RegistrationProvider seam;
         // attach them to NeroTech's mod bus group.
         NeroTechCommon.init();
+        // Anonymous, NeroTech-only crash reporting (opt-out via config/nerotech.properties; off in dev unless DSN set).
+        NeroTechTelemetry.init();
         ForgeRegistrationFactory.registerAll(modBusGroup);
         ForgeCapabilities.register();
         // Periodic regional pollution decay + retention sweep (game bus; gated by interval inside tick).

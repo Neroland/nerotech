@@ -21,6 +21,7 @@ import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.registry.NeoForgeRegistrationFactory;
+import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
 
 /** NeoForge entry point for NeroTech. */
 @Mod(NeroTechCommon.MOD_ID)
@@ -31,6 +32,8 @@ public final class NeroTechNeoForge {
         // Shared init builds the DeferredRegisters via the RegistrationProvider seam;
         // attach them to NeroTech's mod event bus.
         NeroTechCommon.init();
+        // Anonymous, NeroTech-only crash reporting (opt-out via config/nerotech.properties; off in dev unless DSN set).
+        NeroTechTelemetry.init();
         NeoForgeRegistrationFactory.registerAll(modEventBus);
         modEventBus.addListener(NeroTechNeoForge::onRegisterCapabilities);
         // Periodic regional pollution decay + retention sweep (game bus; gated by interval inside tick).

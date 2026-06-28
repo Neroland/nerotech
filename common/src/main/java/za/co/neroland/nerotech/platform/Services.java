@@ -17,6 +17,9 @@ import za.co.neroland.nerotech.NeroTechCommon;
  */
 public final class Services {
 
+    /** Loader-specific facts (version, environment, dist, loaded mods) — used by telemetry. */
+    public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
+
     private Services() {
     }
 

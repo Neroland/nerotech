@@ -40,7 +40,9 @@ Built on **Neroland Core**, so its Nero energy, upgrade modules, progression gat
 
 ## Privacy (POPIA / GDPR)
 
-NeroTech stores **no personal data by default**. Optional per-player **pollution attribution** is off unless a server turns it on; when enabled it keeps **UUIDs only** (never names), prunes on a configurable retention window, and registers with Core's shared data-erasure hook — so a single erase request clears your NeroTech data alongside every other Neroland mod. Crash telemetry is handled by Neroland Core (anonymous, opt-out).
+NeroTech stores **no personal data by default**. Optional per-player **pollution attribution** is off unless a server turns it on; when enabled it keeps **UUIDs only** (never names), prunes on a configurable retention window, and registers with Core's shared data-erasure hook — so a single erase request clears your NeroTech data alongside every other Neroland mod.
+
+NeroTech also includes optional, anonymous **crash telemetry** (stack trace + mod/MC/loader/OS/Java versions only — never IPs, usernames, UUIDs, or world data) via Sentry on EU servers, so bugs can be fixed. Opt out any time with `telemetryEnabled = false` in `config/nerotech.properties`. Full details: **[PRIVACY.md](https://github.com/Neroland/nerotech/blob/main/PRIVACY.md)**.
 
 ## Links
 
