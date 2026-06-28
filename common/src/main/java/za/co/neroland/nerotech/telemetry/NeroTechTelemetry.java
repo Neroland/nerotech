@@ -44,11 +44,12 @@ import za.co.neroland.nerotech.platform.Services;
 public final class NeroTechTelemetry {
 
     /**
-     * Sentry DSN — a public client key (write-only ingest), safe to ship in the jar. Set this to
-     * NeroTech's own Sentry project DSN; while blank, telemetry initialises to a no-op so events are
-     * never sent to the wrong project.
+     * Sentry DSN — a public client key (write-only ingest), safe to ship in the jar. This is
+     * NeroTech's own Sentry project (EU region, {@code de.sentry.io}). If blanked, telemetry
+     * initialises to a no-op so events are never sent to the wrong project.
      */
-    private static final String DSN = "";
+    private static final String DSN =
+            "https://7581b76a17d1a874416f33b6f275a6fa@o4511183823241216.ingest.de.sentry.io/4511645213196368";
 
     private static final String PACKAGE_MARKER = "za.co.neroland.nerotech";
     private static final int MAX_EVENTS_PER_SESSION = 10;
