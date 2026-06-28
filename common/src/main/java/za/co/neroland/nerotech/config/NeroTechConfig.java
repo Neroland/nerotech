@@ -61,6 +61,18 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> POLLUTION_RETENTION_DAYS = SCHEMA.intRange("pollutionAttributionRetentionDays",
             30, 0, 3_650, true, "days to keep per-player pollution attribution before pruning (0 = keep until erased)");
 
+    // --- Tier 2/3 (gated behind Nerospace / orbit) --------------------------
+    private static final ConfigValue<Integer> FUSION_NE_PER_TICK = SCHEMA.intRange("fusionReactorNePerTick",
+            400, 1, 10_000_000, true, "NE/tick the Fusion Reactor produces while running (high-output late-game)");
+    private static final ConfigValue<Boolean> FUSION_FAILURE = SCHEMA.bool("fusionReactorMeltdownEnabled",
+            true, true, "true: an unmanaged Fusion Reactor melts down destructively at max heat (telegraphed by "
+            + "the red gauge); false (survival-friendly): it just stalls until it cools");
+    private static final ConfigValue<Integer> ADVANCED_YIELD_BONUS = SCHEMA.intRange("advancedOreProcessorYieldBonus",
+            1, 0, 64, true, "extra dust the Advanced Ore Processor yields over the Tier-1 processor");
+    private static final ConfigValue<String> SOLAR_DIM_MULTIPLIERS = SCHEMA.string("solarDimensionMultipliers",
+            "", true, "DEFERRED per-planet solar fallback (until a Nerospace planet-trait API exists): comma-list of "
+            + "dimensionId=multiplier, e.g. nerospace:greenxertz=1.5,nerospace:glacira=0.6 (Earth defaults to 1.0)");
+
     private NeroTechConfig() {
     }
 
@@ -126,6 +138,22 @@ public final class NeroTechConfig {
 
     public static int pollutionAttributionRetentionDays() {
         return POLLUTION_RETENTION_DAYS.get();
+    }
+
+    public static int fusionReactorNePerTick() {
+        return FUSION_NE_PER_TICK.get();
+    }
+
+    public static boolean fusionReactorMeltdownEnabled() {
+        return FUSION_FAILURE.get();
+    }
+
+    public static int advancedOreProcessorYieldBonus() {
+        return ADVANCED_YIELD_BONUS.get();
+    }
+
+    public static String solarDimensionMultipliers() {
+        return SOLAR_DIM_MULTIPLIERS.get();
     }
 
     /** Register the schema with Core (reads/creates {@code nerotech.properties}). Idempotent. */

@@ -16,6 +16,8 @@ Player- and contributor-facing documentation for **NeroTech**, part of the
   power/energy, upgrade modules, and the `industrial_power` gate.
 - [Consequence Systems](Consequence-Systems.md) — heat (throttling, cooling) and regional
   pollution, with opt-in per-player attribution and POPIA/GDPR handling.
+- [Advanced Tier](Advanced-Tier.md) — Fusion Reactor and advanced machines, gated behind orbit +
+  Starsteel (soft Nerospace coupling via Core tags/gates).
 
 Add one page per block, item, machine, or system as it is built, and link it here. Keep this
 page as the index.

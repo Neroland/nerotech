@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "S": "#c:ingots/starsteel", "V": "#c:gems/void_crystal" },
+  "pattern": [ "SVS" ],
+  "result": { "id": "nerotech:fusion_cell" } }

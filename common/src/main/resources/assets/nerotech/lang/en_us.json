@@ -5,6 +5,7 @@
   "item.nerotech.iron_dust": "Iron Dust",
   "item.nerotech.copper_dust": "Copper Dust",
   "item.nerotech.gold_dust": "Gold Dust",
+  "item.nerotech.fusion_cell": "Fusion Cell",
 
   "item.nerotech.speed_module": "Speed Module",
   "item.nerotech.efficiency_module": "Efficiency Module",
@@ -19,9 +20,20 @@
   "item.nerotech.ore_processor": "Ore Processor",
   "block.nerotech.fabricator": "Fabricator",
   "item.nerotech.fabricator": "Fabricator",
+  "block.nerotech.fusion_reactor": "Fusion Reactor",
+  "item.nerotech.fusion_reactor": "Fusion Reactor",
+  "block.nerotech.advanced_ore_processor": "Advanced Ore Processor",
+  "item.nerotech.advanced_ore_processor": "Advanced Ore Processor",
+  "block.nerotech.advanced_fabricator": "Advanced Fabricator",
+  "item.nerotech.advanced_fabricator": "Advanced Fabricator",
 
   "container.nerotech.nero_generator": "Nero Generator",
   "container.nerotech.solar_array": "Solar Array",
   "container.nerotech.ore_processor": "Ore Processor",
-  "container.nerotech.fabricator": "Fabricator"
+  "container.nerotech.fabricator": "Fabricator",
+  "container.nerotech.fusion_reactor": "Fusion Reactor",
+  "container.nerotech.advanced_ore_processor": "Advanced Ore Processor",
+  "container.nerotech.advanced_fabricator": "Advanced Fabricator",
+
+  "message.nerotech.requires_orbit": "This machine stays inert until you've reached orbit."
 }

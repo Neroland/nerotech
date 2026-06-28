@@ -272,3 +272,48 @@ jobs:
           # dist/ holds exactly the six distributables (Forge = -all), so this glob is precise.
           files: dist/*.jar
           java: 25
+
+      # Best-effort Discord announcement of the new release. Runs last and is non-fatal
+      # (continue-on-error) so a Discord outage can never block a release - the v<version> tag
+      # has already been created above. Auto-skips if the DISCORD_WEBHOOK_URL secret is unset.
+      # Privacy (POPIA/GDPR): posts only the mod name, version, release URL and the curated
+      # changelog section - no personal data.
+      - name: Announce release on Discord
+        continue-on-error: true
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          MOD_NAME: NeroTech
+          VERSION: ${{ needs.detect.outputs.version }}
+          RELEASE_URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.detect.outputs.version }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL not set; skipping Discord announcement."
+            exit 0
+          fi
+
+          # Shortened changelog from the release notes built earlier. Trim to keep the embed
+          # readable and within Discord's 4096-char description limit; add an ellipsis if cut.
+          NOTES=dist/RELEASE_NOTES.md
+          if [ -s "$NOTES" ]; then
+            CHANGELOG="$(head -c 1500 "$NOTES")"
+            [ "$(wc -c < "$NOTES")" -gt 1500 ] && CHANGELOG="${CHANGELOG}"$'\n\n…'
+          else
+            CHANGELOG="See the release notes for details."
+          fi
+
+          # jq builds the payload so the changelog is safely JSON-escaped.
+          PAYLOAD="$(jq -n \
+            --arg name "$MOD_NAME" \
+            --arg version "$VERSION" \
+            --arg url "$RELEASE_URL" \
+            --arg changelog "$CHANGELOG" \
+            '{embeds: [{
+               title: "🚀 \($name) v\($version) released",
+               url: $url,
+               description: $changelog,
+               color: 5793266,
+               footer: {text: "Neroland release pipeline"}
+             }]}')"
+
+          curl -fsS -X POST -H "Content-Type: application/json" \
+            -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL"

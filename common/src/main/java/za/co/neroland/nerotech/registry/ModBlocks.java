@@ -9,7 +9,10 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.machine.AdvancedFabricatorBlock;
+import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlock;
 import za.co.neroland.nerotech.machine.FabricatorBlock;
+import za.co.neroland.nerotech.machine.FusionReactorBlock;
 import za.co.neroland.nerotech.machine.NeroGeneratorBlock;
 import za.co.neroland.nerotech.machine.OreProcessorBlock;
 import za.co.neroland.nerotech.machine.SolarArrayBlock;
@@ -32,6 +35,14 @@ public final class ModBlocks {
             register("ore_processor", OreProcessorBlock::new);
     public static final RegistryEntry<FabricatorBlock> FABRICATOR =
             register("fabricator", FabricatorBlock::new);
+
+    // --- Tier 2/3 (gated behind orbit + Starsteel) --------------------------
+    public static final RegistryEntry<FusionReactorBlock> FUSION_REACTOR =
+            register("fusion_reactor", FusionReactorBlock::new);
+    public static final RegistryEntry<AdvancedOreProcessorBlock> ADVANCED_ORE_PROCESSOR =
+            register("advanced_ore_processor", AdvancedOreProcessorBlock::new);
+    public static final RegistryEntry<AdvancedFabricatorBlock> ADVANCED_FABRICATOR =
+            register("advanced_fabricator", AdvancedFabricatorBlock::new);
 
     private static <B extends Block> RegistryEntry<B> register(String name,
             Function<BlockBehaviour.Properties, B> factory) {

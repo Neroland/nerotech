@@ -47,6 +47,13 @@ public final class ModItems {
     public static final RegistryEntry<BlockItem> ORE_PROCESSOR_ITEM = blockItem("ore_processor", ModBlocks.ORE_PROCESSOR);
     public static final RegistryEntry<BlockItem> FABRICATOR_ITEM = blockItem("fabricator", ModBlocks.FABRICATOR);
 
+    // --- Tier 2/3 (gated behind orbit + Starsteel) --------------------------
+    /** Fusion Reactor fuel; tagged into {@code nerotech:fusion_fuels}. */
+    public static final RegistryEntry<Item> FUSION_CELL = item("fusion_cell");
+    public static final RegistryEntry<BlockItem> FUSION_REACTOR_ITEM = blockItem("fusion_reactor", ModBlocks.FUSION_REACTOR);
+    public static final RegistryEntry<BlockItem> ADVANCED_ORE_PROCESSOR_ITEM = blockItem("advanced_ore_processor", ModBlocks.ADVANCED_ORE_PROCESSOR);
+    public static final RegistryEntry<BlockItem> ADVANCED_FABRICATOR_ITEM = blockItem("advanced_fabricator", ModBlocks.ADVANCED_FABRICATOR);
+
     // --- Upgrade modules (Core UpgradeType; classified by item) -------------
     public static final RegistryEntry<Item> SPEED_MODULE = module("speed_module", UpgradeType.SPEED);
     public static final RegistryEntry<Item> EFFICIENCY_MODULE = module("efficiency_module", UpgradeType.EFFICIENCY);
@@ -59,6 +66,7 @@ public final class ModItems {
                 MACHINE_FRAME, CIRCUIT_BOARD, NERO_COIL,
                 IRON_DUST, COPPER_DUST, GOLD_DUST,
                 NERO_GENERATOR_ITEM, SOLAR_ARRAY_ITEM, ORE_PROCESSOR_ITEM, FABRICATOR_ITEM,
+                FUSION_REACTOR_ITEM, ADVANCED_ORE_PROCESSOR_ITEM, ADVANCED_FABRICATOR_ITEM, FUSION_CELL,
                 SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE);
     }
 

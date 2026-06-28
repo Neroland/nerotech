@@ -41,7 +41,9 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
 
         if (producing && getEnergy().getAmount() < getEnergy().getCapacity()) {
             UpgradeModifiers mods = modifiers();
-            int rate = (int) Math.round(NeroTechConfig.solarArrayNePerTick() * mods.speedMultiplier() * factor);
+            // Per-planet output is the deferred Core-config fallback (1.0 on Earth) until a Nerospace API lands.
+            double planet = PlanetModifiers.solarMultiplier(level);
+            int rate = (int) Math.round(NeroTechConfig.solarArrayNePerTick() * mods.speedMultiplier() * factor * planet);
             if (rate > 0) {
                 energyBuffer().generate(rate);
             }

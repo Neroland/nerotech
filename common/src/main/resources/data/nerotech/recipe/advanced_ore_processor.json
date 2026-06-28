@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "S": "#c:ingots/starsteel", "P": "nerotech:ore_processor" },
+  "pattern": [ "SSS", "SPS", "SSS" ],
+  "result": { "id": "nerotech:advanced_ore_processor" } }

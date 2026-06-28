@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "S": "#c:ingots/starsteel", "C": "nerotech:circuit_board", "F": "nerotech:machine_frame", "O": "nerotech:nero_coil" },
+  "pattern": [ "SCS", "OFO", "SCS" ],
+  "result": { "id": "nerotech:fusion_reactor" } }

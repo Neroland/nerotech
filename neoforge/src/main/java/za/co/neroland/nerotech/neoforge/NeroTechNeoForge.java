@@ -44,5 +44,11 @@ public final class NeroTechNeoForge {
                 (be, side) -> be.getEnergy());
         event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.FABRICATOR.get(),
                 (be, side) -> be.getEnergy());
+        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.FUSION_REACTOR.get(),
+                (be, side) -> be.getEnergy());
+        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.ADVANCED_ORE_PROCESSOR.get(),
+                (be, side) -> be.getEnergy());
+        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.ADVANCED_FABRICATOR.get(),
+                (be, side) -> be.getEnergy());
     }
 }

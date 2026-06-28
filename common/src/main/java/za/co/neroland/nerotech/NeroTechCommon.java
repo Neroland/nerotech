@@ -27,5 +27,12 @@ public final class NeroTechCommon {
         // per-player pollution attribution NeroTech stored (UUIDs only; default attribution is off).
         za.co.neroland.nerolandcore.data.PlayerDataErasure.register(
                 za.co.neroland.nerotech.pollution.PollutionManager::erasePlayer);
+        // React to progression: telegraph when the orbit gate opens (advanced NeroTech tier unlocks).
+        za.co.neroland.nerolandcore.event.CoreEvents.onProgression(change -> {
+            if (change.open() && change.gate().equals(
+                    za.co.neroland.nerolandcore.progression.CoreGates.REACHED_ORBIT)) {
+                LOGGER.debug("[NeroTech] reached_orbit opened — advanced tier (Fusion Reactor, advanced machines) available.");
+            }
+        });
     }
 }
