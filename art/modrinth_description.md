@@ -15,7 +15,7 @@ Built on **Neroland Core**, so its Nero energy, upgrade modules, progression gat
 3. **Processing.** The **Ore Processor** turns raw ore into doubled dust; the **Fabricator** turns refined materials into components — both recipe-driven.
 4. **Upgrades.** Slot **Speed / Efficiency / Capacity / Range** modules into any machine — Core's shared upgrade framework, so modules are interchangeable across every Neroland mod.
 5. **Industrial Power.** Placing your first machine opens Core's **Industrial Power** progression gate — your first milestone.
-6. **Reach space.** Gated behind reaching orbit *and* Starsteel: the high-output **Fusion Reactor** (which runs dangerously hot), the **Advanced Ore Processor**, and the **Advanced Fabricator**.
+6. **Reach space.** Crafted from **Starsteel** (a space-only material): the high-output **Fusion Reactor** (which runs dangerously hot), the **Advanced Ore Processor**, and the **Advanced Fabricator**.
 7. **Automate.** The **Auto Crafter** assembles recipes on demand, and the directional **Item Sorter** routes items by filter — both exposed on standard item capabilities for clean logistics handoff.
 
 ## Consequence systems
@@ -26,8 +26,8 @@ Built on **Neroland Core**, so its Nero energy, upgrade modules, progression gat
 
 ## Why it fits the ecosystem
 
-- 🧩 **Built on Neroland Core** — one energy type, one upgrade-module system, one progression arc, shared `c:` material tags and a shared creative tab.
-- 🚀 **Soft synergy with Nerospace** — the advanced tier unlocks with **Starsteel / planet ores** through shared Core tags and the **Reached Orbit** gate. No hard dependency: with Nerospace absent, the Earth tier plays **fully standalone**.
+- 🧩 **Built on Neroland Core** — one energy type, one upgrade-module system, one progression arc, and shared `c:` material tags. NeroTech ships in its own creative tab.
+- 🚀 **Soft synergy with Nerospace** — the advanced tier is unlocked by **Starsteel / planet ores** through shared Core tags (no hard dependency). With Nerospace absent the Earth tier plays **fully standalone**, and the advanced tier is simply uncraftable.
 - 🔌 **Logistics-ready** — every machine exposes a standard, *sided* item capability (inputs in, outputs out), ready for **NeroLogistics**, hoppers, pipes, and recipe viewers with no NeroTech dependency.
 - 🧱 **Cross-loader** — NeoForge, Forge, and Fabric on Minecraft **26.1.2** and **26.2**.
 

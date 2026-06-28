@@ -5,7 +5,7 @@ package za.co.neroland.nerotech.registry;
  * {@link za.co.neroland.nerotech.NeroTechCommon#init()}.
  *
  * <p>Order matters on the eager (Fabric) loader: items register on class-load, then
- * they are appended to Core's shared creative tab. On NeoForge/Forge the
+ * NeroTech's own creative tab registers and draws them in. On NeoForge/Forge the
  * DeferredRegisters are created here and flushed to NeroTech's mod bus by the loader
  * entry point ({@code *RegistrationFactory.registerAll(...)}).
  */
@@ -19,6 +19,6 @@ public final class ModRegistries {
         ModItems.init();
         ModBlockEntities.init();
         ModMenuTypes.init();
-        ModItems.addToCreativeTab();
+        ModCreativeTab.init();
     }
 }

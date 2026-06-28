@@ -1,5 +1,6 @@
 package za.co.neroland.nerotech.registry;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.registries.Registries;
@@ -8,7 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
-import za.co.neroland.nerolandcore.registry.CoreCreativeTab;
 import za.co.neroland.nerolandcore.upgrade.UpgradeType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
@@ -64,7 +64,7 @@ public final class ModItems {
     public static final RegistryEntry<Item> CAPACITY_MODULE = module("capacity_module", UpgradeType.CAPACITY);
     public static final RegistryEntry<Item> RANGE_MODULE = module("range_module", UpgradeType.RANGE);
 
-    /** Every NeroTech item, in display order, for the shared {@link CoreCreativeTab}. */
+    /** Every NeroTech item, in display order, for NeroTech's own creative tab. */
     private static List<RegistryEntry<? extends ItemLike>> creativeOrder() {
         return List.of(
                 MACHINE_FRAME, CIRCUIT_BOARD, NERO_COIL,
@@ -87,9 +87,13 @@ public final class ModItems {
         return ITEMS.register(name, key -> new BlockItem(block.get(), new Item.Properties().setId(key)));
     }
 
-    /** Append every NeroTech item to Core's shared Neroland creative tab. */
-    public static void addToCreativeTab() {
-        creativeOrder().forEach(entry -> CoreCreativeTab.add(entry::get));
+    /** Every NeroTech item as {@link ItemLike}, in display order — drained into NeroTech's creative tab. */
+    public static List<ItemLike> creativeContents() {
+        List<ItemLike> out = new ArrayList<>();
+        for (RegistryEntry<? extends ItemLike> entry : creativeOrder()) {
+            out.add(entry.get());
+        }
+        return out;
     }
 
     private ModItems() {

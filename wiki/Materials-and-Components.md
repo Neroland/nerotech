@@ -7,8 +7,8 @@ NeroTech does **not** add its own base metals — the shared alloys (Nero Alloy,
 Starsteel, Void Crystal, Plasma Glass) live in **Neroland Core**. NeroTech only adds
 the industrial components and the Earth-metal processing dusts.
 
-All items appear in the shared **Neroland** creative tab (contributed via Core's
-`CoreCreativeTab`), alongside Core's materials and every other Nero mod's content.
+All items appear in NeroTech's own **NeroTech** creative tab, registered over the vanilla
+creative-tab registry through NeroTech's `RegistrationProvider` seam (each Nero mod ships its own tab).
 
 ## Machine components
 

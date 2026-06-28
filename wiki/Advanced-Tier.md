@@ -1,19 +1,17 @@
 # Advanced Tier (Tier 2/3)
 
 NeroTech's late game is **gated behind reaching space**, but coupled to Nerospace only *softly* — through
-Neroland Core's shared `c:` tags and progression gates, never a direct dependency. With Nerospace
-absent, the Earth tier still plays fully standalone; the advanced tier is simply unreachable.
+Neroland Core's shared `c:` tags, never a direct dependency. With Nerospace absent the Earth tier still
+plays fully standalone, and the advanced tier is simply uncraftable.
 
-## How the gate works (two layers)
+## How the gate works (possession)
 
-1. **Possession (crafting):** every advanced machine is crafted with **Starsteel**
-   (`#c:ingots/starsteel`) — a material only space supplies (via Nerospace). On Earth-only play there is
-   no Starsteel source, so the advanced tier can't be crafted at all.
-2. **Activation (use):** opening an advanced machine checks Core's **`reached_orbit`** gate for the
-   player (`ProgressionGates.isOpen`). Until it's open the machine stays inert and tells you so. NeroTech
-   also reacts to the gate opening via `CoreEvents.onProgression`.
-
-Both checks are server-authoritative.
+Every advanced machine is **crafted with Starsteel** (`#c:ingots/starsteel`) — a material only space
+supplies (via Nerospace). On Earth-only play there is no Starsteel source, so the advanced tier can't be
+crafted at all; once you *have* an advanced machine (you reached space to get the Starsteel), it works
+like any other machine — it is never separately locked or left inert. (This is the "planet-ore
+possession" gate from the Phase-3 plan; it replaced an earlier `reached_orbit` use-lock that wrongly
+bricked the machines in standalone/creative play.)
 
 ## Machines
 

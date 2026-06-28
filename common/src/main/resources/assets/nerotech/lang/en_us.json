@@ -1,4 +1,6 @@
 {
+  "itemGroup.nerotech": "NeroTech",
+
   "item.nerotech.machine_frame": "Machine Frame",
   "item.nerotech.circuit_board": "Circuit Board",
   "item.nerotech.nero_coil": "Nero Coil",
@@ -39,7 +41,5 @@
   "container.nerotech.advanced_ore_processor": "Advanced Ore Processor",
   "container.nerotech.advanced_fabricator": "Advanced Fabricator",
   "container.nerotech.auto_crafter": "Auto Crafter",
-  "container.nerotech.item_sorter": "Item Sorter",
-
-  "message.nerotech.requires_orbit": "This machine stays inert until you've reached orbit."
+  "container.nerotech.item_sorter": "Item Sorter"
 }
