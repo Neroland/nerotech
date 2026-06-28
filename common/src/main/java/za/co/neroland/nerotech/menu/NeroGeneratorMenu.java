@@ -22,7 +22,7 @@ public class NeroGeneratorMenu extends MachineMenu {
 
     public NeroGeneratorMenu(int id, Inventory playerInventory, Container container, ContainerData data) {
         super(ModMenuTypes.NERO_GENERATOR.get(), id, container, data, MACHINE_SLOTS);
-        this.addSlot(new PredicateSlot(container, 0, 80, 35));
+        this.addSlot(new PredicateSlot(container, 0, 80, 33));
         addUpgradeAndPlayerSlots(playerInventory);
     }
 }

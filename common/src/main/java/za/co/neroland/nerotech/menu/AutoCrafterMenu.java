@@ -24,10 +24,10 @@ public class AutoCrafterMenu extends MachineMenu {
         super(ModMenuTypes.AUTO_CRAFTER.get(), id, container, data, MACHINE_SLOTS);
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
-                this.addSlot(new PredicateSlot(container, row * 3 + col, 30 + col * 18, 17 + row * 18));
+                this.addSlot(new PredicateSlot(container, row * 3 + col, 40 + col * 18, 17 + row * 18));
             }
         }
-        this.addSlot(new OutputSlot(container, 9, 124, 35));
+        this.addSlot(new OutputSlot(container, 9, 112, 35));
         addUpgradeAndPlayerSlots(playerInventory);
     }
 }

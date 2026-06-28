@@ -22,8 +22,8 @@ public class OreProcessorMenu extends MachineMenu {
 
     public OreProcessorMenu(int id, Inventory playerInventory, Container container, ContainerData data) {
         super(ModMenuTypes.ORE_PROCESSOR.get(), id, container, data, MACHINE_SLOTS);
-        this.addSlot(new PredicateSlot(container, 0, 56, 35));
-        this.addSlot(new OutputSlot(container, 1, 104, 35));
+        this.addSlot(new PredicateSlot(container, 0, 56, 33));
+        this.addSlot(new OutputSlot(container, 1, 104, 33));
         addUpgradeAndPlayerSlots(playerInventory);
     }
 }

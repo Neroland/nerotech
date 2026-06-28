@@ -33,8 +33,11 @@ public abstract class MachineMenu extends AbstractContainerMenu {
     /** Add the upgrade-module slots (right column) then the player inventory + hotbar. */
     protected void addUpgradeAndPlayerSlots(Inventory playerInventory) {
         int upgrades = this.totalNonPlayer - this.machineSlots;
+        // Upgrade modules: a tidy 2×2 block in the top-right of the machine area (clear of the gauges).
         for (int i = 0; i < upgrades; i++) {
-            this.addSlot(new PredicateSlot(this.container, this.machineSlots + i, 152, 17 + i * 18));
+            int col = i % 2;
+            int row = i / 2;
+            this.addSlot(new PredicateSlot(this.container, this.machineSlots + i, 138 + col * 18, 18 + row * 18));
         }
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {

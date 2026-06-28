@@ -22,12 +22,12 @@ public class ItemSorterMenu extends MachineMenu {
 
     public ItemSorterMenu(int id, Inventory playerInventory, Container container, ContainerData data) {
         super(ModMenuTypes.ITEM_SORTER.get(), id, container, data, MACHINE_SLOTS);
-        // Input (top-left).
-        this.addSlot(new PredicateSlot(container, 0, 26, 35));
-        // Four filter slots (top row) + their output buffers (row below).
+        // Input (left of the filter/buffer columns, clear of the gauges).
+        this.addSlot(new PredicateSlot(container, 0, 40, 33));
+        // Four filter slots (top row) + their output buffers (row below), one column per horizontal face.
         for (int i = 0; i < 4; i++) {
-            this.addSlot(new PredicateSlot(container, 1 + i, 62 + i * 22, 22));
-            this.addSlot(new OutputSlot(container, 5 + i, 62 + i * 22, 48));
+            this.addSlot(new PredicateSlot(container, 1 + i, 58 + i * 19, 20));
+            this.addSlot(new OutputSlot(container, 5 + i, 58 + i * 19, 44));
         }
         addUpgradeAndPlayerSlots(playerInventory);
     }
