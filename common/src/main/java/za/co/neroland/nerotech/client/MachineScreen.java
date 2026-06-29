@@ -145,8 +145,8 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         }
         this.menu.setMachinePos(pos);
         String typeKey = typeKey(be.getType());
-        // Anchor at the top-right of the GUI; the widget requests the authoritative snapshot on construction.
-        this.sideConfigWidget = new SideConfigWidget(pos, comp.config(), typeKey, this.imageWidth - 20, 4);
+        // Anchor just right of the GUI so the labelled side-config panel sits beside it, not over it.
+        this.sideConfigWidget = new SideConfigWidget(pos, comp.config(), typeKey, this.imageWidth + 4, 0);
         sideConfigResolved = true;
         return this.sideConfigWidget;
     }
