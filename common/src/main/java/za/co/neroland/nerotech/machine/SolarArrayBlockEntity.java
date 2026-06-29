@@ -8,6 +8,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
+import za.co.neroland.nerolandcore.sideconfig.Channel;
+import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
@@ -24,6 +27,11 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
 
     public SolarArrayBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.SOLAR_ARRAY.get(), pos, state, 0);
+        setupSideConfig(SideConfig.builder()
+                .channel(Channel.ENERGY)
+                .defaultPreset(SidePreset.GENERATOR)
+                .autoEject(Channel.ENERGY, true)
+                .build());
     }
 
     @Override
@@ -49,7 +57,7 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
             }
         }
 
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer());
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
     }
 
     @Override

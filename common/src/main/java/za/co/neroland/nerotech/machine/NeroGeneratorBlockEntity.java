@@ -10,6 +10,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
+import za.co.neroland.nerolandcore.sideconfig.Channel;
+import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
+import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
@@ -28,6 +32,13 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
 
     public NeroGeneratorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.NERO_GENERATOR.get(), pos, state, 1);
+        // GENERATOR preset: ENERGY OUTPUT on every face, fuel (ITEM) accepted IN on every face.
+        setupSideConfig(SideConfig.builder()
+                .channel(Channel.ENERGY)
+                .channel(Channel.ITEM, SlotGroup.of("input", FUEL_SLOT), null)
+                .defaultPreset(SidePreset.GENERATOR)
+                .autoEject(Channel.ENERGY, true)
+                .build());
     }
 
     /** Burn value (ticks) for a fuel item, or 0 if not accepted. */
@@ -74,7 +85,7 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
             }
         }
 
-        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer());
+        MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
     }
 
     @Override

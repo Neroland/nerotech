@@ -297,6 +297,7 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           MOD_NAME: NeroTech
+          AVATAR_URL: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/art/logo/nerotech_logo_400.png
           VERSION: ${{ needs.detect.outputs.version }}
           RELEASE_URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.detect.outputs.version }}
         run: |
@@ -318,10 +319,11 @@ jobs:
           # jq builds the payload so the changelog is safely JSON-escaped.
           PAYLOAD="$(jq -n \
             --arg name "$MOD_NAME" \
+            --arg avatar "$AVATAR_URL" \
             --arg version "$VERSION" \
             --arg url "$RELEASE_URL" \
             --arg changelog "$CHANGELOG" \
-            '{embeds: [{
+            '{username: $name, avatar_url: $avatar, embeds: [{
                title: "🚀 \($name) v\($version) released",
                url: $url,
                description: $changelog,

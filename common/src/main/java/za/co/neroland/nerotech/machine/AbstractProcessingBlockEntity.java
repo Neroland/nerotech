@@ -6,6 +6,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import za.co.neroland.nerolandcore.sideconfig.Channel;
+import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SidePreset;
+import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
@@ -23,6 +27,12 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
 
     protected AbstractProcessingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state, 2);
+        // PROCESSOR preset: ITEM input on every face except BOTTOM (=output), ENERGY input on every face.
+        setupSideConfig(SideConfig.builder()
+                .channel(Channel.ITEM, SlotGroup.of("input", INPUT_SLOT), SlotGroup.of("output", OUTPUT_SLOT))
+                .channel(Channel.ENERGY)
+                .defaultPreset(SidePreset.PROCESSOR)
+                .build());
     }
 
     /** The recipe result for an input stack (single output), or EMPTY if there is no recipe. */
