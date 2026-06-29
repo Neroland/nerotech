@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "nerotech:block/fusion_reactor_top",
+    "front": "nerotech:block/fusion_reactor_front",
+    "side": "nerotech:block/fusion_reactor"
+  }
+}

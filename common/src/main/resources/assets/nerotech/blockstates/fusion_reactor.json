@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nerotech:block/fusion_reactor" },
+    "facing=east":  { "model": "nerotech:block/fusion_reactor", "y": 90 },
+    "facing=south": { "model": "nerotech:block/fusion_reactor", "y": 180 },
+    "facing=west":  { "model": "nerotech:block/fusion_reactor", "y": 270 }
+  }
+}

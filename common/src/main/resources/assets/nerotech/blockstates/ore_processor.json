@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nerotech:block/ore_processor" },
+    "facing=east":  { "model": "nerotech:block/ore_processor", "y": 90 },
+    "facing=south": { "model": "nerotech:block/ore_processor", "y": 180 },
+    "facing=west":  { "model": "nerotech:block/ore_processor", "y": 270 }
+  }
+}

@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "C": "nerotech:circuit_board", "T": "minecraft:crafting_table", "F": "nerotech:machine_frame" },
+  "pattern": [ "ICI", "CTC", "IFI" ],
+  "result": { "id": "nerotech:auto_crafter" } }

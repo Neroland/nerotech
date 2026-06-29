@@ -6,6 +6,7 @@
   "description": "NeroTech - multiloader build (Fabric).",
   "authors": ["${mod_authors}"],
   "license": "${mod_license}",
+  "icon": "nerotech_logo.png",
   "accessWidener": "nerotech.accesswidener",
   "environment": "*",
   "entrypoints": {

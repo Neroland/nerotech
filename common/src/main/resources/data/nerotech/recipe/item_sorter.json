@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "H": "minecraft:hopper", "C": "nerotech:circuit_board", "F": "nerotech:machine_frame" },
+  "pattern": [ "IHI", "CFC", "IHI" ],
+  "result": { "id": "nerotech:item_sorter" } }

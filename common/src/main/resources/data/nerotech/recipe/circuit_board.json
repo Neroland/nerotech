@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "R": "minecraft:redstone", "G": "nerotech:gold_dust" },
+  "pattern": [ "RGR" ],
+  "result": { "id": "nerotech:circuit_board" } }

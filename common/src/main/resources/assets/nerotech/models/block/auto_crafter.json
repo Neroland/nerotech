@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "nerotech:block/auto_crafter_top",
+    "front": "nerotech:block/auto_crafter_front",
+    "side": "nerotech:block/auto_crafter"
+  }
+}

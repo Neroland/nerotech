@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "S": "#c:ingots/starsteel", "F": "nerotech:fabricator" },
+  "pattern": [ "SSS", "SFS", "SSS" ],
+  "result": { "id": "nerotech:advanced_fabricator" } }
