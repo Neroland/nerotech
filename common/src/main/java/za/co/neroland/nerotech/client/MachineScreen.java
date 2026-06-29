@@ -1,10 +1,24 @@
 package za.co.neroland.nerotech.client;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+
+import org.jetbrains.annotations.Nullable;
+
+import za.co.neroland.nerolandcore.client.SideConfigWidget;
+import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
+import za.co.neroland.nerolandcore.sideconfig.SideConfigured;
 
 import za.co.neroland.nerotech.menu.MachineMenu;
 
@@ -31,6 +45,11 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     private static final int HEAT = 0xFFE0543A;       // red
     private static final int TITLE = 0xFFD6ECFF;
     private static final int SUBTLE = 0xFF8DA0B4;
+
+    /** Core's universal Side Config tab (top-right), built once the machine BE is resolved. */
+    @Nullable
+    private SideConfigWidget sideConfigWidget;
+    private boolean sideConfigResolved;
 
     public MachineScreen(T menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 176, 166);
@@ -85,6 +104,67 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         }
 
         super.extractContents(extractor, mouseX, mouseY, partialTick);
+
+        // Core's Side Config tab, anchored top-right of the GUI (drawn over the panel + slots).
+        SideConfigWidget widget = sideConfig();
+        if (widget != null) {
+            widget.render(extractor, this.leftPos, this.topPos, mouseX, mouseY);
+        }
+    }
+
+    /**
+     * Lazily build the Side Config widget the first time it can resolve this machine's block-entity and
+     * its {@link SideConfigComponent}. The position is taken from the menu when known, otherwise from the
+     * block the player is looking at (the machine they just opened). Returns null for machines without a
+     * side config.
+     */
+    @Nullable
+    private SideConfigWidget sideConfig() {
+        if (sideConfigResolved) {
+            return this.sideConfigWidget;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) {
+            return null; // try again next frame
+        }
+        BlockPos pos = this.menu.machinePos();
+        if (pos == null && mc.hitResult instanceof BlockHitResult hit && mc.hitResult.getType() == HitResult.Type.BLOCK) {
+            pos = hit.getBlockPos();
+        }
+        if (pos == null) {
+            return null;
+        }
+        BlockEntity be = mc.level.getBlockEntity(pos);
+        if (!(be instanceof SideConfigured configured)) {
+            return null;
+        }
+        SideConfigComponent comp = configured.sideConfig();
+        if (comp == null) {
+            sideConfigResolved = true;
+            return null;
+        }
+        this.menu.setMachinePos(pos);
+        String typeKey = typeKey(be.getType());
+        // Anchor just right of the GUI so the labelled side-config panel sits beside it, not over it.
+        this.sideConfigWidget = new SideConfigWidget(pos, comp.config(), typeKey, this.imageWidth + 4, 0);
+        sideConfigResolved = true;
+        return this.sideConfigWidget;
+    }
+
+    /** Block-entity-type registry id as the copy/paste compatibility key (same-type machines only). */
+    private static String typeKey(BlockEntityType<?> type) {
+        Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
+        return id == null ? "nerotech:machine" : id.toString();
+    }
+
+    @Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+        SideConfigWidget widget = sideConfig();
+        if (widget != null && widget.mouseClicked(mouseButtonEvent.x(), mouseButtonEvent.y(),
+                mouseButtonEvent.button(), this.leftPos, this.topPos)) {
+            return true;
+        }
+        return super.mouseClicked(mouseButtonEvent, doubleClick);
     }
 
     private static void gauge(GuiGraphicsExtractor g, int x, int y, int w, int h, float frac, int fill) {

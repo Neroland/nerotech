@@ -21,6 +21,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
+import za.co.neroland.nerolandcore.sideconfig.Channel;
+import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.pollution.PollutionManager;
@@ -117,21 +120,47 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         return false;
     }
 
+    /**
+     * Install Core's universal side-config component for this machine and wire it to this BE's own
+     * {@link Container} view (machine slots followed by the upgrade slots). Energy is pre-wired by
+     * Core. Call once from a subclass constructor after {@code super(...)} with the machine's declared
+     * {@link SideConfig}. Persistence + auto-transfer are then handled automatically by Core's tick.
+     */
+    protected void setupSideConfig(SideConfig config) {
+        installSideConfig(config).withItems(() -> this);
+    }
+
+    /** True when this machine has an installed side config that declares the item channel. */
+    private boolean hasItemSideConfig() {
+        SideConfigComponent comp = sideConfig();
+        return comp != null && comp.config().has(Channel.ITEM);
+    }
+
     // --- WorldlyContainer: the sided item handoff surface for pipes / NeroLogistics --------------
-    // Inputs are insertable, outputs extractable; Core upgrade slots are never exposed to automation.
+    // When a side config with an ITEM channel is installed it drives per-face routing; otherwise the
+    // legacy all-face exposure applies. Core upgrade slots are never exposed to automation either way.
 
     @Override
     public int[] getSlotsForFace(net.minecraft.core.Direction side) {
+        if (hasItemSideConfig()) {
+            return sideConfig().itemSlotsForFace(side);
+        }
         return this.machineFaceSlots;
     }
 
     @Override
     public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable net.minecraft.core.Direction side) {
+        if (hasItemSideConfig()) {
+            return side != null && sideConfig().canInsertItem(slot, side) && canPlaceMachineItem(slot, stack);
+        }
         return slot < this.machineSlots && canPlaceMachineItem(slot, stack);
     }
 
     @Override
     public boolean canTakeItemThroughFace(int slot, ItemStack stack, net.minecraft.core.Direction side) {
+        if (hasItemSideConfig()) {
+            return side != null && sideConfig().canExtractItem(slot, side);
+        }
         return slot < this.machineSlots && canTakeMachineItem(slot);
     }
 

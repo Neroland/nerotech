@@ -35,15 +35,25 @@ public final class NeroTechFabric implements ModInitializer {
      * so machines from any Nero mod interoperate on one power network.
      */
     private static void registerCoreEnergy() {
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.NERO_GENERATOR.get());
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.SOLAR_ARRAY.get());
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.ORE_PROCESSOR.get());
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.FABRICATOR.get());
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.FUSION_REACTOR.get());
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.ADVANCED_ORE_PROCESSOR.get());
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.ADVANCED_FABRICATOR.get());
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.AUTO_CRAFTER.get());
-        FabricEnergyLookup.ENERGY.registerForBlockEntity((be, dir) -> be.getEnergy(), ModBlockEntities.ITEM_SORTER.get());
+        energyHandler(ModBlockEntities.NERO_GENERATOR.get());
+        energyHandler(ModBlockEntities.SOLAR_ARRAY.get());
+        energyHandler(ModBlockEntities.ORE_PROCESSOR.get());
+        energyHandler(ModBlockEntities.FABRICATOR.get());
+        energyHandler(ModBlockEntities.FUSION_REACTOR.get());
+        energyHandler(ModBlockEntities.ADVANCED_ORE_PROCESSOR.get());
+        energyHandler(ModBlockEntities.ADVANCED_FABRICATOR.get());
+        energyHandler(ModBlockEntities.AUTO_CRAFTER.get());
+        energyHandler(ModBlockEntities.ITEM_SORTER.get());
+    }
+
+    /**
+     * Side-config-gated energy view: a face exposes the buffer only when its ENERGY mode permits it; a
+     * DISABLED face returns null (no API on that side). Machines without ENERGY side config fall back to
+     * the ungated buffer.
+     */
+    private static <T extends NeroTechMachineBlockEntity> void energyHandler(BlockEntityType<T> type) {
+        FabricEnergyLookup.ENERGY.registerForBlockEntity(
+                (be, dir) -> be.sideConfig() != null ? be.sideConfig().energyView(dir) : be.getEnergy(), type);
     }
 
     /**

@@ -1,5 +1,6 @@
 package za.co.neroland.nerotech.menu;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -8,6 +9,9 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Shared base for NeroTech machine menus. Lays out the upgrade-module slots and the player inventory,
@@ -22,12 +26,34 @@ public abstract class MachineMenu extends AbstractContainerMenu {
     protected final int machineSlots;
     protected final int totalNonPlayer;
 
+    /**
+     * The machine's world position. Set server-side when the backing container is the live block-entity;
+     * the client resolves it from the looked-at block (see the screen), so the Side Config tab can target
+     * this machine. World/block data only — never a player identity (POPIA/GDPR).
+     */
+    @Nullable
+    private BlockPos machinePos;
+
     protected MachineMenu(MenuType<?> type, int id, Container container, ContainerData data, int machineSlots) {
         super(type, id);
         this.container = container;
         this.data = data;
         this.machineSlots = machineSlots;
         this.totalNonPlayer = container.getContainerSize();
+        if (container instanceof BlockEntity be) {
+            this.machinePos = be.getBlockPos();
+        }
+    }
+
+    /** The machine's position, or {@code null} if not yet known (client before resolution). */
+    @Nullable
+    public BlockPos machinePos() {
+        return this.machinePos;
+    }
+
+    /** Client-side: record the resolved machine position so the Side Config tab can target it. */
+    public void setMachinePos(BlockPos pos) {
+        this.machinePos = pos;
     }
 
     /** Add the upgrade-module slots (right column) then the player inventory + hotbar. */
