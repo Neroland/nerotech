@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:fabricator",
+  "criteria": {
+    "has_auto_crafter": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:auto_crafter"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.auto_crafter.description"
+    },
+    "icon": {
+      "id": "nerotech:auto_crafter"
+    },
+    "title": {
+      "translate": "advancements.nerotech.auto_crafter.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_auto_crafter"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

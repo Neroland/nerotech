@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:ore_processor",
+  "criteria": {
+    "has_fabricator": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:fabricator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.fabricator.description"
+    },
+    "icon": {
+      "id": "nerotech:fabricator"
+    },
+    "title": {
+      "translate": "advancements.nerotech.fabricator.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_fabricator"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

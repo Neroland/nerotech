@@ -1,0 +1,36 @@
+{
+  "parent": "nerotech:solar_array",
+  "criteria": {
+    "has_solar_farm": {
+      "conditions": {
+        "items": [
+          {
+            "count": {
+              "min": 4
+            },
+            "items": "nerotech:solar_array"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.clear_skies.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:solar_array"
+    },
+    "title": {
+      "translate": "advancements.nerotech.clear_skies.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_solar_farm"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

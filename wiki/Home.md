@@ -3,7 +3,7 @@
 Player- and contributor-facing documentation for **NeroTech**, part of the
 [Neroland ecosystem](../../neroland-mc-ecosystem/README.md). Built on **Neroland Core**.
 
-> **Status:** alpha (version `0.0.1-alpha.1`), built on Neroland Core across the six cross-loader
+> **Status:** alpha (version `0.0.1-alpha.2`), built on Neroland Core across the six cross-loader
 > cells. Phase 3 has landed: Tier-1 materials/components and machines, heat + pollution consequence
 > systems, the orbit-gated advanced tier (Fusion Reactor), and the automation handoff surface. Keep
 > this wiki updated alongside code changes (see [`../AGENTS.md`](../AGENTS.md) / [`../CLAUDE.md`](../CLAUDE.md)).

@@ -1,0 +1,39 @@
+{
+  "parent": "nerotech:fusion_reactor",
+  "criteria": {
+    "has_coolant": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:water_bucket",
+              "minecraft:ice",
+              "minecraft:packed_ice",
+              "minecraft:blue_ice",
+              "minecraft:snow_block"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.heat_management.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "minecraft:packed_ice"
+    },
+    "title": {
+      "translate": "advancements.nerotech.heat_management.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_coolant"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

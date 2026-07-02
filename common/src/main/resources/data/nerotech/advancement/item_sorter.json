@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:auto_crafter",
+  "criteria": {
+    "has_item_sorter": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:item_sorter"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.item_sorter.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:item_sorter"
+    },
+    "title": {
+      "translate": "advancements.nerotech.item_sorter.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_item_sorter"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

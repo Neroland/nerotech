@@ -5,11 +5,11 @@
 ## The mod
 
 - **NeroTech** — part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
-  This repository is currently a **barebones multiloader skeleton** (no gameplay content yet); add
-  shared content under `common/` and wire it through each loader entry point.
+  This repository carries the **implemented Phase-3 content** (machines, heat, pollution,
+  progression gates); add shared content under `common/` and wire it through each loader entry point.
 - Mod id: **`nerotech`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.nerotech`. Author: **Neroland**.
-- Version: **0.0.1-alpha.1**.
+- Version: **0.0.1-alpha.2**.
 - Targets **MC 26.1.2 AND 26.2** on **NeoForge, MinecraftForge/Forge, and Fabric** → the **"6 cells"**.
   **Java 25.** Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 

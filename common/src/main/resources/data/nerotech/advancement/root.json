@@ -1,0 +1,34 @@
+{
+  "criteria": {
+    "has_component": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#nerotech:machine_components"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "description": {
+      "translate": "advancements.nerotech.root.description"
+    },
+    "icon": {
+      "id": "nerotech:machine_frame"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.nerotech.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_component"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

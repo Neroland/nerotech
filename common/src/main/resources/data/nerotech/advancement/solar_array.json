@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:nero_generator",
+  "criteria": {
+    "has_solar_array": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:solar_array"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.solar_array.description"
+    },
+    "icon": {
+      "id": "nerotech:solar_array"
+    },
+    "title": {
+      "translate": "advancements.nerotech.solar_array.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_solar_array"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
