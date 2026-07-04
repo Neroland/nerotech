@@ -2,7 +2,7 @@
 
 > Part of the [Neroland](../neroland-mc-ecosystem) sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
 
-**Status:** barebones multiloader skeleton — version `0.0.1-alpha.1`. No gameplay content yet.
+**Status:** in development — version `0.0.1-alpha.2`. All 9 Phase-3 machines are implemented (generators incl. Nero Generator, Solar Array, and a single-block Fusion Reactor; processors; automation machines), plus heat management, regional pollution with opt-in per-player attribution, and Core progression-gate integration (`INDUSTRIAL_POWER`, `REACHED_ORBIT`). Models, textures, blockstates, recipes, and lang files are complete; advancements and datapack-overridable ore recipes are still outstanding.
 
 ## Build targets
 

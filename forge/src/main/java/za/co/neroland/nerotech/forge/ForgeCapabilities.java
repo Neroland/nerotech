@@ -51,6 +51,8 @@ public final class ForgeCapabilities {
 
         private final NeroTechMachineBlockEntity machine;
         private final LazyOptional<NeroEnergyStorage> energy;
+        private final EnumMap<Direction, LazyOptional<NeroEnergyStorage>> sidedEnergy =
+                new EnumMap<>(Direction.class);
         private final EnumMap<Direction, LazyOptional<IItemHandler>> sidedItems = new EnumMap<>(Direction.class);
         @Nullable
         private LazyOptional<IItemHandler> unsidedItems;
@@ -63,12 +65,27 @@ public final class ForgeCapabilities {
         @Override
         public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
             if (cap == ForgeEnergyLookup.ENERGY) {
-                return this.energy.cast();
+                return energy(side).cast();
             }
             if (cap == net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER) {
                 return items(side).cast();
             }
             return LazyOptional.empty();
+        }
+
+        /**
+         * Side-config-gated energy view: a face exposes the buffer only when its ENERGY mode permits it;
+         * a DISABLED face yields an empty capability. Machines without ENERGY side config fall back to the
+         * ungated buffer.
+         */
+        private LazyOptional<NeroEnergyStorage> energy(@Nullable Direction side) {
+            if (this.machine.sideConfig() == null || side == null) {
+                return this.energy;
+            }
+            return this.sidedEnergy.computeIfAbsent(side, d -> {
+                NeroEnergyStorage view = this.machine.sideConfig().energyView(d);
+                return view == null ? LazyOptional.empty() : LazyOptional.of(() -> view);
+            });
         }
 
         private LazyOptional<IItemHandler> items(@Nullable Direction side) {
@@ -83,6 +100,8 @@ public final class ForgeCapabilities {
 
         void invalidate() {
             this.energy.invalidate();
+            this.sidedEnergy.values().forEach(LazyOptional::invalidate);
+            this.sidedEnergy.clear();
             if (this.unsidedItems != null) {
                 this.unsidedItems.invalidate();
             }

@@ -45,24 +45,15 @@ public final class NeroTechNeoForge {
 
     /** Expose each machine's energy buffer on Core's shared {@code nerolandcore:energy} capability. */
     private static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.NERO_GENERATOR.get(),
-                (be, side) -> be.getEnergy());
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.SOLAR_ARRAY.get(),
-                (be, side) -> be.getEnergy());
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.ORE_PROCESSOR.get(),
-                (be, side) -> be.getEnergy());
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.FABRICATOR.get(),
-                (be, side) -> be.getEnergy());
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.FUSION_REACTOR.get(),
-                (be, side) -> be.getEnergy());
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.ADVANCED_ORE_PROCESSOR.get(),
-                (be, side) -> be.getEnergy());
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.ADVANCED_FABRICATOR.get(),
-                (be, side) -> be.getEnergy());
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.AUTO_CRAFTER.get(),
-                (be, side) -> be.getEnergy());
-        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, ModBlockEntities.ITEM_SORTER.get(),
-                (be, side) -> be.getEnergy());
+        energyCap(event, ModBlockEntities.NERO_GENERATOR.get());
+        energyCap(event, ModBlockEntities.SOLAR_ARRAY.get());
+        energyCap(event, ModBlockEntities.ORE_PROCESSOR.get());
+        energyCap(event, ModBlockEntities.FABRICATOR.get());
+        energyCap(event, ModBlockEntities.FUSION_REACTOR.get());
+        energyCap(event, ModBlockEntities.ADVANCED_ORE_PROCESSOR.get());
+        energyCap(event, ModBlockEntities.ADVANCED_FABRICATOR.get());
+        energyCap(event, ModBlockEntities.AUTO_CRAFTER.get());
+        energyCap(event, ModBlockEntities.ITEM_SORTER.get());
 
         // Item handoff surface (Stage 5): expose every machine's sided inventory on the standard item
         // capability so NeroLogistics / pipes / hoppers move items in and out with no NeroTech dependency.
@@ -75,6 +66,17 @@ public final class NeroTechNeoForge {
         itemCap(event, ModBlockEntities.ADVANCED_FABRICATOR.get());
         itemCap(event, ModBlockEntities.AUTO_CRAFTER.get());
         itemCap(event, ModBlockEntities.ITEM_SORTER.get());
+    }
+
+    /**
+     * Side-config-gated energy view: a face exposes the buffer only when its ENERGY mode permits it
+     * (insert-only / extract-only / both); a DISABLED face returns null. Machines with no ENERGY side
+     * config fall back to the ungated buffer.
+     */
+    private static <T extends NeroTechMachineBlockEntity> void energyCap(RegisterCapabilitiesEvent event,
+            BlockEntityType<T> type) {
+        event.registerBlockEntity(NeoForgeEnergyLookup.ENERGY, type,
+                (be, side) -> be.sideConfig() != null ? be.sideConfig().energyView(side) : be.getEnergy());
     }
 
     private static <T extends NeroTechMachineBlockEntity> void itemCap(RegisterCapabilitiesEvent event,

@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:nero_generator",
+  "criteria": {
+    "has_ore_processor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:ore_processor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.ore_processor.description"
+    },
+    "icon": {
+      "id": "nerotech:ore_processor"
+    },
+    "title": {
+      "translate": "advancements.nerotech.ore_processor.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_ore_processor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

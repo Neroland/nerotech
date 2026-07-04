@@ -18,6 +18,11 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
+import za.co.neroland.nerolandcore.sideconfig.Channel;
+import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SidePreset;
+import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
+
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.menu.AutoCrafterMenu;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -38,6 +43,14 @@ public class AutoCrafterBlockEntity extends NeroTechMachineBlockEntity {
 
     public AutoCrafterBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.AUTO_CRAFTER.get(), pos, state, SLOTS);
+        // PROCESSOR preset: grid (ITEM input) on every face except BOTTOM (=output buffer), ENERGY input.
+        setupSideConfig(SideConfig.builder()
+                .channel(Channel.ITEM,
+                        SlotGroup.of("input", 0, 1, 2, 3, 4, 5, 6, 7, 8),
+                        SlotGroup.of("output", OUTPUT_SLOT))
+                .channel(Channel.ENERGY)
+                .defaultPreset(SidePreset.PROCESSOR)
+                .build());
     }
 
     @Override

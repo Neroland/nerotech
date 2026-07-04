@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:fabricator",
+  "criteria": {
+    "has_advanced_fabricator": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:advanced_fabricator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.advanced_fabricator.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:advanced_fabricator"
+    },
+    "title": {
+      "translate": "advancements.nerotech.advanced_fabricator.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_advanced_fabricator"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,46 @@
+{
+  "parent": "nerotech:solar_array",
+  "criteria": {
+    "has_fusion_cell": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:fusion_cell"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_reactor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:fusion_reactor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.fusion_reactor.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "nerotech:fusion_reactor"
+    },
+    "title": {
+      "translate": "advancements.nerotech.fusion_reactor.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_reactor"
+    ],
+    [
+      "has_fusion_cell"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

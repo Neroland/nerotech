@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:root",
+  "criteria": {
+    "has_generator": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:nero_generator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.nero_generator.description"
+    },
+    "icon": {
+      "id": "nerotech:nero_generator"
+    },
+    "title": {
+      "translate": "advancements.nerotech.nero_generator.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_generator"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
