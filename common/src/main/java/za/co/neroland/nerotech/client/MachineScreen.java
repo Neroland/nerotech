@@ -78,8 +78,12 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         extractor.fill(x + 7, y + 16, x + w - 7, y + 17, DIVIDER);
         extractor.fill(x + 7, y + 70, x + w - 7, y + 71, DIVIDER);
 
-        // Slot wells (follow the menu's slot positions automatically).
+        // Slot wells (follow the menu's slot positions automatically). Slots parked at negative
+        // coordinates are sync-only (ghost templates / previews) and get no well.
         for (Slot slot : this.menu.slots) {
+            if (slot.x < 0 || slot.y < 0) {
+                continue;
+            }
             int sx = x + slot.x;
             int sy = y + slot.y;
             extractor.fill(sx - 1, sy - 1, sx + 17, sy + 17, WELL_EDGE);

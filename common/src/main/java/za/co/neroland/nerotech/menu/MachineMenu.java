@@ -43,6 +43,10 @@ public abstract class MachineMenu extends AbstractContainerMenu {
         if (container instanceof BlockEntity be) {
             this.machinePos = be.getBlockPos();
         }
+        // CRITICAL: register the ContainerData for vanilla's server->client sync. Without this the
+        // client's SimpleContainerData stays all-zero and every gauge (energy, work, heat) reads empty
+        // even while the machine runs — the "machines look dead" bug.
+        this.addDataSlots(data);
     }
 
     /** The machine's position, or {@code null} if not yet known (client before resolution). */
@@ -148,6 +152,32 @@ public abstract class MachineMenu extends AbstractContainerMenu {
         @Override
         public boolean mayPlace(ItemStack stack) {
             return false;
+        }
+    }
+
+    /**
+     * A display/sync-only slot: never picked up or placed into. Used to sync server-written stacks
+     * (recipe previews, lock templates) to the client through vanilla's slot sync — position it
+     * off-panel (negative x) when it should not be visible.
+     */
+    protected static class GhostSlot extends Slot {
+        public GhostSlot(Container container, int index, int x, int y) {
+            super(container, index, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return false;
+        }
+
+        @Override
+        public boolean mayPickup(Player player) {
+            return false;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
         }
     }
 }

@@ -22,6 +22,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  * into Core's energy buffer and pushes to neighbours via Core's energy seam. Per-planet output
  * modifiers (Nerospace) are deferred behind a Core-config fallback (Stage 4), so on Earth it runs
  * fully standalone.
+ *
+ * <p><b>Niche vs Nerospace's Solar Panels:</b> this is deliberately the basic, single-block Earth-tier
+ * panel — low output (default 10 NE/t vs Nerospace Tier 1's 20), no tiers, no array pooling, no airless
+ * 2× bonus — but it takes NeroTech upgrade modules and side config like every other Tier-1 machine.
+ * Nerospace's three-tier, poolable Solar Panels are the scalable solar line; both generate onto the
+ * same Core energy network, so the two products complement rather than duplicate each other.
  */
 public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
 

@@ -18,6 +18,8 @@
   "item.nerotech.nero_generator": "Nero Generator",
   "block.nerotech.solar_array": "Solar Array",
   "item.nerotech.solar_array": "Solar Array",
+  "block.nerotech.solar_array.tooltip": "Basic single-block panel: clean daytime power, takes upgrade modules",
+  "block.nerotech.solar_array.tooltip.nerospace": "For tiered, poolable high-output solar, see Nerospace's Solar Panels",
   "block.nerotech.ore_processor": "Ore Processor",
   "item.nerotech.ore_processor": "Ore Processor",
   "block.nerotech.fabricator": "Fabricator",
@@ -42,6 +44,10 @@
   "container.nerotech.advanced_fabricator": "Advanced Fabricator",
   "container.nerotech.auto_crafter": "Auto Crafter",
   "container.nerotech.item_sorter": "Item Sorter",
+
+  "gui.nerotech.auto_crafter.lock": "Lock",
+  "gui.nerotech.auto_crafter.unlock": "Unlock",
+  "gui.nerotech.auto_crafter.locked_hint": "Grid locked — only template items can be inserted",
 
   "advancements.nerotech.root.title": "NeroTech",
   "advancements.nerotech.root.description": "Fabricate your first machine component and start industrialising",
