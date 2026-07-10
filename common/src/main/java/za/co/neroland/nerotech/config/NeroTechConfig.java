@@ -36,15 +36,33 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> PROCESS_NE_PER_TICK = SCHEMA.intRange("machineNePerTick",
             30, 0, 1_000_000, true, "base NE/tick a processing machine consumes while working (before Efficiency)");
 
-    // --- heat (Stage 3 consequence axis) ------------------------------------
+    // --- heat (Stage 3 consequence axis; full thermal model per Stage C decision 2026-07-10) ----
     private static final ConfigValue<Integer> HEAT_CAPACITY = SCHEMA.intRange("heatCapacity",
             1_000, 1, 1_000_000, true, "max heat units a machine can hold (gauge scale)");
     private static final ConfigValue<Integer> HEAT_PER_OP = SCHEMA.intRange("heatPerOperation",
             4, 0, 100_000, true, "heat added each working tick (generators: per burn tick)");
     private static final ConfigValue<Integer> HEAT_DISSIPATION = SCHEMA.intRange("heatDissipationPerTick",
-            1, 0, 100_000, true, "heat shed passively each tick (extra when next to water/ice/snow)");
+            1, 0, 100_000, true, "extra heat shed per adjacent coolant block (water/ice/snow) each tick");
     private static final ConfigValue<Integer> HEAT_THROTTLE = SCHEMA.intRange("heatThrottleThreshold",
             800, 1, 1_000_000, true, "processing machines stall once heat reaches this (must cool to resume)");
+    private static final ConfigValue<Integer> THERMAL_ENV_LOSS = SCHEMA.intRange("thermalEnvLossPermille",
+            20, 0, 1_000, true, "permille of the machine-vs-ambient heat difference exchanged with the "
+            + "environment each tick (machines relax toward ambient; 0 disables)");
+    private static final ConfigValue<Integer> THERMAL_CONDUCTIVITY = SCHEMA.intRange("thermalConductivityPermille",
+            100, 0, 1_000, true, "permille of the heat difference conducted between ADJACENT machines per "
+            + "exchange (dense builds share heat; 0 disables machine-to-machine conduction)");
+    private static final ConfigValue<Integer> THERMAL_EXCHANGE_INTERVAL = SCHEMA.intRange("thermalExchangeIntervalTicks",
+            10, 1, 72_000, true, "how often (ticks) a machine conducts heat with cached adjacent machines "
+            + "(interval + per-machine phase — never a per-tick neighbour scan)");
+    private static final ConfigValue<Integer> THERMAL_AMBIENT_DEFAULT = SCHEMA.intRange("thermalAmbientDefault",
+            0, -100_000, 100_000, true, "baseline ambient heat for dimensions not listed in thermalAmbientByDimension");
+    private static final ConfigValue<String> THERMAL_AMBIENT_BY_DIMENSION = SCHEMA.string("thermalAmbientByDimension",
+            "minecraft:the_nether=150", true, "per-dimension ambient heat: comma-list of dimensionId=heat, e.g. "
+            + "minecraft:the_nether=150,nerospace:cindara=200,nerospace:glacira=-80 (DEFERRED per-planet fallback "
+            + "until a nerospace.api planet-trait query exists — same pattern as solarDimensionMultipliers)");
+    private static final ConfigValue<Integer> THERMAL_BIOME_SCALE = SCHEMA.intRange("thermalBiomeScale",
+            50, 0, 100_000, true, "ambient heat added per full point of biome base temperature above vanilla "
+            + "plains (0.8): deserts run hot, snowy biomes run cold (0 disables biome flavour)");
 
     // --- pollution (regional, periodic aggregate) ---------------------------
     private static final ConfigValue<Integer> POLLUTION_PER_OP = SCHEMA.intRange("pollutionPerOperation",
@@ -120,6 +138,30 @@ public final class NeroTechConfig {
 
     public static int heatThrottleThreshold() {
         return HEAT_THROTTLE.get();
+    }
+
+    public static int thermalEnvLossPermille() {
+        return THERMAL_ENV_LOSS.get();
+    }
+
+    public static int thermalConductivityPermille() {
+        return THERMAL_CONDUCTIVITY.get();
+    }
+
+    public static int thermalExchangeIntervalTicks() {
+        return THERMAL_EXCHANGE_INTERVAL.get();
+    }
+
+    public static int thermalAmbientDefault() {
+        return THERMAL_AMBIENT_DEFAULT.get();
+    }
+
+    public static String thermalAmbientByDimension() {
+        return THERMAL_AMBIENT_BY_DIMENSION.get();
+    }
+
+    public static int thermalBiomeScale() {
+        return THERMAL_BIOME_SCALE.get();
     }
 
     public static int pollutionPerOperation() {

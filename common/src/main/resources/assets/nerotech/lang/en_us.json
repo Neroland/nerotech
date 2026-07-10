@@ -9,6 +9,17 @@
   "item.nerotech.gold_dust": "Gold Dust",
   "item.nerotech.fusion_cell": "Fusion Cell",
 
+  "item.nerotech.configurator": "Configurator",
+  "item.nerotech.configurator.cycled": "%1$s · %2$s face → %3$s",
+  "item.nerotech.configurator.read": "%1$s · %2$s face: %3$s",
+  "item.nerotech.configurator.not_configurable": "This block has no side configuration",
+  "item.nerotech.configurator.mode.configure": "Configure mode — right-click cycles, sneak reads",
+  "item.nerotech.configurator.mode.copy_paste": "Copy/Paste mode — right-click copies, sneak pastes",
+  "item.nerotech.configurator.copied": "Copied side config of %s",
+  "item.nerotech.configurator.pasted": "Pasted side config onto %s",
+  "item.nerotech.configurator.paste_empty": "Clipboard empty — right-click a machine to copy",
+  "item.nerotech.configurator.paste_mismatch": "Clipboard is for a different machine (%s)",
+
   "item.nerotech.speed_module": "Speed Module",
   "item.nerotech.efficiency_module": "Efficiency Module",
   "item.nerotech.capacity_module": "Capacity Module",

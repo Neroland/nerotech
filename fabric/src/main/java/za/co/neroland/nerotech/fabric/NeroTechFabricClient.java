@@ -18,6 +18,8 @@ public final class NeroTechFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         NeroTechCommon.LOGGER.info("[NeroTech] Fabric client bootstrap");
+        // Clientbound receivers for NeroTech's own payloads (client-only API, so wired here).
+        FabricNetwork.registerClient();
         MenuScreens.register(ModMenuTypes.NERO_GENERATOR.get(), NeroGeneratorScreen::new);
         MenuScreens.register(ModMenuTypes.SOLAR_ARRAY.get(), SolarArrayScreen::new);
         MenuScreens.register(ModMenuTypes.ORE_PROCESSOR.get(), OreProcessorScreen::new);

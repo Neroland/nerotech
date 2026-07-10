@@ -12,12 +12,14 @@ import net.minecraft.world.level.block.Block;
 import za.co.neroland.nerolandcore.upgrade.UpgradeType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.item.ConfiguratorItem;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
 
 /**
- * NeroTech's items: Tier-1 components, processing dusts, machine block-items and upgrade modules,
- * registered cross-loader through the {@link RegistrationProvider} seam over the vanilla item registry.
+ * NeroTech's items: Tier-1 components, processing dusts, machine block-items, the Configurator wrench
+ * and upgrade modules, registered cross-loader through the {@link RegistrationProvider} seam over the
+ * vanilla item registry.
  *
  * <p>NeroTech does not re-register Core's shared materials (Nero Alloy, Starsteel, Void Crystal,
  * Plasma Glass) — those live in Core. Every item is appended to Core's shared "Neroland" creative tab
@@ -58,6 +60,16 @@ public final class ModItems {
     public static final RegistryEntry<BlockItem> AUTO_CRAFTER_ITEM = blockItem("auto_crafter", ModBlocks.AUTO_CRAFTER);
     public static final RegistryEntry<BlockItem> ITEM_SORTER_ITEM = blockItem("item_sorter", ModBlocks.ITEM_SORTER);
 
+    // --- Tools ---------------------------------------------------------------
+    /**
+     * The side-config wrench (Core ships the API, NeroTech ships the item — see
+     * {@link za.co.neroland.nerotech.item.ConfiguratorItem}). Single-stack tool.
+     */
+    // TODO Stage D: replace placeholder art (gen_textures) — the item model currently
+    // points layer0 at the existing nerotech:item/machine_frame texture.
+    public static final RegistryEntry<Item> CONFIGURATOR = ITEMS.register("configurator",
+            key -> new ConfiguratorItem(new Item.Properties().setId(key).stacksTo(1)));
+
     // --- Upgrade modules (Core UpgradeType; classified by item) -------------
     public static final RegistryEntry<Item> SPEED_MODULE = module("speed_module", UpgradeType.SPEED);
     public static final RegistryEntry<Item> EFFICIENCY_MODULE = module("efficiency_module", UpgradeType.EFFICIENCY);
@@ -71,7 +83,7 @@ public final class ModItems {
                 IRON_DUST, COPPER_DUST, GOLD_DUST,
                 NERO_GENERATOR_ITEM, SOLAR_ARRAY_ITEM, ORE_PROCESSOR_ITEM, FABRICATOR_ITEM,
                 FUSION_REACTOR_ITEM, ADVANCED_ORE_PROCESSOR_ITEM, ADVANCED_FABRICATOR_ITEM, FUSION_CELL,
-                AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM,
+                AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM, CONFIGURATOR,
                 SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE);
     }
 

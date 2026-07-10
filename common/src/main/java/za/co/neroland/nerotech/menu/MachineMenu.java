@@ -28,8 +28,9 @@ public abstract class MachineMenu extends AbstractContainerMenu {
 
     /**
      * The machine's world position. Set server-side when the backing container is the live block-entity;
-     * the client resolves it from the looked-at block (see the screen), so the Side Config tab can target
-     * this machine. World/block data only — never a player identity (POPIA/GDPR).
+     * the client receives it via {@code network.MachineMenuPosPayload} right after the menu opens (the
+     * screen keeps a looked-at-block fallback), so the Side Config tab can target this machine. World/block
+     * data only — never a player identity (POPIA/GDPR).
      */
     @Nullable
     private BlockPos machinePos;

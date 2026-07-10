@@ -24,6 +24,8 @@ public final class NeroTechFabric implements ModInitializer {
         NeroTechCommon.init();
         // Anonymous, NeroTech-only crash reporting (opt-out via config/nerotech.properties; off in dev unless DSN set).
         NeroTechTelemetry.init();
+        // NeroTech's own payloads (menu → machine position sync); see network.NeroTechNetwork.
+        FabricNetwork.registerCommon();
         registerCoreEnergy();
         registerItemHandlers();
         // Periodic regional pollution decay + retention sweep (cheap; gated by interval inside tick).

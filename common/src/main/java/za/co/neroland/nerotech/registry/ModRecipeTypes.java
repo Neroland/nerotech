@@ -1,0 +1,79 @@
+package za.co.neroland.nerotech.registry;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+
+import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.recipe.MachineRecipe;
+
+/**
+ * NeroTech's datapack recipe types + serializers (Stage C, 2026-07-10): one per processing
+ * machine family, all decoding to {@link MachineRecipe} (single ingredient → single result).
+ *
+ * <ul>
+ *   <li>{@code nerotech:ore_processing} — Ore Processor and Advanced Ore Processor (the advanced
+ *       tier adds its config-driven yield bonus on top of the same recipes).</li>
+ *   <li>{@code nerotech:fabricating} — Fabricator.</li>
+ *   <li>{@code nerotech:advanced_fabricating} — Advanced Fabricator (orbit-gated tier).</li>
+ * </ul>
+ */
+public final class ModRecipeTypes {
+
+    public static final RegistrationProvider<RecipeType<?>> TYPES =
+            RegistrationProvider.get(Registries.RECIPE_TYPE, NeroTechCommon.MOD_ID);
+    public static final RegistrationProvider<RecipeSerializer<?>> SERIALIZERS =
+            RegistrationProvider.get(Registries.RECIPE_SERIALIZER, NeroTechCommon.MOD_ID);
+
+    public static final RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> ORE_PROCESSING =
+            type("ore_processing");
+    public static final RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> FABRICATING =
+            type("fabricating");
+    public static final RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> ADVANCED_FABRICATING =
+            type("advanced_fabricating");
+
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> ORE_PROCESSING_SERIALIZER =
+            serializer("ore_processing", ORE_PROCESSING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> FABRICATING_SERIALIZER =
+            serializer("fabricating", FABRICATING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> ADVANCED_FABRICATING_SERIALIZER =
+            serializer("advanced_fabricating", ADVANCED_FABRICATING);
+
+    private ModRecipeTypes() {
+    }
+
+    private static RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> type(String name) {
+        // Inline anonymous type: RecipeType.simple(...) is a Forge patch, not vanilla/NeoForm API,
+        // so common/ can't use it.
+        return TYPES.register(name, key -> new RecipeType<MachineRecipe>() {
+            @Override
+            public String toString() {
+                return key.identifier().toString();
+            }
+        });
+    }
+
+    /**
+     * Registers a serializer whose codec factory binds decoded {@link MachineRecipe}s to the given
+     * type and to itself (suppliers, so registration order doesn't matter).
+     */
+    private static RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> serializer(String name,
+            RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> type) {
+        java.util.concurrent.atomic.AtomicReference<RecipeSerializer<MachineRecipe>> self =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> entry =
+                SERIALIZERS.register(name, key -> {
+                    var factory = MachineRecipe.factory(type::get, self::get);
+                    RecipeSerializer<MachineRecipe> serializer = new RecipeSerializer<>(
+                            net.minecraft.world.item.crafting.SingleItemRecipe.simpleMapCodec(factory),
+                            net.minecraft.world.item.crafting.SingleItemRecipe.simpleStreamCodec(factory));
+                    self.set(serializer);
+                    return serializer;
+                });
+        return entry;
+    }
+
+    /** Force classloading so the static registrations run during mod init. */
+    public static void init() {
+    }
+}

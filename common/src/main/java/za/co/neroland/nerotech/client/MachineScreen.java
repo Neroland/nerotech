@@ -21,6 +21,7 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigured;
 
 import za.co.neroland.nerotech.menu.MachineMenu;
+import za.co.neroland.nerotech.network.ClientMenuPos;
 
 /**
  * One procedural screen for every NeroTech machine menu — a dark sci-fi hull panel drawn entirely with
@@ -114,9 +115,10 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
 
     /**
      * Lazily build the Side Config widget the first time it can resolve this machine's block-entity and
-     * its {@link SideConfigComponent}. The position is taken from the menu when known, otherwise from the
-     * block the player is looking at (the machine they just opened). Returns null for machines without a
-     * side config.
+     * its {@link SideConfigComponent}. The position is taken from the menu when known, then from the
+     * server's menu-position payload (mailboxed by container id in {@link ClientMenuPos}), and
+     * only as a last resort from the block the player is looking at (the machine they just opened).
+     * Returns null for machines without a side config.
      */
     @Nullable
     private SideConfigWidget sideConfig() {
@@ -128,6 +130,13 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
             return null; // try again next frame
         }
         BlockPos pos = this.menu.machinePos();
+        if (pos == null) {
+            // Authoritative: the position the server sent for exactly this container id.
+            pos = ClientMenuPos.poll(this.menu.containerId);
+            if (pos != null) {
+                this.menu.setMachinePos(pos);
+            }
+        }
         if (pos == null && mc.hitResult instanceof BlockHitResult hit && mc.hitResult.getType() == HitResult.Type.BLOCK) {
             pos = hit.getBlockPos();
         }

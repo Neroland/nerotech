@@ -26,6 +26,8 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.heat.ThermalEnvironment;
+import za.co.neroland.nerotech.heat.ThermalMath;
 import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
 
@@ -53,8 +55,30 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     protected int progress;
     protected int maxProgress;
 
-    /** Heat (Stage 3 consequence axis): accumulates while working, sheds passively + via cooling. */
+    /**
+     * Heat (Stage 3 consequence axis; full thermal model per Stage C decision 2026-07-10):
+     * accumulates while working, relaxes toward the location's ambient level (dimension + biome,
+     * see {@link za.co.neroland.nerotech.heat.ThermalEnvironment}), conducts to/from adjacent
+     * machines, and sheds extra next to coolant blocks.
+     */
     protected int heat;
+
+    /**
+     * Cached positions of adjacent machine BEs for heat conduction. Rebuilt lazily after
+     * {@link #invalidateThermalLinks()} (neighbour change / load) — never scanned per tick.
+     */
+    @Nullable
+    private java.util.List<BlockPos> thermalLinks;
+
+    /** Adjacent coolant-block faces (water/ice/snow), cached with the links. */
+    private int coolantFaces;
+
+    /** Cached ambient heat for this position; refreshed on an interval (dimension never changes in-place). */
+    private int ambientCache;
+    private long ambientCacheUntil = Long.MIN_VALUE;
+
+    /** Spreads conduction exchanges across ticks so linked pairs don't all fire on the same tick. */
+    private final int thermalPhase = Math.floorMod(System.identityHashCode(this) * 31, 1024);
 
     /** Placing player's UUID — captured only when per-player pollution attribution is enabled. */
     @Nullable
@@ -169,10 +193,10 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     @Override
     protected final void serverTick(Level level, BlockPos pos, BlockState state) {
         tickMachine(level, pos, state);
-        dissipateHeat(level, pos);
+        thermalTick(level, pos);
     }
 
-    /** Per-machine server logic. The base shed of heat runs automatically after this each tick. */
+    /** Per-machine server logic. The thermal exchange runs automatically after this each tick. */
     protected abstract void tickMachine(Level level, BlockPos pos, BlockState state);
 
     /** Add heat, clamped to capacity. */
@@ -183,26 +207,102 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         }
     }
 
-    /** Shed heat passively each tick, faster when adjacent to water/ice/snow (cooling). */
-    protected void dissipateHeat(Level level, BlockPos pos) {
-        if (this.heat <= 0) {
-            return;
+    /**
+     * Full thermal model, one tick: relax toward ambient (dimension + biome), shed extra next to
+     * coolant blocks, and — on this machine's phase of the exchange interval — conduct heat
+     * with cached adjacent machines. Costs a few integer ops per tick; the neighbour scan happens
+     * only when the link cache was invalidated by a neighbour change.
+     */
+    protected void thermalTick(Level level, BlockPos pos) {
+        int before = this.heat;
+        int ambient = ambient(level, pos);
+
+        // Environmental exchange: cool toward ambient when hot, warm toward it when cold.
+        this.heat += ThermalMath.ambientStep(this.heat, ambient, NeroTechConfig.thermalEnvLossPermille());
+
+        // Coolant adjacency only ever cools, and never below ambient. The coolant count is
+        // cached alongside the conduction links (rebuilt on neighbour change, not per tick).
+        if (this.heat > ambient && this.coolantFaces > 0) {
+            this.heat = Math.max(ambient,
+                    this.heat - this.coolantFaces * NeroTechConfig.heatDissipationPerTick());
         }
-        this.heat = Math.max(0, this.heat - NeroTechConfig.heatDissipationPerTick() - coolingBonus(level, pos));
-        setChanged();
+
+        // Machine-to-machine conduction, on this machine's phase of the interval.
+        int interval = NeroTechConfig.thermalExchangeIntervalTicks();
+        if ((level.getGameTime() + this.thermalPhase) % interval == 0) {
+            if (this.thermalLinks == null) {
+                rebuildThermalLinks(level);
+            }
+            conductWithNeighbours(level);
+        }
+
+        this.heat = ThermalMath.clampHeat(this.heat, NeroTechConfig.heatCapacity());
+        if (this.heat != before) {
+            setChanged();
+        }
     }
 
-    private int coolingBonus(Level level, BlockPos pos) {
-        int perCoolant = NeroTechConfig.heatDissipationPerTick();
-        int bonus = 0;
-        for (Direction side : Direction.values()) {
-            BlockState ns = level.getBlockState(pos.relative(side));
-            if (ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE) || ns.is(Blocks.BLUE_ICE)
-                    || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW)) {
-                bonus += perCoolant;
+    /** Ambient heat here, cached and refreshed every 200 ticks (biome/dimension are near-static). */
+    private int ambient(Level level, BlockPos pos) {
+        long now = level.getGameTime();
+        if (now >= this.ambientCacheUntil) {
+            this.ambientCache = ThermalEnvironment.ambientAt(level, pos);
+            this.ambientCacheUntil = now + 200;
+        }
+        return this.ambientCache;
+    }
+
+    /**
+     * Exchange heat with cached adjacent machines ({@link ThermalMath#conductionStep} — moves a
+     * share of the temperature difference, symmetric, hot to cold). Both sides of a pair run
+     * this on their own phase, so a pair exchanges ~twice per interval; the default
+     * conductivity accounts for that.
+     */
+    private void conductWithNeighbours(Level level) {
+        int conductivity = NeroTechConfig.thermalConductivityPermille();
+        if (conductivity <= 0 || this.thermalLinks == null) {
+            return;
+        }
+        for (BlockPos neighbourPos : this.thermalLinks) {
+            if (level.getBlockEntity(neighbourPos) instanceof NeroTechMachineBlockEntity other) {
+                int step = ThermalMath.conductionStep(this.heat, other.heat, conductivity);
+                if (step != 0) {
+                    int capacity = NeroTechConfig.heatCapacity();
+                    this.heat = ThermalMath.clampHeat(this.heat - step, capacity);
+                    other.heat = ThermalMath.clampHeat(other.heat + step, capacity);
+                    other.setChanged();
+                }
+            } else {
+                // Stale link (machine broken without a neighbour-change reaching us): rebuild next pass.
+                this.thermalLinks = null;
+                return;
             }
         }
-        return bonus;
+    }
+
+    /** One 6-face scan for machine links + coolant faces — only after invalidation, never per tick. */
+    private void rebuildThermalLinks(Level level) {
+        java.util.List<BlockPos> links = new java.util.ArrayList<>(6);
+        int coolants = 0;
+        for (Direction side : Direction.values()) {
+            BlockPos neighbourPos = this.worldPosition.relative(side);
+            if (level.getBlockEntity(neighbourPos) instanceof NeroTechMachineBlockEntity) {
+                links.add(neighbourPos.immutable());
+                continue;
+            }
+            BlockState ns = level.getBlockState(neighbourPos);
+            if (ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE) || ns.is(Blocks.BLUE_ICE)
+                    || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW)) {
+                coolants++;
+            }
+        }
+        this.thermalLinks = links;
+        this.coolantFaces = coolants;
+    }
+
+    /** Drop the cached conduction links; called by the block on neighbour changes and on load. */
+    public void invalidateThermalLinks() {
+        this.thermalLinks = null;
     }
 
     /** True once heat reaches the throttle threshold — processing machines stall until cooled. */

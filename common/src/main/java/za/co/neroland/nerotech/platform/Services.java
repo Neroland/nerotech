@@ -20,6 +20,9 @@ public final class Services {
     /** Loader-specific facts (version, environment, dist, loaded mods) — used by telemetry. */
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
 
+    /** Packet-send seam for NeroTech's own payloads (see {@code network.NeroTechNetwork}). */
+    public static final INetworkHelper NETWORK = load(INetworkHelper.class);
+
     private Services() {
     }
 

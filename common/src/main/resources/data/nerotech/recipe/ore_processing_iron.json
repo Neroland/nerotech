@@ -1,0 +1,1 @@
+{ "type": "nerotech:ore_processing", "ingredient": ["minecraft:iron_ore", "minecraft:deepslate_iron_ore", "minecraft:raw_iron"], "result": { "id": "nerotech:iron_dust", "count": 2 } }

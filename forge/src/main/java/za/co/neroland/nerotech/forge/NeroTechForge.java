@@ -25,6 +25,8 @@ public final class NeroTechForge {
         // Anonymous, NeroTech-only crash reporting (opt-out via config/nerotech.properties; off in dev unless DSN set).
         NeroTechTelemetry.init();
         ForgeRegistrationFactory.registerAll(modBusGroup);
+        // NeroTech's own payloads (menu → machine position sync); see network.NeroTechNetwork.
+        ForgeNetwork.register();
         ForgeCapabilities.register();
         // Periodic regional pollution decay + retention sweep (game bus; gated by interval inside tick).
         TickEvent.ServerTickEvent.Post.BUS.addListener(event -> PollutionManager.tick(event.server()));
