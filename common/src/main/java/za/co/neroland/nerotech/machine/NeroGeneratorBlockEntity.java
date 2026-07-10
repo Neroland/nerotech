@@ -85,6 +85,9 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
             }
         }
 
+        // BER surface: the turbine spins (and the intake glows) while a fuel charge is burning.
+        setActive(this.progress > 0);
+
         MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
     }
 

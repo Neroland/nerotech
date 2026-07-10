@@ -1,8 +1,83 @@
 {
-  "parent": "minecraft:block/orientable",
+  "parent": "minecraft:block/block",
   "textures": {
-    "top": "nerotech:block/solar_array_top",
     "front": "nerotech:block/solar_array_front",
-    "side": "nerotech:block/solar_array"
-  }
+    "side": "nerotech:block/solar_array",
+    "top": "nerotech:block/solar_array_top",
+    "particle": "nerotech:block/solar_array"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 2, 16],
+      "faces": {
+        "down": { "texture": "#side" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#side" },
+        "west": { "texture": "#side" },
+        "east": { "texture": "#side" }
+      }
+    },
+    {
+      "from": [6, 2, 6],
+      "to": [10, 8, 10],
+      "faces": {
+        "down": { "texture": "#side" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#side" },
+        "west": { "texture": "#side" },
+        "east": { "texture": "#side" }
+      }
+    },
+    {
+      "from": [5, 8, 5],
+      "to": [11, 10, 11],
+      "faces": {
+        "down": { "texture": "#side" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#side" },
+        "west": { "texture": "#side" },
+        "east": { "texture": "#side" }
+      }
+    },
+    {
+      "from": [7, 10, 4],
+      "to": [9, 14, 6],
+      "faces": {
+        "down": { "texture": "#side" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#side" },
+        "west": { "texture": "#side" },
+        "east": { "texture": "#side" }
+      }
+    },
+    {
+      "from": [7, 10, 10],
+      "to": [9, 14, 12],
+      "faces": {
+        "down": { "texture": "#side" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#side" },
+        "west": { "texture": "#side" },
+        "east": { "texture": "#side" }
+      }
+    },
+    {
+      "from": [7, 11, 6],
+      "to": [9, 13, 10],
+      "faces": {
+        "down": { "texture": "#side" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#side" },
+        "west": { "texture": "#side" },
+        "east": { "texture": "#side" }
+      }
+    }
+  ]
 }

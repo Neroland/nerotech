@@ -199,15 +199,72 @@ tasks.register('syncModels') {
 }
 
 // ---------------------------------------------------------------------------
-// Regenerate procedural textures + Blockbench block/item models for the MULTILOADER
-// (tools/gen_textures.py + gen_bbmodels.py with --multiloader). Both are ADDITIVE — they
-// skip any asset that already exists, so reruns only fill gaps and never overwrite
-// committed/edited art. gen_textures needs Pillow (skips gracefully without it). Run on
-// demand: `./gradlew genAssets`. Python auto-detected; override -PpythonCmd=.
+// Regenerate the procedural 32x teal texture set for the MULTILOADER
+// (tools/gen_textures.py with --multiloader; the visual contract is the umbrella
+// repo's nerotech/MODELS.md). ADDITIVE by default — any PNG that already exists is
+// skipped, so reruns only fill gaps and never overwrite committed/edited art. Pass
+// -PgenAssetsArgs=--force for a wholesale regen (the one-shot Stage D run that
+// replaces the interim 16x art). gen_textures needs Pillow (exits 0 with a notice
+// without it). Run on demand: `./gradlew genAssets`. Python auto-detected;
+// override -PpythonCmd=. Run `./gradlew genAnim` afterwards to rebuild the PULSE
+// animation strips + .mcmeta on the machine fronts.
 // ---------------------------------------------------------------------------
 tasks.register('genAssets') {
     group = 'nerotech'
-    description = 'Regenerate textures + Blockbench block/item models into common (additive).'
+    description = 'Regenerate the 32x texture set into common (additive; -PgenAssetsArgs=--force to replace).'
+    def repoRoot = rootProject.projectDir
+    def pythonOverride = providers.gradleProperty('pythonCmd').getOrNull()
+    def isWindows = System.getProperty('os.name').toLowerCase().contains('win')
+    def pyenvRoot = System.getenv('PYENV_ROOT') ?: System.getenv('PYENV')
+    if (!pyenvRoot && System.getenv('USERPROFILE')) {
+        pyenvRoot = System.getenv('USERPROFILE') + '\\.pyenv\\pyenv-win'
+    }
+    if (!pyenvRoot && System.getenv('HOME')) {
+        pyenvRoot = System.getenv('HOME') + '/.pyenv'
+    }
+    def extra = (providers.gradleProperty('genAssetsArgs').getOrElse('')).split(' ').findAll { it } as List
+    doLast {
+        def wrap = { c -> isWindows ? (['cmd', '/c'] + c) : c }
+        def candidates = []
+        if (pythonOverride) candidates << [pythonOverride]
+        candidates += [['python'], ['py'], ['python3']]
+        if (pyenvRoot) {
+            def r = pyenvRoot.replaceAll(/[\\\/]+$/, '')
+            candidates << [r + (isWindows ? '\\shims\\python.bat' : '/shims/python')]
+            candidates << [r + (isWindows ? '\\bin\\python.exe' : '/bin/python')]
+        }
+        def python = null
+        for (c in candidates) {
+            try {
+                def probe = wrap(c + ['--version']).execute(null, repoRoot)
+                probe.consumeProcessOutput(new StringBuilder(), new StringBuilder()); probe.waitFor()
+                if (probe.exitValue() == 0) { python = c; break }
+            } catch (ignored) {}
+        }
+        if (python == null) {
+            throw new GradleException("genAssets: no Python found; set -PpythonCmd=<path>. pyenv root: ${pyenvRoot}")
+        }
+        def proc = wrap(python + ['tools/gen_textures.py', '--multiloader'] + extra).execute(null, repoRoot)
+        def out = new StringBuilder(); def err = new StringBuilder()
+        proc.consumeProcessOutput(out, err); proc.waitFor()
+        if (out.length() > 0) println out.toString().trim()
+        if (proc.exitValue() != 0) {
+            throw new GradleException("gen_textures.py failed (exit ${proc.exitValue()}):\n${err}")
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Re-render the PULSE .mcmeta animations for the MULTILOADER (machine fronts +
+// the fusion plasma BER sprite): `./gradlew genAnim` after a genAssets pass
+// (tools/gen_animations.py --multiloader). Frame 0 of every strip is the
+// untouched base texture, so the pass is idempotent and safe to re-run. Needs
+// Pillow (exits 0 with a notice without it). Python auto-detected; override
+// -PpythonCmd=.
+// ---------------------------------------------------------------------------
+tasks.register('genAnim') {
+    group = 'nerotech'
+    description = 'Rebuild PULSE animation strips + .mcmeta on the machine fronts (idempotent).'
     def repoRoot = rootProject.projectDir
     def pythonOverride = providers.gradleProperty('pythonCmd').getOrNull()
     def isWindows = System.getProperty('os.name').toLowerCase().contains('win')
@@ -237,16 +294,14 @@ tasks.register('genAssets') {
             } catch (ignored) {}
         }
         if (python == null) {
-            throw new GradleException("genAssets: no Python found; set -PpythonCmd=<path>. pyenv root: ${pyenvRoot}")
+            throw new GradleException("genAnim: no Python found; set -PpythonCmd=<path>. pyenv root: ${pyenvRoot}")
         }
-        ['tools/gen_textures.py', 'tools/gen_bbmodels.py'].each { script ->
-            def proc = wrap(python + [script, '--multiloader']).execute(null, repoRoot)
-            def out = new StringBuilder(); def err = new StringBuilder()
-            proc.consumeProcessOutput(out, err); proc.waitFor()
-            if (out.length() > 0) println out.toString().trim()
-            if (proc.exitValue() != 0) {
-                throw new GradleException("${script} failed (exit ${proc.exitValue()}):\n${err}")
-            }
+        def proc = wrap(python + ['tools/gen_animations.py', '--multiloader']).execute(null, repoRoot)
+        def out = new StringBuilder(); def err = new StringBuilder()
+        proc.consumeProcessOutput(out, err); proc.waitFor()
+        if (out.length() > 0) println out.toString().trim()
+        if (proc.exitValue() != 0) {
+            throw new GradleException("gen_animations.py failed (exit ${proc.exitValue()}):\n${err}")
         }
     }
 }

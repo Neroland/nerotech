@@ -53,6 +53,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 return;
             }
             // Survival-friendly: stall and shed heat (base dissipation), still emit stored power.
+            setActive(false); // torus dies; only the BER warning strobe telegraphs the overheat
             MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
             return;
         }
@@ -75,6 +76,9 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 this.maxProgress = 0;
             }
         }
+
+        // BER surface: the plasma torus spins while a fusion charge is burning.
+        setActive(this.progress > 0);
 
         MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer());
     }

@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -17,6 +18,8 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+
+import org.jetbrains.annotations.Nullable;
 
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
@@ -97,7 +100,42 @@ public class AutoCrafterBlockEntity extends NeroTechMachineBlockEntity {
         }
         this.maxProgress = 1;
         this.progress = 1;
+        // BER surface: one press-stamp animation per completed craft (synced pulse counter).
+        pulseClient();
         setChanged();
+    }
+
+    // --- BER client surface (hologram item + press-stamp pulse) --------------
+
+    /**
+     * The hologram icon: the first non-empty grid stack (the "locked template" ghost). The crafted
+     * RESULT is not client-computable — vanilla no longer syncs recipes to the client — so the BER
+     * shows the leading template ingredient instead. Grid items ride the BE update tag, and
+     * {@link #renderSyncDirty} pushes an update whenever this icon's item changes.
+     */
+    public ItemStack hologramStack() {
+        for (int i = 0; i < GRID_SIZE; i++) {
+            ItemStack stack = this.items.get(i);
+            if (!stack.isEmpty()) {
+                return stack;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /** Last hologram item pushed to clients (sync-discipline comparator; null = empty grid). */
+    @Nullable
+    private Item syncedHologramItem;
+
+    @Override
+    protected boolean renderSyncDirty() {
+        ItemStack ghost = hologramStack();
+        Item item = ghost.isEmpty() ? null : ghost.getItem();
+        if (item != this.syncedHologramItem) {
+            this.syncedHologramItem = item;
+            return true;
+        }
+        return false;
     }
 
     private CraftingInput craftingInput() {

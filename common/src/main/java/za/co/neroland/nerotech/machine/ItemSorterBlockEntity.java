@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.RelativeFace;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 import za.co.neroland.nerolandcore.sideconfig.SideMode;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
@@ -77,10 +78,45 @@ public class ItemSorterBlockEntity extends NeroTechMachineBlockEntity {
                 continue;
             }
             if (moveInto(BUFFER_START + i, in)) {
+                // BER surface: one port-cap brightening pulse per routed batch (synced pulse counter).
+                pulseClient();
                 setChanged();
             }
             return; // one routing action per cycle keeps this cheap
         }
+    }
+
+    // --- BER client surface (port-cap tint sync) ------------------------------
+
+    /** Last packed port-mode snapshot pushed to clients (sync-discipline comparator). */
+    private int syncedPortModes = -1;
+
+    /**
+     * Re-sync when a port's mode changes (Configurator / Side Config widget edits), so the BER's
+     * per-face cap tints track the config without waiting for the next sort pulse. The packed compare
+     * is six enum lookups per tick — the config itself already rides the BE update tag
+     * (Core's {@code SideConfig.save} in {@code saveAdditional}).
+     */
+    @Override
+    protected boolean renderSyncDirty() {
+        int packed = packPortModes();
+        if (packed != this.syncedPortModes) {
+            this.syncedPortModes = packed;
+            return true;
+        }
+        return false;
+    }
+
+    private int packPortModes() {
+        SideConfigComponent component = sideConfig();
+        if (component == null) {
+            return 0;
+        }
+        int packed = 0;
+        for (RelativeFace face : RelativeFace.values()) {
+            packed = packed * 8 + component.config().mode(Channel.ITEM, face).ordinal();
+        }
+        return packed;
     }
 
     private boolean moveInto(int bufferSlot, ItemStack input) {

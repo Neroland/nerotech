@@ -1,10 +1,16 @@
 package za.co.neroland.nerotech.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.client.AutoCrafterScreen;
+import za.co.neroland.nerotech.client.ClientBlockEntityRenderers;
 import za.co.neroland.nerotech.client.FabricatorScreen;
 import za.co.neroland.nerotech.client.ItemSorterScreen;
 import za.co.neroland.nerotech.client.NeroGeneratorScreen;
@@ -12,7 +18,7 @@ import za.co.neroland.nerotech.client.OreProcessorScreen;
 import za.co.neroland.nerotech.client.SolarArrayScreen;
 import za.co.neroland.nerotech.registry.ModMenuTypes;
 
-/** Fabric client entry point for NeroTech — registers the machine screens. */
+/** Fabric client entry point for NeroTech — registers the machine screens + block-entity renderers. */
 public final class NeroTechFabricClient implements ClientModInitializer {
 
     @Override
@@ -26,5 +32,14 @@ public final class NeroTechFabricClient implements ClientModInitializer {
         MenuScreens.register(ModMenuTypes.FABRICATOR.get(), FabricatorScreen::new);
         MenuScreens.register(ModMenuTypes.AUTO_CRAFTER.get(), AutoCrafterScreen::new);
         MenuScreens.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
+
+        // Machine BERs through the shared cross-loader seam (Nerospace pattern).
+        ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {
+            @Override
+            public <T extends BlockEntity, S extends BlockEntityRenderState> void register(
+                    BlockEntityType<? extends T> type, BlockEntityRendererProvider<T, S> provider) {
+                BlockEntityRendererRegistry.register(type, provider);
+            }
+        });
     }
 }

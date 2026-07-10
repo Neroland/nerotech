@@ -46,6 +46,8 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
         // Display hook: show "working" in the GUI while generating.
         this.maxProgress = producing ? 1 : 0;
         this.progress = producing ? 1 : 0;
+        // BER surface: the tracking deck reads as "generating" while daylight reaches the panel.
+        setActive(producing);
 
         if (producing && getEnergy().getAmount() < getEnergy().getCapacity()) {
             UpgradeModifiers mods = modifiers();

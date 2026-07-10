@@ -4,7 +4,12 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
@@ -12,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -62,6 +68,45 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
      * machines, and sheds extra next to coolant blocks.
      */
     protected int heat;
+
+    /** Client-visible heat granularity: sync fires on BUCKET change over heatCapacity, never per raw heat tick. */
+    public static final int HEAT_SYNC_BUCKETS = 6;
+
+    /**
+     * Client-visible "the machine is working" flag (burning / processing / generating), driven by
+     * subclasses from {@link #tickMachine} via {@link #setActive}. BERs gate their dynamic geometry on
+     * it. Synced to watching clients only when it flips (see {@link #syncRenderState}).
+     */
+    protected boolean active;
+
+    /**
+     * Client-visible pulse counter for one-shot machines (Auto Crafter craft, Item Sorter sort): each
+     * server-side {@link #pulseClient} bumps it, and the BER plays a short animation when the synced
+     * value changes. Wraps harmlessly; synced only on change.
+     */
+    protected int clientPulse;
+
+    /** Last values pushed to clients — the sync-discipline comparators (active flip / heat bucket / pulse). */
+    private boolean syncedActive;
+    private int syncedHeatBucket;
+    private int syncedPulse;
+
+    // --- client-side BER display state (never saved, never synced; POPIA: pure visuals, no player data).
+    // The quarry-renderer easing recipe: the BER eases displayPos toward its target ONCE per game tick
+    // (storing the previous tick's value) and lerps by partialTick, so motion is FPS-independent.
+
+    /** Whether the display easing has been seeded (client render thread only). */
+    public boolean displayInit;
+    /** Current eased display scalar (e.g. the Fabricator arm's traverse position). */
+    public double displayPos;
+    /** Previous tick's eased display scalar (lerp partner). */
+    public double prevDisplayPos;
+    /** Game tick the easing last advanced on. */
+    public long displayLastTick;
+    /** Pulse-change detection: the last synced {@link #renderPulse()} the client renderer consumed... */
+    public int clientSeenPulse = Integer.MIN_VALUE;
+    /** ...and the game time it arrived (start of the client-side pulse animation). */
+    public long clientPulseTime = Long.MIN_VALUE;
 
     /**
      * Cached positions of adjacent machine BEs for heat conduction. Rebuilt lazily after
@@ -194,10 +239,87 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     protected final void serverTick(Level level, BlockPos pos, BlockState state) {
         tickMachine(level, pos, state);
         thermalTick(level, pos);
+        syncRenderState(level, pos, state);
     }
 
     /** Per-machine server logic. The thermal exchange runs automatically after this each tick. */
     protected abstract void tickMachine(Level level, BlockPos pos, BlockState state);
+
+    // --- BER client sync (active flag + heat bucket + pulse ride the BE update packet) -----------
+
+    /** Subclasses flag work-in-progress from {@link #tickMachine}; drives the BER "running" animations. */
+    protected void setActive(boolean value) {
+        this.active = value;
+    }
+
+    /** Bump the client pulse counter (one-shot machines); the BER plays a short animation per bump. */
+    protected void pulseClient() {
+        this.clientPulse = (this.clientPulse + 1) & 0xFFFF;
+    }
+
+    /**
+     * Hook for subclass-specific synced render state (compare-and-record inside the override; return
+     * true when a client-visible visual changed — e.g. the Auto Crafter's hologram item, the Item
+     * Sorter's port modes). Called once per server tick; default is never dirty.
+     */
+    protected boolean renderSyncDirty() {
+        return false;
+    }
+
+    /**
+     * Push a BE update packet when — and only when — the client-visible render surface changed: the
+     * active flag flipped, the heat BUCKET moved ({@value #HEAT_SYNC_BUCKETS} buckets over
+     * {@code heatCapacity}), the pulse counter bumped, or {@link #renderSyncDirty} reports a change.
+     * Never per-tick (the MODELS.md sync discipline).
+     */
+    private void syncRenderState(Level level, BlockPos pos, BlockState state) {
+        int bucket = heatBucket();
+        boolean dirty = this.active != this.syncedActive
+                || bucket != this.syncedHeatBucket
+                || this.clientPulse != this.syncedPulse;
+        // Evaluate the hook even when already dirty so its compare-and-record state stays current.
+        dirty |= renderSyncDirty();
+        if (dirty) {
+            this.syncedActive = this.active;
+            this.syncedHeatBucket = bucket;
+            this.syncedPulse = this.clientPulse;
+            level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+        }
+    }
+
+    private int heatBucket() {
+        int capacity = NeroTechConfig.heatCapacity();
+        return capacity <= 0 ? 0 : Math.min(HEAT_SYNC_BUCKETS - 1, this.heat * HEAT_SYNC_BUCKETS / capacity);
+    }
+
+    /** Whether the machine is visibly working (BER read surface; fed by the update tag client-side). */
+    public boolean renderActive() {
+        return this.active;
+    }
+
+    /** The synced pulse counter (BER read surface; fed by the update tag client-side). */
+    public int renderPulse() {
+        return this.clientPulse;
+    }
+
+    /** Heat as a 0..1 fraction of capacity — the BER heat-glow lerp input. */
+    public float heatFraction() {
+        int capacity = NeroTechConfig.heatCapacity();
+        return capacity <= 0 ? 0.0F : Math.min(1.0F, (float) this.heat / capacity);
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        // The full custom save: active + heat for every BER, the machine items (the Auto Crafter
+        // hologram reads its grid), and Core's packed side config (super.saveAdditional writes it —
+        // the Item Sorter's port-cap tints read it back on the client).
+        return saveCustomOnly(registries);
+    }
 
     /** Add heat, clamped to capacity. */
     protected void addHeat(int amount) {
@@ -342,6 +464,8 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         output.putInt("Progress", this.progress);
         output.putInt("MaxProgress", this.maxProgress);
         output.putInt("Heat", this.heat);
+        output.putBoolean("Active", this.active);
+        output.putInt("Pulse", this.clientPulse);
         output.putLong("OwnerMost", this.ownerId == null ? 0L : this.ownerId.getMostSignificantBits());
         output.putLong("OwnerLeast", this.ownerId == null ? 0L : this.ownerId.getLeastSignificantBits());
         for (int i = 0; i < this.items.size(); i++) {
@@ -355,6 +479,8 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         this.progress = input.getIntOr("Progress", 0);
         this.maxProgress = input.getIntOr("MaxProgress", 0);
         this.heat = input.getIntOr("Heat", 0);
+        this.active = input.getBooleanOr("Active", false);
+        this.clientPulse = input.getIntOr("Pulse", 0);
         long ownerMost = input.getLongOr("OwnerMost", 0L);
         long ownerLeast = input.getLongOr("OwnerLeast", 0L);
         this.ownerId = (ownerMost == 0L && ownerLeast == 0L) ? null : new UUID(ownerMost, ownerLeast);

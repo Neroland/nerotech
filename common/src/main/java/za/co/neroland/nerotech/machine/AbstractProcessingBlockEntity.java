@@ -86,6 +86,7 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
         ItemStack result = resultFor(input);
 
         if (result.isEmpty() || !canOutput(result)) {
+            setActive(false); // nothing to do — BER drums/arms park
             if (this.maxProgress != 0 || this.progress != 0) {
                 this.progress = 0;
                 this.maxProgress = 0;
@@ -102,8 +103,12 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
 
         // Heat throttle: a machine that's run too hard stalls until it sheds heat (base dissipation).
         if (overheated()) {
+            setActive(false);
             return;
         }
+
+        // BER surface: dynamic geometry runs exactly while progress actually advances.
+        setActive(energyBuffer().has(cost));
 
         if (energyBuffer().has(cost)) {
             energyBuffer().consume(cost);

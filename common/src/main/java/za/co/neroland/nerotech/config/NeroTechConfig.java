@@ -97,6 +97,12 @@ public final class NeroTechConfig {
             + "versions only — never names, UUIDs, IPs, or world data; POPIA/GDPR-compliant). Set false to "
             + "opt out");
 
+    // --- client rendering (CLIENT-LOCAL quality toggle, not server-synced) ------------------
+    private static final ConfigValue<Boolean> RENDER_ANIMATIONS = SCHEMA.bool("renderAnimationsEnabled",
+            true, false, "animated machine visuals (spinning turbines/drums, sun-tracking solar deck, "
+            + "fabricator arms, plasma torus, holograms). Set false on low-end clients: block-entity "
+            + "renderers then draw a single static parked frame instead");
+
     private NeroTechConfig() {
     }
 
@@ -206,6 +212,11 @@ public final class NeroTechConfig {
 
     public static boolean telemetryEnabled() {
         return TELEMETRY_ENABLED.get();
+    }
+
+    /** Client-local BER quality toggle: false = static parked frames (never affects gameplay/balance). */
+    public static boolean renderAnimationsEnabled() {
+        return RENDER_ANIMATIONS.get();
     }
 
     /** Register the schema with Core (reads/creates {@code nerotech.properties}). Idempotent. */
