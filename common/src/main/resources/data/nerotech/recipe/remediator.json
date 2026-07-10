@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "S": "#c:ingots/starsteel", "B": "nerotech:circuit_board", "F": "nerotech:machine_frame", "C": "nerotech:nero_coil" },
+  "pattern": [ "SBS", "CFC", "SSS" ],
+  "result": { "id": "nerotech:remediator" } }

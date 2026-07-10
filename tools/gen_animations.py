@@ -49,6 +49,8 @@ PULSE = [
     ("fusion_reactor_front",          8, 3, 0.32, TEAL),
     ("auto_crafter_front",            8, 3, 0.28, TEAL),
     ("item_sorter_front",             8, 3, 0.26, TEAL),
+    ("scrubber_front",                8, 3, 0.26, TEAL),
+    ("remediator_front",              8, 3, 0.28, TEAL),
     ("fusion_reactor_plasma",         8, 3, 0.35, TEAL),  # BER wisp: glow breathing
 ]
 

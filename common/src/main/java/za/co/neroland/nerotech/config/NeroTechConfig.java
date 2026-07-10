@@ -78,6 +78,24 @@ public final class NeroTechConfig {
             + "UUID (POPIA/GDPR: UUIDs only, retention-pruned, erasable via the shared data-erasure hook)");
     private static final ConfigValue<Integer> POLLUTION_RETENTION_DAYS = SCHEMA.intRange("pollutionAttributionRetentionDays",
             30, 0, 3_650, true, "days to keep per-player pollution attribution before pruning (0 = keep until erased)");
+    private static final ConfigValue<Integer> POLLUTION_EVENT_THRESHOLD = SCHEMA.intRange("pollutionEventThreshold",
+            1_000, 0, 1_000_000, true, "regional pollution level that publishes a Core threshold event when "
+            + "crossed (rising and recovering; dormant until a listener like NeroEvents exists; 0 disables)");
+
+    // --- pollution mitigation (Stage F: Scrubber + Remediator) ---------------
+    private static final ConfigValue<Integer> SCRUBBER_NE_PER_OP = SCHEMA.intRange("scrubberNePerOp",
+            120, 0, 1_000_000, true, "NE one Scrubber operation costs (batched on the contribution interval)");
+    private static final ConfigValue<Integer> SCRUBBER_RATE = SCHEMA.intRange("scrubberPollutionPerOp",
+            6, 1, 100_000, true, "pollution removed from the Scrubber's own region per operation");
+    private static final ConfigValue<Integer> SCRUBBER_ADJACENT = SCHEMA.intRange("scrubberAdjacentPermille",
+            250, 0, 1_000, true, "permille of the scrub rate also removed from each of the 8 adjacent regions "
+            + "(default 25%; 0 = own region only)");
+    private static final ConfigValue<Integer> SCRUBBER_FILTER_CAPACITY = SCHEMA.intRange("scrubberFilterCapacity",
+            400, 1, 1_000_000, true, "pollution one Filter Cartridge absorbs before it fouls into a Dirty Filter");
+    private static final ConfigValue<Integer> REMEDIATOR_NE_PER_OP = SCHEMA.intRange("remediatorNePerOp",
+            600, 0, 10_000_000, true, "NE one Remediator operation costs — deliberately heavy; cleanup is a sink");
+    private static final ConfigValue<Integer> REMEDIATOR_RATE = SCHEMA.intRange("remediatorPollutionPerOp",
+            20, 1, 100_000, true, "pollution removed from the Remediator's own region per operation");
 
     // --- Tier 2/3 (gated behind Nerospace / orbit) --------------------------
     private static final ConfigValue<Integer> FUSION_NE_PER_TICK = SCHEMA.intRange("fusionReactorNePerTick",
@@ -201,6 +219,34 @@ public final class NeroTechConfig {
 
     public static int pollutionAttributionRetentionDays() {
         return POLLUTION_RETENTION_DAYS.get();
+    }
+
+    public static int pollutionEventThreshold() {
+        return POLLUTION_EVENT_THRESHOLD.get();
+    }
+
+    public static int scrubberNePerOp() {
+        return SCRUBBER_NE_PER_OP.get();
+    }
+
+    public static int scrubberPollutionPerOp() {
+        return SCRUBBER_RATE.get();
+    }
+
+    public static int scrubberAdjacentPermille() {
+        return SCRUBBER_ADJACENT.get();
+    }
+
+    public static int scrubberFilterCapacity() {
+        return SCRUBBER_FILTER_CAPACITY.get();
+    }
+
+    public static int remediatorNePerOp() {
+        return REMEDIATOR_NE_PER_OP.get();
+    }
+
+    public static int remediatorPollutionPerOp() {
+        return REMEDIATOR_RATE.get();
     }
 
     public static int fusionReactorNePerTick() {

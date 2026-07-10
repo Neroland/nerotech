@@ -675,6 +675,127 @@ def gen_item_sorter():
     save(img, "block", "item_sorter_top")
 
 
+def gen_scrubber():
+    # side: intake louvres low + a duct seam feeding the stack (the filter bay's frame elements
+    # reuse this texture, so it stays generic plate)
+    img = machine_base("scrubber")
+    px = img.load()
+    for y in range(5, 27):                      # duct seam up to the stack
+        px[11, y] = A_DARK
+        px[12, y] = ALLOY[2]
+    for y in (8, 15, 22):                       # seam clamps
+        px[10, y] = A_LIGHT
+        px[13, y] = A_DARK
+    for y in (18, 20, 22, 24):                  # intake louvres
+        for x in range(16, 28):
+            px[x, y] = A_DARK
+            if x % 6 == 4:
+                px[x, y - 1] = A_LIGHT
+    save(img, "block", "scrubber")
+
+    # front: circular cowl grille around the fan window + twin teal status LEDs (PULSE target)
+    img = machine_base("scrubber_front")
+    px = img.load()
+    recess(px, 6, 8, 26, 28, (10, 13, 16, 255))
+    for y in range(S):                          # concentric cowl rings + radial spokes
+        for x in range(S):
+            d = math.hypot(x - 16.0, y - 18.0)
+            if d > 10.0 or y < 9 or y > 27 or x < 7 or x > 25:
+                continue
+            ang = math.atan2(y - 18.0, x - 16.0)
+            spoke = int((ang + math.pi) / (math.pi / 4)) % 2 == 0 and 3.0 < d < 9.0
+            if 9.0 <= d <= 10.0:
+                px[x, y] = A_DARK
+            elif 7.5 <= d < 9.0:
+                px[x, y] = ALLOY[3] if (x + y) % 2 == 0 else ALLOY[1]
+            elif spoke and (x + y) % 2 == 0:
+                px[x, y] = ALLOY[2]             # grille spokes over the dark intake
+            elif d <= 2.0:
+                px[x, y] = T_DEEP if d > 1.0 else T_TEAL   # hub glow behind the fan
+    led(px, 8, 4)
+    led(px, 22, 4, T_CYAN, T_PLASMA)
+    save(img, "block", "scrubber_front")
+
+    # top: exhaust stack mouth (offset over the model's stack) + vent grille + tell-tale LED
+    img = machine_base("scrubber_top")
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 12.0, y - 22.0)
+            if d <= 3.5:
+                px[x, y] = (10, 13, 16, 255)
+            elif d <= 5.5:
+                px[x, y] = A_DARK
+            elif d <= 7.0:
+                px[x, y] = ALLOY[3] if (x + y) % 2 == 0 else ALLOY[1]
+    for x in range(8, 17):                      # grate bars over the stack mouth
+        if x % 3 == 2:
+            for y in range(19, 26):
+                if math.hypot(x - 12.0, y - 22.0) <= 3.5:
+                    px[x, y] = ALLOY[2]
+    for y in (6, 8, 10):                        # vent grille over the vent box
+        for x in range(20, 27):
+            px[x, y] = A_DARK
+    led(px, 24, 22, T_TEAL)
+    save(img, "block", "scrubber_top")
+
+
+def gen_remediator():
+    # side: low process tank band with a teal fill line (the body is the block's lower half;
+    # the boom mounts reuse this texture as plain plate)
+    img = machine_base("remediator")
+    px = img.load()
+    for x in range(3, 29):                      # tank band seams (lower half = the body)
+        px[x, 16] = A_DARK
+        px[x, 17] = ALLOY[3]
+        px[x, 28] = A_DARK
+    for x in range(4, 28):                      # teal fill line in the sight channel
+        px[x, 22] = T_DEEP if x % 4 < 2 else T_TEAL
+    for x in (6, 15, 24):                       # band bolts
+        px[x, 18] = A_LIGHT
+        px[x, 27] = A_DARK
+    save(img, "block", "remediator")
+
+    # front: tank sight window + spray-nozzle row above it (PULSE target)
+    img = machine_base("remediator_front")
+    px = img.load()
+    recess(px, 7, 17, 24, 28, (10, 13, 16, 255))
+    for y in range(19, 28):                     # the tank window: teal fluid, brighter at the surface
+        for x in range(9, 23):
+            if y == 19:
+                px[x, y] = T_CYAN if x % 5 == 0 else T_TEAL   # the fill surface line
+            elif y < 23:
+                px[x, y] = T_TEAL if (x + y) % 6 == 0 else _mix(T_DEEP, T_TEAL, 0.5)
+            else:
+                px[x, y] = T_DEEP
+    px[15, 19] = T_PLASMA                       # surface glint
+    for nx in (8, 13, 18, 23):                  # spray-nozzle motif above the window
+        px[nx, 12] = A_DARK
+        px[nx + 1, 12] = A_DARK
+        px[nx, 13] = A_DARK
+        px[nx + 1, 13] = A_DARK
+        px[nx, 14] = T_CYAN                     # nozzle tips (emissive)
+        px[nx + 1, 14] = T_CYAN
+    led(px, 25, 4, T_CYAN, T_PLASMA)
+    save(img, "block", "remediator_front")
+
+    # top: deck plate with the two boom-mount pads + a teal feed conduit between them
+    img = machine_base("remediator_top")
+    px = img.load()
+    for (mx0, mx1) in ((4, 10), (22, 28)):      # mount pads
+        for y in range(12, 20):
+            for x in range(mx0, mx1 + 1):
+                px[x, y] = A_DARK if (x in (mx0, mx1) or y in (12, 19)) else (14, 18, 22, 255)
+        px[mx0 + 3, 15] = A_LIGHT               # pivot pin
+        px[mx0 + 3, 16] = A_LIGHT
+    for x in range(11, 22):                     # feed conduit between the pads
+        px[x, 15] = T_DEEP if x % 4 < 2 else _mix(T_DEEP, T_TEAL, 0.6)
+        px[x, 16] = A_DARK
+    for i in (12, 16, 20):                      # conduit pips
+        px[i, 15] = T_TEAL
+    save(img, "block", "remediator_top")
+
+
 # ---------------- BER sprites (dynamic geometry textures) ----------------
 
 def gen_ber_sprites():
@@ -855,6 +976,57 @@ def gen_ber_sprites():
         px[int(round(15.5 + 13.3 * math.cos(ang))),
            int(round(15.5 + 13.3 * math.sin(ang)))] = (70, 72, 76, 255)
     save(img, "block", "item_sorter_cap")
+
+    # scrubber_fan — radial FOUR-blade intake fan on transparent (the rotor recipe at 4 blades;
+    # the BER stacks two of these 45° apart for an eight-blade cross).
+    img = new_img()
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d > 15.2:
+                continue
+            ang = math.atan2(y - 15.5, x - 15.5)
+            if d <= 3.0:
+                px[x, y] = A_DARK if d <= 1.2 else (ALLOY[3] if (x + y) % 2 == 0 else ALLOY[1])
+            elif d <= 14.5:
+                a = ((ang + d * 0.12) / (2 * math.pi) * 4.0) % 1.0
+                w = 0.30 - d * 0.006            # blades taper toward the rim
+                if a < w:
+                    if d >= 13.0:
+                        px[x, y] = T_CYAN       # emissive blade tips
+                    elif a < 0.05:
+                        px[x, y] = A_LIGHT      # leading edge
+                    else:
+                        px[x, y] = ALLOY[1] if a < w * 0.6 else ALLOY[2]
+    px[15, 15] = A_LIGHT
+    save(img, "block", "scrubber_fan")
+
+    # remediator_boom — thin alloy spray-boom arm on transparent, nozzle tips teal. Drawn
+    # base-down: the BER maps v=0 to the boom tip, so the tip nozzles sit at the TOP rows.
+    img = new_img()
+    px = img.load()
+    for y in range(2, 30):                      # the arm: full height, narrow
+        for x in range(12, 20):
+            if x == 12:
+                col = A_LIGHT
+            elif x == 19:
+                col = A_DARK
+            else:
+                col = ALLOY[1] if (x + y) % 3 else ALLOY[2]
+            px[x, y] = col
+    for y in range(6, 28, 4):                   # nozzle pips down the spray edge
+        px[10, y] = A_DARK
+        px[11, y] = T_TEAL
+    for y in range(2, 6):                       # emissive tip nozzle cluster
+        for x in range(13, 19):
+            px[x, y] = T_CYAN if (x + y) % 2 == 0 else T_TEAL
+    px[15, 2] = T_PLASMA
+    px[16, 3] = T_PLASMA
+    for x in range(12, 20):                     # root collar at the pivot end
+        px[x, 28] = A_LIGHT
+        px[x, 29] = A_DARK
+    save(img, "block", "remediator_boom")
 
 
 # ---------------- items ----------------
@@ -1092,6 +1264,63 @@ def gen_stellar_cell():
     save(img, "item", "stellar_cell")
 
 
+def _filter_body(name, pleat_ramp):
+    """Shared filter-item silhouette: pleated medium in an alloy frame. The clean cartridge gets
+    a small teal service tick; the dirty one is fouled grey-brown with NO teal (MODELS.md: teal
+    marks live emissives, and a spent filter is inert)."""
+    rng = rng_for(name)
+    img = new_img()
+    px = img.load()
+    x0, y0, x1, y1 = 7, 5, 24, 26
+    for y in range(y0, y1 + 1):                 # alloy frame
+        for x in range(x0, x1 + 1):
+            px[x, y] = rng.choice(ALLOY)
+    for x in range(x0, x1 + 1):
+        px[x, y0] = A_LIGHT
+        px[x, y1] = A_DARK
+    for y in range(y0, y1 + 1):
+        px[x0, y] = A_LIGHT
+        px[x1, y] = A_DARK
+    rivets(img, ((x0 + 1, y0 + 1), (x1 - 2, y0 + 1), (x0 + 1, y1 - 2), (x1 - 2, y1 - 2)))
+    for y in range(y0 + 3, y1 - 2):             # pleated medium: vertical accordion folds
+        for x in range(x0 + 3, x1 - 2):
+            k = (x - x0 - 3) % 4
+            if k == 0:
+                col = pleat_ramp[2]             # fold crest
+            elif k == 3:
+                col = pleat_ramp[1]             # fold valley
+            else:
+                col = pleat_ramp[0]
+            if y >= y1 - 5 and rng.random() < 0.3:
+                col = pleat_ramp[1]             # settle shadow at the base
+            px[x, y] = col
+    return img, px
+
+
+def gen_filter_cartridge():
+    # white/light pleats + the small teal service tick on the frame
+    pleats = ((214, 220, 226, 255), (188, 196, 205, 255), (236, 240, 244, 255))
+    img, px = _filter_body("filter_cartridge", pleats)
+    px[9, 6] = T_CYAN                           # teal service tick (top-left frame)
+    px[10, 6] = T_CYAN
+    px[9, 7] = T_TEAL
+    save(img, "item", "filter_cartridge")
+
+
+def gen_dirty_filter():
+    # same silhouette, fouled grey-brown pleats, grime blotches, no teal anywhere
+    pleats = ((110, 100, 88, 255), (84, 76, 64, 255), (134, 122, 106, 255))
+    img, px = _filter_body("dirty_filter", pleats)
+    rng = rng_for("dirty_filter_grime")
+    for _ in range(26):                         # grime blotches over the pleats
+        gx = rng.randrange(10, 22)
+        gy = rng.randrange(9, 23)
+        px[gx, gy] = (58, 52, 44, 255)
+        if rng.random() < 0.5:
+            px[min(gx + 1, 21), gy] = (70, 62, 52, 255)
+    save(img, "item", "dirty_filter")
+
+
 # Upgrade modules: shared alloy card + dark glyph panel; the glyph is the identity.
 
 def _glyph_speed(px):
@@ -1252,6 +1481,8 @@ def main():
     gen_fusion_containment_glass()
     gen_auto_crafter()
     gen_item_sorter()
+    gen_scrubber()
+    gen_remediator()
     # BER sprites
     gen_ber_sprites()
     # items
@@ -1264,6 +1495,8 @@ def main():
     gen_fusion_cell()
     gen_plasma_cell()
     gen_stellar_cell()
+    gen_filter_cartridge()
+    gen_dirty_filter()
     gen_module("speed_module", _glyph_speed)
     gen_module("efficiency_module", _glyph_bolt)
     gen_module("capacity_module", _glyph_bars)

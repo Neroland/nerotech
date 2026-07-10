@@ -10,6 +10,8 @@
   "item.nerotech.fusion_cell": "Fusion Cell",
   "item.nerotech.plasma_cell": "Plasma Cell",
   "item.nerotech.stellar_cell": "Stellar Cell",
+  "item.nerotech.filter_cartridge": "Filter Cartridge",
+  "item.nerotech.dirty_filter": "Dirty Filter",
 
   "item.nerotech.configurator": "Configurator",
   "item.nerotech.configurator.cycled": "%1$s · %2$s face → %3$s",
@@ -49,6 +51,10 @@
   "item.nerotech.auto_crafter": "Auto Crafter",
   "block.nerotech.item_sorter": "Item Sorter",
   "item.nerotech.item_sorter": "Item Sorter",
+  "block.nerotech.scrubber": "Scrubber",
+  "item.nerotech.scrubber": "Scrubber",
+  "block.nerotech.remediator": "Remediator",
+  "item.nerotech.remediator": "Remediator",
 
   "container.nerotech.nero_generator": "Nero Generator",
   "container.nerotech.solar_array": "Solar Array",
@@ -59,6 +65,8 @@
   "container.nerotech.advanced_fabricator": "Advanced Fabricator",
   "container.nerotech.auto_crafter": "Auto Crafter",
   "container.nerotech.item_sorter": "Item Sorter",
+  "container.nerotech.scrubber": "Scrubber",
+  "container.nerotech.remediator": "Remediator",
 
   "advancements.nerotech.root.title": "NeroTech",
   "advancements.nerotech.root.description": "Fabricate your first machine component and start industrialising",

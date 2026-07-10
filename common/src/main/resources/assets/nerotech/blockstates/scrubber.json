@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nerotech:block/scrubber" },
+    "facing=east":  { "model": "nerotech:block/scrubber", "y": 90 },
+    "facing=south": { "model": "nerotech:block/scrubber", "y": 180 },
+    "facing=west":  { "model": "nerotech:block/scrubber", "y": 270 }
+  }
+}

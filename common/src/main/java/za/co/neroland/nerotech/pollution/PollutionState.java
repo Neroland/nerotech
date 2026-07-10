@@ -15,6 +15,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import org.jetbrains.annotations.Nullable;
+
 import za.co.neroland.nerotech.NeroTechCommon;
 
 /**
@@ -59,8 +61,32 @@ public final class PollutionState extends SavedData {
         return regions.getOrDefault(regionKey, 0);
     }
 
-    /** Decay every region by {@code amount}, dropping emptied regions. */
-    public void decay(int amount) {
+    /** Remove up to {@code amount} pollution from one region; returns what was actually removed. */
+    public int takeRegion(long regionKey, int amount) {
+        if (amount <= 0) {
+            return 0;
+        }
+        int current = regions.getOrDefault(regionKey, 0);
+        if (current <= 0) {
+            return 0;
+        }
+        int removed = Math.min(current, amount);
+        int next = current - removed;
+        if (next <= 0) {
+            regions.remove(regionKey);
+        } else {
+            regions.put(regionKey, next);
+        }
+        setDirty();
+        return removed;
+    }
+
+    /**
+     * Decay every region by {@code amount}, dropping emptied regions. When {@code threshold > 0},
+     * every region that fell from at-or-above to below it is reported to {@code recovered}
+     * (the Stage F threshold-event hook — the "region recovered" crossing).
+     */
+    public void decay(int amount, int threshold, @Nullable java.util.function.LongConsumer recovered) {
         if (amount <= 0 || regions.isEmpty()) {
             return;
         }
@@ -68,7 +94,11 @@ public final class PollutionState extends SavedData {
         boolean changed = false;
         while (it.hasNext()) {
             Map.Entry<Long, Integer> e = it.next();
-            int next = e.getValue() - amount;
+            int before = e.getValue();
+            int next = before - amount;
+            if (threshold > 0 && recovered != null && before >= threshold && next < threshold) {
+                recovered.accept(e.getKey());
+            }
             if (next <= 0) {
                 it.remove();
             } else {

@@ -15,6 +15,8 @@ import za.co.neroland.nerotech.client.FabricatorScreen;
 import za.co.neroland.nerotech.client.ItemSorterScreen;
 import za.co.neroland.nerotech.client.NeroGeneratorScreen;
 import za.co.neroland.nerotech.client.OreProcessorScreen;
+import za.co.neroland.nerotech.client.RemediatorScreen;
+import za.co.neroland.nerotech.client.ScrubberScreen;
 import za.co.neroland.nerotech.client.SolarArrayScreen;
 import za.co.neroland.nerotech.registry.ModMenuTypes;
 
@@ -51,5 +53,7 @@ public final class ForgeClientSetup {
         MenuScreens.register(ModMenuTypes.FABRICATOR.get(), FabricatorScreen::new);
         MenuScreens.register(ModMenuTypes.AUTO_CRAFTER.get(), AutoCrafterScreen::new);
         MenuScreens.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
+        MenuScreens.register(ModMenuTypes.SCRUBBER.get(), ScrubberScreen::new);
+        MenuScreens.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
     }
 }

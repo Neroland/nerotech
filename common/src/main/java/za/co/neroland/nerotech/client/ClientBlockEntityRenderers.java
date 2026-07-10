@@ -11,6 +11,8 @@ import za.co.neroland.nerotech.client.render.FusionReactorRenderer;
 import za.co.neroland.nerotech.client.render.ItemSorterRenderer;
 import za.co.neroland.nerotech.client.render.NeroGeneratorRenderer;
 import za.co.neroland.nerotech.client.render.OreProcessorRenderer;
+import za.co.neroland.nerotech.client.render.RemediatorRenderer;
+import za.co.neroland.nerotech.client.render.ScrubberRenderer;
 import za.co.neroland.nerotech.client.render.SolarArrayRenderer;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 
@@ -49,5 +51,9 @@ public final class ClientBlockEntityRenderers {
         sink.register(ModBlockEntities.AUTO_CRAFTER.get(), context -> new AutoCrafterRenderer());
         // Item Sorter: six side-config-tinted port caps + the sort-pulse brightening.
         sink.register(ModBlockEntities.ITEM_SORTER.get(), context -> new ItemSorterRenderer());
+        // Scrubber: intake fan cross + fouling-darkened filter cartridge + heat-lerped LEDs.
+        sink.register(ModBlockEntities.SCRUBBER.get(), context -> new ScrubberRenderer());
+        // Remediator: BER-drawn spray booms (sweeping while active) + faint plasma mist.
+        sink.register(ModBlockEntities.REMEDIATOR.get(), context -> new RemediatorRenderer());
     }
 }

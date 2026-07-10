@@ -14,6 +14,8 @@ import za.co.neroland.nerotech.machine.FusionReactorBlockEntity;
 import za.co.neroland.nerotech.machine.ItemSorterBlockEntity;
 import za.co.neroland.nerotech.machine.NeroGeneratorBlockEntity;
 import za.co.neroland.nerotech.machine.OreProcessorBlockEntity;
+import za.co.neroland.nerotech.machine.RemediatorBlockEntity;
+import za.co.neroland.nerotech.machine.ScrubberBlockEntity;
 import za.co.neroland.nerotech.machine.SolarArrayBlockEntity;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
@@ -58,6 +60,14 @@ public final class ModBlockEntities {
     public static final RegistryEntry<BlockEntityType<ItemSorterBlockEntity>> ITEM_SORTER =
             BLOCK_ENTITIES.register("item_sorter",
                     key -> new BlockEntityType<>(ItemSorterBlockEntity::new, Set.of(ModBlocks.ITEM_SORTER.get())));
+
+    public static final RegistryEntry<BlockEntityType<ScrubberBlockEntity>> SCRUBBER =
+            BLOCK_ENTITIES.register("scrubber",
+                    key -> new BlockEntityType<>(ScrubberBlockEntity::new, Set.of(ModBlocks.SCRUBBER.get())));
+
+    public static final RegistryEntry<BlockEntityType<RemediatorBlockEntity>> REMEDIATOR =
+            BLOCK_ENTITIES.register("remediator",
+                    key -> new BlockEntityType<>(RemediatorBlockEntity::new, Set.of(ModBlocks.REMEDIATOR.get())));
 
     private ModBlockEntities() {
     }

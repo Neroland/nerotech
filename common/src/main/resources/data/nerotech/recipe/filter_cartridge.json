@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "P": "minecraft:paper", "I": "minecraft:iron_ingot" },
+  "pattern": [ "PPP", "I I", "PPP" ],
+  "result": { "id": "nerotech:filter_cartridge", "count": 4 } }

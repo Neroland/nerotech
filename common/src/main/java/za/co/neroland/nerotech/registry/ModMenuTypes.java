@@ -10,6 +10,8 @@ import za.co.neroland.nerotech.menu.FabricatorMenu;
 import za.co.neroland.nerotech.menu.ItemSorterMenu;
 import za.co.neroland.nerotech.menu.NeroGeneratorMenu;
 import za.co.neroland.nerotech.menu.OreProcessorMenu;
+import za.co.neroland.nerotech.menu.RemediatorMenu;
+import za.co.neroland.nerotech.menu.ScrubberMenu;
 import za.co.neroland.nerotech.menu.SolarArrayMenu;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
@@ -31,6 +33,10 @@ public final class ModMenuTypes {
             MENUS.register("auto_crafter", key -> new MenuType<>(AutoCrafterMenu::new, FeatureFlags.VANILLA_SET));
     public static final RegistryEntry<MenuType<ItemSorterMenu>> ITEM_SORTER =
             MENUS.register("item_sorter", key -> new MenuType<>(ItemSorterMenu::new, FeatureFlags.VANILLA_SET));
+    public static final RegistryEntry<MenuType<ScrubberMenu>> SCRUBBER =
+            MENUS.register("scrubber", key -> new MenuType<>(ScrubberMenu::new, FeatureFlags.VANILLA_SET));
+    public static final RegistryEntry<MenuType<RemediatorMenu>> REMEDIATOR =
+            MENUS.register("remediator", key -> new MenuType<>(RemediatorMenu::new, FeatureFlags.VANILLA_SET));
 
     private ModMenuTypes() {
     }

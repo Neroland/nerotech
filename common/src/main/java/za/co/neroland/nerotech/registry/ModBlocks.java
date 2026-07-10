@@ -18,6 +18,8 @@ import za.co.neroland.nerotech.machine.FusionReactorBlock;
 import za.co.neroland.nerotech.machine.ItemSorterBlock;
 import za.co.neroland.nerotech.machine.NeroGeneratorBlock;
 import za.co.neroland.nerotech.machine.OreProcessorBlock;
+import za.co.neroland.nerotech.machine.RemediatorBlock;
+import za.co.neroland.nerotech.machine.ScrubberBlock;
 import za.co.neroland.nerotech.machine.SolarArrayBlock;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
@@ -74,6 +76,12 @@ public final class ModBlocks {
             register("auto_crafter", AutoCrafterBlock::new);
     public static final RegistryEntry<ItemSorterBlock> ITEM_SORTER =
             register("item_sorter", ItemSorterBlock::new);
+
+    // --- Pollution mitigation (Stage F) --------------------------------------
+    public static final RegistryEntry<ScrubberBlock> SCRUBBER =
+            register("scrubber", ScrubberBlock::new);
+    public static final RegistryEntry<RemediatorBlock> REMEDIATOR =
+            register("remediator", RemediatorBlock::new);
 
     private static <B extends Block> RegistryEntry<B> register(String name,
             Function<BlockBehaviour.Properties, B> factory) {

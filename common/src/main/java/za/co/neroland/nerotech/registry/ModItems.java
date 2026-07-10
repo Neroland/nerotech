@@ -69,6 +69,14 @@ public final class ModItems {
     public static final RegistryEntry<BlockItem> AUTO_CRAFTER_ITEM = blockItem("auto_crafter", ModBlocks.AUTO_CRAFTER);
     public static final RegistryEntry<BlockItem> ITEM_SORTER_ITEM = blockItem("item_sorter", ModBlocks.ITEM_SORTER);
 
+    // --- Pollution mitigation (Stage F) --------------------------------------
+    /** Consumable scrubbing medium; fouls into a {@link #DIRTY_FILTER} at capacity. */
+    public static final RegistryEntry<Item> FILTER_CARTRIDGE = item("filter_cartridge");
+    /** Spent cartridge — reprocessable in the Ore Processor for a partial iron refund. */
+    public static final RegistryEntry<Item> DIRTY_FILTER = item("dirty_filter");
+    public static final RegistryEntry<BlockItem> SCRUBBER_ITEM = blockItem("scrubber", ModBlocks.SCRUBBER);
+    public static final RegistryEntry<BlockItem> REMEDIATOR_ITEM = blockItem("remediator", ModBlocks.REMEDIATOR);
+
     // --- Tools ---------------------------------------------------------------
     /**
      * The side-config wrench (Core ships the API, NeroTech ships the item — see
@@ -94,7 +102,9 @@ public final class ModItems {
                 FUSION_REACTOR_ITEM, FUSION_CASING_ITEM, FUSION_CONTAINMENT_GLASS_ITEM,
                 ADVANCED_ORE_PROCESSOR_ITEM, ADVANCED_FABRICATOR_ITEM,
                 FUSION_CELL, PLASMA_CELL, STELLAR_CELL,
-                AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM, CONFIGURATOR,
+                AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM,
+                SCRUBBER_ITEM, REMEDIATOR_ITEM, FILTER_CARTRIDGE, DIRTY_FILTER,
+                CONFIGURATOR,
                 SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE);
     }
 
