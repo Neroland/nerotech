@@ -7,7 +7,7 @@ machine-face recipe is `noise_fill(ALLOY)` + 2px `bevel(A_LIGHT, A_DARK)` + teal
 core/LEDs + corner rivets; every emissive/LED pixel uses ONLY the T_* ramp so the PULSE
 animator's HSV mask (gen_animations.py) picks it up. H_* heat colours are BER-only and never
 appear in this static art; hazard striping is reserved for the Fusion Reactor shell and the
-Configurator item.
+Configurator item (plus a 4px tier tick on the Stellar Cell's top cap).
 
 * Deterministic: every painter seeds its RNG from the texture name, so re-runs are stable.
 * ADDITIVE-ONLY: save() skips any PNG that already exists; pass --force to replace the whole
@@ -509,6 +509,62 @@ def gen_fusion_reactor():
     save(img, "block", "fusion_reactor_top")
 
 
+def gen_fusion_casing():
+    # multiblock shell plate: dark alloy + dashed teal conduit ring + plate seams. NO hazard
+    # striping here — that stays on the controller shell so the casing reads as plain material.
+    img = machine_base("fusion_casing")
+    px = img.load()
+    for i in range(3, 29):                      # dashed conduit ring just inside the bevel
+        c = T_DEEP if i % 4 < 2 else _mix(T_DEEP, T_TEAL, 0.6)
+        px[i, 2] = c
+        px[i, 29] = c
+        px[2, i] = c
+        px[29, i] = c
+    for i in (8, 16, 24):                       # conduit junction pips
+        px[i, 2] = T_TEAL
+        px[i, 29] = T_TEAL
+        px[2, i] = T_TEAL
+        px[29, i] = T_TEAL
+    for x in range(6, 26):                      # heavy plate seam cross
+        px[x, 15] = A_DARK
+        px[x, 16] = ALLOY[2]
+    for y in range(6, 26):
+        px[15, y] = A_DARK
+        px[16, y] = ALLOY[2]
+    rivets(img, ((7, 7), (24, 7), (7, 24), (24, 24)))   # subtle inner rivet square
+    px[15, 15] = A_LIGHT                        # hub bolt where the seams cross
+    px[16, 16] = A_DARK
+    save(img, "block", "fusion_casing")
+
+
+def gen_fusion_containment_glass():
+    # mostly-transparent teal pane: low-alpha fill, brighter teal frame, faint plasma glints.
+    # The ONLY texture in the set with real partial alpha (model renders translucent).
+    img = new_img()
+    px = img.load()
+    rng = rng_for("fusion_containment_glass")
+    for y in range(S):                          # low-alpha teal fill with a faint weave
+        for x in range(S):
+            a = 46 if (x + y) % 2 == 0 else 38
+            col = T_TEAL if (x * 3 + y) % 13 else T_DEEP
+            px[x, y] = col[:3] + (a,)
+    for k in range(9):                          # faint plasma glints drifting in the field
+        gx = rng.randrange(4, 28)
+        gy = rng.randrange(4, 28)
+        px[gx, gy] = T_PLASMA[:3] + (110,)
+        if rng.random() < 0.4:
+            px[min(gx + 1, 27), gy] = T_CYAN[:3] + (80,)
+    for i in range(S):                          # bright teal frame border
+        for (fx, fy) in ((i, 0), (0, i), (i, S - 1), (S - 1, i)):
+            px[fx, fy] = T_CYAN[:3] + (210,)
+    for i in range(1, S - 1):
+        for (fx, fy) in ((i, 1), (1, i), (i, S - 2), (S - 2, i)):
+            px[fx, fy] = T_TEAL[:3] + (150,)
+    for (cx, cy) in ((2, 2), (29, 2), (2, 29), (29, 29)):   # frame corner studs
+        px[cx, cy] = T_GLOW[:3] + (220,)
+    save(img, "block", "fusion_containment_glass")
+
+
 def gen_auto_crafter():
     # side: press housing — hydraulic columns + cross beam
     img = machine_base("auto_crafter")
@@ -950,6 +1006,92 @@ def gen_fusion_cell():
     save(img, "item", "fusion_cell")
 
 
+def gen_plasma_cell():
+    """Tier-2 fuel: the Fusion Cell canister recipe, one step brighter up the plasma ramp."""
+    rng = rng_for("plasma_cell")
+    img = new_img()
+    px = img.load()
+    for y in range(5, 27):                      # canister shell
+        for x in range(11, 21):
+            px[x, y] = rng.choice(ALLOY)
+    for (cy0, cy1) in ((5, 7), (24, 26)):       # alloy end caps
+        for y in range(cy0, cy1 + 1):
+            for x in range(11, 21):
+                px[x, y] = ALLOY[2]
+        for x in range(11, 21):
+            px[x, cy0] = A_LIGHT if cy0 == 5 else ALLOY[3]
+            px[x, cy1] = A_DARK
+    for y in range(5, 27):                      # shell shading
+        px[11, y] = _mix(ALLOY[3], A_LIGHT, 0.4)
+        px[20, y] = A_DARK
+    for y in range(9, 23):                      # plasma window — brighter core than fusion_cell
+        for x in range(13, 19):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 2.5:
+                px[x, y] = T_GLOW
+            elif d <= 4.0:
+                px[x, y] = T_PLASMA
+            elif d <= 5.5:
+                px[x, y] = T_CYAN
+            elif d <= 7.0:
+                px[x, y] = T_CYAN if (x + y) % 2 == 0 else T_TEAL
+            else:
+                px[x, y] = T_TEAL
+    for y in range(9, 23):                      # window frame
+        px[12, y] = A_DARK
+        px[19, y] = A_DARK
+    for x in range(12, 20):
+        px[x, 8] = A_DARK
+        px[x, 23] = A_DARK
+    px[15, 6] = T_CYAN                          # tier studs on the top cap
+    px[16, 6] = T_CYAN
+    save(img, "item", "plasma_cell")
+
+
+def gen_stellar_cell():
+    """Tier-3 fuel: near-white T_GLOW core behind DOUBLE containment rings + a small hazard
+    tick on the top cap (the only hazard pixels outside the reactor shell / configurator)."""
+    rng = rng_for("stellar_cell")
+    img = new_img()
+    px = img.load()
+    for y in range(5, 27):                      # canister shell
+        for x in range(11, 21):
+            px[x, y] = rng.choice(ALLOY)
+    for (cy0, cy1) in ((5, 7), (24, 26)):       # alloy end caps
+        for y in range(cy0, cy1 + 1):
+            for x in range(11, 21):
+                px[x, y] = ALLOY[2]
+        for x in range(11, 21):
+            px[x, cy0] = A_LIGHT if cy0 == 5 else ALLOY[3]
+            px[x, cy1] = A_DARK
+    for y in range(5, 27):                      # shell shading
+        px[11, y] = _mix(ALLOY[3], A_LIGHT, 0.4)
+        px[20, y] = A_DARK
+    for y in range(9, 23):                      # window — near-white stellar core
+        for x in range(13, 19):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 3.0:
+                px[x, y] = T_GLOW
+            elif d <= 4.5:
+                px[x, y] = T_GLOW if (x + y) % 2 == 0 else T_PLASMA
+            elif d <= 6.0:
+                px[x, y] = T_PLASMA
+            else:
+                px[x, y] = T_CYAN
+    for y in range(9, 23):                      # window frame
+        px[12, y] = A_DARK
+        px[19, y] = A_DARK
+    for x in range(12, 20):
+        px[x, 8] = A_DARK
+        px[x, 23] = A_DARK
+    for ry in (12, 19):                         # double containment rings over the window
+        for x in range(12, 20):
+            px[x, ry] = A_LIGHT if x % 2 == 0 else ALLOY[3]
+    for i, tx in enumerate(range(13, 17)):      # small hazard tick on the top cap
+        px[tx, 6] = HAZ_Y if i % 2 == 0 else HAZ_K
+    save(img, "item", "stellar_cell")
+
+
 # Upgrade modules: shared alloy card + dark glyph panel; the glyph is the identity.
 
 def _glyph_speed(px):
@@ -1106,6 +1248,8 @@ def main():
     gen_fabricator(False)
     gen_fabricator(True)
     gen_fusion_reactor()
+    gen_fusion_casing()
+    gen_fusion_containment_glass()
     gen_auto_crafter()
     gen_item_sorter()
     # BER sprites
@@ -1118,6 +1262,8 @@ def main():
     gen_machine_frame()
     gen_nero_coil()
     gen_fusion_cell()
+    gen_plasma_cell()
+    gen_stellar_cell()
     gen_module("speed_module", _glyph_speed)
     gen_module("efficiency_module", _glyph_bolt)
     gen_module("capacity_module", _glyph_bars)

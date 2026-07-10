@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "G": "minecraft:glass", "V": "#c:gems/void_crystal", "C": "nerotech:nero_coil" },
+  "pattern": [ "VGV", "GCG", "VGV" ],
+  "result": { "id": "nerotech:fusion_containment_glass", "count": 4 } }

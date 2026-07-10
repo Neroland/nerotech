@@ -2,6 +2,7 @@ package za.co.neroland.nerotech.registry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
@@ -56,6 +57,14 @@ public final class ModItems {
     public static final RegistryEntry<BlockItem> ADVANCED_ORE_PROCESSOR_ITEM = blockItem("advanced_ore_processor", ModBlocks.ADVANCED_ORE_PROCESSOR);
     public static final RegistryEntry<BlockItem> ADVANCED_FABRICATOR_ITEM = blockItem("advanced_fabricator", ModBlocks.ADVANCED_FABRICATOR);
 
+    // --- Fusion Reactor multiblock structure (Stage E) -----------------------
+    public static final RegistryEntry<BlockItem> FUSION_CASING_ITEM = blockItem("fusion_casing", ModBlocks.FUSION_CASING);
+    public static final RegistryEntry<BlockItem> FUSION_CONTAINMENT_GLASS_ITEM = blockItem("fusion_containment_glass", ModBlocks.FUSION_CONTAINMENT_GLASS);
+    /** Tier-2 Fusion Reactor fuel; tagged into {@code nerotech:fusion_fuel/tier2} (+ {@code fusion_fuels}). */
+    public static final RegistryEntry<Item> PLASMA_CELL = item("plasma_cell", p -> p.stacksTo(16));
+    /** Tier-3 Fusion Reactor fuel; tagged into {@code nerotech:fusion_fuel/tier3} (+ {@code fusion_fuels}). */
+    public static final RegistryEntry<Item> STELLAR_CELL = item("stellar_cell", p -> p.stacksTo(16));
+
     // --- Automation handoff (Stage 5) ---------------------------------------
     public static final RegistryEntry<BlockItem> AUTO_CRAFTER_ITEM = blockItem("auto_crafter", ModBlocks.AUTO_CRAFTER);
     public static final RegistryEntry<BlockItem> ITEM_SORTER_ITEM = blockItem("item_sorter", ModBlocks.ITEM_SORTER);
@@ -82,13 +91,19 @@ public final class ModItems {
                 MACHINE_FRAME, CIRCUIT_BOARD, NERO_COIL,
                 IRON_DUST, COPPER_DUST, GOLD_DUST,
                 NERO_GENERATOR_ITEM, SOLAR_ARRAY_ITEM, ORE_PROCESSOR_ITEM, FABRICATOR_ITEM,
-                FUSION_REACTOR_ITEM, ADVANCED_ORE_PROCESSOR_ITEM, ADVANCED_FABRICATOR_ITEM, FUSION_CELL,
+                FUSION_REACTOR_ITEM, FUSION_CASING_ITEM, FUSION_CONTAINMENT_GLASS_ITEM,
+                ADVANCED_ORE_PROCESSOR_ITEM, ADVANCED_FABRICATOR_ITEM,
+                FUSION_CELL, PLASMA_CELL, STELLAR_CELL,
                 AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM, CONFIGURATOR,
                 SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE);
     }
 
     private static RegistryEntry<Item> item(String name) {
         return ITEMS.register(name, key -> new Item(new Item.Properties().setId(key)));
+    }
+
+    private static RegistryEntry<Item> item(String name, UnaryOperator<Item.Properties> props) {
+        return ITEMS.register(name, key -> new Item(props.apply(new Item.Properties().setId(key))));
     }
 
     private static RegistryEntry<Item> module(String name, UpgradeType type) {

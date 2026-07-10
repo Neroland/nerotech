@@ -85,6 +85,15 @@ public final class NeroTechConfig {
     private static final ConfigValue<Boolean> FUSION_FAILURE = SCHEMA.bool("fusionReactorMeltdownEnabled",
             true, true, "true: an unmanaged Fusion Reactor melts down destructively at max heat (telegraphed by "
             + "the red gauge); false (survival-friendly): it just stalls until it cools");
+    private static final ConfigValue<String> FUSION_SIZE_OUTPUT = SCHEMA.string("fusionSizeOutputPermille",
+            "3=1000,5=4000,7=12000", true, "multiblock output multiplier (permille of fusionReactorNePerTick) "
+            + "per shell size: comma-list of size=permille for the 3/5/7 shells (Stage E multiblock)");
+    private static final ConfigValue<Integer> FUSION_T1_BURN = SCHEMA.intRange("fusionFuelTier1BurnTicks",
+            1_600, 1, 720_000, true, "burn ticks of one tier-1 fuel (Fusion Cell) charge");
+    private static final ConfigValue<Integer> FUSION_T2_BURN = SCHEMA.intRange("fusionFuelTier2BurnTicks",
+            4_800, 1, 720_000, true, "burn ticks of one tier-2 fuel (Plasma Cell) charge — needs a 5x5x5+ shell");
+    private static final ConfigValue<Integer> FUSION_T3_BURN = SCHEMA.intRange("fusionFuelTier3BurnTicks",
+            14_400, 1, 720_000, true, "burn ticks of one tier-3 fuel (Stellar Cell) charge — needs the 7x7x7 shell");
     private static final ConfigValue<Integer> ADVANCED_YIELD_BONUS = SCHEMA.intRange("advancedOreProcessorYieldBonus",
             1, 0, 64, true, "extra dust the Advanced Ore Processor yields over the Tier-1 processor");
     private static final ConfigValue<String> SOLAR_DIM_MULTIPLIERS = SCHEMA.string("solarDimensionMultipliers",
@@ -200,6 +209,19 @@ public final class NeroTechConfig {
 
     public static boolean fusionReactorMeltdownEnabled() {
         return FUSION_FAILURE.get();
+    }
+
+    public static String fusionSizeOutputPermille() {
+        return FUSION_SIZE_OUTPUT.get();
+    }
+
+    /** Burn ticks for a fuel tier (1..3); tiers outside the range clamp to their nearest neighbour. */
+    public static int fusionFuelBurnTicks(int tier) {
+        return switch (Math.max(1, Math.min(3, tier))) {
+            case 2 -> FUSION_T2_BURN.get();
+            case 3 -> FUSION_T3_BURN.get();
+            default -> FUSION_T1_BURN.get();
+        };
     }
 
     public static int advancedOreProcessorYieldBonus() {

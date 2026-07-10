@@ -17,6 +17,11 @@ public final class NeroTechTags {
     /** Datapack-overridable reactor fuel tag (NeroTech's {@code fusion_cell} + any pack-added fuels). */
     public static final TagKey<Item> FUSION_FUELS = itemTag(NeroTechCommon.MOD_ID, "fusion_fuels");
 
+    /** Tier-2 fusion fuel ({@code plasma_cell}) — the multiblock reactor's mid output band. */
+    public static final TagKey<Item> FUSION_FUEL_TIER2 = itemTag(NeroTechCommon.MOD_ID, "fusion_fuel/tier2");
+    /** Tier-3 fusion fuel ({@code stellar_cell}) — the multiblock reactor's top output band. */
+    public static final TagKey<Item> FUSION_FUEL_TIER3 = itemTag(NeroTechCommon.MOD_ID, "fusion_fuel/tier3");
+
     /** Core convention tags — the soft coupling to Nerospace planet materials. */
     public static final TagKey<Item> C_STARSTEEL_INGOTS = cTag("ingots/starsteel");
     public static final TagKey<Item> C_VOID_CRYSTAL_GEMS = cTag("gems/void_crystal");

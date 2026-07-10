@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "nerotech:fusion_cell",
+    "nerotech:plasma_cell",
+    "nerotech:stellar_cell",
     { "id": "nerospace:rocket_fuel_canister", "required": false }
   ]
 }

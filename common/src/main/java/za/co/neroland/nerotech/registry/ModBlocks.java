@@ -5,6 +5,7 @@ import java.util.function.Function;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
@@ -45,6 +46,28 @@ public final class ModBlocks {
             register("advanced_ore_processor", AdvancedOreProcessorBlock::new);
     public static final RegistryEntry<AdvancedFabricatorBlock> ADVANCED_FABRICATOR =
             register("advanced_fabricator", AdvancedFabricatorBlock::new);
+
+    // --- Fusion Reactor multiblock structure (Stage E) -----------------------
+    /** Structural shell plate for the Fusion Reactor multiblock — a plain full cube. */
+    public static final RegistryEntry<Block> FUSION_CASING =
+            register("fusion_casing", Block::new);
+    /**
+     * Translucent containment shell — the vanilla-glass property recipe (non-opaque, never view
+     * blocking) so the reactor's plasma reads through the multiblock wall.
+     */
+    public static final RegistryEntry<TransparentBlock> FUSION_CONTAINMENT_GLASS =
+            BLOCKS.register("fusion_containment_glass",
+                    key -> new TransparentBlock(BlockBehaviour.Properties.of()
+                            .setId(key)
+                            .mapColor(MapColor.COLOR_CYAN)
+                            .strength(3.5F)
+                            .requiresCorrectToolForDrops()
+                            .sound(SoundType.GLASS)
+                            .noOcclusion()
+                            .isValidSpawn((state, level, pos, type) -> false)
+                            .isRedstoneConductor((state, level, pos) -> false)
+                            .isSuffocating((state, level, pos) -> false)
+                            .isViewBlocking((state, level, pos) -> false)));
 
     // --- Automation handoff (Stage 5) ---------------------------------------
     public static final RegistryEntry<AutoCrafterBlock> AUTO_CRAFTER =
