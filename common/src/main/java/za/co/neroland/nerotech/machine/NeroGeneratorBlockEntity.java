@@ -61,7 +61,9 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
     @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         UpgradeModifiers mods = modifiers();
-        int rate = (int) Math.round(NeroTechConfig.neroGeneratorNePerTick() * mods.speedMultiplier());
+        // Stage H preset: output NE scales with the speed factor (heat/pollution scale at the base).
+        int rate = (int) Math.round(NeroTechConfig.neroGeneratorNePerTick()
+                * mods.speedMultiplier() * presetSpeedFactor());
         boolean roomToStore = getEnergy().getAmount() < getEnergy().getCapacity();
 
         if (this.progress > 0) {

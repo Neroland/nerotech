@@ -25,6 +25,7 @@
     "nerolandcore": ">=${nerolandcore_version}"
   },
   "suggests": {
-    "energizedpower": "*"
+    "energizedpower": "*",
+    "nerospace": "*"
   }
 }

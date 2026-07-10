@@ -142,12 +142,20 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /** Whether a subclass called {@link #reportStatus} this tick (else the RUNNING/IDLE default applies). */
     private boolean statusReported;
 
+    /**
+     * Stage H overclock preset — a free GUI selector trading speed against energy/heat/pollution
+     * (see {@link MachinePreset} for the curve). Persisted as its ordinal ({@code "Preset"}), which
+     * also rides the BE update tag automatically via {@link #saveAdditional}, so the BER-side heat
+     * consequences stay in sync. Synced to menus as {@code ContainerData} index 6.
+     */
+    protected MachinePreset preset = MachinePreset.BALANCED;
+
     /** Spreads the once-per-second stats sample across ticks (the pollutionPhase recipe, mod 20). */
     private final int statsPhase = Math.floorMod(System.identityHashCode(this) * 61, 20);
 
     /**
      * Synced to the menu: [0]=energy permille, [1]=1000, [2]=work permille, [3]=1000 when working,
-     * [4]=heat permille, [5]=1000.
+     * [4]=heat permille, [5]=1000, [6]=preset ordinal ({@link MachinePreset}).
      */
     protected final ContainerData data = new ContainerData() {
         @Override
@@ -159,6 +167,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
                 case 3 -> maxProgress > 0 ? 1000 : 0;
                 case 4 -> permille(heat, NeroTechConfig.heatCapacity());
                 case 5 -> 1000;
+                case 6 -> preset.ordinal();
                 default -> 0;
             };
         }
@@ -170,7 +179,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
         @Override
         public int getCount() {
-            return 6;
+            return 7;
         }
     };
 
@@ -383,10 +392,50 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         return saveCustomOnly(registries);
     }
 
-    /** Add heat, clamped to capacity. */
+    // --- Stage H overclock preset (scaled ONCE, here at the base) --------------------------------
+
+    /** The active overclock preset (server-authoritative; clients read ContainerData index 6). */
+    public MachinePreset preset() {
+        return this.preset;
+    }
+
+    /**
+     * Apply a preset (server side, from the validated {@code MachinePresetPayload} intent). On a
+     * real change it marks the BE dirty and pushes a BE update packet — the same render-sync path
+     * {@link #syncRenderState} uses — so watching clients pick the new preset up immediately.
+     * Player-driven and rare, so the eager packet is fine.
+     */
+    public void setPreset(MachinePreset newPreset) {
+        if (newPreset == null || newPreset == this.preset) {
+            return;
+        }
+        this.preset = newPreset;
+        setChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            BlockState state = getBlockState();
+            this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_CLIENTS);
+        }
+    }
+
+    /** Preset work-rate multiplier — apply at the machine's work site next to Speed modules. */
+    public double presetSpeedFactor() {
+        return this.preset.speedFactor();
+    }
+
+    /** Preset energy-cost multiplier — apply at the machine's work site next to Efficiency modules. */
+    public double presetEnergyFactor() {
+        return this.preset.energyFactor();
+    }
+
+    /**
+     * Add heat, clamped to capacity. The Stage H preset scales the amount here at the base (Eco
+     * halves it, Overdrive doubles it — the Overdrive BER glow), with a floor of 1 so a working
+     * machine on Eco never becomes heat-free.
+     */
     protected void addHeat(int amount) {
         if (amount > 0) {
-            this.heat = Math.min(NeroTechConfig.heatCapacity(), this.heat + amount);
+            int scaled = Math.max(1, amount * this.preset.heatPermille() / 1000);
+            this.heat = Math.min(NeroTechConfig.heatCapacity(), this.heat + scaled);
             setChanged();
         }
     }
@@ -512,6 +561,9 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         if (amount <= 0 || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
+        // Stage H preset scaling, once at the base (floor 1: a polluting machine on Eco still
+        // pollutes; a config of 0 above stays fully disabled).
+        amount = Math.max(1, amount * this.preset.pollutionPermille() / 1000);
         int interval = NeroTechConfig.pollutionContributionIntervalTicks();
         if ((serverLevel.getGameTime() + this.pollutionPhase) % interval == 0) {
             PollutionManager.record(serverLevel, pos, amount, this.ownerId);
@@ -526,6 +578,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         output.putInt("Progress", this.progress);
         output.putInt("MaxProgress", this.maxProgress);
         output.putInt("Heat", this.heat);
+        output.putInt("Preset", this.preset.ordinal());
         output.putBoolean("Active", this.active);
         output.putInt("Pulse", this.clientPulse);
         output.putLong("OwnerMost", this.ownerId == null ? 0L : this.ownerId.getMostSignificantBits());
@@ -541,6 +594,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         this.progress = input.getIntOr("Progress", 0);
         this.maxProgress = input.getIntOr("MaxProgress", 0);
         this.heat = input.getIntOr("Heat", 0);
+        this.preset = MachinePreset.byOrdinal(input.getIntOr("Preset", MachinePreset.BALANCED.ordinal()));
         this.active = input.getBooleanOr("Active", false);
         this.clientPulse = input.getIntOr("Pulse", 0);
         long ownerMost = input.getLongOr("OwnerMost", 0L);

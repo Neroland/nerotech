@@ -46,3 +46,13 @@ type = "optional"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
+
+# Nerospace — optional planet-trait interop (Stage H). When present it must load BEFORE NeroTech so
+# its nerospace.api facade is ready when machines query planet traits; discovery is runtime-guarded
+# (compat.NerospacePlanetCompat), never a hard import — NeroTech runs fully without it.
+[[dependencies.${mod_id}]]
+modId = "nerospace"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"

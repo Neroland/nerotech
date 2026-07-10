@@ -2,10 +2,12 @@ package za.co.neroland.nerotech.heat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalInt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
+import za.co.neroland.nerotech.compat.NerospacePlanetCompat;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 
 /**
@@ -13,12 +15,14 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
  * machine toward (see {@link ThermalMath#ambientStep}). Two ingredients, both cheap:
  *
  * <ul>
- *   <li><b>Dimension base</b> — {@code thermalAmbientByDimension} config (comma-list of
+ *   <li><b>Dimension base</b> (Stage H precedence — the old "deferred" note is resolved):
+ *       Nerospace's {@code nerospace.api} planet traits via
+ *       {@link NerospacePlanetCompat#thermalAmbient} when Nerospace is installed and the dimension
+ *       is a known planet (Cindara hot, Glacira sub-zero; runtime-guarded so NeroTech stays fully
+ *       standalone) → else the {@code thermalAmbientByDimension} config (comma-list of
  *       {@code dimensionId=heat}, same format and parse-and-cache pattern as
- *       {@code solarDimensionMultipliers} / {@code machine.PlanetModifiers}), falling back to
- *       {@code thermalAmbientDefault}. This is the deferred per-planet fallback: when a
- *       {@code nerospace.api} planet-trait query ships, planet ambients come from there instead
- *       (e.g. Cindara hot, Glacira sub-zero).</li>
+ *       {@code solarDimensionMultipliers} / {@code machine.PlanetModifiers}) → else
+ *       {@code thermalAmbientDefault}.</li>
  *   <li><b>Biome flavour</b> — {@code (baseTemperature - 0.8) * thermalBiomeScale}, so vanilla
  *       plains (0.8) is neutral, deserts/nether (2.0) run hot and snowy biomes (≤0) run cold.
  *       Uses only the biome's static base temperature — one holder lookup, no per-tick noise.</li>
@@ -38,10 +42,16 @@ public final class ThermalEnvironment {
     private ThermalEnvironment() {
     }
 
-    /** Ambient heat at {@code pos} in {@code level}: dimension base + biome flavour. */
+    /** Ambient heat at {@code pos} in {@code level}: dimension base (api → config) + biome flavour. */
     public static int ambientAt(Level level, BlockPos pos) {
-        String dim = level.dimension().identifier().toString();
-        int base = table().getOrDefault(dim, NeroTechConfig.thermalAmbientDefault());
+        OptionalInt api = NerospacePlanetCompat.thermalAmbient(level);
+        int base;
+        if (api.isPresent()) {
+            base = api.getAsInt();
+        } else {
+            String dim = level.dimension().identifier().toString();
+            base = table().getOrDefault(dim, NeroTechConfig.thermalAmbientDefault());
+        }
         float biomeTemperature = level.getBiome(pos).value().getBaseTemperature();
         int biome = Math.round((biomeTemperature - NEUTRAL_BIOME_TEMPERATURE) * NeroTechConfig.thermalBiomeScale());
         return base + biome;

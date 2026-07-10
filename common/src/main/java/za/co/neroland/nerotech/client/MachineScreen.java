@@ -20,8 +20,11 @@ import za.co.neroland.nerolandcore.client.SideConfigWidget;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigured;
 
+import za.co.neroland.nerotech.machine.MachinePreset;
 import za.co.neroland.nerotech.menu.MachineMenu;
 import za.co.neroland.nerotech.network.ClientMenuPos;
+import za.co.neroland.nerotech.network.MachinePresetPayload;
+import za.co.neroland.nerotech.network.NeroTechNetwork;
 
 /**
  * One procedural screen for every NeroTech machine menu — a dark sci-fi hull panel drawn entirely with
@@ -48,6 +51,15 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     private static final int TITLE = 0xFFD6ECFF;
     private static final int SUBTLE = 0xFF8DA0B4;
 
+    // Stage H preset cycle button: a small pill under the upgrade block, beside the gauges' row.
+    // Free in every machine layout (upgrades end at y+54, the work bar spans x+40..136 at y+61).
+    private static final int PRESET_X = 138;
+    private static final int PRESET_Y = 56;
+    private static final int PRESET_W = 36;
+    private static final int PRESET_H = 12;
+    /** Eco teal / Balanced white / Overdrive amber (indexed by preset ordinal). */
+    private static final int[] PRESET_COLORS = {0xFF4DD0E1, 0xFFE6E6F0, 0xFFE0B33A};
+
     /** Core's universal Side Config tab (top-right), built once the machine BE is resolved. */
     @Nullable
     private SideConfigWidget sideConfigWidget;
@@ -62,7 +74,8 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         this.inventoryLabelX = 8;
         // Anchored just below the Side Config tab button; hidden while that panel is expanded
         // (the two open panels would otherwise overlap in the same side column).
-        this.analyticsWidget = new AnalyticsWidget(menu.containerId, this.imageWidth + 4, 20);
+        this.analyticsWidget = new AnalyticsWidget(menu.containerId, this.imageWidth + 4, 20,
+                menu::presetOrdinal);
     }
 
     /** Typed factory for screen registration ({@code MachineScreen::create}). */
@@ -97,6 +110,9 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         // Energy + heat gauges (left), each with an always-on colour cap.
         gauge(extractor, x + 8, y + 20, 10, 46, this.menu.energyFraction(), ENERGY);
         gauge(extractor, x + 20, y + 20, 10, 46, this.menu.heatFraction(), HEAT);
+
+        // Stage H preset cycle button (Eco/Balanced/Overdrive; click sends the serverbound intent).
+        presetButton(extractor, x, y);
 
         // Work-progress bar along the bottom of the machine area, lit while working.
         if (this.menu.working()) {
@@ -171,6 +187,33 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         return this.sideConfigWidget;
     }
 
+    /**
+     * The Stage H preset cycle button: a colour-coded pill (Eco teal / Balanced white / Overdrive
+     * amber) with the preset's short label, tucked under the upgrade block. Clicking cycles
+     * Eco → Balanced → Overdrive and sends the serverbound {@code MachinePresetPayload}; the synced
+     * ContainerData (index 6) brings the authoritative value back, so the button never guesses.
+     */
+    private void presetButton(GuiGraphicsExtractor extractor, int x, int y) {
+        MachinePreset preset = MachinePreset.byOrdinal(this.menu.presetOrdinal());
+        int color = PRESET_COLORS[preset.ordinal()];
+        int bx = x + PRESET_X;
+        int by = y + PRESET_Y;
+        extractor.fill(bx - 1, by - 1, bx + PRESET_W + 1, by + PRESET_H + 1, EDGE);
+        extractor.fill(bx, by, bx + PRESET_W, by + PRESET_H, TROUGH);
+        // Always-on colour cap (the gauges' identification recipe) + the short label in the colour.
+        extractor.fill(bx, by, bx + PRESET_W, by + 1, color);
+        Component label = Component.translatable(preset.shortTranslationKey());
+        extractor.text(this.font, label,
+                bx + PRESET_W / 2 - this.font.width(label) / 2, by + 3, color, false);
+    }
+
+    /** Mouse-over test for the preset button (screen coordinates). */
+    private boolean overPresetButton(double mouseX, double mouseY) {
+        int bx = this.leftPos + PRESET_X;
+        int by = this.topPos + PRESET_Y;
+        return mouseX >= bx && mouseX < bx + PRESET_W && mouseY >= by && mouseY < by + PRESET_H;
+    }
+
     /** Block-entity-type registry id as the copy/paste compatibility key (same-type machines only). */
     private static String typeKey(BlockEntityType<?> type) {
         Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
@@ -188,6 +231,12 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         if ((widget == null || !widget.isOpen())
                 && this.analyticsWidget.mouseClicked(mouseButtonEvent.x(), mouseButtonEvent.y(),
                 mouseButtonEvent.button(), this.leftPos, this.topPos)) {
+            return true;
+        }
+        // Stage H preset cycle: send the intent; the server validates and syncs the result back.
+        if (overPresetButton(mouseButtonEvent.x(), mouseButtonEvent.y())) {
+            MachinePreset next = MachinePreset.byOrdinal(this.menu.presetOrdinal()).next();
+            NeroTechNetwork.sendToServer(new MachinePresetPayload(this.menu.containerId, next.ordinal()));
             return true;
         }
         return super.mouseClicked(mouseButtonEvent, doubleClick);

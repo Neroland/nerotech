@@ -17,7 +17,7 @@ public class RemediatorMenu extends MachineMenu {
     public RemediatorMenu(int id, Inventory playerInventory) {
         this(id, playerInventory,
                 new SimpleContainer(MACHINE_SLOTS + NeroTechMachineBlockEntity.UPGRADE_SLOTS),
-                new SimpleContainerData(6));
+                new SimpleContainerData(7));
     }
 
     public RemediatorMenu(int id, Inventory playerInventory, Container container, ContainerData data) {

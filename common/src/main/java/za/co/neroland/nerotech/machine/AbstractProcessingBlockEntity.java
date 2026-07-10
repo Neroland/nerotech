@@ -98,9 +98,12 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
         }
 
         UpgradeModifiers mods = modifiers();
-        int effectiveTicks = Math.max(1,
-                (int) Math.round(NeroTechConfig.machineBaseProcessTicks() / Math.max(0.01D, mods.speedMultiplier())));
-        int cost = (int) Math.max(0, Math.round(NeroTechConfig.machineNePerTick() * mods.energyMultiplier()));
+        // Stage H preset: speed shortens the duration alongside Speed modules; energy scales the
+        // per-tick cost alongside Efficiency modules (heat/pollution scale at the base).
+        int effectiveTicks = Math.max(1, (int) Math.round(NeroTechConfig.machineBaseProcessTicks()
+                / Math.max(0.01D, mods.speedMultiplier() * presetSpeedFactor())));
+        int cost = (int) Math.max(0,
+                Math.round(NeroTechConfig.machineNePerTick() * mods.energyMultiplier() * presetEnergyFactor()));
         this.maxProgress = effectiveTicks;
 
         // Heat throttle: a machine that's run too hard stalls until it sheds heat (base dissipation).

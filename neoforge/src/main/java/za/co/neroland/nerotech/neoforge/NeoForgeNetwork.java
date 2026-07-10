@@ -3,6 +3,7 @@ package za.co.neroland.nerotech.neoforge;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -26,6 +27,9 @@ public final class NeoForgeNetwork implements INetworkHelper {
         for (NeroTechNetwork.Clientbound<?> cb : NeroTechNetwork.clientbound()) {
             registerClientbound(registrar, cb);
         }
+        for (NeroTechNetwork.Serverbound<?> sb : NeroTechNetwork.serverbound()) {
+            registerServerbound(registrar, sb);
+        }
     }
 
     private static <T extends CustomPacketPayload> void registerClientbound(PayloadRegistrar registrar,
@@ -34,8 +38,23 @@ public final class NeoForgeNetwork implements INetworkHelper {
                 (payload, context) -> context.enqueueWork(() -> cb.handler().accept(payload)));
     }
 
+    private static <T extends CustomPacketPayload> void registerServerbound(PayloadRegistrar registrar,
+            NeroTechNetwork.Serverbound<T> sb) {
+        registrar.playToServer(sb.type(), sb.codec(),
+                (payload, context) -> context.enqueueWork(() -> {
+                    if (context.player() instanceof ServerPlayer serverPlayer) {
+                        sb.handler().accept(payload, serverPlayer);
+                    }
+                }));
+    }
+
     @Override
     public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
         PacketDistributor.sendToPlayer(player, payload);
+    }
+
+    @Override
+    public void sendToServer(CustomPacketPayload payload) {
+        ClientPacketDistributor.sendToServer(payload);
     }
 }

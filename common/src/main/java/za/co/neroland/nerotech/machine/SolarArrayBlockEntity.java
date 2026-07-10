@@ -20,8 +20,8 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /**
  * Solar Array — daytime, fuel-free generation. Output is gated by sky access and daylight; it produces
  * into Core's energy buffer and pushes to neighbours via Core's energy seam. Per-planet output
- * modifiers (Nerospace) are deferred behind a Core-config fallback (Stage 4), so on Earth it runs
- * fully standalone.
+ * modifiers come from Nerospace's planet-trait api when installed (runtime-guarded), else the
+ * Core-config fallback — see {@link PlanetModifiers} — so on Earth it runs fully standalone.
  */
 public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
 
@@ -52,9 +52,11 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
 
         if (producing && getEnergy().getAmount() < getEnergy().getCapacity()) {
             UpgradeModifiers mods = modifiers();
-            // Per-planet output is the deferred Core-config fallback (1.0 on Earth) until a Nerospace API lands.
+            // Per-planet output: nerospace.api traits when installed, else the Core-config fallback
+            // (1.0 on Earth) — see PlanetModifiers. Stage H preset scales output like other generators.
             double planet = PlanetModifiers.solarMultiplier(level);
-            int rate = (int) Math.round(NeroTechConfig.solarArrayNePerTick() * mods.speedMultiplier() * factor * planet);
+            int rate = (int) Math.round(NeroTechConfig.solarArrayNePerTick()
+                    * mods.speedMultiplier() * presetSpeedFactor() * factor * planet);
             if (rate > 0) {
                 energyBuffer().generate(rate);
             }

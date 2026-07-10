@@ -50,7 +50,9 @@ public class RemediatorBlockEntity extends NeroTechMachineBlockEntity {
             return;
         }
         UpgradeModifiers mods = modifiers();
-        int cost = (int) Math.max(0, Math.round(NeroTechConfig.remediatorNePerOp() * mods.energyMultiplier()));
+        // Stage H preset: energy per op scales with the energy factor, clean rate with the speed factor.
+        int cost = (int) Math.max(0,
+                Math.round(NeroTechConfig.remediatorNePerOp() * mods.energyMultiplier() * presetEnergyFactor()));
 
         // Analytics: the energy precondition is cheap, so name it every tick (an op-tick-only
         // report would be clobbered by the RUNNING/IDLE default in between). "No pollution" stays
@@ -66,7 +68,8 @@ public class RemediatorBlockEntity extends NeroTechMachineBlockEntity {
             return;
         }
 
-        int rate = (int) Math.max(1, Math.round(NeroTechConfig.remediatorPollutionPerOp() * mods.speedMultiplier()));
+        int rate = (int) Math.max(1, Math.round(NeroTechConfig.remediatorPollutionPerOp()
+                * mods.speedMultiplier() * presetSpeedFactor()));
 
         boolean remediating = false;
         if (PollutionManager.regionPollution(serverLevel, pos) > 0 && energyBuffer().has(cost)) {

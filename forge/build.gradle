@@ -12,6 +12,7 @@ def mc = stonecutter.current.version
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def nerolandcoreVersion = project.findProperty('nerolandcore_version')
+def nerospaceVersion = project.findProperty('nerospace_version')
 
 if (!forgeVersion) {
     throw new GradleException("Missing forge_version_${mc} in gradle.properties")
@@ -75,6 +76,13 @@ dependencies {
     // erasure). Compile + dev-runtime classpath; NOT jar-in-jar — Core ships as its own mod and loads
     // BEFORE NeroTech (see mods.toml dependency). Resolved from mavenLocal() (nerolandcore-forge-<mc>).
     implementation "za.co.neroland.nerolandcore:nerolandcore-forge-${mc}:${nerolandcoreVersion}"
+
+    // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
+    // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
+    // za.co.neroland.nerospace.api facade. Never runtime/jar-in-jar — mods.toml lists nerospace as
+    // optional (ordering AFTER) and NeroTech runs fully without it. Resolved from mavenLocal (run
+    // `./gradlew publishToMavenLocal` in ../nerospace).
+    compileOnly "za.co.neroland.nerospace:nerospace-forge-${mc}:${nerospaceVersion}"
 
     implementation 'io.sentry:sentry:8.45.0'
     jarJar(group: 'io.sentry', name: 'sentry', version: '8.45.0')

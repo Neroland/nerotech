@@ -1,5 +1,7 @@
 package za.co.neroland.nerotech.client;
 
+import java.util.function.IntSupplier;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -7,6 +9,7 @@ import net.minecraft.network.chat.Component;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerotech.machine.MachinePreset;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.network.ClientMachineStats;
 import za.co.neroland.nerotech.network.MachineStatsPayload;
@@ -46,20 +49,36 @@ public final class AnalyticsWidget {
     private final int anchorX;
     private final int anchorY;
 
+    /**
+     * The menu's synced Stage H preset ordinal (ContainerData index 6) — shown in the header line
+     * so a glance at the analytics panel names the active trade-off. Live supplier, not a snapshot.
+     */
+    private final IntSupplier presetOrdinal;
+
     private boolean open;
 
     /** The last snapshot polled from the mailbox (kept between pushes; null until the first). */
     @Nullable
     private MachineStatsPayload latest;
 
-    public AnalyticsWidget(int containerId, int anchorX, int anchorY) {
+    public AnalyticsWidget(int containerId, int anchorX, int anchorY, IntSupplier presetOrdinal) {
         this.containerId = containerId;
         this.anchorX = anchorX;
         this.anchorY = anchorY;
+        this.presetOrdinal = presetOrdinal;
     }
 
     public boolean isOpen() {
         return this.open;
+    }
+
+    /** Preset header colours: Eco teal / Balanced white / Overdrive amber (the MachineScreen set). */
+    private static int presetColor(MachinePreset preset) {
+        return switch (preset) {
+            case ECO -> 0xFF4DD0E1;
+            case BALANCED -> 0xFFE6E6F0;
+            case OVERDRIVE -> 0xFFE0B33A;
+        };
     }
 
     /** The client-side colour hint per status (kept out of the common enum by design). */
@@ -96,11 +115,15 @@ public final class AnalyticsWidget {
             return;
         }
 
-        // Panel + header.
+        // Panel + header (with the active Stage H preset name right-aligned, in its colour).
         g.fill(px, py, px + PANEL_W, py + PANEL_H, PANEL);
         outline(g, px, py, PANEL_W, PANEL_H, OUTLINE);
         g.fill(px, py, px + PANEL_W, py + HEADER_H, HEADER);
         g.text(font, Component.literal("Analytics"), px + 5, py + 3, TEXT, false);
+        MachinePreset preset = MachinePreset.byOrdinal(this.presetOrdinal.getAsInt());
+        Component presetName = Component.translatable(preset.translationKey());
+        g.text(font, presetName, px + PANEL_W - 5 - font.width(presetName), py + 3,
+                presetColor(preset), false);
 
         MachineStatsPayload stats = this.latest;
         if (stats == null) {

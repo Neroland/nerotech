@@ -80,6 +80,13 @@
   "nerotech.analytics.status.unformed": "Structure unformed",
   "nerotech.analytics.no_data": "No data yet",
 
+  "nerotech.preset.eco": "Eco",
+  "nerotech.preset.balanced": "Balanced",
+  "nerotech.preset.overdrive": "Overdrive",
+  "nerotech.preset.short.eco": "ECO",
+  "nerotech.preset.short.balanced": "BAL",
+  "nerotech.preset.short.overdrive": "OVR",
+
   "advancements.nerotech.root.title": "NeroTech",
   "advancements.nerotech.root.description": "Fabricate your first machine component and start industrialising",
   "advancements.nerotech.nero_generator.title": "First Spark",

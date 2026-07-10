@@ -17,4 +17,7 @@ public interface INetworkHelper {
 
     /** Server → one client. */
     void sendToPlayer(ServerPlayer player, CustomPacketPayload payload);
+
+    /** Client → server (call only on the physical client) — Stage H's preset intent path. */
+    void sendToServer(CustomPacketPayload payload);
 }

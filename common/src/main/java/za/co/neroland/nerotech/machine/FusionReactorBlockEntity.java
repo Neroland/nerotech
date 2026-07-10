@@ -98,7 +98,10 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
         if (this.progress > 0) {
             this.progress--;
             UpgradeModifiers mods = modifiers();
-            long output = Math.round(NeroTechConfig.fusionReactorNePerTick() * mods.speedMultiplier()
+            // Stage H preset: output NE scales with the speed factor (heat scales at the base —
+            // an overdriven reactor courts its own meltdown threshold).
+            long output = Math.round(NeroTechConfig.fusionReactorNePerTick()
+                    * mods.speedMultiplier() * presetSpeedFactor()
                     * FusionStructure.outputPermille(this.shellSize) / 1000.0D);
             energyBuffer().generate((int) Math.min(Integer.MAX_VALUE, output));
             // Bigger shells run hotter: ×4 (3³) / ×5 (5³) / ×6 (7³) the base heat rate.

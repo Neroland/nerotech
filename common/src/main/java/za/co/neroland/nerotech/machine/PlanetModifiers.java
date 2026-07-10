@@ -2,16 +2,25 @@ package za.co.neroland.nerotech.machine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalDouble;
 
 import net.minecraft.world.level.Level;
 
+import za.co.neroland.nerotech.compat.NerospacePlanetCompat;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 
 /**
- * Per-planet generation modifiers — the <b>deferred fallback</b> for Stage 4. A published
- * {@code nerospace.api} (planet-trait query) is the intended source; until it exists, NeroTech reads
- * per-dimension multipliers from Core config ({@code solarDimensionMultipliers}), keyed by dimension id.
- * No Nerospace import, so Earth tier (overworld → default 1.0) plays fully standalone.
+ * Per-planet generation modifiers (Stage H precedence — the Stage 4 "deferred" note is resolved):
+ *
+ * <ol>
+ *   <li><b>Nerospace api</b> — when Nerospace is installed and the dimension is a known planet,
+ *       {@link NerospacePlanetCompat#solarMultiplier} derives the multiplier from the planet's
+ *       published traits (airless/hazard; mapping documented there). Runtime-guarded: NeroTech
+ *       runs fully standalone without Nerospace.</li>
+ *   <li><b>Config fallback</b> — otherwise the {@code solarDimensionMultipliers} comma-list
+ *       ({@code dimensionId=multiplier}), keyed by dimension id.</li>
+ *   <li><b>Default</b> — 1.0 (Earth tier plays untouched).</li>
+ * </ol>
  */
 public final class PlanetModifiers {
 
@@ -21,8 +30,12 @@ public final class PlanetModifiers {
     private PlanetModifiers() {
     }
 
-    /** Solar output multiplier for {@code level}'s dimension (1.0 if unset). */
+    /** Solar output multiplier for {@code level}'s dimension (api → config → 1.0). */
     public static double solarMultiplier(Level level) {
+        OptionalDouble api = NerospacePlanetCompat.solarMultiplier(level);
+        if (api.isPresent()) {
+            return api.getAsDouble();
+        }
         String dim = level.dimension().identifier().toString();
         return table().getOrDefault(dim, 1.0D);
     }

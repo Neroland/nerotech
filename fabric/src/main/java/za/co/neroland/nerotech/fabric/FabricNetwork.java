@@ -18,10 +18,13 @@ import za.co.neroland.nerotech.platform.INetworkHelper;
  */
 public final class FabricNetwork implements INetworkHelper {
 
-    /** Mod-init (both sides): payload types. */
+    /** Mod-init (both sides): payload types + serverbound receivers. */
     public static void registerCommon() {
         for (NeroTechNetwork.Clientbound<?> cb : NeroTechNetwork.clientbound()) {
             registerClientboundType(cb);
+        }
+        for (NeroTechNetwork.Serverbound<?> sb : NeroTechNetwork.serverbound()) {
+            registerServerbound(sb);
         }
     }
 
@@ -36,6 +39,14 @@ public final class FabricNetwork implements INetworkHelper {
         PayloadTypeRegistry.clientboundPlay().register(cb.type(), cb.codec());
     }
 
+    private static <T extends CustomPacketPayload> void registerServerbound(NeroTechNetwork.Serverbound<T> sb) {
+        PayloadTypeRegistry.serverboundPlay().register(sb.type(), sb.codec());
+        ServerPlayNetworking.registerGlobalReceiver(sb.type(), (payload, context) -> {
+            ServerPlayer player = context.player();
+            player.level().getServer().execute(() -> sb.handler().accept(payload, player));
+        });
+    }
+
     private static <T extends CustomPacketPayload> void registerClientReceiver(NeroTechNetwork.Clientbound<T> cb) {
         ClientPlayNetworking.registerGlobalReceiver(cb.type(), (payload, context) ->
                 context.client().execute(() -> cb.handler().accept(payload)));
@@ -44,5 +55,10 @@ public final class FabricNetwork implements INetworkHelper {
     @Override
     public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
         ServerPlayNetworking.send(player, payload);
+    }
+
+    @Override
+    public void sendToServer(CustomPacketPayload payload) {
+        ClientPlayNetworking.send(payload);
     }
 }

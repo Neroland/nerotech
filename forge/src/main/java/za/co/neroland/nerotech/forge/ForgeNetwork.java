@@ -34,6 +34,9 @@ public final class ForgeNetwork implements INetworkHelper {
         for (NeroTechNetwork.Clientbound<?> cb : NeroTechNetwork.clientbound()) {
             registerClientbound(play, cb);
         }
+        for (NeroTechNetwork.Serverbound<?> sb : NeroTechNetwork.serverbound()) {
+            registerServerbound(play, sb);
+        }
         channel = play.build();
     }
 
@@ -43,6 +46,16 @@ public final class ForgeNetwork implements INetworkHelper {
         play.addMain(cb.type(), registryCodec(cb.codec()), (payload, context) -> {
             if (context.isClientSide()) {
                 cb.handler().accept(payload);
+            }
+        });
+    }
+
+    private static <T extends CustomPacketPayload> void registerServerbound(
+            PayloadFlow<RegistryFriendlyByteBuf, CustomPacketPayload> play, NeroTechNetwork.Serverbound<T> sb) {
+        // The flow is bidirectional; only handle this serverbound payload when a real player sent it.
+        play.addMain(sb.type(), registryCodec(sb.codec()), (payload, context) -> {
+            if (context.getSender() instanceof ServerPlayer serverPlayer) {
+                sb.handler().accept(payload, serverPlayer);
             }
         });
     }
@@ -57,6 +70,13 @@ public final class ForgeNetwork implements INetworkHelper {
     public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
         if (channel != null) {
             channel.send(payload, PacketDistributor.PLAYER.with(player));
+        }
+    }
+
+    @Override
+    public void sendToServer(CustomPacketPayload payload) {
+        if (channel != null) {
+            channel.send(payload, PacketDistributor.SERVER.noArg());
         }
     }
 }

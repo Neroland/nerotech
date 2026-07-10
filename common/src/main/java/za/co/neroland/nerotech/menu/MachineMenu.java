@@ -164,6 +164,21 @@ public abstract class MachineMenu extends AbstractContainerMenu {
         return this.data.get(5) <= 0 ? 0f : this.data.get(4) / (float) this.data.get(5);
     }
 
+    /** The synced Stage H overclock preset ordinal (index 6; see {@code MachinePreset.byOrdinal}). */
+    public int presetOrdinal() {
+        return this.data.get(6);
+    }
+
+    /**
+     * The live machine behind this menu — non-null only on the server ctor path (the same target
+     * the analytics stream uses). The preset intent handler resolves its machine through this, so
+     * a client can only ever re-preset the machine of the menu it actually has open.
+     */
+    @Nullable
+    public NeroTechMachineBlockEntity serverMachine() {
+        return this.statsSource;
+    }
+
     @Override
     public boolean stillValid(Player player) {
         return this.container.stillValid(player);

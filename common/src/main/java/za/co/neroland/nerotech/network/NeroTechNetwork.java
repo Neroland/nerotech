@@ -2,6 +2,7 @@ package za.co.neroland.nerotech.network;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -30,6 +31,9 @@ import za.co.neroland.nerotech.platform.Services;
  * {@link ClientMenuPos} mailbox — pure common code, safe to register from either side.
  * Stage G adds the two menu-open analytics streams ({@link MachineStatsPayload},
  * {@link AnalyticsTerminalPayload}), each with its own container-id-keyed mailbox.
+ * Stage H adds the first SERVERBOUND payload ({@link MachinePresetPayload} — the overclock
+ * selector intent), mirroring Core's {@code SideConfigIntentPayload} flow: handlers get the
+ * sending {@code ServerPlayer} and validate everything server-side.
  */
 public final class NeroTechNetwork {
 
@@ -40,7 +44,15 @@ public final class NeroTechNetwork {
             Consumer<T> handler) {
     }
 
+    /** A client → server payload + the server-side handler (with the sending player). */
+    public record Serverbound<T extends CustomPacketPayload>(
+            CustomPacketPayload.Type<T> type,
+            StreamCodec<? super RegistryFriendlyByteBuf, T> codec,
+            BiConsumer<T, ServerPlayer> handler) {
+    }
+
     private static final List<Clientbound<?>> CLIENTBOUND = new ArrayList<>();
+    private static final List<Serverbound<?>> SERVERBOUND = new ArrayList<>();
 
     private NeroTechNetwork() {
     }
@@ -50,8 +62,18 @@ public final class NeroTechNetwork {
         CLIENTBOUND.add(new Clientbound<>(type, codec, handler));
     }
 
+    public static <T extends CustomPacketPayload> void serverbound(
+            CustomPacketPayload.Type<T> type, StreamCodec<? super RegistryFriendlyByteBuf, T> codec,
+            BiConsumer<T, ServerPlayer> handler) {
+        SERVERBOUND.add(new Serverbound<>(type, codec, handler));
+    }
+
     public static List<Clientbound<?>> clientbound() {
         return CLIENTBOUND;
+    }
+
+    public static List<Serverbound<?>> serverbound() {
+        return SERVERBOUND;
     }
 
     /** Called from common init so the payload list exists before each loader registers it. */
@@ -63,10 +85,18 @@ public final class NeroTechNetwork {
                 ClientMachineStats::accept);
         clientbound(AnalyticsTerminalPayload.TYPE, AnalyticsTerminalPayload.STREAM_CODEC,
                 ClientTerminalStats::accept);
+        // Stage H: the overclock-preset selector intent (server-validated in the payload class).
+        serverbound(MachinePresetPayload.TYPE, MachinePresetPayload.STREAM_CODEC,
+                MachinePresetPayload::handle);
     }
 
     /** Server → one client, through the loader's send seam. */
     public static void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
         Services.NETWORK.sendToPlayer(player, payload);
+    }
+
+    /** Client → server, through the loader's send seam (call only on the physical client). */
+    public static void sendToServer(CustomPacketPayload payload) {
+        Services.NETWORK.sendToServer(payload);
     }
 }

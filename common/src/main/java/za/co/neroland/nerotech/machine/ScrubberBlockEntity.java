@@ -70,7 +70,9 @@ public class ScrubberBlockEntity extends NeroTechMachineBlockEntity {
             return;
         }
         UpgradeModifiers mods = modifiers();
-        int cost = (int) Math.max(0, Math.round(NeroTechConfig.scrubberNePerOp() * mods.energyMultiplier()));
+        // Stage H preset: energy per op scales with the energy factor, scrub rate with the speed factor.
+        int cost = (int) Math.max(0,
+                Math.round(NeroTechConfig.scrubberNePerOp() * mods.energyMultiplier() * presetEnergyFactor()));
 
         // Analytics: the item/energy preconditions are cheap, so name the limiting cause every
         // tick (a status reported only on op ticks would be clobbered by the RUNNING/IDLE default
@@ -91,7 +93,8 @@ public class ScrubberBlockEntity extends NeroTechMachineBlockEntity {
             return;
         }
 
-        int rate = (int) Math.max(1, Math.round(NeroTechConfig.scrubberPollutionPerOp() * mods.speedMultiplier()));
+        int rate = (int) Math.max(1, Math.round(NeroTechConfig.scrubberPollutionPerOp()
+                * mods.speedMultiplier() * presetSpeedFactor()));
 
         boolean scrubbed = false;
         if (this.items.get(FILTER_SLOT).is(ModItems.FILTER_CARTRIDGE.get())
