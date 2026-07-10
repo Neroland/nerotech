@@ -86,6 +86,8 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
         ItemStack result = resultFor(input);
 
         if (result.isEmpty() || !canOutput(result)) {
+            // Analytics: no usable input (empty slot / no recipe) reads STARVED; output jam BLOCKED.
+            reportStatus(result.isEmpty() ? MachineStatus.STARVED : MachineStatus.BLOCKED);
             setActive(false); // nothing to do — BER drums/arms park
             if (this.maxProgress != 0 || this.progress != 0) {
                 this.progress = 0;
@@ -103,6 +105,7 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
 
         // Heat throttle: a machine that's run too hard stalls until it sheds heat (base dissipation).
         if (overheated()) {
+            reportStatus(MachineStatus.THROTTLED);
             setActive(false);
             return;
         }
@@ -120,6 +123,9 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
                 this.progress = 0;
             }
             setChanged();
+        } else {
+            // Analytics: work is queued but the buffer can't cover the next tick's cost.
+            reportStatus(MachineStatus.NO_ENERGY);
         }
     }
 

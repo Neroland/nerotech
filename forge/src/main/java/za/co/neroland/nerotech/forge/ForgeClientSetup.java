@@ -9,6 +9,7 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+import za.co.neroland.nerotech.client.AnalyticsTerminalScreen;
 import za.co.neroland.nerotech.client.AutoCrafterScreen;
 import za.co.neroland.nerotech.client.ClientBlockEntityRenderers;
 import za.co.neroland.nerotech.client.FabricatorScreen;
@@ -55,5 +56,6 @@ public final class ForgeClientSetup {
         MenuScreens.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
         MenuScreens.register(ModMenuTypes.SCRUBBER.get(), ScrubberScreen::new);
         MenuScreens.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
+        MenuScreens.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
     }
 }

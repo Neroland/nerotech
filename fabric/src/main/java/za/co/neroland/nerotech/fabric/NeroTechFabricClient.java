@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.client.AnalyticsTerminalScreen;
 import za.co.neroland.nerotech.client.AutoCrafterScreen;
 import za.co.neroland.nerotech.client.ClientBlockEntityRenderers;
 import za.co.neroland.nerotech.client.FabricatorScreen;
@@ -36,6 +37,7 @@ public final class NeroTechFabricClient implements ClientModInitializer {
         MenuScreens.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
         MenuScreens.register(ModMenuTypes.SCRUBBER.get(), ScrubberScreen::new);
         MenuScreens.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
+        MenuScreens.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
 
         // Machine BERs through the shared cross-loader seam (Nerospace pattern).
         ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {

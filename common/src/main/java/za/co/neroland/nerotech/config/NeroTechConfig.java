@@ -97,6 +97,11 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> REMEDIATOR_RATE = SCHEMA.intRange("remediatorPollutionPerOp",
             20, 1, 100_000, true, "pollution removed from the Remediator's own region per operation");
 
+    // --- production analytics (Stage G: Analytics Terminal) ------------------
+    private static final ConfigValue<Integer> ANALYTICS_RADIUS = SCHEMA.intRange("analyticsTerminalRadius",
+            16, 4, 64, true, "block radius an Analytics Terminal scans for NeroTech machines (loaded "
+            + "chunks only, batched every 100 ticks — large radii make each scan pass more expensive)");
+
     // --- Tier 2/3 (gated behind Nerospace / orbit) --------------------------
     private static final ConfigValue<Integer> FUSION_NE_PER_TICK = SCHEMA.intRange("fusionReactorNePerTick",
             400, 1, 10_000_000, true, "NE/tick the Fusion Reactor produces while running (high-output late-game)");
@@ -247,6 +252,10 @@ public final class NeroTechConfig {
 
     public static int remediatorPollutionPerOp() {
         return REMEDIATOR_RATE.get();
+    }
+
+    public static int analyticsTerminalRadius() {
+        return ANALYTICS_RADIUS.get();
     }
 
     public static int fusionReactorNePerTick() {

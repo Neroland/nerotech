@@ -69,6 +69,21 @@ public class ScrubberBlockEntity extends NeroTechMachineBlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
+        UpgradeModifiers mods = modifiers();
+        int cost = (int) Math.max(0, Math.round(NeroTechConfig.scrubberNePerOp() * mods.energyMultiplier()));
+
+        // Analytics: the item/energy preconditions are cheap, so name the limiting cause every
+        // tick (a status reported only on op ticks would be clobbered by the RUNNING/IDLE default
+        // in between). "Nothing to scrub" stays the default IDLE — pollution is only knowable on
+        // op ticks (region-map discipline), where a dry scrub leaves the active flag off.
+        if (!this.items.get(FILTER_SLOT).is(ModItems.FILTER_CARTRIDGE.get())) {
+            reportStatus(MachineStatus.STARVED);
+        } else if (!outputHasRoom()) {
+            reportStatus(MachineStatus.BLOCKED);
+        } else if (!energyBuffer().has(cost)) {
+            reportStatus(MachineStatus.NO_ENERGY);
+        }
+
         // Batch on the pollution-contribution interval with a per-machine phase (emitPollution's
         // recipe) — between op ticks the active flag and gauges simply hold their last state.
         int interval = NeroTechConfig.pollutionContributionIntervalTicks();
@@ -76,8 +91,6 @@ public class ScrubberBlockEntity extends NeroTechMachineBlockEntity {
             return;
         }
 
-        UpgradeModifiers mods = modifiers();
-        int cost = (int) Math.max(0, Math.round(NeroTechConfig.scrubberNePerOp() * mods.energyMultiplier()));
         int rate = (int) Math.max(1, Math.round(NeroTechConfig.scrubberPollutionPerOp() * mods.speedMultiplier()));
 
         boolean scrubbed = false;

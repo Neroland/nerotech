@@ -8,6 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
+import za.co.neroland.nerotech.client.AnalyticsTerminalScreen;
 import za.co.neroland.nerotech.client.AutoCrafterScreen;
 import za.co.neroland.nerotech.client.ClientBlockEntityRenderers;
 import za.co.neroland.nerotech.client.FabricatorScreen;
@@ -50,5 +51,6 @@ public final class NeoForgeClientSetup {
         event.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
         event.register(ModMenuTypes.SCRUBBER.get(), ScrubberScreen::new);
         event.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
+        event.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
     }
 }

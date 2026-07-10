@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlockEntity;
 import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlockEntity;
+import za.co.neroland.nerotech.machine.AnalyticsTerminalBlockEntity;
 import za.co.neroland.nerotech.machine.AutoCrafterBlockEntity;
 import za.co.neroland.nerotech.machine.FabricatorBlockEntity;
 import za.co.neroland.nerotech.machine.FusionReactorBlockEntity;
@@ -68,6 +69,10 @@ public final class ModBlockEntities {
     public static final RegistryEntry<BlockEntityType<RemediatorBlockEntity>> REMEDIATOR =
             BLOCK_ENTITIES.register("remediator",
                     key -> new BlockEntityType<>(RemediatorBlockEntity::new, Set.of(ModBlocks.REMEDIATOR.get())));
+
+    public static final RegistryEntry<BlockEntityType<AnalyticsTerminalBlockEntity>> ANALYTICS_TERMINAL =
+            BLOCK_ENTITIES.register("analytics_terminal",
+                    key -> new BlockEntityType<>(AnalyticsTerminalBlockEntity::new, Set.of(ModBlocks.ANALYTICS_TERMINAL.get())));
 
     private ModBlockEntities() {
     }

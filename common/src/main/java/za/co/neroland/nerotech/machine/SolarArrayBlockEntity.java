@@ -47,6 +47,7 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
         this.maxProgress = producing ? 1 : 0;
         this.progress = producing ? 1 : 0;
         // BER surface: the tracking deck reads as "generating" while daylight reaches the panel.
+        // Analytics: night / a blocked sky is simply IDLE — the base RUNNING/IDLE default covers it.
         setActive(producing);
 
         if (producing && getEnergy().getAmount() < getEnergy().getCapacity()) {

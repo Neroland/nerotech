@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+import za.co.neroland.nerotech.client.render.AnalyticsTerminalRenderer;
 import za.co.neroland.nerotech.client.render.AutoCrafterRenderer;
 import za.co.neroland.nerotech.client.render.FabricatorRenderer;
 import za.co.neroland.nerotech.client.render.FusionReactorRenderer;
@@ -55,5 +56,7 @@ public final class ClientBlockEntityRenderers {
         sink.register(ModBlockEntities.SCRUBBER.get(), context -> new ScrubberRenderer());
         // Remediator: BER-drawn spray booms (sweeping while active) + faint plasma mist.
         sink.register(ModBlockEntities.REMEDIATOR.get(), context -> new RemediatorRenderer());
+        // Analytics Terminal: faint holographic shimmer above the console while machines are in range.
+        sink.register(ModBlockEntities.ANALYTICS_TERMINAL.get(), context -> new AnalyticsTerminalRenderer());
     }
 }

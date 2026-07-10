@@ -133,6 +133,19 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     private final int pollutionPhase = Math.floorMod(System.identityHashCode(this), 40);
 
     /**
+     * Stage G analytics window: 60 one-second samples of heat/energy/ops plus the current
+     * {@link MachineStatus}. Transient — never persisted, and it leaves the server only inside
+     * the menu-open stats payload. Machine-scoped numbers only, no player data (POPIA/GDPR).
+     */
+    private final MachineStats stats = new MachineStats();
+
+    /** Whether a subclass called {@link #reportStatus} this tick (else the RUNNING/IDLE default applies). */
+    private boolean statusReported;
+
+    /** Spreads the once-per-second stats sample across ticks (the pollutionPhase recipe, mod 20). */
+    private final int statsPhase = Math.floorMod(System.identityHashCode(this) * 61, 20);
+
+    /**
      * Synced to the menu: [0]=energy permille, [1]=1000, [2]=work permille, [3]=1000 when working,
      * [4]=heat permille, [5]=1000.
      */
@@ -237,8 +250,15 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
     @Override
     protected final void serverTick(Level level, BlockPos pos, BlockState state) {
+        this.statusReported = false;
         tickMachine(level, pos, state);
+        // Analytics default: RUNNING while visibly working, IDLE otherwise — subclasses that know
+        // the sharper cause (STARVED/BLOCKED/THROTTLED/...) reported it from tickMachine.
+        if (!this.statusReported) {
+            this.stats.status(this.active ? MachineStatus.RUNNING : MachineStatus.IDLE);
+        }
         thermalTick(level, pos);
+        statsTick(level);
         syncRenderState(level, pos, state);
     }
 
@@ -255,6 +275,48 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /** Bump the client pulse counter (one-shot machines); the BER plays a short animation per bump. */
     protected void pulseClient() {
         this.clientPulse = (this.clientPulse + 1) & 0xFFFF;
+        // One-shot machines count each pulse as a work op toward the analytics rate.
+        this.stats.countOps(1);
+    }
+
+    // --- Stage G analytics (menu-open-only sync; see network.MachineStatsPayload) ----------------
+
+    /**
+     * Name what currently limits this machine (called from {@link #tickMachine}); the base default
+     * (RUNNING while active, IDLE otherwise) applies on any tick without a report, so subclasses
+     * only report where they know better.
+     */
+    protected void reportStatus(MachineStatus status) {
+        this.stats.status(status);
+        this.statusReported = true;
+    }
+
+    /**
+     * Count working ticks and take the once-per-second analytics sample on this machine's phase
+     * of the 20-tick interval (the pollutionPhase recipe) — never a per-tick array write.
+     */
+    private void statsTick(Level level) {
+        if (this.active) {
+            this.stats.countOps(1);
+        }
+        if ((level.getGameTime() + this.statsPhase) % 20 == 0) {
+            this.stats.sample(heatPermille(), energyPermille());
+        }
+    }
+
+    /** The analytics window (server-side read surface for the menu's stats payload). */
+    public MachineStats stats() {
+        return this.stats;
+    }
+
+    /** Heat as permille of capacity (analytics payload scale). */
+    public int heatPermille() {
+        return permille(this.heat, NeroTechConfig.heatCapacity());
+    }
+
+    /** Stored energy as permille of capacity (analytics payload scale). */
+    public int energyPermille() {
+        return permille(getEnergy().getAmount(), getEnergy().getCapacity());
     }
 
     /**

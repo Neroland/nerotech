@@ -77,6 +77,10 @@ public final class ModItems {
     public static final RegistryEntry<BlockItem> SCRUBBER_ITEM = blockItem("scrubber", ModBlocks.SCRUBBER);
     public static final RegistryEntry<BlockItem> REMEDIATOR_ITEM = blockItem("remediator", ModBlocks.REMEDIATOR);
 
+    // --- Production analytics (Stage G) ---------------------------------------
+    public static final RegistryEntry<BlockItem> ANALYTICS_TERMINAL_ITEM =
+            blockItem("analytics_terminal", ModBlocks.ANALYTICS_TERMINAL);
+
     // --- Tools ---------------------------------------------------------------
     /**
      * The side-config wrench (Core ships the API, NeroTech ships the item — see
@@ -104,6 +108,7 @@ public final class ModItems {
                 FUSION_CELL, PLASMA_CELL, STELLAR_CELL,
                 AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM,
                 SCRUBBER_ITEM, REMEDIATOR_ITEM, FILTER_CARTRIDGE, DIRTY_FILTER,
+                ANALYTICS_TERMINAL_ITEM,
                 CONFIGURATOR,
                 SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE);
     }

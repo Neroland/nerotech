@@ -80,8 +80,12 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
                 this.maxProgress = value;
                 fuel.shrink(1);
                 setChanged();
-            } else if (this.maxProgress != 0) {
-                this.maxProgress = 0;
+            } else {
+                // Analytics: waiting on fuel reads STARVED; fuel ready but the buffer full, BLOCKED.
+                reportStatus(value > 0 ? MachineStatus.BLOCKED : MachineStatus.STARVED);
+                if (this.maxProgress != 0) {
+                    this.maxProgress = 0;
+                }
             }
         }
 

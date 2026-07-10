@@ -796,6 +796,66 @@ def gen_remediator():
     save(img, "block", "remediator_top")
 
 
+def gen_analytics_terminal():
+    # side: console housing — a cable trunk feeding the screen head + a data-port cluster low
+    # (the pedestal/column/bezel elements all reuse this as generic plate)
+    img = machine_base("analytics_terminal")
+    px = img.load()
+    for y in range(4, 28):                      # cable trunk up the housing
+        px[15, y] = A_DARK
+        px[16, y] = ALLOY[2]
+        px[17, y] = A_DARK
+    for y in (7, 14, 21):                       # trunk clamps
+        px[14, y] = A_LIGHT
+        px[18, y] = A_DARK
+    for (dy, on) in ((22, True), (25, False)):  # data-port pair low on the housing
+        for x in range(5, 11):
+            px[x, dy] = A_DARK
+            px[x, dy + 1] = (12, 16, 20, 255)
+        if on:
+            px[6, dy + 1] = T_TEAL              # one live link pip (kept dim — sides stay quiet)
+    save(img, "block", "analytics_terminal")
+
+    # front: the dark dashboard screen — teal readout rows of ragged lengths + a sparkline trace
+    # + a status-LED strip under the bezel (PULSE target)
+    img = machine_base("analytics_terminal_front")
+    px = img.load()
+    recess(px, 4, 5, 27, 24, (8, 11, 14, 255))
+    rng = rng_for("analytics_terminal_front_rows")
+    for i, ry in enumerate((8, 12, 16)):        # readout rows: label tick + ragged data bar
+        px[6, ry] = T_CYAN
+        px[7, ry] = T_CYAN
+        for x in range(9, 9 + rng.randrange(10, 16)):
+            px[x, ry] = T_TEAL if (x + i) % 5 else T_DEEP
+    trace = (22, 21, 21, 20, 21, 22, 21, 20, 19, 20, 21, 21, 20, 19, 19, 20, 21, 22, 21, 20)
+    for i, ty in enumerate(trace):              # sparkline trace along the screen bottom
+        px[6 + i, ty] = T_CYAN if i % 4 else T_PLASMA
+    for i, lx in enumerate((8, 14, 20)):        # status LEDs under the bezel
+        led(px, lx, 27, T_CYAN if i != 1 else T_TEAL, T_PLASMA if i == 0 else None)
+    save(img, "block", "analytics_terminal_front")
+
+    # top: deck plate with the hologram projector lens (teal ring) behind a vent grille
+    img = machine_base("analytics_terminal_top")
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 16.0, y - 17.0)
+            if d <= 2.0:
+                px[x, y] = T_CYAN if d > 1.0 else T_PLASMA   # projector lens
+            elif d <= 3.5:
+                px[x, y] = T_DEEP
+            elif d <= 5.0:
+                px[x, y] = A_DARK
+            elif d <= 6.5:
+                px[x, y] = ALLOY[3] if (x + y) % 2 == 0 else ALLOY[1]
+    for y in (5, 7, 9):                         # vent grille toward the back edge
+        for x in range(8, 25):
+            px[x, y] = A_DARK
+            if x % 6 == 2:
+                px[x, y - 1] = A_LIGHT
+    save(img, "block", "analytics_terminal_top")
+
+
 # ---------------- BER sprites (dynamic geometry textures) ----------------
 
 def gen_ber_sprites():
@@ -1483,6 +1543,7 @@ def main():
     gen_item_sorter()
     gen_scrubber()
     gen_remediator()
+    gen_analytics_terminal()
     # BER sprites
     gen_ber_sprites()
     # items

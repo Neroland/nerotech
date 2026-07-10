@@ -28,6 +28,8 @@ import za.co.neroland.nerotech.platform.Services;
  * <p>V1 registers one payload: the clientbound {@link MachineMenuPosPayload} that tells the
  * client which machine its freshly opened menu belongs to. Its handler drops into the
  * {@link ClientMenuPos} mailbox — pure common code, safe to register from either side.
+ * Stage G adds the two menu-open analytics streams ({@link MachineStatsPayload},
+ * {@link AnalyticsTerminalPayload}), each with its own container-id-keyed mailbox.
  */
 public final class NeroTechNetwork {
 
@@ -56,6 +58,11 @@ public final class NeroTechNetwork {
     public static void init() {
         clientbound(MachineMenuPosPayload.TYPE, MachineMenuPosPayload.STREAM_CODEC,
                 payload -> ClientMenuPos.accept(payload.containerId(), payload.pos()));
+        // Stage G analytics: per-machine stats + terminal dashboard, both menu-open-only streams.
+        clientbound(MachineStatsPayload.TYPE, MachineStatsPayload.STREAM_CODEC,
+                ClientMachineStats::accept);
+        clientbound(AnalyticsTerminalPayload.TYPE, AnalyticsTerminalPayload.STREAM_CODEC,
+                ClientTerminalStats::accept);
     }
 
     /** Server → one client, through the loader's send seam. */

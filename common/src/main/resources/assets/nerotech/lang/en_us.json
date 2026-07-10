@@ -55,6 +55,8 @@
   "item.nerotech.scrubber": "Scrubber",
   "block.nerotech.remediator": "Remediator",
   "item.nerotech.remediator": "Remediator",
+  "block.nerotech.analytics_terminal": "Analytics Terminal",
+  "item.nerotech.analytics_terminal": "Analytics Terminal",
 
   "container.nerotech.nero_generator": "Nero Generator",
   "container.nerotech.solar_array": "Solar Array",
@@ -67,6 +69,16 @@
   "container.nerotech.item_sorter": "Item Sorter",
   "container.nerotech.scrubber": "Scrubber",
   "container.nerotech.remediator": "Remediator",
+  "container.nerotech.analytics_terminal": "Analytics Terminal",
+
+  "nerotech.analytics.status.running": "Running",
+  "nerotech.analytics.status.idle": "Idle",
+  "nerotech.analytics.status.starved": "Waiting for input",
+  "nerotech.analytics.status.blocked": "Output full",
+  "nerotech.analytics.status.throttled": "Overheated",
+  "nerotech.analytics.status.no_energy": "Out of energy",
+  "nerotech.analytics.status.unformed": "Structure unformed",
+  "nerotech.analytics.no_data": "No data yet",
 
   "advancements.nerotech.root.title": "NeroTech",
   "advancements.nerotech.root.description": "Fabricate your first machine component and start industrialising",

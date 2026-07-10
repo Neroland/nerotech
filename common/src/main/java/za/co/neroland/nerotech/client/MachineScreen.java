@@ -28,7 +28,8 @@ import za.co.neroland.nerotech.network.ClientMenuPos;
  * {@code fill}s (no GUI texture asset). Consistent layout for every machine: energy + heat gauges on the
  * left (each with an always-visible colour cap so it reads even when empty), machine I/O slots centred,
  * upgrade-module slots as a 2×2 block top-right, and a work-progress bar along the bottom of the machine
- * area. 26.x renders container screens via {@code extract*(GuiGraphicsExtractor, ...)}.
+ * area. Two collapsible side tabs: Core's Side Config net and the Stage G {@link AnalyticsWidget}
+ * (only one expands at a time). 26.x renders container screens via {@code extract*(GuiGraphicsExtractor, ...)}.
  *
  * @param <T> the machine menu type
  */
@@ -52,10 +53,16 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     private SideConfigWidget sideConfigWidget;
     private boolean sideConfigResolved;
 
+    /** The Stage G Analytics tab, stacked under the Side Config tab (needs only the container id). */
+    private final AnalyticsWidget analyticsWidget;
+
     public MachineScreen(T menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 176, 166);
         this.titleLabelX = 8;
         this.inventoryLabelX = 8;
+        // Anchored just below the Side Config tab button; hidden while that panel is expanded
+        // (the two open panels would otherwise overlap in the same side column).
+        this.analyticsWidget = new AnalyticsWidget(menu.containerId, this.imageWidth + 4, 20);
     }
 
     /** Typed factory for screen registration ({@code MachineScreen::create}). */
@@ -110,6 +117,10 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         SideConfigWidget widget = sideConfig();
         if (widget != null) {
             widget.render(extractor, this.leftPos, this.topPos, mouseX, mouseY);
+        }
+        // The Analytics tab below it — hidden while the Side Config panel is expanded (overlap).
+        if (widget == null || !widget.isOpen()) {
+            this.analyticsWidget.render(extractor, this.leftPos, this.topPos, mouseX, mouseY);
         }
     }
 
@@ -170,6 +181,12 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
         SideConfigWidget widget = sideConfig();
         if (widget != null && widget.mouseClicked(mouseButtonEvent.x(), mouseButtonEvent.y(),
+                mouseButtonEvent.button(), this.leftPos, this.topPos)) {
+            return true;
+        }
+        // The Analytics tab is hidden (and therefore unclickable) while Side Config is expanded.
+        if ((widget == null || !widget.isOpen())
+                && this.analyticsWidget.mouseClicked(mouseButtonEvent.x(), mouseButtonEvent.y(),
                 mouseButtonEvent.button(), this.leftPos, this.topPos)) {
             return true;
         }

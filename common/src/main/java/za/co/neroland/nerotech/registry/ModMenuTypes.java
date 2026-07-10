@@ -5,6 +5,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.menu.AnalyticsTerminalMenu;
 import za.co.neroland.nerotech.menu.AutoCrafterMenu;
 import za.co.neroland.nerotech.menu.FabricatorMenu;
 import za.co.neroland.nerotech.menu.ItemSorterMenu;
@@ -37,6 +38,8 @@ public final class ModMenuTypes {
             MENUS.register("scrubber", key -> new MenuType<>(ScrubberMenu::new, FeatureFlags.VANILLA_SET));
     public static final RegistryEntry<MenuType<RemediatorMenu>> REMEDIATOR =
             MENUS.register("remediator", key -> new MenuType<>(RemediatorMenu::new, FeatureFlags.VANILLA_SET));
+    public static final RegistryEntry<MenuType<AnalyticsTerminalMenu>> ANALYTICS_TERMINAL =
+            MENUS.register("analytics_terminal", key -> new MenuType<>(AnalyticsTerminalMenu::new, FeatureFlags.VANILLA_SET));
 
     private ModMenuTypes() {
     }

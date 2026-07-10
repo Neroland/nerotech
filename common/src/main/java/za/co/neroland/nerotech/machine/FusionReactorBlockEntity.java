@@ -73,6 +73,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
 
         if (!this.formed) {
             // Inert until formed: no burn, no fuel consumption; residual stored NE still drains out.
+            reportStatus(MachineStatus.UNFORMED);
             setActive(false);
             MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(),
                     sideConfig());
@@ -86,6 +87,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 return;
             }
             // Survival-friendly: stall until the thermal model cools it; stored power still flows.
+            reportStatus(MachineStatus.THROTTLED);
             setActive(false); // torus dies; only the BER warning strobe telegraphs the overheat
             MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(),
                     sideConfig());
@@ -112,9 +114,18 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 this.burningTier = tier;
                 fuel.shrink(1);
                 setChanged();
-            } else if (this.maxProgress != 0) {
-                this.maxProgress = 0;
-                this.burningTier = 0;
+            } else {
+                // Analytics: too hot to ignite reads THROTTLED; no fuel or a tier the shell can't
+                // contain, STARVED; a full buffer just idles (the default covers it).
+                if (overheated()) {
+                    reportStatus(MachineStatus.THROTTLED);
+                } else if (tier <= 0 || tier > shellTier()) {
+                    reportStatus(MachineStatus.STARVED);
+                }
+                if (this.maxProgress != 0) {
+                    this.maxProgress = 0;
+                    this.burningTier = 0;
+                }
             }
         }
 

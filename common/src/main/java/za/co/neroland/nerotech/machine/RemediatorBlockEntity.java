@@ -49,6 +49,16 @@ public class RemediatorBlockEntity extends NeroTechMachineBlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
+        UpgradeModifiers mods = modifiers();
+        int cost = (int) Math.max(0, Math.round(NeroTechConfig.remediatorNePerOp() * mods.energyMultiplier()));
+
+        // Analytics: the energy precondition is cheap, so name it every tick (an op-tick-only
+        // report would be clobbered by the RUNNING/IDLE default in between). "No pollution" stays
+        // the default IDLE — the region map is only consulted on op ticks (map discipline).
+        if (!energyBuffer().has(cost)) {
+            reportStatus(MachineStatus.NO_ENERGY);
+        }
+
         // Batch on the pollution-contribution interval with a per-machine phase (emitPollution's
         // recipe) — between op ticks the active flag and gauges simply hold their last state.
         int interval = NeroTechConfig.pollutionContributionIntervalTicks();
@@ -56,8 +66,6 @@ public class RemediatorBlockEntity extends NeroTechMachineBlockEntity {
             return;
         }
 
-        UpgradeModifiers mods = modifiers();
-        int cost = (int) Math.max(0, Math.round(NeroTechConfig.remediatorNePerOp() * mods.energyMultiplier()));
         int rate = (int) Math.max(1, Math.round(NeroTechConfig.remediatorPollutionPerOp() * mods.speedMultiplier()));
 
         boolean remediating = false;

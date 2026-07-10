@@ -11,6 +11,7 @@ import net.minecraft.world.level.material.MapColor;
 
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlock;
+import za.co.neroland.nerotech.machine.AnalyticsTerminalBlock;
 import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlock;
 import za.co.neroland.nerotech.machine.AutoCrafterBlock;
 import za.co.neroland.nerotech.machine.FabricatorBlock;
@@ -82,6 +83,10 @@ public final class ModBlocks {
             register("scrubber", ScrubberBlock::new);
     public static final RegistryEntry<RemediatorBlock> REMEDIATOR =
             register("remediator", RemediatorBlock::new);
+
+    // --- Production analytics (Stage G) ---------------------------------------
+    public static final RegistryEntry<AnalyticsTerminalBlock> ANALYTICS_TERMINAL =
+            register("analytics_terminal", AnalyticsTerminalBlock::new);
 
     private static <B extends Block> RegistryEntry<B> register(String name,
             Function<BlockBehaviour.Properties, B> factory) {
