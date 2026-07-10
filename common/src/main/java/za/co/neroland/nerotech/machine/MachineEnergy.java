@@ -43,14 +43,15 @@ public final class MachineEnergy {
         if (perSideBudget <= 0 || buffer.getAmount() <= 0) {
             return 0L;
         }
-        boolean gated = sideConfig != null && sideConfig.config().has(Channel.ENERGY);
+        SideConfigComponent gate =
+                (sideConfig != null && sideConfig.config().has(Channel.ENERGY)) ? sideConfig : null;
         long moved = 0L;
         for (Direction side : Direction.values()) {
             if (buffer.getAmount() <= 0) {
                 break;
             }
-            if (gated && !sideConfig.config()
-                    .modeAbsolute(Channel.ENERGY, sideConfig.facing(), side).canExtract()) {
+            if (gate != null && !gate.config()
+                    .modeAbsolute(Channel.ENERGY, gate.facing(), side).canExtract()) {
                 continue;
             }
             NeroEnergyStorage neighbour = EnergyLookup.INSTANCE.find(level, pos.relative(side), side.getOpposite());
