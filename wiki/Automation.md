@@ -29,6 +29,9 @@ only applies between machines of the same type).
 Side config is **server-authoritative**: clicks send intents to the server, which validates and syncs
 the result back. A face's capability is **gated by its mode** — a disabled face exposes nothing, an
 input face only accepts, an output face only emits — so pipes connect exactly where you allow them.
+Since 0.1.0-beta.1 you can also cycle, read and copy-paste side configurations in-world with the
+[Configurator wrench](Side-Config-and-Configurator.md), and the Item Sorter shows its port modes as
+live-tinted collars.
 
 Each machine ships with a sensible default layout:
 
@@ -58,4 +61,5 @@ horizontal face outputs its own filtered buffer, and the top/bottom default to i
 
 - [Tier-1 Machines](Machines.md)
 - [Advanced Tier](Advanced-Tier.md)
+- [Side Config & the Configurator](Side-Config-and-Configurator.md)
 - [Home](Home.md)

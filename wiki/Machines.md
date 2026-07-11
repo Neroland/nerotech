@@ -29,8 +29,8 @@ block) into NE, then pushes it to neighbours. One fuel slot; four upgrade slots.
 ### Solar Array
 
 Daytime, fuel-free generation. Output scales with daylight and requires sky access (it stops at night
-or when roofed over). On Earth it runs fully standalone; per-planet output modifiers arrive with the
-Nerospace tier (Stage 4).
+or when roofed over — watch the panel deck track the sun and fold flat at night). On Earth it runs
+fully standalone; on other worlds output follows [planet traits or per-dimension config](Planets.md).
 
 ## Processing machines
 
@@ -45,15 +45,18 @@ NE per tick while working; stalls cleanly when unpowered.
 Converts refined materials into NeroTech components (e.g. iron ingot → Machine Frame, copper dust →
 Nero Coil, gold dust → Circuit Board). Same powered, recipe-driven behaviour as the Ore Processor.
 
-> Recipes for the Ore Processor and Fabricator currently ship as an in-code baseline (isolated for a
-> later datapack `RecipeType`/`RecipeSerializer` swap), mirroring the Nerospace approach.
+> Since 0.1.0-beta.1, machine recipes are **real datapack recipes** — types `nerotech:ore_processing`,
+> `nerotech:fabricating` and `nerotech:advanced_fabricating` — so packs can add, replace or remove
+> them like any other recipe JSON.
 
 ## Upgrade modules
 
 Machines have four upgrade-module slots. Modules are Core upgrade types — **Speed** (more work per
 cycle / faster processing), **Efficiency** (less NE per unit of work), **Capacity** (larger buffer),
 and **Range** — read as aggregate modifiers each tick. NeroTech invents no bespoke upgrade system;
-modules are interchangeable with any machine built on Core's framework.
+modules are interchangeable with any machine built on Core's framework. Modules stack with the
+machine's [overclock preset](Overclock-Presets.md), and every machine GUI also carries an
+[Analytics tab](Analytics.md) and a [Side Config tab](Side-Config-and-Configurator.md).
 
 ## Progression
 
@@ -63,4 +66,8 @@ the canonical opener of that milestone. Later tiers gate behind `reached_orbit` 
 ## See also
 
 - [Materials & Components](Materials-and-Components.md)
+- [Thermal System](Thermal-System.md)
+- [Overclock Presets](Overclock-Presets.md)
+- [Analytics](Analytics.md)
+- [Tech Guide](Tech-Guide.md)
 - [Home](Home.md)

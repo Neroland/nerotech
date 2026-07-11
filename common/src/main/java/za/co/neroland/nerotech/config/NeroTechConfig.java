@@ -58,8 +58,8 @@ public final class NeroTechConfig {
             0, -100_000, 100_000, true, "baseline ambient heat for dimensions not listed in thermalAmbientByDimension");
     private static final ConfigValue<String> THERMAL_AMBIENT_BY_DIMENSION = SCHEMA.string("thermalAmbientByDimension",
             "minecraft:the_nether=150", true, "per-dimension ambient heat: comma-list of dimensionId=heat, e.g. "
-            + "minecraft:the_nether=150,nerospace:cindara=200,nerospace:glacira=-80 (DEFERRED per-planet fallback "
-            + "until a nerospace.api planet-trait query exists — same pattern as solarDimensionMultipliers)");
+            + "minecraft:the_nether=150,nerospace:cindara=200 (FALLBACK since Stage H: nerospace.api planet "
+            + "traits take precedence for known planets when Nerospace is installed; this covers everything else)");
     private static final ConfigValue<Integer> THERMAL_BIOME_SCALE = SCHEMA.intRange("thermalBiomeScale",
             50, 0, 100_000, true, "ambient heat added per full point of biome base temperature above vanilla "
             + "plains (0.8): deserts run hot, snowy biomes run cold (0 disables biome flavour)");
@@ -120,8 +120,9 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> ADVANCED_YIELD_BONUS = SCHEMA.intRange("advancedOreProcessorYieldBonus",
             1, 0, 64, true, "extra dust the Advanced Ore Processor yields over the Tier-1 processor");
     private static final ConfigValue<String> SOLAR_DIM_MULTIPLIERS = SCHEMA.string("solarDimensionMultipliers",
-            "", true, "DEFERRED per-planet solar fallback (until a Nerospace planet-trait API exists): comma-list of "
-            + "dimensionId=multiplier, e.g. nerospace:greenxertz=1.5,nerospace:glacira=0.6 (Earth defaults to 1.0)");
+            "", true, "per-dimension solar multiplier FALLBACK (since Stage H, nerospace.api planet traits take "
+            + "precedence for known planets when Nerospace is installed): comma-list of dimensionId=multiplier, "
+            + "e.g. nerospace:greenxertz=1.5,nerospace:glacira=0.6 (Earth defaults to 1.0)");
 
     // --- telemetry (anonymous crash reporting; CLIENT-LOCAL opt-out, not server-synced) -----
     private static final ConfigValue<Boolean> TELEMETRY_ENABLED = SCHEMA.bool("telemetryEnabled",

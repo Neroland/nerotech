@@ -17,14 +17,14 @@ bricked the machines in standalone/creative play.)
 
 ### Fusion Reactor
 
-Late-game high-output generation. Burns a fuel from the **`nerotech:fusion_fuels`** tag — a
-datapack-overridable tag, so NeroTech's Fusion Cell, a Nerospace fuel, or a Mekanism product can all
-power it (recognised by tag, never by class). It runs very hot; the red heat gauge telegraphs the
-danger. Left unmanaged it reaches max heat and:
-
-- with **`fusionReactorMeltdownEnabled=true`** (default) — **melts down destructively** (a contained
-  explosion), or
-- with it **false** (survival-friendly servers) — simply **stalls** until it cools.
+Late-game high-output generation — and, since 0.1.0-beta.1, a **scalable multiblock**: a hollow
+3×3×3, 5×5×5 or 7×7×7 shell of Fusion Casing / Containment Glass around a controller that is inert
+until the shell forms. It burns fuels from the **`nerotech:fusion_fuels`** tag family — a
+datapack-overridable surface, so NeroTech's cells, a Nerospace fuel, or a Mekanism product can all
+power it (recognised by tag, never by class) — with three fuel tiers gated by shell size. It runs
+very hot, and left unmanaged melts down with a shell-scaled blast (`fusionReactorMeltdownEnabled=false`
+makes it merely stall instead). See the dedicated [Fusion Reactor](Fusion-Reactor.md) page for shell
+sizes, fuel tiers, meltdown and containment breach.
 
 ### Advanced Ore Processor
 
@@ -36,20 +36,28 @@ Refines space materials into reactor fuel: **Void Crystal (`#c:gems/void_crystal
 
 The advanced machines reuse the Tier-1 GUIs (their titles identify them).
 
-## Reactor fuel — the Fusion Cell
+## Reactor fuels — Fusion, Plasma & Stellar Cells
 
-Crafted from Starsteel + Void Crystal, or produced by the Advanced Fabricator. Tagged into
-`nerotech:fusion_fuels`.
+The **Fusion Cell** (Starsteel + Void Crystal, or produced by the Advanced Fabricator) is tier 1;
+0.1.0-beta.1 adds the **Plasma Cell** (Starsteel, tier 2) and **Stellar Cell** (Void Crystal +
+Starsteel, tier 3). Higher tiers demand bigger reactor shells — see
+[Fusion Reactor](Fusion-Reactor.md).
 
-## Deferred: per-planet generation
+The **Remediator** — the heavy pollution cleaner from
+[Pollution & Mitigation](Pollution-and-Mitigation.md) — is also Starsteel-gated and arrives with
+this tier.
 
-Per-planet generation modifiers (e.g. Solar Array output by world) wait on a published `nerospace.api`
-planet-trait query. Until then NeroTech reads a **Core-config fallback** keyed by dimension id
-(`solarDimensionMultipliers`, e.g. `nerospace:greenxertz=1.5`); Earth (overworld) defaults to 1.0. No
-Nerospace import is involved.
+## Per-planet generation
+
+Shipped in 0.1.0-beta.1: with Nerospace installed, Solar Array output and thermal ambient follow
+**planet traits** automatically; without it, the per-dimension config fallback
+(`solarDimensionMultipliers`, `thermalAmbientByDimension`) applies. See [Planets](Planets.md).
+No Nerospace import is involved either way — the coupling is runtime-optional.
 
 ## See also
 
 - [Tier-1 Machines](Machines.md)
+- [Fusion Reactor](Fusion-Reactor.md)
+- [Planets](Planets.md)
 - [Consequence Systems](Consequence-Systems.md)
 - [Home](Home.md)

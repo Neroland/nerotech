@@ -1,0 +1,19 @@
+{
+  "values": [
+    "nerotech:nero_generator",
+    "nerotech:solar_array",
+    "nerotech:ore_processor",
+    "nerotech:advanced_ore_processor",
+    "nerotech:fabricator",
+    "nerotech:advanced_fabricator",
+    "nerotech:fusion_reactor",
+    "nerotech:fusion_casing",
+    "nerotech:fusion_containment_glass",
+    "nerotech:auto_crafter",
+    "nerotech:item_sorter",
+    "nerotech:scrubber",
+    "nerotech:remediator",
+    "nerotech:analytics_terminal",
+    "nerotech:tech_guide"
+  ]
+}
