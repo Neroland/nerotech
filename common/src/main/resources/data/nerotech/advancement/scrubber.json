@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:nero_generator",
+  "criteria": {
+    "has_scrubber": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:scrubber"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.scrubber.description"
+    },
+    "icon": {
+      "id": "nerotech:scrubber"
+    },
+    "title": {
+      "translate": "advancements.nerotech.scrubber.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_scrubber"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

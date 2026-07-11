@@ -8,6 +8,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import za.co.neroland.nerolandcore.platform.NeoForgeEnergyLookup;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.command.NeroTechCommands;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -40,6 +42,9 @@ public final class NeroTechNeoForge {
         modEventBus.addListener(NeroTechNeoForge::onRegisterCapabilities);
         // Periodic regional pollution decay + retention sweep (game bus; gated by interval inside tick).
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> PollutionManager.tick(event.getServer()));
+        // Creative-only debug commands (/nerotech gallery); shared brigadier tree in common.
+        NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
+                NeroTechCommands.register(event.getDispatcher()));
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
             NeoForgeClientSetup.init(modEventBus);
         }

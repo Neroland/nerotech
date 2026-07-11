@@ -67,6 +67,12 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 .build());
     }
 
+    /** A burning reactor emits — the analytics panel shows the config-derived nominal rate. */
+    @Override
+    public int pollutionPerMinute() {
+        return emissionPerMinute();
+    }
+
     @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         revalidateOnCadence(level, pos, state);

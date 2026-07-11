@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:scrubber",
+  "criteria": {
+    "has_remediator": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:remediator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.remediator.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:remediator"
+    },
+    "title": {
+      "translate": "advancements.nerotech.remediator.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_remediator"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

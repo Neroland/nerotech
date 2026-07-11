@@ -52,6 +52,7 @@ PULSE = [
     ("scrubber_front",                8, 3, 0.26, TEAL),
     ("remediator_front",              8, 3, 0.28, TEAL),
     ("analytics_terminal_front",      8, 3, 0.26, TEAL),
+    ("tech_guide_front",              8, 3, 0.26, TEAL),  # pedestal projector spark
     ("fusion_reactor_plasma",         8, 3, 0.35, TEAL),  # BER wisp: glow breathing
 ]
 

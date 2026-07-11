@@ -19,6 +19,7 @@ import za.co.neroland.nerotech.client.OreProcessorScreen;
 import za.co.neroland.nerotech.client.RemediatorScreen;
 import za.co.neroland.nerotech.client.ScrubberScreen;
 import za.co.neroland.nerotech.client.SolarArrayScreen;
+import za.co.neroland.nerotech.client.TechGuideScreen;
 import za.co.neroland.nerotech.registry.ModMenuTypes;
 
 /** Fabric client entry point for NeroTech — registers the machine screens + block-entity renderers. */
@@ -38,6 +39,7 @@ public final class NeroTechFabricClient implements ClientModInitializer {
         MenuScreens.register(ModMenuTypes.SCRUBBER.get(), ScrubberScreen::new);
         MenuScreens.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
         MenuScreens.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
+        MenuScreens.register(ModMenuTypes.TECH_GUIDE.get(), TechGuideScreen::new);
 
         // Machine BERs through the shared cross-loader seam (Nerospace pattern).
         ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {

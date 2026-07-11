@@ -80,6 +80,12 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
         return this.lastRecipe.value().assemble(recipeInput);
     }
 
+    /** Processing emits — the analytics panel shows the config-derived nominal rate. */
+    @Override
+    public int pollutionPerMinute() {
+        return emissionPerMinute();
+    }
+
     @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         ItemStack input = this.items.get(INPUT_SLOT);

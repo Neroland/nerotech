@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:scrubber",
+  "criteria": {
+    "has_dirty_filter": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:dirty_filter"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.dirty_filter.description"
+    },
+    "icon": {
+      "id": "nerotech:dirty_filter"
+    },
+    "title": {
+      "translate": "advancements.nerotech.dirty_filter.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_dirty_filter"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "G": "minecraft:glass", "B": "nerotech:circuit_board", "F": "nerotech:machine_frame" },
+  "pattern": [ " G ", "BFB", " F " ],
+  "result": { "id": "nerotech:tech_guide" } }

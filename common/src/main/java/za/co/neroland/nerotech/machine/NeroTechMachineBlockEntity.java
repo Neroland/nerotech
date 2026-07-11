@@ -302,20 +302,52 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
     /**
      * Count working ticks and take the once-per-second analytics sample on this machine's phase
-     * of the 20-tick interval (the pollutionPhase recipe) — never a per-tick array write.
+     * of the 20-tick interval (the pollutionPhase recipe) — never a per-tick array write. The
+     * sample includes the machine's regional pollution level (one map lookup per second — a
+     * region key is a place, never a person; POPIA/GDPR).
      */
     private void statsTick(Level level) {
         if (this.active) {
             this.stats.countOps(1);
         }
         if ((level.getGameTime() + this.statsPhase) % 20 == 0) {
-            this.stats.sample(heatPermille(), energyPermille());
+            int regionPollution = level instanceof ServerLevel serverLevel
+                    ? PollutionManager.regionPollution(serverLevel, this.worldPosition) : 0;
+            this.stats.sample(heatPermille(), energyPermille(), regionPollution);
         }
     }
 
     /** The analytics window (server-side read surface for the menu's stats payload). */
     public MachineStats stats() {
         return this.stats;
+    }
+
+    /**
+     * Signed nominal pollution rate for the analytics panel, per minute (1200 ticks): positive =
+     * emits into its region, negative = removes (the Scrubber/Remediator overrides). Computed
+     * server-side from config × preset × the contribution interval so the client never duplicates
+     * the config math. Default 0 — machines that neither emit nor scrub (Solar Array, Auto
+     * Crafter, Item Sorter, Analytics Terminal) inherit it; emitters return
+     * {@link #emissionPerMinute()}.
+     */
+    public int pollutionPerMinute() {
+        return 0;
+    }
+
+    /**
+     * {@link #emitPollution}'s nominal per-minute rate: {@code pollutionPerOperation} × the Stage H
+     * preset pollution factor (floor 1, matching emitPollution's scaling), once per
+     * {@code pollutionContributionIntervalTicks}. Emitting subclasses return this from
+     * {@link #pollutionPerMinute()}.
+     */
+    protected final int emissionPerMinute() {
+        int amount = NeroTechConfig.pollutionPerOperation();
+        if (amount <= 0) {
+            return 0;
+        }
+        amount = Math.max(1, amount * this.preset.pollutionPermille() / 1000);
+        int interval = Math.max(1, NeroTechConfig.pollutionContributionIntervalTicks());
+        return amount * 1200 / interval;
     }
 
     /** Heat as permille of capacity (analytics payload scale). */

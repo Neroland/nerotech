@@ -132,6 +132,16 @@ public class AnalyticsTerminalScreen extends AbstractContainerScreen<AnalyticsTe
             chipX += 12 + this.font.width(count);
         }
 
+        // Aggregate regional pollution across the scanned machines' distinct regions (deduped
+        // server-side), right-aligned on the chip row with the AnalyticsWidget severity ramp.
+        if (data.machineCount() > 0) {
+            Component pollution = Component.translatable("nerotech.analytics.terminal_pollution",
+                    AnalyticsWidget.levelText(data.regionPollution(), data.pollutionThreshold()));
+            g.text(this.font, pollution, x + this.imageWidth - 8 - this.font.width(pollution),
+                    y + 30, AnalyticsWidget.pollutionColor(data.regionPollution(),
+                            data.pollutionThreshold()), false);
+        }
+
         // Hottest machine (terminal-relative coordinates, heat as a percentage).
         BlockPos hottest = data.hottestPos();
         BlockPos origin = this.menu.machinePos();

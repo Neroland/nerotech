@@ -14,6 +14,7 @@ import za.co.neroland.nerolandcore.upgrade.UpgradeType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.item.ConfiguratorItem;
+import za.co.neroland.nerotech.item.TechGuideDatapadItem;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
 
@@ -81,6 +82,12 @@ public final class ModItems {
     public static final RegistryEntry<BlockItem> ANALYTICS_TERMINAL_ITEM =
             blockItem("analytics_terminal", ModBlocks.ANALYTICS_TERMINAL);
 
+    // --- Tech Guide (Nerospace Star Guide recipe) ------------------------------
+    public static final RegistryEntry<BlockItem> TECH_GUIDE_ITEM = blockItem("tech_guide", ModBlocks.TECH_GUIDE);
+    /** The pedestal's key + a handheld copy of the guide (opens the same progress-backed menu). */
+    public static final RegistryEntry<Item> TECH_GUIDE_DATAPAD = ITEMS.register("tech_guide_datapad",
+            key -> new TechGuideDatapadItem(new Item.Properties().stacksTo(1).setId(key)));
+
     // --- Tools ---------------------------------------------------------------
     /**
      * The side-config wrench (Core ships the API, NeroTech ships the item — see
@@ -109,6 +116,7 @@ public final class ModItems {
                 AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM,
                 SCRUBBER_ITEM, REMEDIATOR_ITEM, FILTER_CARTRIDGE, DIRTY_FILTER,
                 ANALYTICS_TERMINAL_ITEM,
+                TECH_GUIDE_ITEM, TECH_GUIDE_DATAPAD,
                 CONFIGURATOR,
                 SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE);
     }

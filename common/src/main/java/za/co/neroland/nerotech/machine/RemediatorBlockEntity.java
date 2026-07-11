@@ -44,6 +44,19 @@ public class RemediatorBlockEntity extends NeroTechMachineBlockEntity {
                 .build());
     }
 
+    /**
+     * The Remediator REMOVES pollution — a negative analytics rate: its nominal per-op clean
+     * rate (own region only, no adjacent share) per minute on the contribution interval.
+     * Server-computed; the client never duplicates this math.
+     */
+    @Override
+    public int pollutionPerMinute() {
+        int rate = (int) Math.max(1, Math.round(NeroTechConfig.remediatorPollutionPerOp()
+                * modifiers().speedMultiplier() * presetSpeedFactor()));
+        int interval = Math.max(1, NeroTechConfig.pollutionContributionIntervalTicks());
+        return -(rate * 1200 / interval);
+    }
+
     @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         if (!(level instanceof ServerLevel serverLevel)) {

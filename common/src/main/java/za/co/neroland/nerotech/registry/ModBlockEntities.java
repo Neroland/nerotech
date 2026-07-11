@@ -6,6 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.guide.TechGuideBlockEntity;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlockEntity;
 import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlockEntity;
 import za.co.neroland.nerotech.machine.AnalyticsTerminalBlockEntity;
@@ -73,6 +74,10 @@ public final class ModBlockEntities {
     public static final RegistryEntry<BlockEntityType<AnalyticsTerminalBlockEntity>> ANALYTICS_TERMINAL =
             BLOCK_ENTITIES.register("analytics_terminal",
                     key -> new BlockEntityType<>(AnalyticsTerminalBlockEntity::new, Set.of(ModBlocks.ANALYTICS_TERMINAL.get())));
+
+    public static final RegistryEntry<BlockEntityType<TechGuideBlockEntity>> TECH_GUIDE =
+            BLOCK_ENTITIES.register("tech_guide",
+                    key -> new BlockEntityType<>(TechGuideBlockEntity::new, Set.of(ModBlocks.TECH_GUIDE.get())));
 
     private ModBlockEntities() {
     }

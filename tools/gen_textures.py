@@ -37,8 +37,10 @@ ROOT = src_base()
 print("gen_textures: target = %s" % target_label())
 BLOCK_DIR = os.path.join(ROOT, "src/main/resources/assets/nerotech/textures/block")
 ITEM_DIR = os.path.join(ROOT, "src/main/resources/assets/nerotech/textures/item")
+GUI_DIR = os.path.join(ROOT, "src/main/resources/assets/nerotech/textures/gui")
 os.makedirs(BLOCK_DIR, exist_ok=True)
 os.makedirs(ITEM_DIR, exist_ok=True)
+os.makedirs(GUI_DIR, exist_ok=True)
 
 S = 32  # texture size (Nerospace's 16x recipes scaled x2)
 FORCE = "--force" in sys.argv
@@ -73,7 +75,7 @@ GOLD = [(236, 192, 64, 255), (200, 152, 40, 255), (252, 222, 120, 255)]
 
 # Coverage ledger: every save() records its name so main() can flag any pre-existing PNG that
 # no painter owns (a --force run must replace the WHOLE set — no orphans left on the old art).
-PAINTED = {"block": set(), "item": set()}
+PAINTED = {"block": set(), "item": set(), "gui": set()}
 
 
 # ---------------- helpers ----------------
@@ -175,7 +177,7 @@ def _angdiff(a, b):
 
 def save(img, folder, name):
     # ADDITIVE-ONLY: never clobber an existing asset (pass --force to override).
-    d = BLOCK_DIR if folder == "block" else ITEM_DIR
+    d = {"block": BLOCK_DIR, "item": ITEM_DIR, "gui": GUI_DIR}[folder]
     PAINTED[folder].add(name + ".png")
     path = os.path.join(d, name + ".png")
     if os.path.exists(path) and not FORCE:
@@ -1511,13 +1513,143 @@ def gen_configurator():
     save(img, "item", "configurator")
 
 
+# ---------------- tech guide (pedestal triad + datapad + GUI panel) ----------------
+
+def gen_tech_guide():
+    """Pedestal triad (Nerospace's Star Guide cube in NeroTech's teal): side = alloy column with an
+    emissive power seam feeding the projector, front = the column's datapad glyph face, top = the
+    projector plate with concentric emitter rings (the hologram BER floats above this face)."""
+    # side: power seam up the column + paired status LEDs at the plinth
+    img = machine_base("tech_guide")
+    px = img.load()
+    for x in range(8, 24):                      # top-plate and plinth shadow lines
+        px[x, 6] = A_LIGHT
+        px[x, 7] = A_DARK
+        px[x, 25] = A_DARK
+        px[x, 26] = A_LIGHT
+    for y in range(8, 25):                      # emissive seam (T_* only, so PULSE catches it)
+        px[15, y] = T_TEAL if y % 4 < 2 else T_DEEP
+        px[16, y] = T_CYAN if y % 4 < 2 else T_TEAL
+    led(px, 5, 22, T_CYAN, T_PLASMA)
+    led(px, 25, 22, T_CYAN)
+    save(img, "block", "tech_guide")
+
+    # front: recessed panel with a docked-datapad outline + the projected "you are here" spark
+    img = machine_base("tech_guide_front")
+    px = img.load()
+    recess(px, 6, 6, 25, 25)
+    for y in range(9, 23):                      # datapad slab
+        for x in range(10, 22):
+            px[x, y] = (10, 15, 19, 255)
+    for x in range(10, 22):                     # teal slab frame
+        px[x, 9] = T_TEAL
+        px[x, 22] = T_DEEP
+    for y in range(9, 23):
+        px[10, y] = T_TEAL
+        px[21, y] = T_DEEP
+    for i, ry in enumerate(range(12, 21, 4)):   # chapter rows: lit tick + dim text line
+        px[12, ry] = T_CYAN if i < 2 else T_DEEP
+        for x in range(14, 20):
+            px[x, ry] = _mix(T_DEEP, T_TEAL, 0.55) if x % 3 else T_DEEP
+    for (dx, dy, c) in ((0, 0, T_GLOW), (1, 0, T_PLASMA), (-1, 0, T_PLASMA),
+                        (0, 1, T_PLASMA), (0, -1, T_PLASMA)):
+        px[15 + dx, 15 + dy] = c                # the projector spark
+    save(img, "block", "tech_guide_front")
+
+    # top: projector plate — plasma lens with concentric emitter rings
+    img = machine_base("tech_guide_top")
+    px = img.load()
+    for y in range(3, 29):
+        for x in range(3, 29):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 2.2:
+                px[x, y] = T_GLOW if d <= 1.2 else T_PLASMA   # the lens
+            elif 5.0 <= d <= 6.2:
+                px[x, y] = T_CYAN if (x + y) % 3 else T_TEAL
+            elif 9.0 <= d <= 10.2:
+                px[x, y] = T_TEAL if (x + y) % 2 else T_DEEP
+    save(img, "block", "tech_guide_top")
+
+
+def gen_tech_guide_datapad():
+    """Item: a teal-framed datapad slate — lit chapter ticks down the left, a plasma status dot
+    top-right (the Star Guide Book's role in NeroTech's hardware)."""
+    img = new_img()
+    px = img.load()
+    for y in range(3, 29):                      # slate body + dark casing edge
+        for x in range(6, 26):
+            px[x, y] = A_DARK if (x in (6, 25) or y in (3, 28)) else (12, 18, 22, 255)
+    for x in range(7, 25):                      # screen frame (lit top/left, dark bottom/right)
+        px[x, 4] = T_TEAL
+        px[x, 27] = T_DEEP
+    for y in range(4, 28):
+        px[7, y] = T_TEAL
+        px[24, y] = T_DEEP
+    for i, ry in enumerate(range(9, 25, 4)):    # chapter rows: tick + text line
+        px[10, ry] = T_CYAN if i < 2 else T_DEEP
+        for x in range(12, 22):
+            px[x, ry] = _mix(T_DEEP, T_TEAL, 0.55) if x % 3 else T_DEEP
+    px[22, 6] = T_PLASMA                        # status dot
+    px[21, 6] = T_CYAN
+    save(img, "item", "tech_guide_datapad")
+
+
+def gen_gui_tech_guide():
+    """The Tech Guide screen panel: 240x200 sci-fi hull in a 256x256 sheet (see TechGuideScreen).
+    Layout zones: title strip, chapter rail (x 6..78), step canvas (x 80..234, y 20..96) and the
+    guide-text panel (y 96..194). Nerospace's gen_gui_star_guide recipe with the T_CYAN accent."""
+    W, H = 240, 200
+    img = Image.new("RGBA", (256, 256), CLEAR)
+    px = img.load()
+    rng = rng_for("gui_tech_guide")
+    INK = (5, 8, 13, 255)
+    HULL = [(13, 17, 25, 255), (15, 20, 29, 255), (11, 15, 22, 255)]
+    PANEL = (8, 11, 17, 255)
+    ACCENT = (36, 208, 222, 255)                # T_CYAN — TechGuideScreen.ACCENT
+    ACCENT_D = (18, 104, 111, 255)
+    for y in range(H):                          # hull body with light noise
+        for x in range(W):
+            px[x, y] = rng.choice(HULL)
+    for i in range(W):                          # outer frame
+        px[i, 0] = ACCENT
+        px[i, H - 1] = ACCENT_D
+    for i in range(H):
+        px[0, i] = ACCENT
+        px[W - 1, i] = ACCENT_D
+    for y in range(1, H - 1):                   # inset shadow line
+        px[1, y] = INK
+        px[W - 2, y] = INK
+    for x in range(1, W - 1):
+        px[x, 1] = INK
+        px[x, H - 2] = INK
+
+    # Recessed zones: chapter rail, step canvas, text panel.
+    def recess_zone(x0, y0, x1, y1):
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                px[x, y] = PANEL
+        for x in range(x0, x1):
+            px[x, y0] = INK
+            px[x, y1 - 1] = (30, 40, 56, 255)
+        for y in range(y0, y1):
+            px[x0, y] = INK
+            px[x1 - 1, y] = (30, 40, 56, 255)
+
+    recess_zone(6, 19, 78, 194)                 # chapter rail
+    recess_zone(80, 19, 234, 95)                # step canvas
+    recess_zone(80, 96, 234, 194)               # guide-text panel
+    for x in range(6, 234, 2):                  # title underline dots
+        px[x, 16] = ACCENT_D
+    save(img, "gui", "tech_guide")
+
+
 # ---------------- main ----------------
 
 def check_coverage():
     """Flag any pre-existing PNG no painter owns — after a --force run NOTHING may be left on
     the old 16x art, and every model-referenced name must resolve."""
     clean = True
-    for folder, d in (("block", BLOCK_DIR), ("item", ITEM_DIR)):
+    for folder, d in (("block", BLOCK_DIR), ("item", ITEM_DIR), ("gui", GUI_DIR)):
         existing = {f for f in os.listdir(d) if f.endswith(".png")}
         orphans = sorted(existing - PAINTED[folder])
         if orphans:
@@ -1544,6 +1676,7 @@ def main():
     gen_scrubber()
     gen_remediator()
     gen_analytics_terminal()
+    gen_tech_guide()
     # BER sprites
     gen_ber_sprites()
     # items
@@ -1563,6 +1696,9 @@ def main():
     gen_module("capacity_module", _glyph_bars)
     gen_module("range_module", _glyph_rings)
     gen_configurator()
+    gen_tech_guide_datapad()
+    # GUI sheets (the Tech Guide is the one textured screen — Star Guide recipe)
+    gen_gui_tech_guide()
     check_coverage()
 
 

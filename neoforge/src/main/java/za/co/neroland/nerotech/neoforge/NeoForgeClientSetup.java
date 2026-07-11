@@ -18,6 +18,7 @@ import za.co.neroland.nerotech.client.OreProcessorScreen;
 import za.co.neroland.nerotech.client.RemediatorScreen;
 import za.co.neroland.nerotech.client.ScrubberScreen;
 import za.co.neroland.nerotech.client.SolarArrayScreen;
+import za.co.neroland.nerotech.client.TechGuideScreen;
 import za.co.neroland.nerotech.registry.ModMenuTypes;
 
 /** NeoForge client-only wiring (machine screens + block-entity renderers). Loaded only behind Dist.CLIENT. */
@@ -52,5 +53,6 @@ public final class NeoForgeClientSetup {
         event.register(ModMenuTypes.SCRUBBER.get(), ScrubberScreen::new);
         event.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
         event.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
+        event.register(ModMenuTypes.TECH_GUIDE.get(), TechGuideScreen::new);
     }
 }

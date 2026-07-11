@@ -58,6 +58,12 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
         return 0;
     }
 
+    /** Burning emits — the analytics panel shows the config-derived nominal rate. */
+    @Override
+    public int pollutionPerMinute() {
+        return emissionPerMinute();
+    }
+
     @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         UpgradeModifiers mods = modifiers();

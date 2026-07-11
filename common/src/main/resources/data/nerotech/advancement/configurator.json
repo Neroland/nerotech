@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:item_sorter",
+  "criteria": {
+    "has_configurator": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:configurator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.configurator.description"
+    },
+    "icon": {
+      "id": "nerotech:configurator"
+    },
+    "title": {
+      "translate": "advancements.nerotech.configurator.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_configurator"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

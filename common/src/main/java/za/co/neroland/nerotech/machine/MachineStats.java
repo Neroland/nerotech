@@ -3,7 +3,8 @@ package za.co.neroland.nerotech.machine;
 /**
  * The Stage G per-machine analytics window: a fixed 60-slot ring buffer sampled once per second
  * (every 20 ticks on the owning BE's phase-spread pattern) holding heat permille, stored-energy
- * permille and the work-ops delta since the previous sample, plus the current
+ * permille, the work-ops delta since the previous sample and the machine's regional pollution
+ * level (raw units, clamped to the short range), plus the current
  * {@link MachineStatus}. One transient instance per {@link NeroTechMachineBlockEntity} —
  * <b>never persisted, never synced to watchers</b>; it only leaves the server inside
  * {@code network.MachineStatsPayload} while that machine's menu is open.
@@ -19,6 +20,8 @@ public final class MachineStats {
     private final short[] heat = new short[WINDOW];
     private final short[] energy = new short[WINDOW];
     private final short[] ops = new short[WINDOW];
+    /** Regional pollution per sample — RAW units (not permille), clamped to 0..{@link Short#MAX_VALUE}. */
+    private final short[] pollution = new short[WINDOW];
 
     /** Next write index into the ring. */
     private int head;
@@ -37,10 +40,15 @@ public final class MachineStats {
         this.workOps += amount;
     }
 
-    /** Record one per-second sample (permille values clamp to the short-safe 0..1000 range). */
-    public void sample(int heatPermille, int energyPermille) {
+    /**
+     * Record one per-second sample (permille values clamp to the short-safe 0..1000 range;
+     * {@code regionPollution} is raw units clamped to 0..{@link Short#MAX_VALUE} — the client
+     * normalises the pollution sparkline against the window max / event threshold).
+     */
+    public void sample(int heatPermille, int energyPermille, int regionPollution) {
         this.heat[this.head] = clampPermille(heatPermille);
         this.energy[this.head] = clampPermille(energyPermille);
+        this.pollution[this.head] = (short) Math.max(0, Math.min(Short.MAX_VALUE, regionPollution));
         this.ops[this.head] = (short) Math.max(0, Math.min(Short.MAX_VALUE, this.workOps - this.sampledOps));
         this.sampledOps = this.workOps;
         this.head = (this.head + 1) % WINDOW;
@@ -77,6 +85,11 @@ public final class MachineStats {
     /** Work-ops deltas, oldest → newest. */
     public short[] opsHistory() {
         return export(this.ops);
+    }
+
+    /** Regional pollution samples (raw units, short-clamped), oldest → newest. */
+    public short[] pollutionHistory() {
+        return export(this.pollution);
     }
 
     private short[] export(short[] ring) {

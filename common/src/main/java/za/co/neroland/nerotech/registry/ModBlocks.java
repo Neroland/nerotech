@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.guide.TechGuideBlock;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlock;
 import za.co.neroland.nerotech.machine.AnalyticsTerminalBlock;
 import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlock;
@@ -51,9 +52,18 @@ public final class ModBlocks {
             register("advanced_fabricator", AdvancedFabricatorBlock::new);
 
     // --- Fusion Reactor multiblock structure (Stage E) -----------------------
-    /** Structural shell plate for the Fusion Reactor multiblock — a plain full cube. */
+    /**
+     * Structural shell plate for the Fusion Reactor multiblock — a plain full cube, so unlike the
+     * machines it KEEPS full-cube occlusion (no {@code noOcclusion}): shell walls should cull
+     * their neighbours' hidden faces normally.
+     */
     public static final RegistryEntry<Block> FUSION_CASING =
-            register("fusion_casing", Block::new);
+            BLOCKS.register("fusion_casing", key -> new Block(BlockBehaviour.Properties.of()
+                    .setId(key)
+                    .mapColor(MapColor.METAL)
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)));
     /**
      * Translucent containment shell — the vanilla-glass property recipe (non-opaque, never view
      * blocking) so the reactor's plasma reads through the multiblock wall.
@@ -88,6 +98,21 @@ public final class ModBlocks {
     public static final RegistryEntry<AnalyticsTerminalBlock> ANALYTICS_TERMINAL =
             register("analytics_terminal", AnalyticsTerminalBlock::new);
 
+    // --- Tech Guide pedestal (Nerospace Star Guide recipe) --------------------
+    /**
+     * The Tech Guide pedestal — NeroTech's Star Guide. No {@code requiresCorrectToolForDrops}: with
+     * no mineable tag in this repo the self-drop loot must stay reachable by hand. Faint glow so the
+     * loaded pedestal reads as powered.
+     */
+    public static final RegistryEntry<TechGuideBlock> TECH_GUIDE =
+            BLOCKS.register("tech_guide", key -> new TechGuideBlock(BlockBehaviour.Properties.of()
+                    .setId(key)
+                    .mapColor(MapColor.COLOR_CYAN)
+                    .strength(3.0F, 6.0F)
+                    .lightLevel(s -> 7)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+
     private static <B extends Block> RegistryEntry<B> register(String name,
             Function<BlockBehaviour.Properties, B> factory) {
         return BLOCKS.register(name, key -> factory.apply(machineProperties().setId(key)));
@@ -98,7 +123,11 @@ public final class ModBlocks {
                 .mapColor(MapColor.METAL)
                 .strength(3.5F)
                 .requiresCorrectToolForDrops()
-                .sound(SoundType.METAL);
+                .sound(SoundType.METAL)
+                // Machine models are multi-element, NOT full cubes (Stage D): without this the
+                // block still occludes like a full cube, so neighbours cull their touching faces
+                // and the world reads see-through around every machine (the gallery x-ray bug).
+                .noOcclusion();
     }
 
     private ModBlocks() {

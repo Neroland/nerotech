@@ -64,6 +64,20 @@ public class ScrubberBlockEntity extends NeroTechMachineBlockEntity {
                 .build());
     }
 
+    /**
+     * The Scrubber REMOVES pollution — a negative analytics rate: its nominal per-op scrub
+     * (rate + the 8-region adjacent share, mirroring {@link PollutionManager#scrub}) per minute
+     * on the contribution interval. Server-computed; the client never duplicates this math.
+     */
+    @Override
+    public int pollutionPerMinute() {
+        int rate = (int) Math.max(1, Math.round(NeroTechConfig.scrubberPollutionPerOp()
+                * modifiers().speedMultiplier() * presetSpeedFactor()));
+        int adjacent = (int) ((long) rate * NeroTechConfig.scrubberAdjacentPermille() / 1000L);
+        int interval = Math.max(1, NeroTechConfig.pollutionContributionIntervalTicks());
+        return -((rate + 8 * adjacent) * 1200 / interval);
+    }
+
     @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         if (!(level instanceof ServerLevel serverLevel)) {

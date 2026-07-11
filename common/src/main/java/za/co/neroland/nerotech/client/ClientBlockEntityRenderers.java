@@ -15,6 +15,7 @@ import za.co.neroland.nerotech.client.render.OreProcessorRenderer;
 import za.co.neroland.nerotech.client.render.RemediatorRenderer;
 import za.co.neroland.nerotech.client.render.ScrubberRenderer;
 import za.co.neroland.nerotech.client.render.SolarArrayRenderer;
+import za.co.neroland.nerotech.client.render.TechGuideHologramRenderer;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 
 /**
@@ -58,5 +59,7 @@ public final class ClientBlockEntityRenderers {
         sink.register(ModBlockEntities.REMEDIATOR.get(), context -> new RemediatorRenderer());
         // Analytics Terminal: faint holographic shimmer above the console while machines are in range.
         sink.register(ModBlockEntities.ANALYTICS_TERMINAL.get(), context -> new AnalyticsTerminalRenderer());
+        // Tech Guide: the spinning next-step hologram above a loaded pedestal (Star Guide recipe).
+        sink.register(ModBlockEntities.TECH_GUIDE.get(), context -> new TechGuideHologramRenderer());
     }
 }
