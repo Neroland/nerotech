@@ -100,9 +100,9 @@ public final class ModBlocks {
 
     // --- Tech Guide pedestal (Nerospace Star Guide recipe) --------------------
     /**
-     * The Tech Guide pedestal — NeroTech's Star Guide. No {@code requiresCorrectToolForDrops}: with
-     * no mineable tag in this repo the self-drop loot must stay reachable by hand. Faint glow so the
-     * loaded pedestal reads as powered.
+     * The Tech Guide pedestal — NeroTech's Star Guide. No {@code requiresCorrectToolForDrops}: the
+     * self-drop loot must stay reachable by hand (it is pickaxe-mineable for speed, but never
+     * tool-locked). Faint glow so the loaded pedestal reads as powered.
      */
     public static final RegistryEntry<TechGuideBlock> TECH_GUIDE =
             BLOCKS.register("tech_guide", key -> new TechGuideBlock(BlockBehaviour.Properties.of()

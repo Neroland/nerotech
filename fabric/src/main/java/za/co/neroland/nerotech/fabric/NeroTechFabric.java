@@ -51,6 +51,11 @@ public final class NeroTechFabric implements ModInitializer {
         energyHandler(ModBlockEntities.ADVANCED_FABRICATOR.get());
         energyHandler(ModBlockEntities.AUTO_CRAFTER.get());
         energyHandler(ModBlockEntities.ITEM_SORTER.get());
+        // Stage-F pollution machines are pure NE sinks: without these registrations generators can
+        // never push power to them on Fabric (they were missing — Forge's blanket instanceof attach
+        // masked the gap there). The Analytics Terminal stays unregistered by design: zero NE, no slots.
+        energyHandler(ModBlockEntities.SCRUBBER.get());
+        energyHandler(ModBlockEntities.REMEDIATOR.get());
     }
 
     /**
@@ -77,6 +82,8 @@ public final class NeroTechFabric implements ModInitializer {
         itemHandler(ModBlockEntities.ADVANCED_FABRICATOR.get());
         itemHandler(ModBlockEntities.AUTO_CRAFTER.get());
         itemHandler(ModBlockEntities.ITEM_SORTER.get());
+        // Scrubber cartridge/dirty-filter slots must be hopper/pipe-automatable like every other machine.
+        itemHandler(ModBlockEntities.SCRUBBER.get());
     }
 
     private static <T extends NeroTechMachineBlockEntity> void itemHandler(BlockEntityType<T> type) {

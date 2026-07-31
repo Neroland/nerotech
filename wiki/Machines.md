@@ -67,7 +67,9 @@ machine's [overclock preset](Overclock-Presets.md), and every machine GUI also c
 ## Progression
 
 Placing your first NeroTech machine opens Core's **`industrial_power`** progression gate — NeroTech is
-the canonical opener of that milestone. Later tiers gate behind `reached_orbit` (Stage 4).
+the canonical opener of that milestone. That gate is a milestone other Neroland mods may read; it never
+locks anything in NeroTech. The [Advanced Tier](Advanced-Tier.md) is paced purely by materials
+(Starsteel/Void Crystal possession) — no use-lock, fully standalone-friendly.
 
 ## See also
 

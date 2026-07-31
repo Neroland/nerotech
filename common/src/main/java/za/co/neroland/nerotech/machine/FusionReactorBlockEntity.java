@@ -57,13 +57,6 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
     /** Burning fuel tier (for heat scaling across a charge); 0 when idle. */
     private int burningTier;
 
-    /**
-     * Transient guard so {@code nerotech:fusion_online} is opened for the owner at most once per load
-     * (on ignition), not on every fuel charge. Not persisted — a reload simply re-attempts once, which
-     * is a no-op if the gate is already open.
-     */
-    private boolean fusionOnlineAnnounced;
-
     public FusionReactorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.FUSION_REACTOR.get(), pos, state, 1);
         // GENERATOR preset: ENERGY OUTPUT on every face, fuel (ITEM) accepted IN on every face.
@@ -131,12 +124,6 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 this.burningTier = tier;
                 fuel.shrink(1);
                 setChanged();
-                // First ignition since load: open the fusion_online gate for the reactor's owner
-                // (player-scoped; needs orbit_fabrication) and publish a NeroLink gate event.
-                if (!this.fusionOnlineAnnounced && level instanceof ServerLevel serverLevel) {
-                    this.fusionOnlineAnnounced = true;
-                    NeroTechLinkModule.openFusionOnline(serverLevel.getServer(), this.ownerId);
-                }
             } else {
                 // Analytics: too hot to ignite reads THROTTLED; no fuel or a tier the shell can't
                 // contain, STARVED; a full buffer just idles (the default covers it).

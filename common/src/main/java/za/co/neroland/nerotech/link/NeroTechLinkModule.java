@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jetbrains.annotations.Nullable;
@@ -27,18 +26,14 @@ import za.co.neroland.nerolandcore.link.LinkEvent;
 import za.co.neroland.nerolandcore.link.LinkModuleInfo;
 import za.co.neroland.nerolandcore.link.LinkSnapshotProvider;
 import za.co.neroland.nerolandcore.link.NeroLinkRegistry;
-import za.co.neroland.nerolandcore.progression.CoreGates;
-import za.co.neroland.nerolandcore.progression.ProgressionGates;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.guide.TechGuide;
 import za.co.neroland.nerotech.guide.TechGuideSeenState;
 import za.co.neroland.nerotech.machine.MachinePreset;
-import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.pollution.PollutionAttributionPrefs;
 import za.co.neroland.nerotech.pollution.PollutionState;
-import za.co.neroland.nerotech.progression.NeroTechGates;
 
 /**
  * NeroTech's NeroLink module — the single class that plugs NeroTech into Core's link SPI as both a
@@ -52,8 +47,6 @@ import za.co.neroland.nerotech.progression.NeroTechGates;
  *       is on and the player has not opted out; otherwise an empty-with-note (attribution is opt-out
  *       and off by default — never other players' or regional aggregate data as "personal").</li>
  *   <li>{@code guide} — the player's Tech Guide "seen" progress (UUID-scoped).</li>
- *   <li>{@code gates} — this player's NeroTech-relevant gate states
- *       ({@code industrial_power}, {@code orbit_fabrication}, {@code fusion_online}).</li>
  *   <li>{@code wiki} — PUBLIC page index / page content (see {@link WikiLibrary}); {@code playerId}
  *       is ignored.</li>
  * </ul>
@@ -61,7 +54,7 @@ import za.co.neroland.nerotech.progression.NeroTechGates;
  * <p><b>Actions</b>: {@code set_pollution_attribution} (a player's own privacy opt-out) and
  * {@code set_machine_preset} (remote overclock preset, owner-gated). The bridge validates token,
  * module presence, action-enabled config, rate limit and offline policy; this handler still
- * re-checks ownership, gates and rules — a compromised app can do no more than the player could.
+ * re-checks ownership and rules — a compromised app can do no more than the player could.
  *
  * <p><b>Server handle.</b> The link SPI passes no server, and NeroTech keeps no other server holder,
  * so {@link #rememberServer(MinecraftServer)} captures it from the per-loader server tick (see
@@ -75,14 +68,8 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     /** Display version reported in discovery (matches NeroTech's mod version). */
     public static final String MOD_VERSION = "0.1.0-beta.1";
 
-    private static final List<String> SECTIONS = List.of("pollution", "guide", "gates", "wiki");
+    private static final List<String> SECTIONS = List.of("pollution", "guide", "wiki");
     private static final List<String> ACTIONS = List.of("set_pollution_attribution", "set_machine_preset");
-
-    /** NeroTech-relevant gates, in unlock order, for the {@code gates} section. */
-    private static final List<Identifier> GATES = List.of(
-            CoreGates.INDUSTRIAL_POWER,
-            NeroTechGates.ORBIT_FABRICATION,
-            NeroTechGates.FUSION_ONLINE);
 
     private static final NeroTechLinkModule INSTANCE = new NeroTechLinkModule();
 
@@ -127,7 +114,6 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
         return switch (section) {
             case "pollution" -> pollution(playerId);
             case "guide" -> guide(playerId);
-            case "gates" -> gates(playerId);
             case "wiki" -> wiki(params);
             default -> {
                 JsonObject obj = new JsonObject();
@@ -189,32 +175,6 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
         out.addProperty("chaptersStarted", chaptersStarted);
         out.addProperty("totalSteps", totalSteps);
         out.addProperty("seenSteps", seenSteps);
-        return out;
-    }
-
-    /** This player's NeroTech gate states (scope-correct online; server-scope fallback offline). */
-    private JsonObject gates(UUID playerId) {
-        JsonObject out = new JsonObject();
-        out.addProperty("asOf", System.currentTimeMillis());
-        JsonArray arr = new JsonArray();
-        MinecraftServer srv = server;
-        ServerPlayer player = srv == null ? null : srv.getPlayerList().getPlayer(playerId);
-        for (Identifier gate : GATES) {
-            JsonObject g = new JsonObject();
-            g.addProperty("id", gate.getPath());
-            boolean unlocked;
-            if (player != null) {
-                unlocked = ProgressionGates.isOpen(player, gate);
-            } else if (srv != null) {
-                // Offline: player-scope gates need a ServerPlayer, so fall back to server-scope openness.
-                unlocked = ProgressionGates.isServerOpen(srv, gate);
-            } else {
-                unlocked = false;
-            }
-            g.addProperty("unlocked", unlocked);
-            arr.add(g);
-        }
-        out.add("gates", arr);
         return out;
     }
 
@@ -302,10 +262,10 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
 
     /**
      * Remotely set a NeroTech machine's overclock preset. Server re-checks everything: the player is
-     * ONLINE, the target block is a live NeroTech machine, the player OWNS it (established from the
+     * ONLINE, the target block is a live NeroTech machine, and the player OWNS it (established from the
      * machine's own owner field — only recorded when attribution was on at placement; a null/mismatched
-     * owner is refused), and any gate the machine requires is open. Reuses the machine's own
-     * server-side {@code setPreset} path — the same one the in-game preset payload drives.
+     * owner is refused). Reuses the machine's own server-side {@code setPreset} path — the same one the
+     * in-game preset payload drives.
      */
     private LinkActionResult setMachinePreset(UUID playerId, JsonObject params) {
         MinecraftServer srv = server;
@@ -353,12 +313,6 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
             // Ownership cannot be established (attribution off at placement, or someone else's machine).
             return LinkActionResult.error(LinkActionResult.Error.NOT_OWNER, "you do not own this machine");
         }
-        Block block = machine.getBlockState().getBlock();
-        Identifier gate = block instanceof NeroTechMachineBlock ntb ? ntb.requiredGate() : null;
-        if (gate != null && !ProgressionGates.isOpen(player, gate)) {
-            return LinkActionResult.error(LinkActionResult.Error.GATE_LOCKED,
-                    "a progression gate for this machine is locked");
-        }
         machine.setPreset(preset);
         JsonObject state = new JsonObject();
         state.addProperty("dim", dimId.toString());
@@ -387,29 +341,6 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
         NeroLinkRegistry.eventBus().publish(LinkEvent.forPlayer(MODULE_ID, "pollution", owner, payload));
         LinkAlerts.get(srv).raise(srv, owner, LinkAlert.raise("pollution_threshold", MODULE_ID,
                 LinkAlert.Severity.WARN, "Your attributed pollution has crossed the alert threshold."));
-    }
-
-    /**
-     * Open {@code fusion_online} for a reactor's owner when it first ignites, and publish a gate event.
-     * Player-scoped gate: needs an online owner (skipped when the owner is unknown/offline).
-     */
-    public static void openFusionOnline(MinecraftServer srv, @Nullable UUID owner) {
-        if (srv == null || owner == null) {
-            return;
-        }
-        ServerPlayer player = srv.getPlayerList().getPlayer(owner);
-        if (player != null && ProgressionGates.tryOpen(player, NeroTechGates.FUSION_ONLINE)) {
-            onGateOpened(player, NeroTechGates.FUSION_ONLINE);
-        }
-    }
-
-    /** Publish a player-scoped {@code gate} event when a NeroTech gate opens for a player. */
-    public static void onGateOpened(ServerPlayer player, Identifier gate) {
-        JsonObject payload = new JsonObject();
-        payload.addProperty("gate", gate.getPath());
-        payload.addProperty("unlocked", true);
-        NeroLinkRegistry.eventBus().publish(
-                LinkEvent.forPlayer(MODULE_ID, "gate", player.getUUID(), payload));
     }
 
     /**

@@ -3,7 +3,7 @@
 NeroTech plugs into **[NeroLink](../nerolink)** — the Neroland companion-app bridge — through
 **Neroland Core's link API**. When a server runs Core, NeroTech and the NeroLink bridge mod, the
 NeroLink phone/desktop app automatically gains a **NeroTech** section: your own machine progress,
-pollution, gates, live meltdown warnings, and this very wiki, rendered in-app.
+pollution, live meltdown warnings, and this very wiki, rendered in-app.
 
 NeroTech itself ships **no** network server. It only *registers* what it exposes with Core's link
 registry (`za.co.neroland.nerolandcore.link`); the NeroLink bridge is the thing that serves it to
@@ -21,7 +21,6 @@ exactly as before.
 |---------|---------------|-------|
 | `pollution` | Your **own** attributed pollution total and the retention window — **only** when a server admin has turned on per-player attribution and you have not opted out. Otherwise a note explaining the opt-out posture; never regional/aggregate pollution as "yours". | Your UUID |
 | `guide` | Your [Tech Guide](Tech-Guide.md) progress: chapters, chapters started, total steps and steps seen. | Your UUID |
-| `gates` | Your unlock state for the three NeroTech-relevant progression gates: `industrial_power`, `orbit_fabrication`, `fusion_online`. | Your UUID |
 | `wiki` | This wiki, rendered in-app: a page index and each page's markdown. | Public (same for everyone) |
 
 ## What the app can do (actions)
@@ -36,8 +35,7 @@ do no more than you could do in-game.
   has it on **and** you have not opted out. Your preference is erasable like any other player data.
 - **`set_machine_preset`** `{ "dim", "x", "y", "z", "preset": "ECO"|"BALANCED"|"OVERDRIVE" }` — set a
   machine's [overclock preset](Overclock-Presets.md) remotely. The server requires that you are
-  **online**, that the target is a live NeroTech machine, that **you own it**, and that any
-  progression gate the machine needs is open. Ownership is taken from the machine's own owner
+  **online**, that the target is a live NeroTech machine, and that **you own it**. Ownership is taken from the machine's own owner
   record, which is only captured **when per-player attribution was on at placement** — so a machine
   placed with attribution off cannot be re-preset remotely (it is refused as not-owned). It reuses
   the exact same server-side preset path as the in-game GUI selector.
@@ -52,20 +50,13 @@ NeroTech pushes live deltas onto Core's link event bus, and raises Core **alerts
 - **Fusion meltdown / containment breach** — a server-wide `meltdown` broadcast (world coordinates
   only, no personal data) plus a **CRITICAL** alert to the reactor's owner. See
   [Fusion Reactor](Fusion-Reactor.md).
-- **Gate unlocked** — an optional player-scoped `gate` event when `orbit_fabrication` or
-  `fusion_online` opens for you.
 
-## Progression gates
+## Progression
 
-NeroTech now backs its tiers with **real Core progression gates** (datapack JSON under
-`data/nerotech/neroland_gates/`), layered on top of the existing recipe/tag gating:
-
-- **`industrial_power`** (Core) — opened when you place your first NeroTech machine.
-- **`orbit_fabrication`** — requires Core's `reached_orbit`; opened on first use of an orbit-tier
-  machine (Advanced Fabricator / Advanced Ore Processor / Fusion Reactor). Using one before it opens
-  is denied with an in-game message.
-- **`fusion_online`** — requires `orbit_fabrication`; opened for a reactor's owner the first time
-  their Fusion Reactor ignites.
+NeroTech never locks a machine behind a progression gate: the mod plays fully standalone, and
+pacing comes from recipes and materials (see [Advanced Tier](Advanced-Tier.md)). NeroTech still
+opens Core's ecosystem milestone **`industrial_power`** when you place your first machine — other
+Neroland mods may *read* that to enhance their content, never to restrict NeroTech's.
 
 ## Enabling it as a player
 

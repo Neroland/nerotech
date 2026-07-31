@@ -25,30 +25,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NeroTech now registers a full **link module** with Neroland Core's link API, so the **NeroLink**
   companion app auto-serves a NeroTech section. Read sections: `pollution` (your own attributed
   total, only when attribution is on and you have not opted out — otherwise an opt-out note),
-  `guide` (your Tech Guide progress), `gates` (your NeroTech gate unlocks), and a public `wiki`
-  section that renders the wiki pages in-app. All personal data is own-data-only, scoped to your
-  UUID (POPIA/GDPR).
+  `guide` (your Tech Guide progress), and a public `wiki` section that renders the wiki pages
+  in-app. All personal data is own-data-only, scoped to your UUID (POPIA/GDPR).
 - **Actions**: `set_pollution_attribution` (your own privacy opt-out, stored as a UUID-keyed
   preference layered on the server's global attribution flag and wired into the shared data-erasure
-  hook) and `set_machine_preset` (remote overclock preset — the server re-checks online + ownership
-  + gate, and only works on machines whose owner was recorded, i.e. placed with attribution on).
+  hook) and `set_machine_preset` (remote overclock preset — the server re-checks online + ownership,
+  and only works on machines whose owner was recorded, i.e. placed with attribution on).
 - **Live events/alerts** (module `nerotech`): a WARN alert + event when your own attributed
   pollution crosses the alert threshold; a CRITICAL alert + world `meltdown` broadcast on a Fusion
-  Reactor meltdown or containment breach; and optional `gate` events on unlock.
+  Reactor meltdown or containment breach.
 
-**Real progression gates**
+**Progression gates removed by design**
 
-- Added two datapack-backed Core gates under `data/nerotech/neroland_gates/`:
-  **`orbit_fabrication`** (requires `nerolandcore:reached_orbit`) and **`fusion_online`** (requires
-  `orbit_fabrication`). The orbit-tier machines (Advanced Fabricator, Advanced Ore Processor, Fusion
-  Reactor) now enforce a real `orbit_fabrication` gate on use — layered on top of the existing
-  Starsteel tag/recipe gating — opening it on first use once orbit is reached. `fusion_online` opens
-  for a reactor's owner on first ignition.
+- The briefly-added `orbit_fabrication` / `fusion_online` use-lock gates are **gone** (never
+  released). They required `nerolandcore:reached_orbit`, which only Nerospace/NeroQuests can open, so
+  standalone play permanently bricked the orbit-tier machine GUIs — the exact failure the earlier
+  `reached_orbit` use-lock removal fixed. NeroTech is standalone-first: **no progression gate ever
+  locks a machine**; pacing is via recipes/materials, and cross-mod pairing enhances rather than
+  restricts. NeroTech still opens Core's `industrial_power` milestone on first machine placement for
+  other mods to read.
+
+### Fixed
+
+- **Scrubber / Remediator unpowerable on Fabric and NeoForge** — both pollution machines (and the
+  Scrubber's filter slots) were missing from the loader capability registrations, so generators could
+  never push NE to them and pipes could not automate the Scrubber on those loaders. Forge was
+  unaffected (blanket instanceof attach).
 
 **Docs**
 
 - New wiki page **[Companion App](wiki/Companion-App.md)** documenting the exposed sections, actions,
-  events, gates and the opt-in privacy posture; linked from the wiki Home index.
+  events and the opt-in privacy posture; linked from the wiki Home index.
 
 ## [0.1.0-beta.1] - 2026-07-11
 

@@ -43,7 +43,7 @@ of sci-fi mods. Built on **Neroland Core**.
 ## Companion app
 
 - [NeroLink Companion App](Companion-App.md) — what NeroTech exposes to the NeroLink phone/desktop
-  app through Neroland Core's link API: your own pollution/guide/gate data, remote overclock
+  app through Neroland Core's link API: your own pollution/guide data, remote overclock
   presets, live meltdown alerts, the in-app wiki, and the opt-in privacy posture.
 
 ## Project

@@ -61,6 +61,11 @@ public final class NeroTechNeoForge {
         energyCap(event, ModBlockEntities.ADVANCED_FABRICATOR.get());
         energyCap(event, ModBlockEntities.AUTO_CRAFTER.get());
         energyCap(event, ModBlockEntities.ITEM_SORTER.get());
+        // Stage-F pollution machines are pure NE sinks: without these registrations generators can
+        // never push power to them on NeoForge (they were missing — Forge's blanket instanceof attach
+        // masked the gap there). The Analytics Terminal stays unregistered by design: zero NE, no slots.
+        energyCap(event, ModBlockEntities.SCRUBBER.get());
+        energyCap(event, ModBlockEntities.REMEDIATOR.get());
 
         // Item handoff surface (Stage 5): expose every machine's sided inventory on the standard item
         // capability so NeroLogistics / pipes / hoppers move items in and out with no NeroTech dependency.
@@ -73,6 +78,8 @@ public final class NeroTechNeoForge {
         itemCap(event, ModBlockEntities.ADVANCED_FABRICATOR.get());
         itemCap(event, ModBlockEntities.AUTO_CRAFTER.get());
         itemCap(event, ModBlockEntities.ITEM_SORTER.get());
+        // Scrubber cartridge/dirty-filter slots must be hopper/pipe-automatable like every other machine.
+        itemCap(event, ModBlockEntities.SCRUBBER.get());
     }
 
     /**

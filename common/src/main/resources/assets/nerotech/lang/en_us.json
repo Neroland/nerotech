@@ -79,9 +79,6 @@
 
   "message.nerotech.tech_guide.empty": "The pedestal is empty — install a Tech Guide Datapad.",
 
-  "message.nerotech.gate_locked.orbit_fabrication": "Orbital Fabrication is locked — reach orbit first.",
-  "message.nerotech.gate_locked.fusion_online": "Fusion Online is locked — unlock Orbital Fabrication first.",
-
   "gui.nerotech.auto_crafter.lock": "Lock",
   "gui.nerotech.auto_crafter.unlock": "Unlock",
   "gui.nerotech.auto_crafter.locked_hint": "Grid locked — only template items can be inserted",

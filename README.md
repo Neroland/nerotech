@@ -2,7 +2,7 @@
 
 > Part of the [Neroland](../neroland-mc-ecosystem) sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
 
-**Status:** in development — version `0.0.1-alpha.2`. All 9 Phase-3 machines are implemented (generators incl. Nero Generator, Solar Array, and a single-block Fusion Reactor; processors; automation machines), plus heat management, regional pollution with opt-in per-player attribution, and Core progression-gate integration (`INDUSTRIAL_POWER`, `REACHED_ORBIT`). Models, textures, blockstates, recipes, and lang files are complete; advancements and datapack-overridable ore recipes are still outstanding.
+**Status:** beta — version `0.1.0-beta.1` (feature-complete, pending runtime verification). 13 machines including the scalable multiblock Fusion Reactor (3³/5³/7³ shells), Scrubber/Remediator pollution mitigation, Auto Crafter with recipe preview + grid lock, Item Sorter, Analytics Terminal and the Tech Guide pedestal; a full thermal model, regional pollution with opt-in per-player attribution (POPIA/GDPR-compliant), overclock presets, side-config tooling, a NeroLink companion-app module, and a complete content pipeline (models, textures, recipes, advancements, lang). **Standalone-first:** no progression gate ever locks a machine — pacing is via recipes/materials, and pairing with other Neroland mods enhances rather than restricts. NeroTech opens Core's `INDUSTRIAL_POWER` milestone for the wider ecosystem.
 
 ## Build targets
 

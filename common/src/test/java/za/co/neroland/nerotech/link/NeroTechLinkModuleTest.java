@@ -2,7 +2,6 @@ package za.co.neroland.nerotech.link;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
@@ -25,7 +24,7 @@ import za.co.neroland.nerolandcore.link.NeroLinkRegistry;
  * assertion here exercises a code path that resolves deterministically when the module's captured
  * server is absent — registration/discovery, the PUBLIC wiki section (classpath/fallback only), the
  * own-data sections' no-server branches, and pre-server action validation. Server-dependent behaviour
- * (live gate reads, machine presets) is covered in-game during runtime verification.
+ * (machine presets) is covered in-game during runtime verification.
  */
 class NeroTechLinkModuleTest {
 
@@ -48,8 +47,10 @@ class NeroTechLinkModuleTest {
         assertEquals("nerotech", info.moduleId());
         assertEquals(1, info.schemaVersion());
         assertTrue(info.dataSections().containsAll(
-                java.util.List.of("pollution", "guide", "gates", "wiki")),
-                "all four data sections must be advertised");
+                java.util.List.of("pollution", "guide", "wiki")),
+                "all three data sections must be advertised");
+        assertFalse(info.dataSections().contains("gates"),
+                "the gates section was removed with the progression gates (standalone-first design)");
         assertTrue(info.actionIds().containsAll(
                 java.util.List.of("set_pollution_attribution", "set_machine_preset")),
                 "both actions must be advertised");
@@ -95,18 +96,12 @@ class NeroTechLinkModuleTest {
     }
 
     @Test
-    void gatesSectionReportsThreeNeroTechGates() {
+    void removedGatesSectionAnswersAsUnknown() {
+        // The gates section was deleted with the progression gates: an old client asking for it must
+        // get the graceful unknown-section note, not a crash.
         JsonObject out = provider().snapshot(UUID.randomUUID(), "gates", Map.of());
-        var gates = out.getAsJsonArray("gates");
-        assertEquals(3, gates.size());
-        assertEquals("industrial_power", gates.get(0).getAsJsonObject().get("id").getAsString());
-        assertEquals("orbit_fabrication", gates.get(1).getAsJsonObject().get("id").getAsString());
-        assertEquals("fusion_online", gates.get(2).getAsJsonObject().get("id").getAsString());
-        for (var el : gates) {
-            assertNotNull(el.getAsJsonObject().get("unlocked"));
-            assertFalse(el.getAsJsonObject().get("unlocked").getAsBoolean(),
-                    "offline/no-server player-scope gates read closed");
-        }
+        assertEquals("gates", out.get("section").getAsString());
+        assertTrue(out.has("note"), "unknown sections must answer with an explanatory note");
     }
 
     @Test

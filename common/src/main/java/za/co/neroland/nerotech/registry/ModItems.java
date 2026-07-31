@@ -95,8 +95,6 @@ public final class ModItems {
      * The side-config wrench (Core ships the API, NeroTech ships the item — see
      * {@link za.co.neroland.nerotech.item.ConfiguratorItem}). Single-stack tool.
      */
-    // TODO Stage D: replace placeholder art (gen_textures) — the item model currently
-    // points layer0 at the existing nerotech:item/machine_frame texture.
     public static final RegistryEntry<Item> CONFIGURATOR = ITEMS.register("configurator",
             key -> new ConfiguratorItem(new Item.Properties().setId(key).stacksTo(1)));
 
