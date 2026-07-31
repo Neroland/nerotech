@@ -25,12 +25,16 @@ public final class NeroTechCommon {
         za.co.neroland.nerotech.registry.ModRegistries.init();
         // Declare NeroTech's payloads before each loader entry point wires them to its network API.
         za.co.neroland.nerotech.network.NeroTechNetwork.init();
+        // NeroLink: register NeroTech's link module (data sections + safe actions + live events) with
+        // Core's link registry, so the NeroLink companion bridge auto-serves NeroTech.
+        za.co.neroland.nerotech.link.NeroTechLinkModule.register();
         // POPIA/GDPR: register the shared data-erasure hook so a single erase request clears every
         // per-player store NeroTech keeps — pollution attribution (UUIDs only; default attribution is
-        // off) and the Tech Guide "seen" bitmasks (UUID-keyed; completion itself lives in vanilla
-        // advancements and is never stored by NeroTech).
+        // off), the per-player attribution opt-out preference (UUIDs only), and the Tech Guide "seen"
+        // bitmasks (UUID-keyed; completion itself lives in vanilla advancements and is never stored).
         za.co.neroland.nerolandcore.data.PlayerDataErasure.register((server, uuid) -> {
             za.co.neroland.nerotech.pollution.PollutionManager.erasePlayer(server, uuid);
+            za.co.neroland.nerotech.pollution.PollutionAttributionPrefs.get(server).forgetPlayer(uuid);
             za.co.neroland.nerotech.guide.TechGuideSeenState.get(server).forgetPlayer(uuid);
         });
     }

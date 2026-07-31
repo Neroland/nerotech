@@ -13,6 +13,7 @@ import za.co.neroland.nerolandcore.event.ThresholdEvents;
 import za.co.neroland.nerolandcore.event.ThresholdEvents.ThresholdCrossing;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.link.NeroTechLinkModule;
 
 /**
  * Facade for NeroTech's regional pollution. Machines call {@link #record} from their own server tick
@@ -53,8 +54,14 @@ public final class PollutionManager {
         int before = state.region(key);
         state.addRegion(key, amount);
         publishCrossing(key, before, before + amount);
-        if (owner != null && NeroTechConfig.pollutionPerPlayerAttribution()) {
+        // Per-player attribution: opt-in globally AND not individually opted out (the NeroLink
+        // set_pollution_attribution privacy control). Only own-data (the owner's own UUID) is ever
+        // touched, and only when both gates pass (POPIA/GDPR).
+        if (owner != null && NeroTechConfig.pollutionPerPlayerAttribution()
+                && !PollutionAttributionPrefs.get(server).isOptedOut(owner)) {
+            int attributedBefore = state.attributed(owner);
             state.attribute(owner, amount, today());
+            NeroTechLinkModule.onAttributedPollution(server, owner, attributedBefore, attributedBefore + amount);
         }
     }
 
@@ -128,6 +135,10 @@ public final class PollutionManager {
 
     /** Periodic decay + retention prune. Cheap: runs only every configured interval, over small maps. */
     public static void tick(MinecraftServer server) {
+        // This per-loader server tick (wired in every loader entry point) is also NeroTech's single
+        // reliable handle on the running server, so the NeroLink module can resolve players/SavedData
+        // when the companion bridge queries it. Cheap volatile write; no player data involved.
+        NeroTechLinkModule.rememberServer(server);
         int interval = NeroTechConfig.pollutionDecayIntervalTicks();
         if (server.getTickCount() % interval != 0) {
             return;

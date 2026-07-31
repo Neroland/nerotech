@@ -5,6 +5,51 @@ All notable changes to **NeroTech** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Auto Crafter recipe preview** — the output well shows a server-matched ghost of what the
+  current grid would craft, kept current even while the machine is unpowered.
+- **Auto Crafter grid lock** — a Lock/Unlock toggle snapshots the grid as a per-slot template;
+  while locked, each grid slot only accepts its template item through the GUI *and* through
+  pipes/hoppers, so automation can never scramble the recipe. Template state is world/block
+  state only — no player data (POPIA/GDPR).
+- **Solar Array niche tooltip** — clarifies it as NeroTech's basic single-block panel versus
+  Nerospace's tiered, poolable Solar Panels.
+- **Auto-assign workflow** — assigns the maintainer to newly opened issues and PRs, gated on a
+  collaborator write-access check so it never fails silently.
+
+**NeroLink companion-app integration**
+
+- NeroTech now registers a full **link module** with Neroland Core's link API, so the **NeroLink**
+  companion app auto-serves a NeroTech section. Read sections: `pollution` (your own attributed
+  total, only when attribution is on and you have not opted out — otherwise an opt-out note),
+  `guide` (your Tech Guide progress), `gates` (your NeroTech gate unlocks), and a public `wiki`
+  section that renders the wiki pages in-app. All personal data is own-data-only, scoped to your
+  UUID (POPIA/GDPR).
+- **Actions**: `set_pollution_attribution` (your own privacy opt-out, stored as a UUID-keyed
+  preference layered on the server's global attribution flag and wired into the shared data-erasure
+  hook) and `set_machine_preset` (remote overclock preset — the server re-checks online + ownership
+  + gate, and only works on machines whose owner was recorded, i.e. placed with attribution on).
+- **Live events/alerts** (module `nerotech`): a WARN alert + event when your own attributed
+  pollution crosses the alert threshold; a CRITICAL alert + world `meltdown` broadcast on a Fusion
+  Reactor meltdown or containment breach; and optional `gate` events on unlock.
+
+**Real progression gates**
+
+- Added two datapack-backed Core gates under `data/nerotech/neroland_gates/`:
+  **`orbit_fabrication`** (requires `nerolandcore:reached_orbit`) and **`fusion_online`** (requires
+  `orbit_fabrication`). The orbit-tier machines (Advanced Fabricator, Advanced Ore Processor, Fusion
+  Reactor) now enforce a real `orbit_fabrication` gate on use — layered on top of the existing
+  Starsteel tag/recipe gating — opening it on first use once orbit is reached. `fusion_online` opens
+  for a reactor's owner on first ignition.
+
+**Docs**
+
+- New wiki page **[Companion App](wiki/Companion-App.md)** documenting the exposed sections, actions,
+  events, gates and the opt-in privacy posture; linked from the wiki Home index.
+
 ## [0.1.0-beta.1] - 2026-07-11
 
 The "big push" from alpha to a feature-complete beta: every machine gets a real visual

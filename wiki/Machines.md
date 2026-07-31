@@ -32,6 +32,12 @@ Daytime, fuel-free generation. Output scales with daylight and requires sky acce
 or when roofed over — watch the panel deck track the sun and fold flat at night). On Earth it runs
 fully standalone; on other worlds output follows [planet traits or per-dimension config](Planets.md).
 
+**Niche:** the Solar Array is NeroTech's *basic* single-block panel — low output, but it takes upgrade
+modules and side config like every Tier-1 machine. It is deliberately not the same product as
+Nerospace's Solar Panels (three tiers, adjacent-panel array pooling, airless-dimension 2× bonus): those
+are the scalable solar line. Both generate onto the same Core energy network, so they complement rather
+than duplicate each other.
+
 ## Processing machines
 
 ### Ore Processor

@@ -232,4 +232,30 @@ public abstract class MachineMenu extends AbstractContainerMenu {
             return false;
         }
     }
+
+    /**
+     * A display/sync-only slot: never picked up or placed into. Used to sync server-written stacks
+     * (recipe previews, lock templates) to the client through vanilla's slot sync — position it
+     * off-panel (negative x) when it should not be visible.
+     */
+    protected static class GhostSlot extends Slot {
+        public GhostSlot(Container container, int index, int x, int y) {
+            super(container, index, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return false;
+        }
+
+        @Override
+        public boolean mayPickup(Player player) {
+            return false;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+    }
 }

@@ -40,6 +40,12 @@ of sci-fi mods. Built on **Neroland Core**.
 - [Planets](Planets.md) — how solar output and ambient heat follow Nerospace planet traits, with
   a config fallback.
 
+## Companion app
+
+- [NeroLink Companion App](Companion-App.md) — what NeroTech exposes to the NeroLink phone/desktop
+  app through Neroland Core's link API: your own pollution/guide/gate data, remote overclock
+  presets, live meltdown alerts, the in-app wiki, and the opt-in privacy posture.
+
 ## Project
 
 - [Power & the NeroPower Split](Power-and-NeroPower-Split.md) — how generation stays thin, and the

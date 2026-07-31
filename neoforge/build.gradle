@@ -102,6 +102,43 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
 }
 sourceSets.main.resources.srcDir generateModMetadata
 
+// Bundle the in-repo wiki/ pages as runtime classpath resources under assets/nerotech/wiki/ so the
+// NeroLink `wiki` section (link.WikiLibrary) can serve them on the server. wiki/ stays the single
+// source of truth; a generated index.json (slug + title per page) rides along, since classpath
+// directory listing is unreliable across loaders.
+def generateWikiResources = tasks.register('generateWikiResources', Copy) {
+    def wikiSrcDir = file("${rootProject.projectDir}/wiki")
+    from(wikiSrcDir) {
+        include '*.md'
+        into 'assets/nerotech/wiki'
+    }
+    into layout.buildDirectory.dir('generated/sources/wiki')
+    doLast {
+        def outDir = layout.buildDirectory.dir('generated/sources/wiki/assets/nerotech/wiki').get().asFile
+        outDir.mkdirs()
+        def entries = []
+        wikiSrcDir.listFiles()?.findAll { it.isFile() && it.name.endsWith('.md') }?.sort { it.name }?.each { f ->
+            def slug = f.name.substring(0, f.name.length() - 3)
+            def title = slug.replace('-', ' ')
+            for (String line : f.readLines('UTF-8')) {
+                def t = line.trim()
+                if (t.startsWith('# ')) { title = t.substring(2).trim(); break }
+                if (!t.isEmpty()) break
+            }
+            entries << [slug: slug, title: title]
+        }
+        def sb = new StringBuilder('{\n  "pages": [\n')
+        entries.eachWithIndex { e, i ->
+            sb.append('    {"slug": ').append(groovy.json.JsonOutput.toJson(e.slug))
+              .append(', "title": ').append(groovy.json.JsonOutput.toJson(e.title)).append('}')
+              .append(i < entries.size() - 1 ? ',' : '').append('\n')
+        }
+        sb.append('  ]\n}\n')
+        new File(outDir, 'index.json').write(sb.toString(), 'UTF-8')
+    }
+}
+sourceSets.main.resources.srcDir generateWikiResources
+
 neoForge {
     version = neoVersion
     ideSyncTask generateModMetadata

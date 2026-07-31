@@ -48,6 +48,16 @@ Assembles a **vanilla crafting recipe** from its 3×3 grid into the output slot,
 **demand-driven**: it only attempts a craft on a batched interval and only when ingredients are present,
 so it never per-tick-scans. Pipes fill the grid and pull the output via the item capability.
 
+**Recipe preview:** the output well shows a ghost of what the current grid would craft (server-matched,
+kept current even while unpowered), so you can lay out a recipe and see the result before any power or
+crafting happens.
+
+**Grid lock:** the **Lock** button (title bar) snapshots the current grid as a per-slot template. While
+locked, each grid slot only accepts its template item — in the GUI *and* through pipes/hoppers — so
+automation keeps refilling exactly the right ingredients and can never scramble the recipe, even when a
+slot runs completely empty (its ghost stays visible in the emptied slot). Press **Unlock** to clear the
+template. The template is world/block state only — no player data.
+
 ## Item Sorter
 
 A **directional filter sorter**: an input slot plus four horizontal faces, each with a filter and an

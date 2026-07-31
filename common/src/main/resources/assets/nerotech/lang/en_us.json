@@ -33,6 +33,8 @@
   "item.nerotech.nero_generator": "Nero Generator",
   "block.nerotech.solar_array": "Solar Array",
   "item.nerotech.solar_array": "Solar Array",
+  "block.nerotech.solar_array.tooltip": "Basic single-block panel: clean daytime power, takes upgrade modules",
+  "block.nerotech.solar_array.tooltip.nerospace": "For tiered, poolable high-output solar, see Nerospace's Solar Panels",
   "block.nerotech.ore_processor": "Ore Processor",
   "item.nerotech.ore_processor": "Ore Processor",
   "block.nerotech.fabricator": "Fabricator",
@@ -76,6 +78,13 @@
   "container.nerotech.tech_guide": "Tech Guide",
 
   "message.nerotech.tech_guide.empty": "The pedestal is empty — install a Tech Guide Datapad.",
+
+  "message.nerotech.gate_locked.orbit_fabrication": "Orbital Fabrication is locked — reach orbit first.",
+  "message.nerotech.gate_locked.fusion_online": "Fusion Online is locked — unlock Orbital Fabrication first.",
+
+  "gui.nerotech.auto_crafter.lock": "Lock",
+  "gui.nerotech.auto_crafter.unlock": "Unlock",
+  "gui.nerotech.auto_crafter.locked_hint": "Grid locked — only template items can be inserted",
 
   "gui.nerotech.tech_guide.complete": "COMPLETE",
   "gui.nerotech.tech_guide.chapter.first_power": "First Power",

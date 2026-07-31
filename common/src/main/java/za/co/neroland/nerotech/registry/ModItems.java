@@ -47,7 +47,9 @@ public final class ModItems {
 
     // --- Machine block-items (Tier-1 Earth machines) ------------------------
     public static final RegistryEntry<BlockItem> NERO_GENERATOR_ITEM = blockItem("nero_generator", ModBlocks.NERO_GENERATOR);
-    public static final RegistryEntry<BlockItem> SOLAR_ARRAY_ITEM = blockItem("solar_array", ModBlocks.SOLAR_ARRAY);
+    /** Carries the niche tooltip distinguishing it from Nerospace's tiered Solar Panels. */
+    public static final RegistryEntry<BlockItem> SOLAR_ARRAY_ITEM = ITEMS.register("solar_array",
+            key -> new SolarArrayBlockItem(ModBlocks.SOLAR_ARRAY.get(), new Item.Properties().setId(key)));
     public static final RegistryEntry<BlockItem> ORE_PROCESSOR_ITEM = blockItem("ore_processor", ModBlocks.ORE_PROCESSOR);
     public static final RegistryEntry<BlockItem> FABRICATOR_ITEM = blockItem("fabricator", ModBlocks.FABRICATOR);
 
@@ -135,6 +137,31 @@ public final class ModItems {
 
     private static RegistryEntry<BlockItem> blockItem(String name, RegistryEntry<? extends Block> block) {
         return ITEMS.register(name, key -> new BlockItem(block.get(), new Item.Properties().setId(key)));
+    }
+
+    /**
+     * Solar Array block-item with the niche tooltip: NeroTech's basic single-block panel vs
+     * Nerospace's tiered, poolable Solar Panels (26.x blocks expose no hover-text hook, so the
+     * tooltip lives on the item).
+     */
+    private static final class SolarArrayBlockItem extends BlockItem {
+        SolarArrayBlockItem(Block block, Item.Properties properties) {
+            super(block, properties);
+        }
+
+        @Override
+        public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
+                net.minecraft.world.item.component.TooltipDisplay display,
+                java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
+                net.minecraft.world.item.TooltipFlag flag) {
+            super.appendHoverText(stack, context, display, tooltip, flag);
+            tooltip.accept(net.minecraft.network.chat.Component
+                    .translatable("block.nerotech.solar_array.tooltip")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY));
+            tooltip.accept(net.minecraft.network.chat.Component
+                    .translatable("block.nerotech.solar_array.tooltip.nerospace")
+                    .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        }
     }
 
     /** Every NeroTech item as {@link ItemLike}, in display order — drained into NeroTech's creative tab. */

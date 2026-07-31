@@ -2,6 +2,8 @@ package za.co.neroland.nerotech.machine;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -87,11 +89,36 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 
+    /**
+     * The Core progression gate required to USE this machine, or {@code null} for the ungated
+     * Tier-1 machines. Orbit-tier machines override this to return
+     * {@link za.co.neroland.nerotech.progression.NeroTechGates#ORBIT_FABRICATION}: the real gate check
+     * in {@link #useWithoutItem} is layered ON TOP of the existing tag/recipe gating, not instead of it.
+     */
+    @Nullable
+    public Identifier requiredGate() {
+        return null;
+    }
+
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hit) {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
                 && level.getBlockEntity(pos) instanceof MenuProvider provider) {
+            Identifier gate = requiredGate();
+            if (gate != null) {
+                // Open the gate now if its prerequisites are already met (e.g. the player has reached
+                // orbit) — first use of an orbit-tier machine is the natural unlock point — then enforce
+                // it. A still-closed gate denies access with player feedback.
+                if (ProgressionGates.tryOpen(serverPlayer, gate)) {
+                    za.co.neroland.nerotech.link.NeroTechLinkModule.onGateOpened(serverPlayer, gate);
+                }
+                if (!ProgressionGates.isOpen(serverPlayer, gate)) {
+                    serverPlayer.sendSystemMessage(
+                            Component.translatable("message.nerotech.gate_locked." + gate.getPath()), true);
+                    return InteractionResult.SUCCESS;
+                }
+            }
             serverPlayer.openMenu(provider).ifPresent(containerId -> {
                 // NeroTech menus are plain vanilla MenuTypes, so the client never learns the machine's
                 // position on its own. Tell it which machine this menu belongs to, keyed by container id,

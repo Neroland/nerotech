@@ -585,6 +585,17 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     }
 
     /**
+     * The placing player's UUID, or {@code null} when unknown (attribution was off at placement, or a
+     * pre-attribution machine). The NeroLink {@code set_machine_preset} action treats a null owner as
+     * "ownership cannot be established" and refuses — never a remote preset change on an unowned
+     * machine (POPIA/GDPR + safety).
+     */
+    @Nullable
+    public UUID ownerId() {
+        return this.ownerId;
+    }
+
+    /**
      * Emit this machine's pollution into its region, batched on a per-machine phase so contributions
      * spread across ticks (never a global per-tick scan). Call from {@link #tickMachine} while working.
      */
