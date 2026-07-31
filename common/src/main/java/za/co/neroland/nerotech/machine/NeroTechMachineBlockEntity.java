@@ -35,6 +35,7 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.heat.ThermalEnvironment;
 import za.co.neroland.nerotech.heat.ThermalMath;
 import za.co.neroland.nerotech.pollution.PollutionManager;
+import za.co.neroland.nerotech.registry.ModBlocks;
 import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
 
 /**
@@ -115,8 +116,17 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     @Nullable
     private java.util.List<BlockPos> thermalLinks;
 
-    /** Adjacent coolant-block faces (water/ice/snow), cached with the links. */
-    private int coolantFaces;
+    /**
+     * Adjacent coolant strength, cached with the links: 1 per natural coolant face (water/ice/snow)
+     * and {@value #RADIATOR_COOLANT_WEIGHT} per adjacent Radiator (Stage C coolant loop).
+     */
+    private int coolantStrength;
+
+    /**
+     * A Radiator sheds as much heat as this many natural coolant blocks — the "enhanced coolant"
+     * half of the Stage C coolant loop (the active half is the Coolant Pump).
+     */
+    public static final int RADIATOR_COOLANT_WEIGHT = 4;
 
     /** Cached ambient heat for this position; refreshed on an interval (dimension never changes in-place). */
     private int ambientCache;
@@ -168,7 +178,8 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
                 case 4 -> permille(heat, NeroTechConfig.heatCapacity());
                 case 5 -> 1000;
                 case 6 -> preset.ordinal();
-                default -> 0;
+                // 7+ : machine-specific gauges (Stage C fluid/gas tank levels), permille.
+                default -> index >= 7 ? extraData(index - 7) : 0;
             };
         }
 
@@ -179,21 +190,54 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
         @Override
         public int getCount() {
-            return 7;
+            return 7 + extraDataCount();
         }
     };
 
+    /**
+     * How many machine-specific gauges this machine syncs after the seven shared indices (Stage C:
+     * fluid/gas tank levels). A menu's client-side {@code SimpleContainerData} must be sized
+     * {@code 7 + extraDataCount()} to match.
+     */
+    protected int extraDataCount() {
+        return 0;
+    }
+
+    /** Value of machine-specific gauge {@code index} (0-based, permille). */
+    protected int extraData(int index) {
+        return 0;
+    }
+
     protected NeroTechMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
             int machineSlots) {
-        super(type, pos, state,
-                NeroTechConfig.machineEnergyCapacity(), NeroTechConfig.machineMaxTransfer(),
-                UPGRADE_SLOTS, UpgradeModuleItem.CLASSIFIER);
+        this(type, pos, state, machineSlots,
+                NeroTechConfig.machineEnergyCapacity(), NeroTechConfig.machineMaxTransfer());
+    }
+
+    /**
+     * Explicit-buffer variant for machines whose whole point is a buffer other than the shared
+     * Tier-1 one (Stage D's Battery Bank). Everything else — upgrades, side config, heat, analytics
+     * — is identical to the standard constructor.
+     */
+    protected NeroTechMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
+            int machineSlots, int energyCapacity, int maxTransfer) {
+        super(type, pos, state, energyCapacity, maxTransfer, UPGRADE_SLOTS, UpgradeModuleItem.CLASSIFIER);
         this.machineSlots = machineSlots;
         this.items = NonNullList.withSize(machineSlots, ItemStack.EMPTY);
         this.machineFaceSlots = java.util.stream.IntStream.range(0, machineSlots).toArray();
     }
 
-    private static int permille(long amount, long max) {
+    /**
+     * Whether a Stage D {@link GridControllerBlockEntity} may drop this machine to
+     * {@link MachinePreset#ECO} during a brownout. Consumers say yes (the default); generators,
+     * buffers and passive consoles override to {@code false} — shedding a power <i>source</i> during
+     * a shortage would be exactly backwards.
+     */
+    public boolean shedable() {
+        return true;
+    }
+
+    protected static int permille(long amount, long max) {
         return max <= 0 ? 0 : (int) Math.max(0, Math.min(1000, amount * 1000L / max));
     }
 
@@ -341,13 +385,33 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
      * {@link #pollutionPerMinute()}.
      */
     protected final int emissionPerMinute() {
+        int amount = scaledEmission();
+        if (amount <= 0) {
+            return 0;
+        }
+        int interval = Math.max(1, NeroTechConfig.pollutionContributionIntervalTicks());
+        return amount * 1200 / interval;
+    }
+
+    /**
+     * A per-machine cleanliness factor applied on top of the Stage H preset scaling (permille;
+     * 1000 = the config rate). Stage D's Bio Generator returns 500 — burning farmed feedstock is
+     * half as dirty as burning coal. Machines that neither emit nor scrub never consult it.
+     */
+    protected int pollutionScalePermille() {
+        return 1000;
+    }
+
+    /** {@code pollutionPerOperation} × preset × {@link #pollutionScalePermille()}, floored at 1 when non-zero. */
+    private int scaledEmission() {
         int amount = NeroTechConfig.pollutionPerOperation();
         if (amount <= 0) {
             return 0;
         }
+        // Floor 1 at each step: a polluting machine on Eco (or a clean-burning one) still pollutes;
+        // only a config of 0 above disables emission entirely.
         amount = Math.max(1, amount * this.preset.pollutionPermille() / 1000);
-        int interval = Math.max(1, NeroTechConfig.pollutionContributionIntervalTicks());
-        return amount * 1200 / interval;
+        return Math.max(1, amount * pollutionScalePermille() / 1000);
     }
 
     /** Heat as permille of capacity (analytics payload scale). */
@@ -485,11 +549,11 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         // Environmental exchange: cool toward ambient when hot, warm toward it when cold.
         this.heat += ThermalMath.ambientStep(this.heat, ambient, NeroTechConfig.thermalEnvLossPermille());
 
-        // Coolant adjacency only ever cools, and never below ambient. The coolant count is
+        // Coolant adjacency only ever cools, and never below ambient. The coolant strength is
         // cached alongside the conduction links (rebuilt on neighbour change, not per tick).
-        if (this.heat > ambient && this.coolantFaces > 0) {
+        if (this.heat > ambient && this.coolantStrength > 0) {
             this.heat = Math.max(ambient,
-                    this.heat - this.coolantFaces * NeroTechConfig.heatDissipationPerTick());
+                    this.heat - this.coolantStrength * NeroTechConfig.heatDissipationPerTick());
         }
 
         // Machine-to-machine conduction, on this machine's phase of the interval.
@@ -508,7 +572,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     }
 
     /** Ambient heat here, cached and refreshed every 200 ticks (biome/dimension are near-static). */
-    private int ambient(Level level, BlockPos pos) {
+    protected int ambient(Level level, BlockPos pos) {
         long now = level.getGameTime();
         if (now >= this.ambientCacheUntil) {
             this.ambientCache = ThermalEnvironment.ambientAt(level, pos);
@@ -545,7 +609,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         }
     }
 
-    /** One 6-face scan for machine links + coolant faces — only after invalidation, never per tick. */
+    /** One 6-face scan for machine links + coolant strength — only after invalidation, never per tick. */
     private void rebuildThermalLinks(Level level) {
         java.util.List<BlockPos> links = new java.util.ArrayList<>(6);
         int coolants = 0;
@@ -556,13 +620,55 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
                 continue;
             }
             BlockState ns = level.getBlockState(neighbourPos);
-            if (ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE) || ns.is(Blocks.BLUE_ICE)
-                    || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW)) {
+            if (ns.is(ModBlocks.RADIATOR.get())) {
+                // Purpose-built coolant: a Radiator is worth several natural coolant blocks.
+                coolants += RADIATOR_COOLANT_WEIGHT;
+            } else if (ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE)
+                    || ns.is(Blocks.BLUE_ICE) || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW)) {
                 coolants++;
             }
         }
         this.thermalLinks = links;
-        this.coolantFaces = coolants;
+        this.coolantStrength = coolants;
+    }
+
+    /**
+     * Coolant-loop extraction (Stage C): remove up to {@code amount} heat, never below {@code floor}.
+     * Called by an adjacent {@link CoolantPumpBlockEntity} on the thermal exchange interval — the heat
+     * is <b>deleted</b>, which is what the loop's radiators represent.
+     *
+     * @return heat actually removed
+     */
+    int extractHeat(int amount, int floor) {
+        if (amount <= 0 || this.heat <= floor) {
+            return 0;
+        }
+        int removed = Math.min(amount, this.heat - floor);
+        this.heat -= removed;
+        setChanged();
+        return removed;
+    }
+
+    // --- Stage C fluid/gas surfaces (exposed on Core's FluidLookup / GasLookup seams) ------------
+
+    /**
+     * The {@link za.co.neroland.nerolandcore.gas.NeroGasStorage} this machine exposes on
+     * {@code side}, or null when it handles no gas. Registered on every loader through Core's gas
+     * capability from {@code ModBlockEntities.gasMachineTypes()}.
+     */
+    @Nullable
+    public za.co.neroland.nerolandcore.gas.NeroGasStorage gasStorage(@Nullable Direction side) {
+        return null;
+    }
+
+    /**
+     * The {@link za.co.neroland.nerolandcore.fluid.NeroFluidStorage} this machine exposes on
+     * {@code side}, or null when it handles no fluid. Registered on every loader through Core's
+     * fluid capability from {@code ModBlockEntities.fluidMachineTypes()}.
+     */
+    @Nullable
+    public za.co.neroland.nerolandcore.fluid.NeroFluidStorage fluidStorage(@Nullable Direction side) {
+        return null;
     }
 
     /** Drop the cached conduction links; called by the block on neighbour changes and on load. */
@@ -600,13 +706,11 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
      * spread across ticks (never a global per-tick scan). Call from {@link #tickMachine} while working.
      */
     protected void emitPollution(Level level, BlockPos pos) {
-        int amount = NeroTechConfig.pollutionPerOperation();
+        // Stage H preset scaling + the Stage D per-machine cleanliness factor, once at the base.
+        int amount = scaledEmission();
         if (amount <= 0 || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        // Stage H preset scaling, once at the base (floor 1: a polluting machine on Eco still
-        // pollutes; a config of 0 above stays fully disabled).
-        amount = Math.max(1, amount * this.preset.pollutionPermille() / 1000);
         int interval = NeroTechConfig.pollutionContributionIntervalTicks();
         if ((serverLevel.getGameTime() + this.pollutionPhase) % interval == 0) {
             PollutionManager.record(serverLevel, pos, amount, this.ownerId);

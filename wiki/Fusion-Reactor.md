@@ -24,16 +24,23 @@ reactor — it goes dark and stops.
 ## Fuel tiers
 
 Fuel is matched by **datapack tags**, so packs can add their own: anything in
-`nerotech:fusion_fuels` burns; membership of `nerotech:fusion_fuel/tier2` or `/tier3` raises its
-tier. The shell size gates the tier:
+`nerotech:fusion_fuels` burns; membership of `nerotech:fusion_fuel/tier2`, `/tier3` or `/tier4`
+raises its tier. The shell size gates the tier:
 
 | Tier | Fuel | Made from | Minimum shell |
 | --- | --- | --- | --- |
-| 1 | **Fusion Cell** (any `nerotech:fusion_fuels` entry not tagged tier 2/3) | Starsteel + Void Crystal (or the Advanced Fabricator) | 3×3×3 |
+| 1 | **Fusion Cell** (any `nerotech:fusion_fuels` entry not tagged tier 2/3/4) | Starsteel + Void Crystal (or the Advanced Fabricator) | 3×3×3 |
 | 2 | **Plasma Cell** (`nerotech:fusion_fuel/tier2`) | Starsteel | 5×5×5 |
 | 3 | **Stellar Cell** (`nerotech:fusion_fuel/tier3`) | Void Crystal + Starsteel | 7×7×7 |
+| 4 | **Antimatter Cell** (`nerotech:fusion_fuel/tier4`) | a Stellar Cell through the [Particle Collider](Particle-Collider.md) | 7×7×7 **only** |
 
-Higher tiers burn far longer per cell (`fusionFuelTier1BurnTicks` / `Tier2` / `Tier3`), and bigger
+Tier 4 is the one exception to "tier ≤ shell tier": the **maximal 7×7×7 shell reaches one tier
+further than its own**, which is exactly why antimatter is burnable there and nowhere else. Burning
+it also adds a flat **+2** to the reactor's heat rate on top of the shell scaling — the meltdown risk
+is the price of the longest burn in the mod. See [Exotic Endgame](Exotic-Endgame.md).
+
+Higher tiers burn far longer per cell (`fusionFuelTier1BurnTicks` / `Tier2` / `Tier3` / `Tier4`,
+the last defaulting to twice tier 3), and bigger
 shells multiply output: the base rate (`fusionReactorNePerTick`) is scaled **1× / 4× / 12×** for the
 3/5/7 shells (`fusionSizeOutputPermille`). A 7×7×7 on Stellar Cells is the strongest generator in
 the mod.

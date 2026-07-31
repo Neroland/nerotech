@@ -12,14 +12,18 @@ Array) powers the processing machines, which it feeds via Core's shared energy n
 
 Machines store **NE** in a Core `EnergyBuffer`. Generators produce NE and **push** it to adjacent
 machines/storage through Core's loader-neutral energy lookup; consumers pull from their own buffer as
-they work. Because generation talks only to Core's energy surface (never to NeroTech-internal classes),
-power can later migrate to NeroPower as a package move rather than a rewrite. NE bridges to Forge
-Energy (FE) at I/O boundaries via Core's conversion ratio.
+they work. Generation talks only to Core's energy surface, never to NeroTech-internal classes, so it
+interoperates across the ecosystem by default; NE bridges to Forge Energy (FE) at I/O boundaries via
+Core's conversion ratio. Power lives in NeroTech permanently — the once-planned NeroPower split was
+[retired on 2026-07-31](Power-and-NeroPower-Split.md).
 
 All throughput, capacities and rates are **server-config** (`config/nerotech.properties`, managed by
 Core; server-authoritative and synced to clients).
 
 ## Generators
+
+The two starter generators are below; the Wind Turbine, Geothermal Generator, Bio Generator and the
+grid blocks that go with them are on [Power Generation](Power-Generation.md).
 
 ### Nero Generator
 
@@ -54,6 +58,22 @@ Nero Coil, gold dust → Circuit Board). Same powered, recipe-driven behaviour a
 > Since 0.1.0-beta.1, machine recipes are **real datapack recipes** — types `nerotech:ore_processing`,
 > `nerotech:fabricating` and `nerotech:advanced_fabricating` — so packs can add, replace or remove
 > them like any other recipe JSON.
+
+## Processing chains
+
+The dust economy now closes back into vanilla. Every NeroTech dust **smelts or blasts into its ingot**
+(Iron, Gold and Copper Dust → the matching vanilla ingot, at vanilla furnace times and XP), so the full
+loop is *ore → Ore Processor → 2 dust → furnace → 2 ingots*: double yield for the cost of a second
+smelt.
+
+Machines are also deliberately **better than the workbench**, not just faster. Where a component has
+both a crafting recipe and a Fabricator recipe, the Fabricator wins: a Machine Frame costs eight iron
+ingots by hand but a single ingot in the Fabricator, and one Gold or Copper Dust yields **two** Circuit
+Boards / Nero Coils instead of one. Building the machine pays for itself.
+
+Some recipes are machine-only: **Fusion Cells no longer have a crafting recipe** and come solely from
+the [Advanced Fabricator](Advanced-Tier.md). The Advanced Ore Processor additionally takes whole **raw
+ore blocks** (raw iron/gold/copper block → 18 dust) on top of its yield bonus.
 
 ## Upgrade modules
 

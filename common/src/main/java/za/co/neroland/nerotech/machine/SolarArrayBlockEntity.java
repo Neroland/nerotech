@@ -71,6 +71,12 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
         MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
     }
 
+    /** A generator is never load-shed by a Grid Controller (Stage D). */
+    @Override
+    public boolean shedable() {
+        return false;
+    }
+
     @Override
     public Component getDisplayName() {
         return Component.translatable("container.nerotech.solar_array");

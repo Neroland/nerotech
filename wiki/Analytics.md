@@ -28,8 +28,12 @@ A passive console block (it uses no energy) that scans the machines around it
 (`analyticsTerminalRadius`, default 16 blocks, loaded chunks only) and shows a factory dashboard:
 
 - **counts by status** — how many machines are running, starved, blocked, throttled…,
-- the **hottest machine** in range, and
-- rows for the nearest machines with their individual statuses.
+- the **hottest machine** in range,
+- rows for the **10 nearest** machines with their individual statuses, and
+- a **power history** strip: a 60-sample bar sparkline of the net change in aggregate stored NE
+  across the watched machines, one sample per 100-tick rescan (the last five minutes). Green above
+  the midline is charge gained, red below is charge drained, self-scaling to the window's peak. See
+  [Power Generation](Power-Generation.md#analytics-terminal--power-history).
 
 Place one at the heart of each production floor; its holographic shimmer and pulsing screen mark it
 out. Data is machine-scoped only — positions, statuses and rates; nothing about players is

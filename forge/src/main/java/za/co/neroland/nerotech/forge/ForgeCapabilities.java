@@ -15,7 +15,11 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import za.co.neroland.nerolandcore.energy.NeroEnergyStorage;
+import za.co.neroland.nerolandcore.fluid.NeroFluidStorage;
+import za.co.neroland.nerolandcore.gas.NeroGasStorage;
 import za.co.neroland.nerolandcore.platform.ForgeEnergyLookup;
+import za.co.neroland.nerolandcore.platform.ForgeFluidLookup;
+import za.co.neroland.nerolandcore.platform.ForgeGasLookup;
 
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
@@ -56,6 +60,14 @@ public final class ForgeCapabilities {
         private final EnumMap<Direction, LazyOptional<IItemHandler>> sidedItems = new EnumMap<>(Direction.class);
         @Nullable
         private LazyOptional<IItemHandler> unsidedItems;
+        // Stage C fluid/gas views (null side = the unsided query).
+        private final EnumMap<Direction, LazyOptional<NeroGasStorage>> sidedGas = new EnumMap<>(Direction.class);
+        @Nullable
+        private LazyOptional<NeroGasStorage> unsidedGas;
+        private final EnumMap<Direction, LazyOptional<NeroFluidStorage>> sidedFluid =
+                new EnumMap<>(Direction.class);
+        @Nullable
+        private LazyOptional<NeroFluidStorage> unsidedFluid;
 
         MachineProvider(NeroTechMachineBlockEntity machine) {
             this.machine = machine;
@@ -70,7 +82,43 @@ public final class ForgeCapabilities {
             if (cap == net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER) {
                 return items(side).cast();
             }
+            if (cap == ForgeGasLookup.GAS) {
+                return gas(side).cast();
+            }
+            if (cap == ForgeFluidLookup.FLUID) {
+                return fluid(side).cast();
+            }
             return LazyOptional.empty();
+        }
+
+        /** Stage C: the machine's per-face gas view, or empty for machines that handle no gas. */
+        private LazyOptional<NeroGasStorage> gas(@Nullable Direction side) {
+            if (side == null) {
+                if (this.unsidedGas == null) {
+                    NeroGasStorage view = this.machine.gasStorage(null);
+                    this.unsidedGas = view == null ? LazyOptional.empty() : LazyOptional.of(() -> view);
+                }
+                return this.unsidedGas;
+            }
+            return this.sidedGas.computeIfAbsent(side, d -> {
+                NeroGasStorage view = this.machine.gasStorage(d);
+                return view == null ? LazyOptional.empty() : LazyOptional.of(() -> view);
+            });
+        }
+
+        /** Stage C: the machine's per-face fluid view, or empty for machines that handle no fluid. */
+        private LazyOptional<NeroFluidStorage> fluid(@Nullable Direction side) {
+            if (side == null) {
+                if (this.unsidedFluid == null) {
+                    NeroFluidStorage view = this.machine.fluidStorage(null);
+                    this.unsidedFluid = view == null ? LazyOptional.empty() : LazyOptional.of(() -> view);
+                }
+                return this.unsidedFluid;
+            }
+            return this.sidedFluid.computeIfAbsent(side, d -> {
+                NeroFluidStorage view = this.machine.fluidStorage(d);
+                return view == null ? LazyOptional.empty() : LazyOptional.of(() -> view);
+            });
         }
 
         /**
@@ -106,6 +154,16 @@ public final class ForgeCapabilities {
                 this.unsidedItems.invalidate();
             }
             this.sidedItems.values().forEach(LazyOptional::invalidate);
+            if (this.unsidedGas != null) {
+                this.unsidedGas.invalidate();
+            }
+            this.sidedGas.values().forEach(LazyOptional::invalidate);
+            this.sidedGas.clear();
+            if (this.unsidedFluid != null) {
+                this.unsidedFluid.invalidate();
+            }
+            this.sidedFluid.values().forEach(LazyOptional::invalidate);
+            this.sidedFluid.clear();
         }
     }
 }

@@ -246,7 +246,7 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         return super.mouseClicked(mouseButtonEvent, doubleClick);
     }
 
-    private static void gauge(GuiGraphicsExtractor g, int x, int y, int w, int h, float frac, int fill) {
+    protected static void gauge(GuiGraphicsExtractor g, int x, int y, int w, int h, float frac, int fill) {
         g.fill(x - 1, y - 1, x + w + 1, y + h + 1, EDGE);
         g.fill(x, y, x + w, y + h, TROUGH);
         float f = Math.max(0f, Math.min(1f, frac));

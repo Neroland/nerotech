@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "C": "minecraft:copper_ingot",
+    "W": "minecraft:water_bucket" },
+  "pattern": [ "ICI", "CWC", "ICI" ],
+  "result": { "id": "nerotech:radiator", "count": 2 } }

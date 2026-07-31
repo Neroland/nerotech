@@ -1,1 +1,1 @@
-{ "type": "nerotech:fabricating", "ingredient": "nerotech:gold_dust", "result": { "id": "nerotech:circuit_board" } }
+{ "type": "nerotech:fabricating", "ingredient": "nerotech:gold_dust", "result": { "id": "nerotech:circuit_board", "count": 2 } }

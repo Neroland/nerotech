@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:advanced_fabricator",
+  "criteria": {
+    "has_starsteel_dust": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerolandcore:starsteel_dust"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.starsteel_dust.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:collider_core"
+    },
+    "title": {
+      "translate": "advancements.nerotech.starsteel_dust.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_starsteel_dust"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

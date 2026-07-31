@@ -10,10 +10,12 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +24,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 
 import za.co.neroland.nerolandcore.energy.EnergyBuffer;
@@ -423,6 +426,16 @@ public final class NeroTechCommands {
     /** Small floating label for gallery display clusters (the Nerospace label-stand recipe). */
     private static void spawnLabelStand(ServerLevel level, BlockPos pos, Component name) {
         ArmorStand stand = new ArmorStand(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        // Marker = zero-size bounding box, and ArmorStand#isPickable() is false while it is set.
+        // Without it an invisible stand overlapping a machine hijacks pick-block (middle click
+        // returned an Armor Stand item instead of the machine). ArmorStand#setMarker is PRIVATE in
+        // 26.x, so the flag goes in the only public way: replay {Marker:1b} through Entity#load.
+        CompoundTag markerTag = new CompoundTag();
+        markerTag.putBoolean("Marker", true);
+        stand.load(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), markerTag));
+        stand.refreshDimensions(); // adopt the zero-size marker hitbox immediately
+        // load() re-reads every field from that tag, so re-apply the label state afterwards.
+        stand.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5); // load() zeroed Pos (absent)
         stand.setCustomName(name);
         stand.setCustomNameVisible(true);
         stand.setInvisible(true);

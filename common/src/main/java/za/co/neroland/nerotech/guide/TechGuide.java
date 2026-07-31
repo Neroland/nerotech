@@ -19,7 +19,8 @@ import za.co.neroland.nerotech.registry.ModItems;
  * suppliers because the table is built before registry objects exist.
  *
  * <p>The chapter arc mirrors NeroTech's journey: First Power → Processing → Consequences (heat +
- * pollution) → Mitigation (Scrubber/Remediator) → Automation → Analytics → Fusion. Every step maps
+ * pollution) → Mitigation (Scrubber/Remediator) → Automation → Analytics → Fusion → Exotic Matter.
+ * Every step maps
  * onto an advancement under {@code data/nerotech/advancement/} — the guide keeps NO completion state
  * of its own (see {@link TechGuideProgress}).</p>
  */
@@ -68,7 +69,8 @@ public final class TechGuide {
                     step("ore_processor", () -> ModBlocks.ORE_PROCESSOR.get(), "ore_processor"),
                     step("fabricator", () -> ModBlocks.FABRICATOR.get(), "fabricator"),
                     step("advanced_ore_processor", () -> ModBlocks.ADVANCED_ORE_PROCESSOR.get(), "advanced_ore_processor"),
-                    step("advanced_fabricator", () -> ModBlocks.ADVANCED_FABRICATOR.get(), "advanced_fabricator"))),
+                    step("advanced_fabricator", () -> ModBlocks.ADVANCED_FABRICATOR.get(), "advanced_fabricator"),
+                    step("particle_collider", () -> ModBlocks.COLLIDER_CORE.get(), "starsteel_dust"))),
             new Chapter("consequences", List.of(
                     step("heat_management", () -> Items.PACKED_ICE, "heat_management"),
                     step("dirty_filter", () -> ModItems.DIRTY_FILTER.get(), "dirty_filter"))),
@@ -84,7 +86,11 @@ public final class TechGuide {
             new Chapter("fusion", List.of(
                     step("fusion_containment", () -> ModBlocks.FUSION_CASING.get(), "fusion_containment"),
                     step("fusion_reactor", () -> ModBlocks.FUSION_REACTOR.get(), "fusion_reactor"),
-                    step("stellar_fuel", () -> ModItems.STELLAR_CELL.get(), "stellar_fuel"))));
+                    step("stellar_fuel", () -> ModItems.STELLAR_CELL.get(), "stellar_fuel"))),
+            new Chapter("exotic_matter", List.of(
+                    step("collider_ring", () -> ModBlocks.ACCELERATOR_COIL.get(), "starsteel_dust"),
+                    step("antimatter", () -> ModItems.ANTIMATTER_CELL.get(), "antimatter_cell"),
+                    step("singularity_vault", () -> ModBlocks.SINGULARITY_VAULT.get(), "singularity_vault"))));
 
     public static final int CHAPTER_COUNT = CHAPTERS.size();
 

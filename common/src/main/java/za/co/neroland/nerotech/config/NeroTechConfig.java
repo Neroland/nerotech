@@ -30,6 +30,38 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> SOLAR_NE_PER_TICK = SCHEMA.intRange("solarArrayNePerTick",
             10, 1, 1_000_000, true, "NE/tick produced by the Solar Array in full daylight with sky access");
 
+    // --- Stage D power tech (the absorbed NeroPower feature set) -------------
+    private static final ConfigValue<Integer> WIND_NE_PER_TICK = SCHEMA.intRange("windTurbineNePerTick",
+            25, 1, 1_000_000, true, "base NE/tick produced by the Wind Turbine before the height curve "
+            + "(0.5x at y=80 rising linearly to 2x at y=200) and the dimension multiplier");
+    private static final ConfigValue<String> WIND_DIM_MULTIPLIERS = SCHEMA.string("windDimensionMultipliers",
+            "minecraft:overworld=1.0", true, "per-dimension wind multiplier: comma-list of "
+            + "dimensionId=multiplier (any dimension not listed defaults to 1.0). When Nerospace is "
+            + "installed an AIRLESS planet always yields 0 — no atmosphere, no wind — ahead of this table");
+    private static final ConfigValue<Integer> GEOTHERMAL_NE_PER_SOURCE = SCHEMA.intRange(
+            "geothermalNePerTickPerSource", 8, 1, 1_000_000, true, "NE/tick the Geothermal Generator "
+            + "produces per lava / magma block in the 3x3 directly beneath it (0-9 sources)");
+    private static final ConfigValue<Integer> BIO_NE_PER_BURN_TICK = SCHEMA.intRange("bioGeneratorNePerBurnTick",
+            48, 1, 1_000_000, true, "NE/tick produced by the Bio Generator while burning a "
+            + "#nerotech:bio_fuels item — 20% above the Nero Generator, for half the pollution");
+    private static final ConfigValue<Integer> BATTERY_BANK_CAPACITY = SCHEMA.intRange("batteryBankCapacity",
+            1_000_000, 1_000, 1_000_000_000, true, "internal NE buffer of one Battery Bank");
+    private static final ConfigValue<Integer> GRID_RADIUS = SCHEMA.intRange("gridControllerRadius",
+            16, 4, 64, true, "block radius the Grid Controller watches for NeroTech machines (loaded "
+            + "chunks only, batched every 100 ticks — large radii make each scan pass more expensive)");
+    private static final ConfigValue<Integer> GRID_SHED_PERMILLE = SCHEMA.intRange("gridShedThresholdPermille",
+            200, 0, 1000, true, "aggregate grid fill (permille) below which the Grid Controller sheds load "
+            + "by switching non-generator machines to the Eco preset");
+    private static final ConfigValue<Integer> GRID_RESTORE_PERMILLE = SCHEMA.intRange("gridRestorePermille",
+            500, 0, 1000, true, "aggregate grid fill (permille) above which the Grid Controller restores "
+            + "each shed machine's previous preset (keep it above gridShedThresholdPermille to avoid flapping)");
+    private static final ConfigValue<Integer> WIRELESS_RANGE = SCHEMA.intRange("wirelessNodeRange",
+            32, 1, 256, true, "maximum block distance between two paired Wireless Power Nodes "
+            + "(same dimension only; a node never force-loads its partner's chunk)");
+    private static final ConfigValue<Integer> WIRELESS_TRANSFER = SCHEMA.intRange("wirelessNodeTransferPerTick",
+            200, 0, 10_000_000, true, "NE a Wireless Power Node sends to its partner per transfer pass "
+            + "(the pass runs every 5 ticks); transfer is lossless — the node's value is convenience, not gain");
+
     // --- processing machines ------------------------------------------------
     private static final ConfigValue<Integer> PROCESS_BASE_TICKS = SCHEMA.intRange("machineBaseProcessTicks",
             120, 1, 72_000, true, "base ticks one Ore Processor / Fabricator operation takes (before Speed modules)");
@@ -63,6 +95,53 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> THERMAL_BIOME_SCALE = SCHEMA.intRange("thermalBiomeScale",
             50, 0, 100_000, true, "ambient heat added per full point of biome base temperature above vanilla "
             + "plains (0.8): deserts run hot, snowy biomes run cold (0 disables biome flavour)");
+
+    // --- fluid & gas machines (Stage C: Electrolyzer, Gas Turbine, Chemical Processor) ----------
+    private static final ConfigValue<Integer> MACHINE_GAS_CAPACITY = SCHEMA.intRange("machineGasCapacity",
+            4_000, 100, 10_000_000, true, "capacity (mB) of each internal machine gas tank; one balance "
+            + "\"unit\" of gas is 100 mB (capacity changes apply when the machine next loads)");
+    private static final ConfigValue<Integer> MACHINE_FLUID_CAPACITY = SCHEMA.intRange("machineFluidCapacity",
+            4_000, 1_000, 10_000_000, true, "capacity (mB) of each internal machine fluid tank — the "
+            + "Electrolyzer's water tank (4 buckets by default)");
+    private static final ConfigValue<Integer> ELECTROLYZER_NE_PER_TICK = SCHEMA.intRange("electrolyzerNePerTick",
+            40, 0, 1_000_000, true, "NE/tick the Electrolyzer draws while splitting water (before Efficiency)");
+    private static final ConfigValue<Integer> ELECTROLYZER_TICKS = SCHEMA.intRange("electrolyzerOperationTicks",
+            200, 1, 72_000, true, "base ticks one electrolysis operation takes (before Speed modules)");
+    private static final ConfigValue<Integer> ELECTROLYZER_WATER = SCHEMA.intRange("electrolyzerWaterPerOp",
+            500, 1, 1_000_000, true, "water (mB) consumed per electrolysis operation (a bucket is 1000 mB)");
+    private static final ConfigValue<Integer> ELECTROLYZER_HYDROGEN = SCHEMA.intRange("electrolyzerHydrogenPerOp",
+            200, 0, 1_000_000, true, "hydrogen (mB) produced per operation — 2 units at the default 100 mB/unit");
+    private static final ConfigValue<Integer> ELECTROLYZER_OXYGEN = SCHEMA.intRange("electrolyzerOxygenPerOp",
+            100, 0, 1_000_000, true, "oxygen (mB) produced per operation — 1 unit; the 2:1 split is the point");
+    private static final ConfigValue<Integer> GAS_TURBINE_NE_PER_UNIT = SCHEMA.intRange("gasTurbineNePerUnit",
+            60, 0, 10_000_000, true, "NE one unit (100 mB) of gas yields, before the fuel's turbineGasBurn "
+            + "multiplier. Clean power, not free power: electrolysis is a net energy SINK by design");
+    private static final ConfigValue<Integer> GAS_TURBINE_TICKS_PER_UNIT = SCHEMA.intRange("gasTurbineTicksPerUnit",
+            20, 1, 72_000, true, "ticks one unit of gas burns for (the NE yield is spread evenly across them)");
+    private static final ConfigValue<String> TURBINE_GAS_BURN = SCHEMA.string("turbineGasBurn",
+            "nerotech:hydrogen=2", true, "which gases the Gas Turbine burns and how well: comma-list of "
+            + "gasId=multiplier, e.g. nerotech:hydrogen=2,nerospace:oxygen=1. Yield per unit is "
+            + "gasTurbineNePerUnit x multiplier; a gas not listed here is not accepted at all");
+    private static final ConfigValue<Integer> CHEMICAL_GAS_PER_OP = SCHEMA.intRange("chemicalProcessorGasPerOp",
+            250, 0, 1_000_000, true, "oxygen (mB) one Chemical Processor operation consumes on top of its NE");
+
+    // --- coolant loop (Stage C: Radiator + Coolant Pump) ------------------------
+    private static final ConfigValue<Integer> COOLANT_PUMP_NE_PER_TICK = SCHEMA.intRange("coolantPumpNePerTick",
+            20, 0, 1_000_000, true, "NE/tick the Coolant Pump draws while pumping (billed in one batch per "
+            + "thermalExchangeIntervalTicks, never per tick)");
+    private static final ConfigValue<Integer> COOLANT_PUMP_HEAT_PER_OP = SCHEMA.intRange("coolantPumpHeatPerOp",
+            20, 1, 1_000_000, true, "heat the Coolant Pump pulls from EACH adjacent machine per exchange, "
+            + "before the radiator multiplier (each Radiator within 3 blocks in a straight line adds +1x)");
+
+    // --- automation & QoL (Stage E: Robotic Arm) / exotic endgame (Stage F: Singularity Vault) ---
+    private static final ConfigValue<Integer> ARM_NE_PER_MOVE = SCHEMA.intRange("roboticArmNePerMove",
+            4, 0, 1_000_000, true, "NE the Robotic Arm spends per ITEM moved (it runs one transfer "
+            + "pass per second; a pass moves at most roboticArmStackPerMove items)");
+    private static final ConfigValue<Integer> ARM_STACK_PER_MOVE = SCHEMA.intRange("roboticArmStackPerMove",
+            8, 1, 1_000, true, "how many items one Robotic Arm transfer pass moves (before Speed modules)");
+    private static final ConfigValue<Integer> VAULT_CAPACITY = SCHEMA.intRange("singularityVaultCapacity",
+            1_000_000, 64, 1_000_000_000, true, "how many of ONE item type a Singularity Vault holds "
+            + "(the two facade slots sit on top of this; a comparator reads fill against it)");
 
     // --- pollution (regional, periodic aggregate) ---------------------------
     private static final ConfigValue<Integer> POLLUTION_PER_OP = SCHEMA.intRange("pollutionPerOperation",
@@ -117,8 +196,20 @@ public final class NeroTechConfig {
             4_800, 1, 720_000, true, "burn ticks of one tier-2 fuel (Plasma Cell) charge — needs a 5x5x5+ shell");
     private static final ConfigValue<Integer> FUSION_T3_BURN = SCHEMA.intRange("fusionFuelTier3BurnTicks",
             14_400, 1, 720_000, true, "burn ticks of one tier-3 fuel (Stellar Cell) charge — needs the 7x7x7 shell");
+    private static final ConfigValue<Integer> FUSION_T4_BURN = SCHEMA.intRange("fusionFuelTier4BurnTicks",
+            28_800, 1, 720_000, true, "burn ticks of one tier-4 fuel (Antimatter Cell) charge — twice a "
+            + "Stellar Cell, ONLY the 7x7x7 shell will contain it, and burning it adds +2 to the "
+            + "reactor's heat rate (the meltdown risk is the price)");
     private static final ConfigValue<Integer> ADVANCED_YIELD_BONUS = SCHEMA.intRange("advancedOreProcessorYieldBonus",
             1, 0, 64, true, "extra dust the Advanced Ore Processor yields over the Tier-1 processor");
+    // --- Particle Collider (Stage B: the standalone route to space-grade dusts) ---------------
+    private static final ConfigValue<Integer> COLLIDER_NE_PER_TICK = SCHEMA.intRange("colliderNePerTick",
+            400, 0, 10_000_000, true, "NE/tick the Collider Core draws while running — deliberately huge: "
+            + "the collider must never undercut mining the dusts where a planet mod supplies them");
+    private static final ConfigValue<Integer> COLLIDER_OPERATION_TICKS = SCHEMA.intRange("colliderOperationTicks",
+            1_200, 1, 720_000, true, "base ticks one Collider Core operation takes on a 5x5 ring (before Speed "
+            + "modules); a 7x7 accelerator ring halves it");
+
     private static final ConfigValue<String> SOLAR_DIM_MULTIPLIERS = SCHEMA.string("solarDimensionMultipliers",
             "", true, "per-dimension solar multiplier FALLBACK (since Stage H, nerospace.api planet traits take "
             + "precedence for known planets when Nerospace is installed): comma-list of dimensionId=multiplier, "
@@ -153,6 +244,48 @@ public final class NeroTechConfig {
 
     public static int solarArrayNePerTick() {
         return SOLAR_NE_PER_TICK.get();
+    }
+
+    // --- Stage D power tech --------------------------------------------------
+
+    public static int windTurbineNePerTick() {
+        return WIND_NE_PER_TICK.get();
+    }
+
+    public static String windDimensionMultipliers() {
+        return WIND_DIM_MULTIPLIERS.get();
+    }
+
+    public static int geothermalNePerTickPerSource() {
+        return GEOTHERMAL_NE_PER_SOURCE.get();
+    }
+
+    public static int bioGeneratorNePerBurnTick() {
+        return BIO_NE_PER_BURN_TICK.get();
+    }
+
+    public static int batteryBankCapacity() {
+        return BATTERY_BANK_CAPACITY.get();
+    }
+
+    public static int gridControllerRadius() {
+        return GRID_RADIUS.get();
+    }
+
+    public static int gridShedThresholdPermille() {
+        return GRID_SHED_PERMILLE.get();
+    }
+
+    public static int gridRestorePermille() {
+        return GRID_RESTORE_PERMILLE.get();
+    }
+
+    public static int wirelessNodeRange() {
+        return WIRELESS_RANGE.get();
+    }
+
+    public static int wirelessNodeTransferPerTick() {
+        return WIRELESS_TRANSFER.get();
     }
 
     public static int machineBaseProcessTicks() {
@@ -201,6 +334,59 @@ public final class NeroTechConfig {
 
     public static int thermalBiomeScale() {
         return THERMAL_BIOME_SCALE.get();
+    }
+
+    public static int machineGasCapacity() {
+        return MACHINE_GAS_CAPACITY.get();
+    }
+
+    public static int machineFluidCapacity() {
+        return MACHINE_FLUID_CAPACITY.get();
+    }
+
+    public static int electrolyzerNePerTick() {
+        return ELECTROLYZER_NE_PER_TICK.get();
+    }
+
+    public static int electrolyzerOperationTicks() {
+        return ELECTROLYZER_TICKS.get();
+    }
+
+    public static int electrolyzerWaterPerOp() {
+        return ELECTROLYZER_WATER.get();
+    }
+
+    public static int electrolyzerHydrogenPerOp() {
+        return ELECTROLYZER_HYDROGEN.get();
+    }
+
+    public static int electrolyzerOxygenPerOp() {
+        return ELECTROLYZER_OXYGEN.get();
+    }
+
+    public static int gasTurbineNePerUnit() {
+        return GAS_TURBINE_NE_PER_UNIT.get();
+    }
+
+    public static int gasTurbineTicksPerUnit() {
+        return GAS_TURBINE_TICKS_PER_UNIT.get();
+    }
+
+    /** Raw {@code gasId=multiplier} fuel map; parsed and cached by {@code gas.TurbineFuels}. */
+    public static String turbineGasBurn() {
+        return TURBINE_GAS_BURN.get();
+    }
+
+    public static int chemicalProcessorGasPerOp() {
+        return CHEMICAL_GAS_PER_OP.get();
+    }
+
+    public static int coolantPumpNePerTick() {
+        return COOLANT_PUMP_NE_PER_TICK.get();
+    }
+
+    public static int coolantPumpHeatPerOp() {
+        return COOLANT_PUMP_HEAT_PER_OP.get();
     }
 
     public static int pollutionPerOperation() {
@@ -259,6 +445,18 @@ public final class NeroTechConfig {
         return ANALYTICS_RADIUS.get();
     }
 
+    public static int roboticArmNePerMove() {
+        return ARM_NE_PER_MOVE.get();
+    }
+
+    public static int roboticArmStackPerMove() {
+        return ARM_STACK_PER_MOVE.get();
+    }
+
+    public static int singularityVaultCapacity() {
+        return VAULT_CAPACITY.get();
+    }
+
     public static int fusionReactorNePerTick() {
         return FUSION_NE_PER_TICK.get();
     }
@@ -271,17 +469,26 @@ public final class NeroTechConfig {
         return FUSION_SIZE_OUTPUT.get();
     }
 
-    /** Burn ticks for a fuel tier (1..3); tiers outside the range clamp to their nearest neighbour. */
+    /** Burn ticks for a fuel tier (1..4); tiers outside the range clamp to their nearest neighbour. */
     public static int fusionFuelBurnTicks(int tier) {
-        return switch (Math.max(1, Math.min(3, tier))) {
+        return switch (Math.max(1, Math.min(4, tier))) {
             case 2 -> FUSION_T2_BURN.get();
             case 3 -> FUSION_T3_BURN.get();
+            case 4 -> FUSION_T4_BURN.get();
             default -> FUSION_T1_BURN.get();
         };
     }
 
     public static int advancedOreProcessorYieldBonus() {
         return ADVANCED_YIELD_BONUS.get();
+    }
+
+    public static int colliderNePerTick() {
+        return COLLIDER_NE_PER_TICK.get();
+    }
+
+    public static int colliderOperationTicks() {
+        return COLLIDER_OPERATION_TICKS.get();
     }
 
     public static String solarDimensionMultipliers() {

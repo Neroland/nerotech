@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "B": "nerotech:circuit_board", "C": "nerotech:nero_coil", "D": "minecraft:diamond",
+    "F": "nerotech:machine_frame" },
+  "pattern": [ "BCB", "DFD", "BCB" ],
+  "result": { "id": "nerotech:collider_core" } }

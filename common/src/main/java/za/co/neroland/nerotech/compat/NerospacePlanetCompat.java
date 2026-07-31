@@ -75,6 +75,16 @@ public final class NerospacePlanetCompat {
     }
 
     /**
+     * Wind output multiplier for {@code level}'s dimension (Stage D): {@code 0} on an <b>airless</b>
+     * planet — no atmosphere, no wind, and therefore no Wind Turbine output at all — and {@code 1}
+     * on any other known Nerospace planet. Empty when Nerospace is absent or the dimension is not a
+     * Nerospace planet (Earth included), so the config table keeps full authority there.
+     */
+    public static OptionalDouble windMultiplier(Level level) {
+        return AVAILABLE ? Holder.windMultiplier(level) : OptionalDouble.empty();
+    }
+
+    /**
      * The only class that touches {@code nerospace.api} types — loaded lazily, and only behind an
      * {@link #AVAILABLE} check, so the api never needs to resolve when Nerospace is not installed.
      */
@@ -111,6 +121,15 @@ public final class NerospacePlanetCompat {
                 default -> 1.0D; // future Hazard constants: no solar opinion
             };
             return OptionalDouble.of(multiplier);
+        }
+
+        static OptionalDouble windMultiplier(Level level) {
+            Optional<PlanetId> planet = NerospacePlanets.byDimension(level.dimension());
+            if (planet.isEmpty()) {
+                return OptionalDouble.empty();
+            }
+            // Airless bodies have no atmosphere to move — a turbine there is inert, not merely weak.
+            return OptionalDouble.of(NerospacePlanets.traits(planet.get()).airless() ? 0.0D : 1.0D);
         }
 
         static OptionalInt thermalAmbient(Level level) {

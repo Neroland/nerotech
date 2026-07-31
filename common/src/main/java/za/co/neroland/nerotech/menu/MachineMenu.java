@@ -170,6 +170,25 @@ public abstract class MachineMenu extends AbstractContainerMenu {
     }
 
     /**
+     * A machine-specific synced gauge (Stage C fluid/gas tanks) as a 0..1 fraction — index 0 is the
+     * first value after the seven shared ones. Returns 0 for machines that sync none.
+     */
+    public float extraFraction(int index) {
+        int i = 7 + index;
+        return i < this.data.getCount() ? Math.max(0f, Math.min(1f, this.data.get(i) / 1000f)) : 0f;
+    }
+
+    /**
+     * The raw value of a machine-specific synced int (Stage D's Grid Controller status readouts),
+     * for gauges whose value is a count or a flag rather than a 0..1000 fraction. Returns 0 for
+     * machines that sync none.
+     */
+    public int extraValue(int index) {
+        int i = 7 + index;
+        return i < this.data.getCount() ? this.data.get(i) : 0;
+    }
+
+    /**
      * The live machine behind this menu — non-null only on the server ctor path (the same target
      * the analytics stream uses). The preset intent handler resolves its machine through this, so
      * a client can only ever re-preset the machine of the menu it actually has open.

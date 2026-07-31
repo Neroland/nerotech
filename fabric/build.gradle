@@ -25,6 +25,28 @@ base { archivesName = "nerotech-fabric-${mc}" }
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
 
+// Plain-JVM unit tests (JUnit 5, no game bootstrap) — the same shared tests the neoforge nodes run,
+// so a regression is caught on every loader instead of only one. They live in common/src/test/java
+// (mirroring Core's layout) but `common` is not a Gradle project (see settings.gradle), so each
+// loader node wires the source dir itself.
+// Loom has no equivalent of ModDevGradle's `addModdingDependenciesTo`, so the test source set simply
+// inherits main's resolved classpath (de-obfuscated Minecraft + fabric-api + Core). testImplementation
+// already extends implementation, which carries Core; the extendsFrom below adds Loom's Minecraft.
+// Run with `gradlew :fabric:<mc>:test`; `build`/`check` runs them automatically.
+sourceSets.test.java.srcDir "${rootProject.projectDir}/common/src/test/java"
+configurations.testCompileClasspath.extendsFrom configurations.compileClasspath
+configurations.testRuntimeClasspath.extendsFrom configurations.runtimeClasspath
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${mc}"
     // NOTE: no `mappings` — de-obfuscated 26.x needs none (Fabric Loom 1.17+).

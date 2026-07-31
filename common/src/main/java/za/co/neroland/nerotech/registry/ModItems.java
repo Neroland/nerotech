@@ -68,9 +68,46 @@ public final class ModItems {
     /** Tier-3 Fusion Reactor fuel; tagged into {@code nerotech:fusion_fuel/tier3} (+ {@code fusion_fuels}). */
     public static final RegistryEntry<Item> STELLAR_CELL = item("stellar_cell", p -> p.stacksTo(16));
 
+    // --- Particle Collider multiblock (Stage B) ------------------------------
+    public static final RegistryEntry<BlockItem> ACCELERATOR_COIL_ITEM = blockItem("accelerator_coil", ModBlocks.ACCELERATOR_COIL);
+    /** Carries the tooltip naming the ring requirement (26.x blocks expose no hover-text hook). */
+    public static final RegistryEntry<BlockItem> COLLIDER_CORE_ITEM = ITEMS.register("collider_core",
+            key -> new ColliderCoreBlockItem(ModBlocks.COLLIDER_CORE.get(), new Item.Properties().setId(key)));
+
+    // --- Fluid & gas chain + coolant loop (Stage C) --------------------------
+    public static final RegistryEntry<BlockItem> ELECTROLYZER_ITEM = blockItem("electrolyzer", ModBlocks.ELECTROLYZER);
+    public static final RegistryEntry<BlockItem> GAS_TURBINE_ITEM = blockItem("gas_turbine", ModBlocks.GAS_TURBINE);
+    /** Carries the tooltip naming the oxygen cost (26.x blocks expose no hover-text hook). */
+    public static final RegistryEntry<BlockItem> CHEMICAL_PROCESSOR_ITEM = ITEMS.register("chemical_processor",
+            key -> new TooltipBlockItem(ModBlocks.CHEMICAL_PROCESSOR.get(), new Item.Properties().setId(key),
+                    "block.nerotech.chemical_processor.tooltip"));
+    public static final RegistryEntry<BlockItem> RADIATOR_ITEM = ITEMS.register("radiator",
+            key -> new TooltipBlockItem(ModBlocks.RADIATOR.get(), new Item.Properties().setId(key),
+                    "block.nerotech.radiator.tooltip"));
+    /** Carries the tooltip naming the radiator scaling (the pump has no GUI to explain itself). */
+    public static final RegistryEntry<BlockItem> COOLANT_PUMP_ITEM = ITEMS.register("coolant_pump",
+            key -> new TooltipBlockItem(ModBlocks.COOLANT_PUMP.get(), new Item.Properties().setId(key),
+                    "block.nerotech.coolant_pump.tooltip"));
+
     // --- Automation handoff (Stage 5) ---------------------------------------
     public static final RegistryEntry<BlockItem> AUTO_CRAFTER_ITEM = blockItem("auto_crafter", ModBlocks.AUTO_CRAFTER);
     public static final RegistryEntry<BlockItem> ITEM_SORTER_ITEM = blockItem("item_sorter", ModBlocks.ITEM_SORTER);
+
+    // --- Automation & QoL (Stage E) ------------------------------------------
+    public static final RegistryEntry<BlockItem> CONVEYOR_BELT_ITEM = ITEMS.register("conveyor_belt",
+            key -> new TooltipBlockItem(ModBlocks.CONVEYOR_BELT.get(), new Item.Properties().setId(key),
+                    "block.nerotech.conveyor_belt.tooltip"));
+    public static final RegistryEntry<BlockItem> ROBOTIC_ARM_ITEM = ITEMS.register("robotic_arm",
+            key -> new TooltipBlockItem(ModBlocks.ROBOTIC_ARM.get(), new Item.Properties().setId(key),
+                    "block.nerotech.robotic_arm.tooltip"));
+
+    // --- Exotic endgame (Stage F) --------------------------------------------
+    /** Tier-4 Fusion Reactor fuel; Collider-only, and only the 7³ shell will burn it. */
+    public static final RegistryEntry<Item> ANTIMATTER_CELL = item("antimatter_cell", p -> p.stacksTo(16));
+    /** Carries the tooltip naming the "empty it before you break it" rule (blocks have no hover hook). */
+    public static final RegistryEntry<BlockItem> SINGULARITY_VAULT_ITEM = ITEMS.register("singularity_vault",
+            key -> new TooltipBlockItem(ModBlocks.SINGULARITY_VAULT.get(), new Item.Properties().setId(key),
+                    "block.nerotech.singularity_vault.tooltip"));
 
     // --- Pollution mitigation (Stage F) --------------------------------------
     /** Consumable scrubbing medium; fouls into a {@link #DIRTY_FILTER} at capacity. */
@@ -79,6 +116,16 @@ public final class ModItems {
     public static final RegistryEntry<Item> DIRTY_FILTER = item("dirty_filter");
     public static final RegistryEntry<BlockItem> SCRUBBER_ITEM = blockItem("scrubber", ModBlocks.SCRUBBER);
     public static final RegistryEntry<BlockItem> REMEDIATOR_ITEM = blockItem("remediator", ModBlocks.REMEDIATOR);
+
+    // --- Power tech (Stage D: the absorbed NeroPower feature set) --------------
+    public static final RegistryEntry<BlockItem> WIND_TURBINE_ITEM = blockItem("wind_turbine", ModBlocks.WIND_TURBINE);
+    public static final RegistryEntry<BlockItem> GEOTHERMAL_GENERATOR_ITEM =
+            blockItem("geothermal_generator", ModBlocks.GEOTHERMAL_GENERATOR);
+    public static final RegistryEntry<BlockItem> BIO_GENERATOR_ITEM = blockItem("bio_generator", ModBlocks.BIO_GENERATOR);
+    public static final RegistryEntry<BlockItem> BATTERY_BANK_ITEM = blockItem("battery_bank", ModBlocks.BATTERY_BANK);
+    public static final RegistryEntry<BlockItem> GRID_CONTROLLER_ITEM =
+            blockItem("grid_controller", ModBlocks.GRID_CONTROLLER);
+    public static final RegistryEntry<BlockItem> WIRELESS_NODE_ITEM = blockItem("wireless_node", ModBlocks.WIRELESS_NODE);
 
     // --- Production analytics (Stage G) ---------------------------------------
     public static final RegistryEntry<BlockItem> ANALYTICS_TERMINAL_ITEM =
@@ -112,8 +159,14 @@ public final class ModItems {
                 NERO_GENERATOR_ITEM, SOLAR_ARRAY_ITEM, ORE_PROCESSOR_ITEM, FABRICATOR_ITEM,
                 FUSION_REACTOR_ITEM, FUSION_CASING_ITEM, FUSION_CONTAINMENT_GLASS_ITEM,
                 ADVANCED_ORE_PROCESSOR_ITEM, ADVANCED_FABRICATOR_ITEM,
-                FUSION_CELL, PLASMA_CELL, STELLAR_CELL,
-                AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM,
+                FUSION_CELL, PLASMA_CELL, STELLAR_CELL, ANTIMATTER_CELL,
+                COLLIDER_CORE_ITEM, ACCELERATOR_COIL_ITEM,
+                ELECTROLYZER_ITEM, GAS_TURBINE_ITEM, CHEMICAL_PROCESSOR_ITEM,
+                RADIATOR_ITEM, COOLANT_PUMP_ITEM,
+                WIND_TURBINE_ITEM, GEOTHERMAL_GENERATOR_ITEM, BIO_GENERATOR_ITEM,
+                BATTERY_BANK_ITEM, GRID_CONTROLLER_ITEM, WIRELESS_NODE_ITEM,
+                AUTO_CRAFTER_ITEM, ITEM_SORTER_ITEM, CONVEYOR_BELT_ITEM, ROBOTIC_ARM_ITEM,
+                SINGULARITY_VAULT_ITEM,
                 SCRUBBER_ITEM, REMEDIATOR_ITEM, FILTER_CARTRIDGE, DIRTY_FILTER,
                 ANALYTICS_TERMINAL_ITEM,
                 TECH_GUIDE_ITEM, TECH_GUIDE_DATAPAD,
@@ -159,6 +212,52 @@ public final class ModItems {
             tooltip.accept(net.minecraft.network.chat.Component
                     .translatable("block.nerotech.solar_array.tooltip.nerospace")
                     .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        }
+    }
+
+    /**
+     * Collider Core block-item with the one-line tooltip: what the machine does and the ring it
+     * needs, so the multiblock requirement is discoverable before the block is ever placed.
+     */
+    private static final class ColliderCoreBlockItem extends BlockItem {
+        ColliderCoreBlockItem(Block block, Item.Properties properties) {
+            super(block, properties);
+        }
+
+        @Override
+        public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
+                net.minecraft.world.item.component.TooltipDisplay display,
+                java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
+                net.minecraft.world.item.TooltipFlag flag) {
+            super.appendHoverText(stack, context, display, tooltip, flag);
+            tooltip.accept(net.minecraft.network.chat.Component
+                    .translatable("block.nerotech.collider_core.tooltip")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY));
+        }
+    }
+
+    /**
+     * A block-item carrying one extra grey tooltip line — the Stage C blocks whose whole point is a
+     * cost or a scaling rule the GUI cannot show (26.x blocks expose no hover-text hook, so the
+     * tooltip lives on the item; the Solar Array / Collider Core recipe, generalised).
+     */
+    private static final class TooltipBlockItem extends BlockItem {
+
+        private final String tooltipKey;
+
+        TooltipBlockItem(Block block, Item.Properties properties, String tooltipKey) {
+            super(block, properties);
+            this.tooltipKey = tooltipKey;
+        }
+
+        @Override
+        public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
+                net.minecraft.world.item.component.TooltipDisplay display,
+                java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
+                net.minecraft.world.item.TooltipFlag flag) {
+            super.appendHoverText(stack, context, display, tooltip, flag);
+            tooltip.accept(net.minecraft.network.chat.Component.translatable(this.tooltipKey)
+                    .withStyle(net.minecraft.ChatFormatting.GRAY));
         }
     }
 

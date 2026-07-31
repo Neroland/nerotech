@@ -24,6 +24,11 @@ Each machine's heat is the balance of four flows:
   worlds with Nerospace installed, [planet traits set the ambient directly](Planets.md).
 - **Coolant blocks vent heat faster.** Water, ice, packed/blue ice, snow blocks and powder snow
   placed against a machine each add extra dissipation (`heatDissipationPerTick`).
+- **Radiators are purpose-built coolant.** A [Radiator](Fluids-and-Gases.md#the-coolant-loop) placed
+  against a machine counts as **four** natural coolant blocks — and, unlike ice, it never melts.
+- **Coolant Pumps cool actively.** A [Coolant Pump](Fluids-and-Gases.md#the-coolant-loop) spends NE
+  to pull heat out of *every* adjacent machine, scaled by how many Radiators feed it. This is how you
+  keep a Fusion Reactor or Particle Collider running flat out without a wall of ice.
 
 ## Throttling
 

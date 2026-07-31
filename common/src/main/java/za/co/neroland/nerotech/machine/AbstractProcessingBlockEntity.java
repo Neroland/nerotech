@@ -24,8 +24,9 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.recipe.MachineRecipe;
 
 /**
- * Shared base for NeroTech's recipe-driven processing machines (Ore Processor, Fabricator). One input
- * slot, one output slot. Each tick it consumes NE (scaled down by Efficiency modules) to advance a
+ * Shared base for NeroTech's recipe-driven processing machines (Ore Processor, Fabricator, and —
+ * with its own tick loop over the same recipe plumbing — the Collider Core). One input slot, one
+ * output slot. Each tick it consumes NE (scaled down by Efficiency modules) to advance a
  * progress timer (shortened by Speed modules); on completion it consumes one input and yields the
  * recipe result. Pure NE sink — it receives power pushed by generators through Core's energy seam.
  *
@@ -138,7 +139,8 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
         }
     }
 
-    private boolean canOutput(ItemStack result) {
+    /** Whether the output slot can take {@code result} (empty, or a mergeable identical stack). */
+    protected boolean canOutput(ItemStack result) {
         ItemStack out = this.items.get(OUTPUT_SLOT);
         if (out.isEmpty()) {
             return true;
@@ -147,7 +149,8 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
                 && out.getCount() + result.getCount() <= out.getMaxStackSize();
     }
 
-    private void craft(ItemStack result) {
+    /** Complete one operation: merge {@code result} into the output slot and eat one input. */
+    protected void craft(ItemStack result) {
         ItemStack out = this.items.get(OUTPUT_SLOT);
         if (out.isEmpty()) {
             this.items.set(OUTPUT_SLOT, result.copy());

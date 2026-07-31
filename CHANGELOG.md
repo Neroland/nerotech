@@ -9,6 +9,127 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Conveyor Belt** — the cheapest automation in the mod and the only NeroTech block with **no block
+  entity at all**: a flat 4-pixel directional plate that nudges item entities along its facing at
+  ~0.15 blocks/tick, capped so a chain never accelerates an item past belt speed. No power, no GUI,
+  no filter, no merging — it applies motion and nothing else, so lines and corners form naturally
+  from blocks that each only push their own way. Only item entities are affected; players and mobs
+  walk over it. Crafts **6 at a time** from 3 Iron Dust + 2 Nero Coils + Redstone — the mod's main
+  Iron Dust sink.
+- **Robotic Arm** — a one-block item mover: once a second it lifts up to `roboticArmStackPerMove`
+  (default 8) items out of the container **behind** it into the container **in front** of it, for
+  `roboticArmNePerMove` (default 4) NE **per item moved**. Both ends are addressed through the same
+  standard container surface a hopper uses, through the face pointing at the arm, so machine side
+  configs, furnace sidedness and NeroTech's own per-face routing are all honoured on every loader.
+  A single GUI-only **filter slot** restricts the move to one item type; it is never consumed and no
+  face ever exposes it to automation. Two direct neighbour lookups on a phase-spread 20-tick
+  cadence — never a world scan.
+- **Configurator copy/paste, extended** — copying a machine now captures its **overclock preset**
+  alongside its side config, and pasting is **no longer type-locked**: each copied channel is applied
+  wherever the target declares that same channel, and the preset always applies. Stamp one
+  processor's Item+Power layout and its Overdrive setting across a row, then keep going and drop just
+  the Power layout and preset onto the generators feeding it. A paste with nothing compatible now
+  reports the mismatch instead of silently doing nothing. Server-side mutation only; the clipboard
+  lives on the item stack and holds routing modes, a preset ordinal and a machine-type id — never any
+  player data.
+- **Antimatter Cell** — **tier-4 fusion fuel**, and the only item the Particle Collider alone can
+  make (Stellar Cell in, Antimatter Cell out; there is no crafting recipe). It burns for
+  `fusionFuelTier4BurnTicks` (default 28,800 ticks — twice a Stellar Cell), and it is contained by
+  the **7×7×7 shell only**: the maximal shell is the one that reaches a tier above its own, which is
+  the entire reason tier 4 is reachable. While it burns the reactor's heat rate gains a flat **+2**
+  on top of the shell scaling, so a 7³ reactor on antimatter is both the strongest generator in
+  NeroTech and the one most likely to melt down. Tagged into the new
+  `#nerotech:fusion_fuel/tier4` (and the plain `#nerotech:fusion_fuels`).
+- **Singularity Vault** — bulk storage for **one** item type, up to `singularityVaultCapacity`
+  (default 1,000,000), held as a virtual store (type + count) rather than as stacks. Automation sees
+  a two-slot facade: slot 0 is drained into the store each tick while the type matches, slot 1 is
+  kept topped up with a full stack so extraction never stalls however deep the store is. By hand:
+  right-click deposits, crouch-right-click withdraws a stack, empty-handed right-click reports the
+  fill; a fully drained vault forgets its type and can be re-assigned. A **comparator** reads fill as
+  a fraction of capacity. It draws **no power** and is exempt from Grid Controller load shedding.
+  Crafted from 4 Void Crystal + 4 Obsidian around an Antimatter Cell, which puts it behind both
+  multiblocks. **Empty it before you break it** — the stored bulk does not drop.
+- **Collider transmutation** — two new lossy `nerotech:collider` recipes: **Copper Dust → Iron Dust**
+  and **Iron Dust → Gold Dust**. They are 1:1 by item count and pay their loss in a full collider
+  operation each (480,000 NE on a 5×5 ring at the defaults), so transmuted gold is the most expensive
+  gold in the game. Both appear automatically in the JEI collider page.
+- **Tech Guide chapter: Exotic Matter** — three steps (widen the collider ring to 7×7, collide a
+  Stellar Cell into antimatter, build a Singularity Vault) closing the guide's arc, plus the
+  **Contained Annihilation** and **Room for Everything** advancements behind *Breaking Matter Open*.
+- **New config keys** — `roboticArmNePerMove`, `roboticArmStackPerMove`, `singularityVaultCapacity`,
+  `fusionFuelTier4BurnTicks`.
+- **New wiki page** — [Exotic Endgame](wiki/Exotic-Endgame.md), with the Conveyor Belt and Robotic
+  Arm documented in [Automation](wiki/Automation.md), the transmutation and antimatter recipes in
+  [Particle Collider](wiki/Particle-Collider.md), tier 4 in the
+  [Fusion Reactor](wiki/Fusion-Reactor.md) fuel table, and the cross-type paste in
+  [Side Config & the Configurator](wiki/Side-Config-and-Configurator.md).
+
+- **Particle Collider** — a new endgame multiblock and NeroTech's **standalone** route to
+  space-grade materials. A horizontal 5×5 or 7×7 ring of the new **Accelerator Coil** blocks around
+  the new **Collider Core** transmutes a catalyst into **Starsteel Dust** (from Netherite Scrap) or
+  **Void Crystal Dust** (from an Echo Shard) via the datapack-driven `nerotech:collider` recipe
+  type. Inert until the ring is formed; the 7×7 ring halves the operation time. Deliberately
+  expensive — `colliderNePerTick` (default 400) for `colliderOperationTicks` (default 1200) per
+  operation at triple heat — so meteor mining stays the faster source wherever Nerospace is
+  installed. Both blocks are crafted from vanilla materials and Tier-1 NeroTech components only, so
+  the advanced tier (Fusion Reactor included) is now reachable on Earth alone. Ships with a JEI
+  page, a Tech Guide step, an advancement, and the [Particle Collider](wiki/Particle-Collider.md)
+  wiki page.
+- **Power tier** — six new blocks that absorb the whole feature set once planned for a separate
+  **NeroPower** mod. Three generators: the **Wind Turbine** is fuel-free and works day *and* night —
+  `windTurbineNePerTick` (default 25) scaled by an altitude curve (0.5× at or below y=80 rising
+  linearly to 2× at or above y=200) and a per-dimension multiplier (`windDimensionMultipliers`),
+  needing only sky access directly above (an airless Nerospace planet gives zero: no atmosphere, no
+  wind); the **Geothermal Generator** counts lava/magma in the 3×3 layer directly beneath it (0–9)
+  for `geothermalNePerTickPerSource` (default 8) NE/tick each — perfectly steady, runs hot, no
+  pollution, with the count cached and re-checked on neighbour change or every 100 ticks; the **Bio
+  Generator** burns anything in the new datapack-overridable `#nerotech:bio_fuels` item tag for 4,000
+  ticks at `bioGeneratorNePerBurnTick` (default 48) NE/tick — 20% above the Nero Generator at **half**
+  the pollution per operation. Plus three grid blocks: the **Battery Bank**, a single-block
+  `batteryBankCapacity` (default 1,000,000) NE buffer with every-face I/O and auto-eject (Core's
+  STORAGE preset, FE interop via `EnergyLookup`); the **Grid Controller**, a passive console that
+  rescans `gridControllerRadius` (default 16) every 100 ticks and, below `gridShedThresholdPermille`
+  (default 200), drops every non-generator machine to the Eco preset until fill recovers past
+  `gridRestorePermille` (default 500) — deliberate hysteresis so a grid at the line does not flap,
+  with generators, Battery Banks, Wireless Nodes and consoles exempt (it throttles demand, never
+  supply); and the **Wireless Power Node**, paired with the Configurator by crouch-use, passing up to
+  `wirelessNodeTransferPerTick` (default 200) NE every 5 ticks to a partner within
+  `wirelessNodeRange` (default 32) blocks in the same dimension — **lossless**, never force-loading a
+  chunk, and self-unlinking when either end breaks. All six craft from vanilla and Tier-1 NeroTech
+  materials only. Ships with the **Charge Reserve** advancement (craft a Battery Bank) and the new
+  [Power Generation](wiki/Power-Generation.md) wiki page.
+- **Analytics Terminal power history** — the dashboard now keeps a rolling 60-sample window of the
+  *net change* in aggregate stored NE across the machines it watches, one sample per 100-tick rescan
+  (the last five minutes), rendered as a bar sparkline: green above the midline where the watched
+  machines gained charge, red below where they drained it, self-scaling to the window's peak. The
+  machine list drops from 12 rows to the **10** nearest to make room.
+- **New config keys** — `windTurbineNePerTick`, `windDimensionMultipliers`,
+  `geothermalNePerTickPerSource`, `bioGeneratorNePerBurnTick`, `batteryBankCapacity`,
+  `gridControllerRadius`, `gridShedThresholdPermille`, `gridRestorePermille`, `wirelessNodeRange`,
+  `wirelessNodeTransferPerTick`.
+- **`#nerotech:bio_fuels` item tag** — datapack-overridable Bio Generator feedstock, seeded with
+  `minecraft:dried_kelp_block` so NeroAgriculture and packs can add their own crops without a code
+  change.
+- **Fluid & gas chain** — Neroland Core's dormant fluid/gas substrate is now wired up, and NeroTech
+  brings the first concrete gases (`nerotech:hydrogen`, `nerotech:oxygen`; Core ships none by
+  design). Three new machines: the **Electrolyzer** splits stored water into hydrogen and oxygen at
+  the 2:1 ratio (water in by bucket *or* through Core's fluid capability — no item slots at all) and
+  hands both products to adjacent gas blocks once a second; the **Gas Turbine** burns gas into NE and
+  pushes it like the Nero Generator, with **mild heat and zero pollution** — clean power, not free
+  power (electrolysis is a net energy sink by design); the **Chemical Processor** washes raw ore with
+  oxygen for **3** dust where the Ore Processor gives 2, via the new datapack-driven
+  `nerotech:chemical_processing` recipe type. Every tank is exposed on Core's shared
+  `nerolandcore:fluid` / `nerolandcore:gas` capabilities on all six cells, so Core's Fluid Tank and
+  Gas Tank — and any other mod on those surfaces — interoperate with no cross-mod dependency. Which
+  gases the turbine burns is config-driven (`turbineGasBurn`, default `nerotech:hydrogen=2`). Ships
+  with a JEI page, an advancement, and the [Fluids & Gases](wiki/Fluids-and-Gases.md) wiki page.
+- **Coolant loop** — active cooling for reactors and colliders, as two blocks rather than a plumbed
+  circuit (a deliberate simplification: same lever, none of the network bookkeeping). The
+  **Radiator** is a passive block that counts as four natural coolant blocks against a machine and
+  never melts; the **Coolant Pump** spends NE each thermal-exchange interval to pull heat out of
+  every adjacent machine and delete it, at a rate scaled by how many Radiators sit within 3 blocks in
+  a straight line. Both the radiator scan and the machine scan are event-driven and cached — no
+  per-tick sweeps. The pump is slotless and menu-less; its block-item tooltip explains the scaling.
 - **Auto Crafter recipe preview** — the output well shows a server-matched ghost of what the
   current grid would craft, kept current even while the machine is unpowered.
 - **Auto Crafter grid lock** — a Lock/Unlock toggle snapshots the grid as a per-slot template;
@@ -45,8 +166,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   restricts. NeroTech still opens Core's `industrial_power` milestone on first machine placement for
   other mods to read.
 
+### Changed
+
+- **The NeroPower split is retired** — as of 2026-07-31, NeroPower will not ship as a separate mod
+  and its planned feature set is absorbed into NeroTech (see the power tier above). One mod, one
+  power network, no cross-mod dependency to reason about. Generation still talks only to Core's
+  energy surface — kept because it is the right coupling, not to keep an extraction cheap. The wiki
+  page [Power & the NeroPower Split](wiki/Power-and-NeroPower-Split.md) is rewritten around the
+  decision, with the old split criteria preserved as a clearly-marked archived section.
+
+**Stage A — foundation cleanup & recipe graph**
+
+- **Capability registration is now generic** — `ModBlockEntities` publishes the energy and item
+  machine lists, and the Fabric/NeoForge entry points iterate them instead of hand-listing types. A
+  new machine is wired on every loader by adding it to one list. The Analytics Terminal and Tech
+  Guide stay out by design (zero NE, no slots).
+- **Unit tests run on all six cells** — the shared `common/src/test/java` suite is now wired into the
+  Fabric and Forge nodes too, not just NeoForge, so `build`/`check` runs it everywhere.
+- **Dust smelts back to metal** — Iron, Gold and Copper Dust each gain smelting *and* blasting
+  recipes to the matching vanilla ingot at vanilla times/XP, closing the *ore → dust → ingot* loop.
+- **Machines beat the workbench** — the Fabricator now returns **2** Circuit Boards / Nero Coils per
+  dust (crafting still gives 1); the Machine Frame recipe already cost 1 iron in the machine versus 8
+  by hand and is unchanged.
+- **Fusion Cells are machine-exclusive** — the shaped crafting recipe is removed; the Advanced
+  Fabricator is the only source. Plasma and Stellar Cells keep their crafting recipes (they are
+  multi-ingredient, and `advanced_fabricating` takes a single input).
+- **Bulk raw-ore-block processing** — raw iron/gold/copper blocks process into 18 dust, on top of the
+  Advanced Ore Processor's yield bonus. Its Tech Guide/advancement text no longer over-promises
+  "Starsteel and planet ores".
+- **Just Enough Items support** — a shared JEI plugin adds Ore Processing, Fabricating and Advanced
+  Fabricating pages with each machine as a crafting station. Because 26.x clients hold no full recipe
+  list, NeroTech now opts into each loader's recipe sync (recipe definitions only — no player data).
+- **Three new advancements** — Tech Guide Datapad, Plasma Cell and Filter Cartridge.
+
 ### Fixed
 
+- **Gallery labels hijacked pick-block** — the invisible armor stands `/nerotech gallery` spawns as
+  floating labels kept a full hitbox, so middle-clicking a machine they overlapped returned an Armor
+  Stand item. Labels are now marker stands (zero-size hitbox — unpickable, unhittable; the flag is
+  applied via `Entity#load` because `ArmorStand#setMarker` is private in 26.x). Run
+  `/nerotech gallery clear` and rebuild to replace stands from an older gallery.
 - **Scrubber / Remediator unpowerable on Fabric and NeoForge** — both pollution machines (and the
   Scrubber's filter slots) were missing from the loader capability registrations, so generators could
   never push NE to them and pipes could not automate the Scrubber on those loaders. Forge was

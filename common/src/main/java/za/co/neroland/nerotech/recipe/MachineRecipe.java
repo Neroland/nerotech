@@ -51,6 +51,12 @@ public class MachineRecipe extends SingleItemRecipe {
         return (commonInfo, ingredient, result) -> new MachineRecipe(type, serializer, commonInfo, ingredient, result);
     }
 
+    /** Widened to public for read-only consumers (JEI category display). */
+    @Override
+    public ItemStackTemplate result() {
+        return super.result();
+    }
+
     @Override
     public RecipeType<MachineRecipe> getType() {
         return this.type.get();

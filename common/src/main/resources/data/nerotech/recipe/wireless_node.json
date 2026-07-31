@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "N": "nerotech:nero_coil", "I": "minecraft:iron_ingot",
+    "E": "minecraft:ender_pearl", "B": "nerotech:circuit_board" },
+  "pattern": [ " N ", "IEI", "IBI" ],
+  "result": { "id": "nerotech:wireless_node" } }

@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "D": "nerotech:iron_dust", "N": "nerotech:nero_coil", "R": "minecraft:redstone" },
+  "pattern": [ "DDD", "NRN" ],
+  "result": { "id": "nerotech:conveyor_belt", "count": 6 } }

@@ -1,0 +1,1 @@
+{ "type": "nerotech:chemical_processing", "ingredient": "minecraft:raw_copper", "result": { "id": "nerotech:copper_dust", "count": 3 } }

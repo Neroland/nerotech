@@ -567,6 +567,339 @@ def gen_fusion_containment_glass():
     save(img, "block", "fusion_containment_glass")
 
 
+def gen_accelerator_coil():
+    # Particle Collider ring segment: alloy plate wrapped in magnet windings, with the teal beam
+    # channel running straight through the middle so a placed ring reads as one continuous loop.
+    # No hazard striping — that stays on the Fusion Reactor shell.
+    img = machine_base("accelerator_coil")
+    px = img.load()
+    for y in range(6, 26):                      # winding bands down the plate
+        band = ((y - 6) // 2) % 2 == 0
+        for x in range(3, 29):
+            if y < 13 or y > 18:
+                px[x, y] = ALLOY[3] if band else A_DARK
+    for x in range(3, 29):                      # coil clamps top and bottom of the winding stack
+        px[x, 5] = A_LIGHT
+        px[x, 26] = A_DARK
+    for y in range(13, 19):                     # the beam channel (PULSE target — T_* only)
+        for x in range(S):
+            d = abs(y - 15.5)
+            px[x, y] = T_DEEP if d > 2.0 else (T_TEAL if d > 1.0 else T_CYAN)
+    for x in range(2, 30, 6):                   # beam pips along the channel
+        px[x, 15] = T_PLASMA
+        px[x, 16] = T_PLASMA
+    rivets(img, ((7, 8), (24, 8), (7, 23), (24, 23)))
+    save(img, "block", "accelerator_coil")
+
+
+def gen_collider_core():
+    # side: heavy injector housing with the beam channel continuing the coils' teal line
+    img = machine_base("collider_core")
+    px = img.load()
+    for y in (7, 24):                           # housing plate seams
+        for x in range(3, 29):
+            px[x, y] = A_DARK
+            px[x, y + 1] = ALLOY[2]
+    for y in range(13, 19):                     # beam channel through-line (matches the coil)
+        for x in range(S):
+            d = abs(y - 15.5)
+            px[x, y] = T_DEEP if d > 2.0 else (T_TEAL if d > 1.0 else T_CYAN)
+    for x in (5, 15, 26):                       # injector taps straddling the channel
+        for y in (10, 21):
+            led(px, x, y, T_TEAL)
+    save(img, "block", "collider_core")
+
+    # front: the injection aperture — a bright beam eye ringed by focusing magnets (PULSE target)
+    img = machine_base("collider_core_front")
+    px = img.load()
+    recess(px, 4, 4, 27, 27, (10, 13, 16, 255))
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 2.2:
+                px[x, y] = T_GLOW
+            elif d <= 4.0:
+                px[x, y] = T_PLASMA
+            elif d <= 6.0:
+                px[x, y] = T_CYAN if (x + y) % 3 else T_PLASMA
+            elif d <= 7.6:
+                px[x, y] = T_TEAL
+            elif d <= 9.0:
+                px[x, y] = T_DEEP
+    for k in range(8):                          # focusing magnets around the aperture
+        ang = k * math.pi / 4
+        mx = int(round(15.5 + 10.6 * math.cos(ang)))
+        my = int(round(15.5 + 10.6 * math.sin(ang)))
+        for yy in range(my - 1, my + 2):
+            for xx in range(mx - 1, mx + 2):
+                px[xx, yy] = ALLOY[3]
+        px[mx, my] = A_LIGHT
+    save(img, "block", "collider_core_front")
+
+    # top: quadrant access plates around a teal beam crossing (the ring seen from above)
+    img = machine_base("collider_core_top")
+    px = img.load()
+    for x in range(4, 28):                      # crossing beam lines
+        px[x, 15] = T_DEEP if x % 4 < 2 else T_TEAL
+        px[x, 16] = T_TEAL if x % 4 < 2 else T_DEEP
+    for y in range(4, 28):
+        px[15, y] = T_DEEP if y % 4 < 2 else T_TEAL
+        px[16, y] = T_TEAL if y % 4 < 2 else T_DEEP
+    for (qx, qy) in ((6, 6), (19, 6), (6, 19), (19, 19)):   # access plates in the quadrants
+        for y in range(qy, qy + 7):
+            for x in range(qx, qx + 7):
+                px[x, y] = ALLOY[2] if (x + y) % 2 == 0 else ALLOY[0]
+        px[qx, qy] = A_LIGHT
+        px[qx + 6, qy + 6] = A_DARK
+    for (cx, cy) in ((15, 15), (16, 16)):       # the crossing hub
+        px[cx, cy] = T_GLOW
+    save(img, "block", "collider_core_top")
+
+
+def gen_electrolyzer():
+    # side: paired electrode stacks flanking a tall bright cell column
+    img = machine_base("electrolyzer")
+    px = img.load()
+    for cx in (6, 23):                          # electrode busbars
+        for y in range(6, 26):
+            px[cx, y] = ALLOY[3]
+            px[cx + 1, y] = A_DARK
+        px[cx, 6] = A_LIGHT
+    recess(px, 12, 5, 18, 26, (10, 14, 18, 255))
+    for y in range(6, 26):                      # the cell column (PULSE target — T_* only)
+        band = (y // 3) % 2 == 0
+        for x in range(13, 18):
+            px[x, y] = T_TEAL if band else T_DEEP
+    for y in range(8, 25, 4):                   # bubbles rising through the cell
+        px[15, y] = T_PLASMA
+        px[14, y + 1] = T_CYAN
+    save(img, "block", "electrolyzer")
+
+    # front: the split cell — hydrogen side pale, oxygen side teal, split by the membrane
+    img = machine_base("electrolyzer_front")
+    px = img.load()
+    recess(px, 4, 4, 27, 27, (10, 14, 18, 255))
+    for y in range(6, 26):
+        for x in range(6, 15):                  # H2 half (pale plasma)
+            px[x, y] = T_PLASMA if (x + y) % 5 == 0 else T_CYAN
+        for x in range(18, 26):                 # O2 half (teal)
+            px[x, y] = T_CYAN if (x + y) % 5 == 0 else T_TEAL
+    for y in range(5, 27):                      # the membrane between them
+        px[15, y] = A_LIGHT
+        px[16, y] = A_DARK
+    for x in (9, 22):                           # collection taps at the top of each half
+        led(px, x, 7, T_GLOW)
+    save(img, "block", "electrolyzer_front")
+
+    # top: two gas take-off ports either side of the water inlet
+    img = machine_base("electrolyzer_top")
+    px = img.load()
+    recess(px, 12, 12, 19, 19, (10, 14, 18, 255))
+    for y in range(13, 19):                     # water inlet
+        for x in range(13, 19):
+            px[x, y] = T_DEEP if (x + y) % 2 else T_TEAL
+    for (ox, oy) in ((6, 6), (23, 6), (6, 23), (23, 23)):
+        led(px, ox, oy, T_CYAN)
+    for x in range(4, 28):                      # manifold run across the deck
+        px[x, 15] = ALLOY[3]
+        px[x, 16] = A_DARK
+    save(img, "block", "electrolyzer_top")
+
+
+def gen_gas_turbine():
+    # side: gas feed ducting running into a stubby combustion drum
+    img = machine_base("gas_turbine")
+    px = img.load()
+    for y in range(9, 23):                      # drum body
+        for x in range(4, 28):
+            px[x, y] = ALLOY[1] if (y // 2) % 2 == 0 else ALLOY[2]
+    for x in range(4, 28):                      # drum lips
+        px[x, 9] = A_LIGHT
+        px[x, 22] = A_DARK
+    for y in range(14, 18):                     # the gas feed line (PULSE target)
+        for x in range(S):
+            px[x, y] = T_TEAL if y in (15, 16) else T_DEEP
+    for x in range(5, 28, 7):                   # feed pips
+        px[x, 15] = T_PLASMA
+    rivets(img, ((6, 11), (25, 11), (6, 20), (25, 20)))
+    save(img, "block", "gas_turbine")
+
+    # front: the rotor — swept blades around a bright hub (PULSE target)
+    img = machine_base("gas_turbine_front")
+    px = img.load()
+    recess(px, 4, 4, 27, 27, (10, 13, 16, 255))
+    for y in range(S):
+        for x in range(S):
+            dx = x - 15.5
+            dy = y - 15.5
+            d = math.hypot(dx, dy)
+            if d > 11.5 or d < 1.5:
+                continue
+            ang = math.atan2(dy, dx) + d * 0.35   # sweep the blades with radius
+            blade = int((ang / (2 * math.pi) * 6) % 2) == 0
+            px[x, y] = T_TEAL if blade else T_DEEP
+    for y in range(14, 18):                     # the hub
+        for x in range(14, 18):
+            px[x, y] = T_CYAN
+    px[15, 15] = T_GLOW
+    px[16, 16] = T_GLOW
+    save(img, "block", "gas_turbine_front")
+
+    # top: exhaust stack ring + intake grille
+    img = machine_base("gas_turbine_top")
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if 6.0 <= d <= 9.5:
+                px[x, y] = ALLOY[3] if (x + y) % 2 == 0 else A_DARK
+            elif d < 5.0:
+                px[x, y] = T_DEEP if d > 3.0 else T_TEAL
+    px[15, 15] = T_CYAN
+    px[16, 16] = T_CYAN
+    for (gx, gy) in ((5, 5), (24, 5), (5, 24), (24, 24)):
+        led(px, gx, gy, T_TEAL)
+    save(img, "block", "gas_turbine_top")
+
+
+def gen_chemical_processor():
+    # side: reagent pipework running down into a wash vessel
+    img = machine_base("chemical_processor")
+    px = img.load()
+    for cx in (8, 22):                          # standpipes
+        for y in range(4, 20):
+            px[cx, y] = ALLOY[3]
+            px[cx + 1, y] = A_DARK
+    for x in range(6, 26):                      # vessel shoulder + belly
+        px[x, 20] = A_LIGHT
+        px[x, 21] = ALLOY[3]
+    for y in range(22, 28):
+        for x in range(6, 26):
+            px[x, y] = ALLOY[2] if (x // 2) % 2 == 0 else ALLOY[0]
+    for y in range(10, 19, 4):                  # reagent flow pips down the pipes
+        px[8, y] = T_CYAN
+        px[22, y] = T_CYAN
+    save(img, "block", "chemical_processor")
+
+    # front: the wash drum window — swirling oxygen wash over a dark charge (PULSE target)
+    img = machine_base("chemical_processor_front")
+    px = img.load()
+    recess(px, 5, 5, 26, 26, (10, 14, 18, 255))
+    for y in range(6, 26):
+        for x in range(6, 26):
+            dx = x - 15.5
+            dy = y - 15.5
+            d = math.hypot(dx, dy)
+            if d > 9.6:
+                continue
+            swirl = math.atan2(dy, dx) * 2.0 + d * 0.9
+            band = int(swirl / 1.2) % 2 == 0
+            if d < 3.4:
+                px[x, y] = T_GLOW if band else T_PLASMA
+            else:
+                px[x, y] = T_CYAN if band else T_TEAL
+    for k in range(4):                          # spray heads around the drum
+        ang = math.pi / 4 + k * math.pi / 2
+        sx = int(round(15.5 + 11.0 * math.cos(ang)))
+        sy = int(round(15.5 + 11.0 * math.sin(ang)))
+        px[sx, sy] = A_LIGHT
+    save(img, "block", "chemical_processor_front")
+
+    # top: reagent inlet cluster over quadrant plates
+    img = machine_base("chemical_processor_top")
+    px = img.load()
+    for (qx, qy) in ((4, 4), (18, 4), (4, 18), (18, 18)):
+        for y in range(qy, qy + 10):
+            for x in range(qx, qx + 10):
+                px[x, y] = ALLOY[2] if (x + y) % 3 else ALLOY[0]
+    recess(px, 13, 13, 18, 18, (10, 14, 18, 255))
+    for y in range(14, 18):
+        for x in range(14, 18):
+            px[x, y] = T_TEAL
+    px[15, 15] = T_PLASMA
+    for (ix, iy) in ((9, 15), (22, 15), (15, 9), (15, 22)):
+        led(px, ix, iy, T_CYAN)
+    save(img, "block", "chemical_processor_top")
+
+
+def gen_coolant_pump():
+    # side: pump volute with the coolant return line running low
+    img = machine_base("coolant_pump")
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 13.5)
+            if d <= 8.5:
+                px[x, y] = ALLOY[3] if d > 6.5 else ALLOY[1]
+    for y in range(24, 28):                     # the return line (PULSE target — T_* only)
+        for x in range(2, 30):
+            px[x, y] = T_TEAL if y in (25, 26) else T_DEEP
+    for x in range(4, 29, 6):
+        px[x, 25] = T_CYAN
+    for k in range(6):                          # volute bolts
+        ang = k * math.pi / 3
+        bx = int(round(15.5 + 7.4 * math.cos(ang)))
+        by = int(round(13.5 + 7.4 * math.sin(ang)))
+        px[bx, by] = A_LIGHT
+    save(img, "block", "coolant_pump")
+
+    # front: the impeller eye (PULSE target)
+    img = machine_base("coolant_pump_front")
+    px = img.load()
+    recess(px, 5, 5, 26, 26, (10, 14, 18, 255))
+    for y in range(S):
+        for x in range(S):
+            dx = x - 15.5
+            dy = y - 15.5
+            d = math.hypot(dx, dy)
+            if d > 10.2:
+                continue
+            vane = int(((math.atan2(dy, dx) + d * 0.28) / (2 * math.pi) * 8) % 2) == 0
+            if d < 2.6:
+                px[x, y] = T_GLOW
+            else:
+                px[x, y] = T_CYAN if vane else T_DEEP
+    save(img, "block", "coolant_pump_front")
+
+    # top: inlet/outlet manifold with flow arrows in teal
+    img = machine_base("coolant_pump_top")
+    px = img.load()
+    for y in range(6, 26):                      # the two manifold runs
+        px[9, y] = T_DEEP
+        px[10, y] = T_TEAL
+        px[21, y] = T_TEAL
+        px[22, y] = T_DEEP
+    for y in range(7, 25, 5):                   # flow pips, opposite directions
+        px[10, y] = T_CYAN
+        px[21, 31 - y] = T_CYAN
+    for x in range(12, 20):                     # cross-over plate
+        for y in range(13, 19):
+            px[x, y] = ALLOY[2] if (x + y) % 2 else ALLOY[0]
+    led(px, 15, 15, T_PLASMA)
+    save(img, "block", "coolant_pump_top")
+
+
+def gen_radiator():
+    # A stack of cooling fins between two header rails — the same face on all six sides, so a
+    # radiator run reads as one continuous block. Cold end of the ramp only (never H_*).
+    img = machine_base("radiator")
+    px = img.load()
+    for y in range(4, 28):
+        fin = (y // 2) % 2 == 0
+        for x in range(3, 29):
+            px[x, y] = A_LIGHT if fin else ALLOY[2]
+    for x in range(2, 30):                      # header rails top and bottom
+        px[x, 3] = A_DARK
+        px[x, 28] = A_DARK
+    for cy in (7, 15, 23):                      # coolant channels showing between the fins
+        for x in range(3, 29):
+            px[x, cy] = T_TEAL if (x // 3) % 2 == 0 else T_DEEP
+    for x in range(5, 29, 8):
+        px[x, 15] = T_CYAN
+    rivets(img, ((4, 4), (27, 4), (4, 27), (27, 27)))
+    save(img, "block", "radiator")
+
+
 def gen_auto_crafter():
     # side: press housing — hydraulic columns + cross beam
     img = machine_base("auto_crafter")
@@ -856,6 +1189,369 @@ def gen_analytics_terminal():
             if x % 6 == 2:
                 px[x, y - 1] = A_LIGHT
     save(img, "block", "analytics_terminal_top")
+
+
+# ---------------- Stage D: power tech ----------------
+
+def gen_wind_turbine():
+    # side: the tower — a tall alloy mast column with guy-wire ticks either side
+    img = machine_base("wind_turbine")
+    px = img.load()
+    for y in range(3, 29):                      # the mast
+        for x in range(12, 20):
+            px[x, y] = ALLOY[3] if (x + y) % 3 else ALLOY[1]
+        px[12, y] = A_LIGHT
+        px[19, y] = A_DARK
+    for y in range(6, 28, 5):                   # ladder rungs up the mast
+        for x in range(13, 19):
+            px[x, y] = A_DARK
+    for y in range(7, 27, 4):                   # guy-wire anchor ticks
+        px[7, y] = A_LIGHT
+        px[8, y] = A_DARK
+        px[23, y] = A_LIGHT
+        px[24, y] = A_DARK
+    led(px, 15, 25, T_TEAL)
+    save(img, "block", "wind_turbine")
+
+    # front: the three-blade rotor sweeping around a bright hub (PULSE target — T_* only)
+    img = machine_base("wind_turbine_front")
+    px = img.load()
+    recess(px, 4, 4, 27, 27, (10, 13, 16, 255))
+    for y in range(5, 27):
+        for x in range(5, 27):
+            dx = x - 15.5
+            dy = y - 15.5
+            d = math.hypot(dx, dy)
+            if d > 11.0 or d < 2.2:
+                continue
+            a = ((math.atan2(dy, dx) + math.pi) / (2 * math.pi) * 3.0) % 1.0
+            if a < 0.17:                        # three blades, cyan on the leading edge
+                px[x, y] = T_CYAN if a < 0.04 else T_TEAL
+    for y in range(14, 18):                     # the rotor hub
+        for x in range(14, 18):
+            px[x, y] = T_PLASMA
+    px[15, 15] = T_GLOW
+    px[16, 16] = T_GLOW
+    save(img, "block", "wind_turbine_front")
+
+    # top: the nacelle deck — spinner boss up front, airflow chevrons trailing aft
+    img = machine_base("wind_turbine_top")
+    px = img.load()
+    for y in range(11, 21):                     # the nacelle running fore-aft
+        for x in range(3, 29):
+            px[x, y] = ALLOY[1] if (y // 2) % 2 == 0 else ALLOY[2]
+    for x in range(3, 29):
+        px[x, 11] = A_LIGHT
+        px[x, 20] = A_DARK
+    for y in range(10, 22):                     # the spinner boss
+        for x in range(4, 13):
+            d = math.hypot(x - 8.0, y - 15.5)
+            if d <= 2.0:
+                px[x, y] = T_GLOW if d <= 1.0 else T_CYAN
+            elif d <= 3.6:
+                px[x, y] = T_DEEP
+    for cx in (16, 20, 24):                     # airflow chevrons in the wake
+        for i in range(4):
+            px[cx + i, 13 + i] = T_TEAL
+            px[cx + i, 18 - i] = T_TEAL
+    save(img, "block", "wind_turbine_top")
+
+
+def gen_geothermal_generator():
+    # side: a recessed bore-pipe of stacked heat bands rising from the bedrock below
+    img = machine_base("geothermal_generator")
+    px = img.load()
+    recess(px, 12, 6, 19, 28, (10, 14, 18, 255))
+    for y in range(7, 29):                      # the bore column (PULSE target — T_* only)
+        band = ((28 - y) // 3) % 2 == 0
+        for x in range(13, 19):
+            px[x, y] = T_TEAL if band else T_DEEP
+    for y in range(10, 28, 5):                  # heat pulses climbing the bore
+        px[15, y] = T_CYAN
+        px[16, y - 1] = T_PLASMA
+    for cy in (8, 15, 22):                      # pipe clamps
+        px[11, cy] = A_LIGHT
+        px[20, cy] = A_DARK
+    for x in range(4, 12):                      # wellhead plate beside the bore
+        px[x, 12] = A_DARK
+        px[x, 13] = ALLOY[2]
+    save(img, "block", "geothermal_generator")
+
+    # front: a grate over rising heat plumes — teal at the floor, plasma at the crown
+    img = machine_base("geothermal_generator_front")
+    px = img.load()
+    recess(px, 5, 9, 26, 27, (10, 13, 16, 255))
+    for y in range(10, 27):
+        t = (26 - y) / 16.0
+        col = T_TEAL if t < 0.34 else (T_CYAN if t < 0.7 else T_PLASMA)
+        for x in range(7, 25):
+            px[x, y] = col if (x + y) % 3 == 0 else T_DEEP
+    for y in (12, 16, 20, 24):                  # grate bars across the plumes
+        for x in range(7, 25):
+            px[x, y] = A_DARK if x % 2 == 0 else ALLOY[2]
+    led(px, 8, 5)
+    led(px, 22, 5, T_CYAN, T_PLASMA)
+    save(img, "block", "geothermal_generator_front")
+
+    # top: the capped wellhead ring with pipe runs radiating to the block edges
+    img = machine_base("geothermal_generator_top")
+    px = img.load()
+    for i in range(6, 13):                      # radiating pipe runs, N/S/E/W
+        px[15 + i, 15] = ALLOY[3]
+        px[15 + i, 16] = A_DARK
+        px[15 - i, 15] = ALLOY[3]
+        px[15 - i, 16] = A_DARK
+        px[15, 15 + i] = ALLOY[3]
+        px[16, 15 + i] = A_DARK
+        px[15, 15 - i] = ALLOY[3]
+        px[16, 15 - i] = A_DARK
+    for y in range(9, 23):
+        for x in range(9, 23):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 3.0:
+                px[x, y] = ALLOY[2] if (x + y) % 2 == 0 else ALLOY[0]   # the cap
+            elif d <= 4.6:
+                px[x, y] = T_DEEP if (x + y) % 3 else T_TEAL            # wellhead ring
+            elif d <= 6.0:
+                px[x, y] = A_DARK
+    for k in range(4):                          # wellhead bolts on the cap
+        ang = k * math.pi / 2 + math.pi / 4
+        px[int(round(15.5 + 5.4 * math.cos(ang))),
+           int(round(15.5 + 5.4 * math.sin(ang)))] = A_LIGHT
+    px[15, 15] = T_PLASMA
+    save(img, "block", "geothermal_generator_top")
+
+
+def gen_bio_generator():
+    # side: a hopper wedge funnelling feedstock down into the combustion slot
+    img = machine_base("bio_generator")
+    px = img.load()
+    for i in range(9):                          # the wedge narrows as it descends
+        y = 6 + i
+        x0 = 5 + i
+        x1 = 26 - i
+        for x in range(x0, x1 + 1):
+            px[x, y] = ALLOY[2] if (x + y) % 3 else ALLOY[0]
+        px[x0, y] = A_LIGHT
+        px[x1, y] = A_DARK
+    for y in range(15, 22):                     # the throat down to the burner
+        for x in range(13, 19):
+            px[x, y] = A_DARK if (x + y) % 2 else (12, 16, 20, 255)
+    recess(px, 11, 22, 20, 26, (10, 14, 18, 255))
+    for y in range(23, 26):                     # the combustion slot (PULSE target — T_* only)
+        for x in range(12, 20):
+            px[x, y] = T_TEAL if y == 24 else T_DEEP
+    px[15, 24] = T_PLASMA
+    px[17, 24] = T_CYAN
+    save(img, "block", "bio_generator")
+
+    # front: hopper mouth over the firebox window — banded burn bed with drifting embers
+    img = machine_base("bio_generator_front")
+    px = img.load()
+    for i in range(6):                          # the hopper mouth
+        y = 4 + i
+        for x in range(5 + i, 27 - i):
+            px[x, y] = A_DARK if (x + y) % 3 else (14, 18, 22, 255)
+    recess(px, 5, 12, 26, 27, (10, 13, 16, 255))
+    for y in range(13, 27):                     # the burn bed, banded
+        for x in range(7, 25):
+            px[x, y] = T_TEAL if ((y - 13) // 2) % 2 == 0 else T_DEEP
+    rng = rng_for("bio_generator_embers")
+    for k in range(7):                          # embers in the burn
+        ex = rng.randrange(8, 24)
+        ey = rng.randrange(14, 26)
+        px[ex, ey] = T_PLASMA
+        px[ex + 1, ey] = T_CYAN
+    for x in range(6, 26):                      # firebox lip
+        px[x, 12] = A_LIGHT
+    save(img, "block", "bio_generator_front")
+
+    # top: the open intake throat with the feed auger spiralling in it
+    img = machine_base("bio_generator_top")
+    px = img.load()
+    recess(px, 6, 6, 25, 25, (10, 13, 16, 255))
+    for y in range(7, 25):
+        for x in range(7, 25):
+            dx = x - 15.5
+            dy = y - 15.5
+            d = math.hypot(dx, dy)
+            if d > 8.8 or d < 1.2:
+                continue
+            spiral = (math.atan2(dy, dx) / (2 * math.pi) + d * 0.16) % 1.0
+            if spiral < 0.34:                   # the auger flight
+                px[x, y] = A_LIGHT if spiral < 0.06 else ALLOY[3]
+            elif d > 7.4:
+                px[x, y] = A_DARK
+    for y in range(14, 18):                     # the shaft glowing down the throat
+        for x in range(14, 18):
+            px[x, y] = T_TEAL
+    px[15, 15] = T_CYAN
+    px[16, 16] = T_CYAN
+    save(img, "block", "bio_generator_top")
+
+
+def gen_battery_bank():
+    # side: three racked cell rows, each part-charged, capped by a terminal at the right
+    img = machine_base("battery_bank")
+    px = img.load()
+    for i, ry in enumerate((6, 14, 22)):
+        recess(px, 5, ry, 26, ry + 5, (10, 14, 18, 255))
+        fill = (12, 16, 20)[i]                  # the lower rows hold the most charge
+        for y in range(ry + 1, ry + 5):
+            for x in range(6, 25):
+                px[x, y] = T_TEAL if x <= fill else T_DEEP
+            px[25, y] = A_LIGHT                 # the terminal cap
+            px[26, y] = A_DARK
+        px[fill, ry + 2] = T_CYAN
+    save(img, "block", "battery_bank")
+
+    # front: a 2x3 grid of cells, each with its own charge column (PULSE target — T_* only)
+    img = machine_base("battery_bank_front")
+    px = img.load()
+    for row, cy in enumerate((8, 15, 22)):
+        for cx in (5, 17):
+            recess(px, cx, cy, cx + 9, cy + 5, (10, 13, 16, 255))
+            lit = 2 + row * 2                   # the bottom cells are the fullest
+            for k in range(5):
+                c = (T_CYAN if k == lit - 1 else T_TEAL) if k < lit else T_DEEP
+                for x in range(cx + 1, cx + 9):
+                    px[x, cy + 5 - k] = c
+    led(px, 15, 4, T_PLASMA, T_GLOW)            # the master charge LED
+    save(img, "block", "battery_bank_front")
+
+    # top: busbar runs strung between the two terminal posts
+    img = machine_base("battery_bank_top")
+    px = img.load()
+    for tx in (7, 24):                          # the terminal posts
+        for y in range(11, 20):
+            for x in range(tx - 3, tx + 4):
+                px[x, y] = ALLOY[2] if (x + y) % 2 else ALLOY[0]
+        for x in range(tx - 3, tx + 4):
+            px[x, 11] = A_LIGHT
+            px[x, 19] = A_DARK
+        px[tx, 15] = A_LIGHT
+    for by in (11, 15, 19):                     # the busbars
+        for x in range(11, 21):
+            px[x, by] = T_DEEP if (x // 2) % 2 == 0 else T_TEAL
+            px[x, by + 1] = A_DARK
+    for x in (12, 16, 20):
+        px[x, 15] = T_CYAN
+    save(img, "block", "battery_bank_top")
+
+
+def gen_grid_controller():
+    # side: a thin conduit run across the housing with a pair of link LEDs
+    img = machine_base("grid_controller")
+    px = img.load()
+    for x in range(3, 29):                      # the conduit run
+        px[x, 14] = A_DARK
+        px[x, 15] = T_DEEP if x % 4 < 2 else _mix(T_DEEP, T_TEAL, 0.6)
+        px[x, 16] = A_DARK
+    for x in (8, 16, 24):                       # conduit junction pips
+        px[x, 15] = T_TEAL
+    for x in (6, 15, 24):                       # conduit clamps
+        px[x, 13] = A_LIGHT
+        px[x, 17] = A_DARK
+    for y in (22, 24, 26):                      # vent slats low on the housing
+        for x in range(8, 24):
+            px[x, y] = A_DARK
+    led(px, 8, 6, T_TEAL)
+    led(px, 22, 6, T_CYAN)
+    save(img, "block", "grid_controller")
+
+    # front: the dispatch screen — a stepped bar-graph under a plasma threshold rule
+    img = machine_base("grid_controller_front")
+    px = img.load()
+    recess(px, 4, 5, 27, 26, (8, 11, 14, 255))
+    for i, h in enumerate((5, 9, 14, 11, 17, 13, 8)):
+        bx = 6 + i * 3
+        for y in range(25 - h, 25):
+            c = T_CYAN if y < 14 else T_TEAL
+            px[bx, y] = c
+            px[bx + 1, y] = c
+    for x in range(5, 27):                      # the threshold rule across the graph
+        px[x, 14] = T_PLASMA if x % 3 else T_DEEP
+    for x in range(6, 27):                      # graph baseline
+        px[x, 25] = A_DARK
+    save(img, "block", "grid_controller_front")
+
+    # top: dispatch lines fanning out from the hub LED
+    img = machine_base("grid_controller_top")
+    px = img.load()
+    for k in range(8):
+        ang = k * math.pi / 4
+        for r in range(5, 13):
+            px[int(round(15.5 + r * math.cos(ang))),
+               int(round(15.5 + r * math.sin(ang)))] = T_TEAL if r % 3 else T_DEEP
+        px[int(round(15.5 + 12.0 * math.cos(ang))),
+           int(round(15.5 + 12.0 * math.sin(ang)))] = T_CYAN
+    for y in range(11, 21):                     # the hub plate
+        for x in range(11, 21):
+            if math.hypot(x - 15.5, y - 15.5) <= 4.0:
+                px[x, y] = A_DARK if (x + y) % 2 else ALLOY[2]
+    led(px, 15, 15, T_PLASMA, T_GLOW)
+    save(img, "block", "grid_controller_top")
+
+
+def gen_wireless_node():
+    # side: a slim pylon carrying two stacked emitter rings
+    img = machine_base("wireless_node")
+    px = img.load()
+    for y in range(4, 28):                      # the pylon
+        for x in range(13, 19):
+            px[x, y] = ALLOY[3] if (x + y) % 3 else ALLOY[1]
+        px[13, y] = A_LIGHT
+        px[18, y] = A_DARK
+    for ry in (10, 20):                         # emitter rings (PULSE target — T_* only)
+        for x in range(6, 26):
+            px[x, ry] = T_DEEP
+            px[x, ry + 1] = T_TEAL if (x // 2) % 2 == 0 else T_DEEP
+            px[x, ry + 2] = T_DEEP
+        px[6, ry + 1] = A_LIGHT
+        px[25, ry + 1] = A_DARK
+        px[15, ry + 1] = T_CYAN
+        px[16, ry + 1] = T_CYAN
+    px[15, 5] = T_PLASMA                        # mast tip pip
+    save(img, "block", "wireless_node")
+
+    # front: concentric transmission rings around the beacon core (PULSE target)
+    img = machine_base("wireless_node_front")
+    px = img.load()
+    recess(px, 4, 4, 27, 27, (10, 13, 16, 255))
+    for y in range(5, 27):
+        for x in range(5, 27):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d > 10.8:
+                continue
+            if d <= 1.6:
+                px[x, y] = T_GLOW
+            else:
+                px[x, y] = (T_CYAN, T_TEAL, T_DEEP)[int(d) % 3]
+    for k in range(4):                          # antenna spurs breaking the rings
+        ang = k * math.pi / 2 + math.pi / 4
+        for r in (8, 9, 10):
+            px[int(round(15.5 + r * math.cos(ang))),
+               int(round(15.5 + r * math.sin(ang)))] = A_DARK
+    save(img, "block", "wireless_node_front")
+
+    # top: the emitter dish aperture with four alignment ticks
+    img = machine_base("wireless_node_top")
+    px = img.load()
+    for y in range(6, 26):
+        for x in range(6, 26):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 2.2:
+                px[x, y] = T_GLOW if d <= 1.0 else T_PLASMA   # the aperture
+            elif d <= 5.0:
+                px[x, y] = T_TEAL if (x + y) % 3 else T_DEEP
+            elif d <= 7.0:
+                px[x, y] = A_DARK
+            elif d <= 9.4:
+                px[x, y] = ALLOY[3] if (x + y) % 2 == 0 else ALLOY[1]
+    for (tx, ty) in ((15, 4), (15, 27), (4, 15), (27, 15)):   # alignment ticks
+        px[tx, ty] = A_LIGHT
+        px[tx + 1, ty] = T_CYAN
+    save(img, "block", "wireless_node_top")
 
 
 # ---------------- BER sprites (dynamic geometry textures) ----------------
@@ -1643,6 +2339,220 @@ def gen_gui_tech_guide():
     save(img, "gui", "tech_guide")
 
 
+# ---------------- Stage E automation / Stage F exotic endgame ----------------
+
+def gen_conveyor_belt():
+    """Belt frame + running surface. The top face carries the direction chevrons; the blockstate
+    rotates the whole model, so the art only ever points NORTH (v=0 is north on a top face)."""
+    # side: low chassis, belt edge running through it, roller pips
+    img = machine_base("conveyor_belt")
+    px = img.load()
+    recess(px, 3, 12, 28, 21, (10, 13, 16, 255))
+    for x in range(4, 28):                      # the belt edge seen side-on
+        px[x, 15] = GRAY_D
+        px[x, 16] = GRAY
+        px[x, 17] = GRAY_D
+    for x in range(5, 28, 6):                   # roller pips (teal = the driven rollers)
+        px[x, 16] = T_DEEP
+        px[x, 15] = T_TEAL
+    for ry in (12, 21):                         # frame rails
+        for x in range(3, 29):
+            px[x, ry] = A_LIGHT if x % 2 == 0 else ALLOY[3]
+    save(img, "block", "conveyor_belt")
+
+    # top: woven belt surface + three cyan chevrons pointing north
+    img = machine_base("conveyor_belt_top")
+    px = img.load()
+    for y in range(3, 29):
+        for x in range(3, 29):
+            px[x, y] = GRAY_D if (x + y) % 4 == 0 else A_DARK
+    for y in range(3, 29):                      # belt edges
+        px[3, y] = GRAY
+        px[28, y] = GRAY_D
+    for cy in (6, 14, 22):                      # chevrons: apex north, legs trailing south
+        for k in range(7):
+            yy = cy + k
+            if yy > 28:
+                break
+            for cx in (15 - k, 16 + k):
+                if 4 <= cx <= 27:
+                    px[cx, yy] = T_CYAN
+                    if yy + 1 <= 28:
+                        px[cx, yy + 1] = T_DEEP
+    save(img, "block", "conveyor_belt_top")
+
+
+def gen_robotic_arm():
+    # side: servo pedestal with a rotation collar and a cable run
+    img = machine_base("robotic_arm")
+    px = img.load()
+    recess(px, 4, 18, 27, 27, (10, 14, 18, 255))
+    for x in range(5, 27):                      # cable run into the base
+        px[x, 22] = T_DEEP if (x // 2) % 2 == 0 else A_DARK
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 11.5)
+            if d <= 3.0:
+                px[x, y] = (10, 13, 16, 255)
+            elif d <= 5.0:
+                px[x, y] = GRAY
+            elif d <= 6.0:
+                px[x, y] = GRAY_D
+    led(px, 15, 10, T_CYAN, T_GLOW)             # the servo indicator
+    save(img, "block", "robotic_arm")
+
+    # front: the gripper claw over a two-lamp status strip (PULSE target — T_* only)
+    img = machine_base("robotic_arm_front")
+    px = img.load()
+    recess(px, 6, 5, 25, 20, (10, 13, 16, 255))
+    for k in range(7):                          # the two claw fingers, closing inward
+        for x in (9 + k, 22 - k):
+            px[x, 7 + k] = A_LIGHT if k % 2 == 0 else ALLOY[3]
+            px[x, 8 + k] = A_DARK
+    for y in range(9, 18):                      # the grip gap glow between them
+        px[15, y] = T_TEAL
+        px[16, y] = T_TEAL
+    px[15, 13] = T_PLASMA
+    px[16, 13] = T_PLASMA
+    led(px, 9, 24, T_CYAN, None)
+    led(px, 21, 24, T_TEAL, None)
+    save(img, "block", "robotic_arm_front")
+
+    # top: the shoulder turntable with its index marks
+    img = machine_base("robotic_arm_top")
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 3.5:
+                px[x, y] = (10, 13, 16, 255)
+            elif d <= 9.0:
+                px[x, y] = GRAY if (x + y) % 2 == 0 else GRAY_D
+            elif d <= 10.5:
+                px[x, y] = A_DARK
+    for k in range(8):                          # turntable index marks
+        ang = k * math.pi / 4
+        px[int(round(15.5 + 9.5 * math.cos(ang))),
+           int(round(15.5 + 9.5 * math.sin(ang)))] = T_DEEP
+    for y in range(12, 20):                     # the arm's parked reach, pointing north
+        px[15, y - 8] = T_TEAL
+        px[16, y - 8] = T_TEAL
+    px[15, 15] = T_CYAN
+    px[16, 16] = T_CYAN
+    save(img, "block", "robotic_arm_top")
+
+
+def gen_singularity_vault():
+    # side: heavy containment ribs bracketing a dark inspection window
+    img = machine_base("singularity_vault")
+    px = img.load()
+    for rx in (5, 14, 23):                      # vertical containment ribs
+        for y in range(3, 29):
+            px[rx, y] = A_LIGHT
+            px[rx + 1, y] = ALLOY[3]
+            px[rx + 2, y] = A_DARK
+    recess(px, 8, 11, 12, 20, (8, 10, 13, 255))
+    recess(px, 17, 11, 21, 20, (8, 10, 13, 255))
+    for y in range(12, 20):                     # the stored-mass sliver behind each window
+        px[10, y] = T_DEEP if y % 2 else T_TEAL
+        px[19, y] = T_DEEP if y % 2 else T_TEAL
+    save(img, "block", "singularity_vault")
+
+    # front: the access port — an event-horizon disc ringed by a fill scale
+    img = machine_base("singularity_vault_front")
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 4.0:
+                px[x, y] = (4, 6, 9, 255)       # the singularity: darker than any alloy
+            elif d <= 5.5:
+                px[x, y] = T_DEEP
+            elif d <= 6.5:
+                px[x, y] = T_TEAL if (x + y) % 2 == 0 else T_DEEP
+            elif d <= 7.5:
+                px[x, y] = T_CYAN if (x + y) % 3 == 0 else T_TEAL
+            elif d <= 9.0:
+                px[x, y] = A_DARK
+    for k in range(12):                         # the fill scale around the port
+        ang = -math.pi / 2 + k * math.pi / 6
+        sx = int(round(15.5 + 10.5 * math.cos(ang)))
+        sy = int(round(15.5 + 10.5 * math.sin(ang)))
+        px[sx, sy] = T_CYAN if k < 8 else T_DEEP
+    led(px, 15, 27, T_PLASMA, T_GLOW)           # the "holding something" lamp
+    save(img, "block", "singularity_vault_front")
+
+    # top: the compression lattice folding inward
+    img = machine_base("singularity_vault_top")
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = max(abs(x - 15.5), abs(y - 15.5))
+            if d <= 2.5:
+                px[x, y] = (4, 6, 9, 255)
+            elif d <= 4.5:
+                px[x, y] = T_DEEP
+            elif d <= 10.5 and (int(d) % 2 == 0):
+                px[x, y] = ALLOY[2]
+            elif d <= 10.5:
+                px[x, y] = ALLOY[0]
+    for k in range(4):                          # lattice spokes into the centre
+        ang = k * math.pi / 2 + math.pi / 4
+        for r in range(4, 11):
+            px[int(round(15.5 + r * math.cos(ang))),
+               int(round(15.5 + r * math.sin(ang)))] = T_DEEP if r % 2 else T_TEAL
+    save(img, "block", "singularity_vault_top")
+
+
+def gen_antimatter_cell():
+    """Tier-4 fuel: the cell canister with an INVERTED core — a void darker than the alloy,
+    ringed by plasma — under TRIPLE containment rings, plus a hazard tick on BOTH caps (the
+    fourth and last place hazard striping is allowed: reactor shell, configurator, stellar
+    cell tick, and this)."""
+    rng = rng_for("antimatter_cell")
+    img = new_img()
+    px = img.load()
+    for y in range(5, 27):                      # canister shell
+        for x in range(11, 21):
+            px[x, y] = rng.choice(ALLOY)
+    for (cy0, cy1) in ((5, 7), (24, 26)):       # alloy end caps
+        for y in range(cy0, cy1 + 1):
+            for x in range(11, 21):
+                px[x, y] = ALLOY[2]
+        for x in range(11, 21):
+            px[x, cy0] = A_LIGHT if cy0 == 5 else ALLOY[3]
+            px[x, cy1] = A_DARK
+    for y in range(5, 27):                      # shell shading
+        px[11, y] = _mix(ALLOY[3], A_LIGHT, 0.4)
+        px[20, y] = A_DARK
+    for y in range(9, 23):                      # window — void core inside a plasma halo
+        for x in range(13, 19):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 2.5:
+                px[x, y] = (4, 6, 9, 255)
+            elif d <= 3.5:
+                px[x, y] = T_GLOW if (x + y) % 2 == 0 else T_PLASMA
+            elif d <= 5.0:
+                px[x, y] = T_PLASMA
+            elif d <= 6.5:
+                px[x, y] = T_CYAN
+            else:
+                px[x, y] = T_TEAL
+    for y in range(9, 23):                      # window frame
+        px[12, y] = A_DARK
+        px[19, y] = A_DARK
+    for x in range(12, 20):
+        px[x, 8] = A_DARK
+        px[x, 23] = A_DARK
+    for ry in (11, 15, 20):                     # TRIPLE containment rings
+        for x in range(12, 20):
+            px[x, ry] = A_LIGHT if x % 2 == 0 else ALLOY[3]
+    for cap_y in (6, 25):                       # hazard tick on both caps
+        for i, tx in enumerate(range(13, 19)):
+            px[tx, cap_y] = HAZ_Y if i % 2 == 0 else HAZ_K
+    save(img, "item", "antimatter_cell")
+
+
 # ---------------- main ----------------
 
 def check_coverage():
@@ -1671,12 +2581,30 @@ def main():
     gen_fusion_reactor()
     gen_fusion_casing()
     gen_fusion_containment_glass()
+    gen_accelerator_coil()
+    gen_collider_core()
+    gen_electrolyzer()
+    gen_gas_turbine()
+    gen_chemical_processor()
+    gen_coolant_pump()
+    gen_radiator()
     gen_auto_crafter()
     gen_item_sorter()
     gen_scrubber()
     gen_remediator()
     gen_analytics_terminal()
     gen_tech_guide()
+    # Stage D: power tech
+    gen_battery_bank()
+    gen_bio_generator()
+    gen_geothermal_generator()
+    gen_grid_controller()
+    gen_wind_turbine()
+    gen_wireless_node()
+    # Stage E automation + Stage F exotic endgame
+    gen_conveyor_belt()
+    gen_robotic_arm()
+    gen_singularity_vault()
     # BER sprites
     gen_ber_sprites()
     # items
@@ -1689,6 +2617,7 @@ def main():
     gen_fusion_cell()
     gen_plasma_cell()
     gen_stellar_cell()
+    gen_antimatter_cell()
     gen_filter_cartridge()
     gen_dirty_filter()
     gen_module("speed_module", _glyph_speed)

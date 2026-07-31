@@ -50,6 +50,10 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
     private static final int RECHECK_FORMED = 100;
     /** Containment breach: pollution burst = this many normal per-operation contributions at once. */
     private static final int BREACH_POLLUTION_OPS = 25;
+    /** Extra multiples of the base heat rate while a tier-4 (antimatter) charge burns. */
+    private static final int ANTIMATTER_HEAT_SURCHARGE = 2;
+    /** Shell edge size that alone can contain a fuel one tier above its own shell tier. */
+    private static final int MAX_SHELL_SIZE = 7;
 
     /** Formed state (synced to the BER via the update tag; persisted to avoid flicker on load). */
     private boolean formed;
@@ -111,13 +115,16 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                     * mods.speedMultiplier() * presetSpeedFactor()
                     * FusionStructure.outputPermille(this.shellSize) / 1000.0D);
             energyBuffer().generate((int) Math.min(Integer.MAX_VALUE, output));
-            // Bigger shells run hotter: ×4 (3³) / ×5 (5³) / ×6 (7³) the base heat rate.
-            addHeat(NeroTechConfig.heatPerOperation() * (3 + shellTier()));
+            // Bigger shells run hotter: ×4 (3³) / ×5 (5³) / ×6 (7³) the base heat rate — and burning
+            // ANTIMATTER (tier 4) adds a flat +2 on top. That is the whole trade: the longest burn in
+            // the mod, bought by running the reactor close enough to the meltdown line to feel it.
+            addHeat(NeroTechConfig.heatPerOperation()
+                    * (3 + shellTier() + (this.burningTier >= 4 ? ANTIMATTER_HEAT_SURCHARGE : 0)));
             emitPollution(level, pos);
         } else {
             ItemStack fuel = this.items.get(FUEL_SLOT);
             int tier = fuelTier(fuel);
-            if (tier > 0 && tier <= shellTier() && roomToStore && !overheated()) {
+            if (canContain(tier) && roomToStore && !overheated()) {
                 int burn = NeroTechConfig.fusionFuelBurnTicks(tier);
                 this.progress = burn;
                 this.maxProgress = burn;
@@ -129,7 +136,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 // contain, STARVED; a full buffer just idles (the default covers it).
                 if (overheated()) {
                     reportStatus(MachineStatus.THROTTLED);
-                } else if (tier <= 0 || tier > shellTier()) {
+                } else if (!canContain(tier)) {
                     reportStatus(MachineStatus.STARVED);
                 }
                 if (this.maxProgress != 0) {
@@ -182,10 +189,26 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
         return this.formed ? (this.shellSize - 1) / 2 : 0;
     }
 
+    /**
+     * Whether this shell can contain a charge of {@code tier}. Normally a tier-N fuel needs a
+     * shell of tier ≥ N — but the <b>maximal</b> 7³ shell reaches one tier further, which is what
+     * makes tier-4 antimatter burnable at all (and only there).
+     */
+    private boolean canContain(int tier) {
+        if (tier <= 0) {
+            return false;
+        }
+        return tier <= shellTier()
+                || (tier <= shellTier() + 1 && this.shellSize == MAX_SHELL_SIZE);
+    }
+
     /** Highest fuel tier a stack provides (datapack tags), or 0 for non-fuel. */
     private static int fuelTier(ItemStack stack) {
         if (stack.isEmpty()) {
             return 0;
+        }
+        if (stack.is(NeroTechTags.FUSION_FUEL_TIER4)) {
+            return 4;
         }
         if (stack.is(NeroTechTags.FUSION_FUEL_TIER3)) {
             return 3;
@@ -246,6 +269,12 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
     @Override
     public boolean canPlaceMachineItem(int slot, ItemStack stack) {
         return slot == FUEL_SLOT && fuelTier(stack) > 0;
+    }
+
+    /** A generator is never load-shed by a Grid Controller (Stage D). */
+    @Override
+    public boolean shedable() {
+        return false;
     }
 
     @Override

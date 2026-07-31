@@ -47,6 +47,7 @@ PULSE = [
     ("fabricator_front",              8, 3, 0.28, TEAL),
     ("advanced_fabricator_front",     8, 3, 0.30, TEAL),
     ("fusion_reactor_front",          8, 3, 0.32, TEAL),
+    ("collider_core_front",           8, 3, 0.32, TEAL),
     ("auto_crafter_front",            8, 3, 0.28, TEAL),
     ("item_sorter_front",             8, 3, 0.26, TEAL),
     ("scrubber_front",                8, 3, 0.26, TEAL),

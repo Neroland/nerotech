@@ -46,12 +46,20 @@ import za.co.neroland.nerotech.pollution.PollutionManager;
  * @param hottestPos         absolute position of the hottest machine, or {@code null} when none
  * @param hottestPermille    that machine's heat, permille of capacity
  * @param rows               up to {@value #MAX_ROWS} nearest machines, nearest first
+ * <p><b>Wire format delta (power history, Stage D):</b> the terminal's rolling net-stored-NE window
+ * is appended last — a varint {@code powerPeak} (the largest absolute sample in the window, NE) then
+ * a length byte and that many <b>signed bytes</b>, each the sample as a percentage of the peak.
+ * Normalising server-side keeps the strip to ~60 bytes and hands the screen a directly renderable
+ * scale; the peak travels alongside so the panel can still label the magnitude.
+ *
  * @param regionPollution    total pollution across the roster's distinct regions (deduped)
  * @param pollutionThreshold {@code pollutionEventThreshold} (0 = threshold off)
+ * @param powerPeak          largest absolute net stored-NE change in the window (0 = flat/empty)
+ * @param powerSamples       the window, oldest first, each -100..100 as a percentage of the peak
  */
 public record AnalyticsTerminalPayload(int containerId, int machineCount, int activeCount,
         int[] statusCounts, @Nullable BlockPos hottestPos, int hottestPermille, List<Row> rows,
-        int regionPollution, int pollutionThreshold)
+        int regionPollution, int pollutionThreshold, int powerPeak, int[] powerSamples)
         implements CustomPacketPayload {
 
     /** One dashboard row: a machine's offset from the terminal, its status ordinal and heat. */
@@ -60,6 +68,9 @@ public record AnalyticsTerminalPayload(int containerId, int machineCount, int ac
 
     /** Dashboard row cap — the nearest machines only; the header still counts the whole roster. */
     public static final int MAX_ROWS = 12;
+
+    /** Power-history cap — matches the terminal's ring buffer, and keeps the strip inside one byte. */
+    public static final int MAX_POWER_SAMPLES = AnalyticsTerminalBlockEntity.POWER_HISTORY;
 
     public static final Type<AnalyticsTerminalPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "analytics_terminal"));
@@ -82,7 +93,8 @@ public record AnalyticsTerminalPayload(int containerId, int machineCount, int ac
         int threshold = NeroTechConfig.pollutionEventThreshold();
         Level level = terminal.getLevel();
         if (level == null) {
-            return new AnalyticsTerminalPayload(containerId, 0, 0, counts, null, 0, rows, 0, threshold);
+            return new AnalyticsTerminalPayload(containerId, 0, 0, counts, null, 0, rows, 0, threshold,
+                    0, new int[0]);
         }
         ServerLevel serverLevel = level instanceof ServerLevel sl ? sl : null;
         // Aggregate pollution across the DISTINCT regions the roster's machines sit in — deduped
@@ -112,8 +124,18 @@ public record AnalyticsTerminalPayload(int containerId, int machineCount, int ac
                         pos.getZ() - origin.getZ(), machine.stats().status().ordinal(), heat));
             }
         }
+        int[] history = terminal.powerHistory();
+        int peak = 0;
+        for (int sample : history) {
+            peak = Math.max(peak, Math.abs(sample));
+        }
+        int[] scaled = new int[history.length];
+        for (int i = 0; i < history.length; i++) {
+            // Percent of the window peak, so the strip is self-scaling: a quiet grid still reads.
+            scaled[i] = peak == 0 ? 0 : (int) Math.round(history[i] * 100.0D / peak);
+        }
         return new AnalyticsTerminalPayload(containerId, machines, active, counts,
-                hottestPos, Math.max(0, hottestPermille), rows, regionPollution, threshold);
+                hottestPos, Math.max(0, hottestPermille), rows, regionPollution, threshold, peak, scaled);
     }
 
     private static void write(RegistryFriendlyByteBuf buf, AnalyticsTerminalPayload payload) {
@@ -142,6 +164,12 @@ public record AnalyticsTerminalPayload(int containerId, int machineCount, int ac
         }
         buf.writeVarInt(payload.regionPollution);
         buf.writeVarInt(payload.pollutionThreshold);
+        buf.writeVarInt(Math.max(0, payload.powerPeak));
+        int samples = Math.min(MAX_POWER_SAMPLES, payload.powerSamples.length);
+        buf.writeByte(samples);
+        for (int i = 0; i < samples; i++) {
+            buf.writeByte(Math.max(-100, Math.min(100, payload.powerSamples[i])));
+        }
     }
 
     private static AnalyticsTerminalPayload read(RegistryFriendlyByteBuf buf) {
@@ -167,8 +195,15 @@ public record AnalyticsTerminalPayload(int containerId, int machineCount, int ac
         }
         int regionPollution = buf.readVarInt();
         int pollutionThreshold = buf.readVarInt();
+        int powerPeak = buf.readVarInt();
+        int sampleCount = Math.min(MAX_POWER_SAMPLES, buf.readUnsignedByte());
+        int[] powerSamples = new int[sampleCount];
+        for (int i = 0; i < sampleCount; i++) {
+            powerSamples[i] = buf.readByte();
+        }
         return new AnalyticsTerminalPayload(containerId, machineCount, activeCount, counts,
-                hottestPos, hottestPermille, rows, regionPollution, pollutionThreshold);
+                hottestPos, hottestPermille, rows, regionPollution, pollutionThreshold,
+                powerPeak, powerSamples);
     }
 
     @Override

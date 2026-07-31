@@ -38,6 +38,24 @@ public class AnalyticsTerminalBlockEntity extends NeroTechMachineBlockEntity {
      */
     private List<BlockPos> roster = List.of();
 
+    /**
+     * Stage D power history: {@value #POWER_HISTORY} samples of the <b>net change in aggregate
+     * stored NE</b> across the roster, one per rescan — five seconds per sample, so the strip covers
+     * the last five minutes. Positive means the watched machines gained charge over that window
+     * (generation outran demand), negative means they drained it.
+     *
+     * <p>A ring buffer written once per scan, never per tick, and — like the roster — transient:
+     * machine-scoped numbers only, never persisted, no player data (POPIA/GDPR).
+     */
+    public static final int POWER_HISTORY = 60;
+
+    private final int[] powerHistory = new int[POWER_HISTORY];
+    private int historyHead;
+    private int historyFilled;
+
+    /** Aggregate stored NE at the previous scan; {@code -1} until the first scan sets a baseline. */
+    private long previousStored = -1L;
+
     public AnalyticsTerminalBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ANALYTICS_TERMINAL.get(), pos, state, 0);
         // Passive reader: no side config — it moves no items and uses no energy.
@@ -73,6 +91,7 @@ public class AnalyticsTerminalBlockEntity extends NeroTechMachineBlockEntity {
         int maxZ = pos.getZ() + radius;
 
         List<BlockPos> found = new ArrayList<>();
+        long stored = 0L;
         for (int chunkX = minX >> 4; chunkX <= maxX >> 4; chunkX++) {
             for (int chunkZ = minZ >> 4; chunkZ <= maxZ >> 4; chunkZ++) {
                 if (!level.hasChunkAt(chunkX << 4, chunkZ << 4)) {
@@ -86,19 +105,53 @@ public class AnalyticsTerminalBlockEntity extends NeroTechMachineBlockEntity {
                     if (scan.equals(pos)) {
                         continue; // a console needn't monitor itself
                     }
-                    if (level.getBlockEntity(scan) instanceof NeroTechMachineBlockEntity) {
+                    if (level.getBlockEntity(scan) instanceof NeroTechMachineBlockEntity machine) {
                         found.add(scan.immutable());
+                        stored += machine.getEnergy().getAmount();
                     }
                 }
             }
         }
         found.sort(Comparator.comparingDouble(machinePos -> machinePos.distSqr(pos)));
         this.roster = List.copyOf(found);
+        recordPower(stored);
+    }
+
+    /**
+     * Push one power-history sample: the net change in aggregate stored NE since the previous scan.
+     * The very first scan only sets the baseline — a delta against "nothing measured yet" would
+     * read as a huge spike.
+     */
+    private void recordPower(long stored) {
+        if (this.previousStored >= 0L) {
+            long delta = stored - this.previousStored;
+            this.powerHistory[this.historyHead] =
+                    (int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, delta));
+            this.historyHead = (this.historyHead + 1) % POWER_HISTORY;
+            this.historyFilled = Math.min(POWER_HISTORY, this.historyFilled + 1);
+        }
+        this.previousStored = stored;
     }
 
     /** The cached roster (nearest-first) the menu's dashboard payload is built from. */
     public List<BlockPos> roster() {
         return this.roster;
+    }
+
+    /** The power-history window, oldest sample first (empty until the second scan). */
+    public int[] powerHistory() {
+        int[] window = new int[this.historyFilled];
+        int start = (this.historyHead - this.historyFilled + POWER_HISTORY) % POWER_HISTORY;
+        for (int i = 0; i < this.historyFilled; i++) {
+            window[i] = this.powerHistory[(start + i) % POWER_HISTORY];
+        }
+        return window;
+    }
+
+    /** A passive console has no work rate for a Grid Controller to throttle. */
+    @Override
+    public boolean shedable() {
+        return false;
     }
 
     @Override

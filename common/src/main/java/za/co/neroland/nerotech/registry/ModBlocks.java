@@ -15,14 +15,28 @@ import za.co.neroland.nerotech.machine.AdvancedFabricatorBlock;
 import za.co.neroland.nerotech.machine.AnalyticsTerminalBlock;
 import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlock;
 import za.co.neroland.nerotech.machine.AutoCrafterBlock;
+import za.co.neroland.nerotech.machine.BatteryBankBlock;
+import za.co.neroland.nerotech.machine.BioGeneratorBlock;
+import za.co.neroland.nerotech.machine.ChemicalProcessorBlock;
+import za.co.neroland.nerotech.machine.ColliderCoreBlock;
+import za.co.neroland.nerotech.machine.ConveyorBeltBlock;
+import za.co.neroland.nerotech.machine.CoolantPumpBlock;
+import za.co.neroland.nerotech.machine.ElectrolyzerBlock;
 import za.co.neroland.nerotech.machine.FabricatorBlock;
+import za.co.neroland.nerotech.machine.GasTurbineBlock;
+import za.co.neroland.nerotech.machine.GeothermalGeneratorBlock;
+import za.co.neroland.nerotech.machine.GridControllerBlock;
 import za.co.neroland.nerotech.machine.FusionReactorBlock;
 import za.co.neroland.nerotech.machine.ItemSorterBlock;
 import za.co.neroland.nerotech.machine.NeroGeneratorBlock;
 import za.co.neroland.nerotech.machine.OreProcessorBlock;
 import za.co.neroland.nerotech.machine.RemediatorBlock;
+import za.co.neroland.nerotech.machine.RoboticArmBlock;
 import za.co.neroland.nerotech.machine.ScrubberBlock;
+import za.co.neroland.nerotech.machine.SingularityVaultBlock;
 import za.co.neroland.nerotech.machine.SolarArrayBlock;
+import za.co.neroland.nerotech.machine.WindTurbineBlock;
+import za.co.neroland.nerotech.machine.WirelessNodeBlock;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
@@ -82,11 +96,86 @@ public final class ModBlocks {
                             .isSuffocating((state, level, pos) -> false)
                             .isViewBlocking((state, level, pos) -> false)));
 
+    // --- Particle Collider multiblock (Stage B) ------------------------------
+    /**
+     * Accelerator ring segment — a plain full cube like {@link #FUSION_CASING}, so it KEEPS
+     * full-cube occlusion (no {@code noOcclusion}): ring walls cull their neighbours normally.
+     */
+    public static final RegistryEntry<Block> ACCELERATOR_COIL =
+            BLOCKS.register("accelerator_coil", key -> new Block(BlockBehaviour.Properties.of()
+                    .setId(key)
+                    .mapColor(MapColor.METAL)
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)));
+    public static final RegistryEntry<ColliderCoreBlock> COLLIDER_CORE =
+            register("collider_core", ColliderCoreBlock::new);
+
+    // --- Fluid & gas chain (Stage C) -----------------------------------------
+    public static final RegistryEntry<ElectrolyzerBlock> ELECTROLYZER =
+            register("electrolyzer", ElectrolyzerBlock::new);
+    public static final RegistryEntry<GasTurbineBlock> GAS_TURBINE =
+            register("gas_turbine", GasTurbineBlock::new);
+    public static final RegistryEntry<ChemicalProcessorBlock> CHEMICAL_PROCESSOR =
+            register("chemical_processor", ChemicalProcessorBlock::new);
+
+    // --- Coolant loop (Stage C) ----------------------------------------------
+    /**
+     * Enhanced passive coolant: a plain full cube (so it KEEPS full-cube occlusion, like the Fusion
+     * Casing) that the thermal model recognises as coolant worth
+     * {@link za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity#RADIATOR_COOLANT_WEIGHT}
+     * natural coolant blocks, and that the Coolant Pump counts to scale its pull rate.
+     */
+    public static final RegistryEntry<Block> RADIATOR =
+            BLOCKS.register("radiator", key -> new Block(BlockBehaviour.Properties.of()
+                    .setId(key)
+                    .mapColor(MapColor.COLOR_LIGHT_BLUE)
+                    .strength(3.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)));
+    public static final RegistryEntry<CoolantPumpBlock> COOLANT_PUMP =
+            register("coolant_pump", CoolantPumpBlock::new);
+
+    // --- Power tech (Stage D: the absorbed NeroPower feature set) -------------
+    public static final RegistryEntry<WindTurbineBlock> WIND_TURBINE =
+            register("wind_turbine", WindTurbineBlock::new);
+    public static final RegistryEntry<GeothermalGeneratorBlock> GEOTHERMAL_GENERATOR =
+            register("geothermal_generator", GeothermalGeneratorBlock::new);
+    public static final RegistryEntry<BioGeneratorBlock> BIO_GENERATOR =
+            register("bio_generator", BioGeneratorBlock::new);
+    public static final RegistryEntry<BatteryBankBlock> BATTERY_BANK =
+            register("battery_bank", BatteryBankBlock::new);
+    public static final RegistryEntry<GridControllerBlock> GRID_CONTROLLER =
+            register("grid_controller", GridControllerBlock::new);
+    public static final RegistryEntry<WirelessNodeBlock> WIRELESS_NODE =
+            register("wireless_node", WirelessNodeBlock::new);
+
     // --- Automation handoff (Stage 5) ---------------------------------------
     public static final RegistryEntry<AutoCrafterBlock> AUTO_CRAFTER =
             register("auto_crafter", AutoCrafterBlock::new);
     public static final RegistryEntry<ItemSorterBlock> ITEM_SORTER =
             register("item_sorter", ItemSorterBlock::new);
+
+    // --- Automation & QoL (Stage E) ------------------------------------------
+    /**
+     * The Conveyor Belt is the one NeroTech block with no block entity: a flat 4px plate that
+     * nudges item entities along its facing. Its own properties (not {@link #machineProperties()}):
+     * softer than a machine and never a full cube.
+     */
+    public static final RegistryEntry<ConveyorBeltBlock> CONVEYOR_BELT =
+            BLOCKS.register("conveyor_belt", key -> new ConveyorBeltBlock(BlockBehaviour.Properties.of()
+                    .setId(key)
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+    public static final RegistryEntry<RoboticArmBlock> ROBOTIC_ARM =
+            register("robotic_arm", RoboticArmBlock::new);
+
+    // --- Exotic endgame (Stage F) --------------------------------------------
+    public static final RegistryEntry<SingularityVaultBlock> SINGULARITY_VAULT =
+            register("singularity_vault", SingularityVaultBlock::new);
 
     // --- Pollution mitigation (Stage F) --------------------------------------
     public static final RegistryEntry<ScrubberBlock> SCRUBBER =

@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "C": "nerotech:nero_coil", "I": "minecraft:iron_ingot",
+    "B": "minecraft:bucket", "F": "nerotech:machine_frame" },
+  "pattern": [ "ICI", "BFB", "ICI" ],
+  "result": { "id": "nerotech:coolant_pump" } }

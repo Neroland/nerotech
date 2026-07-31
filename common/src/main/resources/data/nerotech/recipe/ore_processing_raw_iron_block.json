@@ -1,0 +1,1 @@
+{ "type": "nerotech:ore_processing", "ingredient": "minecraft:raw_iron_block", "result": { "id": "nerotech:iron_dust", "count": 18 } }

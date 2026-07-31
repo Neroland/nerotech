@@ -16,6 +16,11 @@ import za.co.neroland.nerotech.recipe.MachineRecipe;
  *       tier adds its config-driven yield bonus on top of the same recipes).</li>
  *   <li>{@code nerotech:fabricating} — Fabricator.</li>
  *   <li>{@code nerotech:advanced_fabricating} — Advanced Fabricator (orbit-gated tier).</li>
+ *   <li>{@code nerotech:collider} — Particle Collider (catalyst → space-grade dust).</li>
+ *   <li>{@code nerotech:chemical_processing} — Chemical Processor (Stage C oxygen wash: raw ore →
+ *       3 dust). The oxygen cost is <b>not</b> a recipe field — it is the single config value
+ *       {@code chemicalProcessorGasPerOp}, so every wash costs the same reagent and the recipe JSON
+ *       keeps the shared one-in/one-out shape (and therefore the shared JEI page and serializer).</li>
  * </ul>
  */
 public final class ModRecipeTypes {
@@ -31,6 +36,10 @@ public final class ModRecipeTypes {
             type("fabricating");
     public static final RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> ADVANCED_FABRICATING =
             type("advanced_fabricating");
+    public static final RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> COLLIDER =
+            type("collider");
+    public static final RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> CHEMICAL_PROCESSING =
+            type("chemical_processing");
 
     public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> ORE_PROCESSING_SERIALIZER =
             serializer("ore_processing", ORE_PROCESSING);
@@ -38,6 +47,10 @@ public final class ModRecipeTypes {
             serializer("fabricating", FABRICATING);
     public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> ADVANCED_FABRICATING_SERIALIZER =
             serializer("advanced_fabricating", ADVANCED_FABRICATING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> COLLIDER_SERIALIZER =
+            serializer("collider", COLLIDER);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> CHEMICAL_PROCESSING_SERIALIZER =
+            serializer("chemical_processing", CHEMICAL_PROCESSING);
 
     private ModRecipeTypes() {
     }

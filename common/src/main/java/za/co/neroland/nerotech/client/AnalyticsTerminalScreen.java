@@ -37,9 +37,19 @@ public class AnalyticsTerminalScreen extends AbstractContainerScreen<AnalyticsTe
     private static final int SUBTLE = 0xFF8DA0B4;
     private static final int HEAT = 0xFFE0543A;
 
-    /** Two dashboard row columns of six (payload rows are nearest-first). */
-    private static final int ROWS_PER_COLUMN = 6;
+    /**
+     * Two dashboard row columns of five (payload rows are nearest-first). Five rather than six
+     * since Stage D: the last row band is now the power-history strip, and the header still counts
+     * the whole roster either way.
+     */
+    private static final int ROWS_PER_COLUMN = 5;
     private static final int ROW_STRIDE = 9;
+
+    /** Power-history strip: the band between the last row and the upgrade-row divider (y110). */
+    private static final int SPARK_Y = 98;
+    private static final int SPARK_H = 10;
+    private static final int SPARK_GAIN = 0xFF3CB043;   // stored NE rose over that window
+    private static final int SPARK_DRAIN = 0xFFE0543A;  // stored NE fell over that window
 
     /** The last dashboard snapshot polled from the mailbox (null until the first push lands). */
     @Nullable
@@ -169,6 +179,48 @@ public class AnalyticsTerminalScreen extends AbstractContainerScreen<AnalyticsTe
             int fill = Math.max(0, Math.min(12, row.heatPermille() * 12 / 1000));
             if (fill > 0) {
                 g.fill(barX, rowY + 2, barX + fill, rowY + 6, HEAT);
+            }
+        }
+
+        powerStrip(g, x, y, data);
+    }
+
+    /**
+     * The Stage D power-history strip: one 2px bar per sample of the terminal's rolling net
+     * stored-NE window (oldest left, newest right), drawn from a zero rule at the strip's midline —
+     * green above for a window where the watched machines gained charge, red below for one where
+     * they drained it. Samples arrive already normalised to ±100% of the window peak, so the strip
+     * is self-scaling and a quiet grid still reads.
+     */
+    private void powerStrip(GuiGraphicsExtractor g, int x, int y, AnalyticsTerminalPayload data) {
+        int[] samples = data.powerSamples();
+        int stripX = x + 8;
+        int stripW = this.imageWidth - 16;
+        int mid = y + SPARK_Y + SPARK_H / 2;
+
+        g.fill(stripX, y + SPARK_Y, stripX + stripW, y + SPARK_Y + SPARK_H, TROUGH);
+        g.fill(stripX, mid, stripX + stripW, mid + 1, DIVIDER); // the zero rule
+
+        if (samples.length == 0) {
+            g.text(this.font, Component.translatable("nerotech.analytics.power_history"),
+                    stripX + 2, y + SPARK_Y + 1, SUBTLE, false);
+            return;
+        }
+        int half = SPARK_H / 2 - 1;
+        int barW = Math.max(1, stripW / Math.max(1, samples.length));
+        for (int i = 0; i < samples.length; i++) {
+            int barX = stripX + i * barW;
+            if (barX + barW > stripX + stripW) {
+                break;
+            }
+            int magnitude = Math.max(0, Math.min(half, Math.abs(samples[i]) * half / 100));
+            if (magnitude == 0) {
+                continue;
+            }
+            if (samples[i] > 0) {
+                g.fill(barX, mid - magnitude, barX + barW, mid, SPARK_GAIN);
+            } else {
+                g.fill(barX, mid + 1, barX + barW, mid + 1 + magnitude, SPARK_DRAIN);
             }
         }
     }

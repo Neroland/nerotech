@@ -1,17 +1,27 @@
 # Advanced Tier (Tier 2/3)
 
-NeroTech's late game is **gated behind reaching space**, but coupled to Nerospace only *softly* — through
-Neroland Core's shared `c:` tags, never a direct dependency. With Nerospace absent the Earth tier still
-plays fully standalone, and the advanced tier is simply uncraftable.
+NeroTech's late game is **paced by Starsteel**, and coupled to Nerospace only *softly* — through
+Neroland Core's shared `c:` tags, never a direct dependency. With Nerospace installed, space is the fast
+road to that Starsteel; without it, NeroTech now supplies its own.
 
-## How the gate works (possession)
+## How the pacing works (possession)
 
-Every advanced machine is **crafted with Starsteel** (`#c:ingots/starsteel`) — a material only space
-supplies (via Nerospace). On Earth-only play there is no Starsteel source, so the advanced tier can't be
-crafted at all; once you *have* an advanced machine (you reached space to get the Starsteel), it works
-like any other machine — it is never separately locked or left inert. (This is the "planet-ore
-possession" gate from the Phase-3 plan; it replaced an earlier `reached_orbit` use-lock that wrongly
-bricked the machines in standalone/creative play.)
+Every advanced machine is **crafted with Starsteel** (`#c:ingots/starsteel`). Holding the material *is*
+the gate: once you have an advanced machine it works like any other — it is never separately locked or
+left inert. (This is the "planet-ore possession" gate from the Phase-3 plan; it replaced an earlier
+`reached_orbit` use-lock that wrongly bricked the machines in standalone/creative play.)
+
+### Standalone path
+
+The advanced tier is **no longer space-only**. The [Particle Collider](Particle-Collider.md) — a ring of
+Accelerator Coils around a Collider Core, built from vanilla materials and Tier-1 NeroTech components —
+transmutes cheap catalysts into **Starsteel Dust** and **Void Crystal Dust**, which smelt into the
+materials through Neroland Core's recipes. That makes the whole advanced tier, Fusion Reactor included,
+reachable on Earth alone.
+
+It is deliberately the *slow, expensive* road: with Nerospace installed, mining meteors and planet ores
+stays much faster. The collider is the route that needs no other mod — and the only one you can fully
+automate.
 
 ## Machines
 
@@ -28,7 +38,16 @@ sizes, fuel tiers, meltdown and containment breach.
 
 ### Advanced Ore Processor
 
-A higher-yield Ore Processor (`advancedOreProcessorYieldBonus` extra dust per operation).
+A higher-yield Ore Processor (`advancedOreProcessorYieldBonus` extra dust per operation), and the
+sensible place to run the **bulk raw-ore-block** recipes (raw iron/gold/copper block → 18 dust) that
+ship alongside the per-item ones.
+
+### Particle Collider
+
+The standalone source of space-grade dust: a horizontal 5×5 or 7×7 ring of Accelerator Coils around a
+Collider Core, which turns a Netherite Scrap into Starsteel Dust and an Echo Shard into Void Crystal
+Dust at an enormous energy and heat cost. The 7×7 ring halves the operation time. See the dedicated
+[Particle Collider](Particle-Collider.md) page.
 
 ### Advanced Fabricator
 
@@ -38,10 +57,13 @@ The advanced machines reuse the Tier-1 GUIs (their titles identify them).
 
 ## Reactor fuels — Fusion, Plasma & Stellar Cells
 
-The **Fusion Cell** (Starsteel + Void Crystal, or produced by the Advanced Fabricator) is tier 1;
-0.1.0-beta.1 adds the **Plasma Cell** (Starsteel, tier 2) and **Stellar Cell** (Void Crystal +
-Starsteel, tier 3). Higher tiers demand bigger reactor shells — see
-[Fusion Reactor](Fusion-Reactor.md).
+The **Fusion Cell** is tier 1 and is now **machine-exclusive**: its shaped crafting recipe is gone, so
+the only source is the Advanced Fabricator (Void Crystal → Fusion Cell). Building the machine is the
+price of entry to fusion fuel. The **Plasma Cell** (Starsteel, tier 2) and **Stellar Cell** (Void
+Crystal + Starsteel, tier 3) keep their crafting recipes — they are multi-ingredient, and the
+`advanced_fabricating` recipe type takes a single input — but each is built on the tier below it, so
+the whole fuel ladder now starts at the Advanced Fabricator. Higher tiers demand bigger reactor
+shells — see [Fusion Reactor](Fusion-Reactor.md).
 
 The **Remediator** — the heavy pollution cleaner from
 [Pollution & Mitigation](Pollution-and-Mitigation.md) — is also Starsteel-gated and arrives with
@@ -57,6 +79,7 @@ No Nerospace import is involved either way — the coupling is runtime-optional.
 ## See also
 
 - [Tier-1 Machines](Machines.md)
+- [Particle Collider](Particle-Collider.md)
 - [Fusion Reactor](Fusion-Reactor.md)
 - [Planets](Planets.md)
 - [Consequence Systems](Consequence-Systems.md)

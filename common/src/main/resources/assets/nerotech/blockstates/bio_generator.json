@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nerotech:block/bio_generator" },
+    "facing=east":  { "model": "nerotech:block/bio_generator", "y": 90 },
+    "facing=south": { "model": "nerotech:block/bio_generator", "y": 180 },
+    "facing=west":  { "model": "nerotech:block/bio_generator", "y": 270 }
+  }
+}

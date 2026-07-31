@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:scrubber",
+  "criteria": {
+    "has_filter_cartridge": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:filter_cartridge"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.filter_cartridge.description"
+    },
+    "icon": {
+      "id": "nerotech:filter_cartridge"
+    },
+    "title": {
+      "translate": "advancements.nerotech.filter_cartridge.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_filter_cartridge"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

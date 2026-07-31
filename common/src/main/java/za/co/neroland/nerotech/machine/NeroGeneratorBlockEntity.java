@@ -64,6 +64,12 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
         return emissionPerMinute();
     }
 
+    /** A generator is never load-shed: throttling the supply during a shortage is backwards. */
+    @Override
+    public boolean shedable() {
+        return false;
+    }
+
     @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         UpgradeModifiers mods = modifiers();

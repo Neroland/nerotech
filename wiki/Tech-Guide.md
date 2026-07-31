@@ -19,7 +19,7 @@ you have already done are already ticked).
 
 ## The chapters
 
-Seven chapters, nineteen steps, mirroring NeroTech's arc:
+Eight chapters, twenty-two steps, mirroring NeroTech's arc:
 
 1. **First Power** — craft a Machine Frame, build a Nero Generator and a Solar Array, give the
    array clear skies.
@@ -31,10 +31,13 @@ Seven chapters, nineteen steps, mirroring NeroTech's arc:
 6. **Analytics** — place an [Analytics Terminal](Analytics.md).
 7. **Fusion** — cast Fusion Casing, form a [reactor shell](Fusion-Reactor.md), burn a Stellar
    Cell.
+8. **Exotic Matter** — widen the [collider ring](Particle-Collider.md) to 7×7, collide a Stellar
+   Cell into antimatter, build a [Singularity Vault](Exotic-Endgame.md).
 
 ## See also
 
 - [Tier-1 Machines](Machines.md)
 - [Advanced Tier](Advanced-Tier.md)
 - [Fusion Reactor](Fusion-Reactor.md)
+- [Exotic Endgame](Exotic-Endgame.md)
 - [Home](Home.md)

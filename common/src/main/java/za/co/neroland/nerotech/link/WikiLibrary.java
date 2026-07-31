@@ -47,6 +47,7 @@ public final class WikiLibrary {
             "Home", "Machines", "Materials-and-Components", "Tech-Guide", "Thermal-System",
             "Consequence-Systems", "Pollution-and-Mitigation", "Analytics", "Overclock-Presets",
             "Side-Config-and-Configurator", "Advanced-Tier", "Fusion-Reactor", "Automation",
+            "Fluids-and-Gases", "Particle-Collider", "Power-Generation", "Exotic-Endgame",
             "Planets", "Power-and-NeroPower-Split", "Companion-App");
 
     private static volatile List<Page> cachedIndex;

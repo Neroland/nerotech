@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "B": "nerotech:circuit_board", "O": "minecraft:obsidian",
+    "C": "minecraft:copper_ingot", "F": "nerotech:machine_frame" },
+  "pattern": [ "BOB", "CFC", " O " ],
+  "result": { "id": "nerotech:geothermal_generator" } }
