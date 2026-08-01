@@ -1,38 +1,45 @@
 package za.co.neroland.nerotech.compat;
 
+import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
-import za.co.neroland.nerospace.api.Hazard;
-import za.co.neroland.nerospace.api.NerospacePlanets;
-import za.co.neroland.nerospace.api.PlanetId;
-import za.co.neroland.nerospace.api.PlanetTraits;
+import org.jetbrains.annotations.Nullable;
+
+import za.co.neroland.nerotech.NeroTechCommon;
 
 /**
  * Optional bridge to Nerospace's semver-stable {@code za.co.neroland.nerospace.api} planet-trait
- * facade (Stage H). NeroTech compiles against the API ({@code compileOnly} on the
- * {@code za.co.neroland.nerospace:nerospace-<loader>-<mc>} artifact) but never requires it at
- * runtime: {@link #AVAILABLE} probes for the facade class <b>without initialising it</b>, and every
- * reference to an api type lives inside the nested {@link Holder}, which is only class-loaded once
- * {@code AVAILABLE} is true — so a NeroTech install without Nerospace can never trip a
- * {@code NoClassDefFoundError}. (The manifests list Nerospace as an optional, load-before
- * dependency, mirroring the Energized Power entries.)
+ * facade — <b>pure reflection, zero build-time dependency</b>. NeroTech's build never touches a
+ * Nerospace artifact: the facade is resolved reflectively at class-init ({@link Api#resolve()}),
+ * and when Nerospace is absent (or the api shape ever drifts) every method here returns empty and
+ * the per-dimension config tables keep full authority. (The manifests still list Nerospace as an
+ * optional, load-before dependency, mirroring the Energized Power entries — load-order metadata
+ * only, never a requirement.)
+ *
+ * <p>Api surface consumed (resolved by name, invoked via cached {@link Method}s):
+ * {@code NerospacePlanets.byDimension(ResourceKey)} → {@code Optional<PlanetId>},
+ * {@code NerospacePlanets.traits(PlanetId)} → {@code PlanetTraits},
+ * {@code PlanetTraits.airless()} → {@code boolean}, {@code PlanetTraits.hazard()} → enum
+ * (compared by constant name, so new Hazard constants are simply "no opinion").
  *
  * <p><b>Trait mapping</b> (the api exposes gravity / airless / hazard — no direct insolation or
- * surface-temperature trait, so both consumers derive from those; constants javadoc'd per use):
+ * surface-temperature trait, so consumers derive from those; constants javadoc'd per use):
  *
  * <ul>
  *   <li><b>Solar multiplier</b> ({@code machine.PlanetModifiers}): base 1.0 for a known planet;
  *       ×1.25 when airless (no atmospheric attenuation — every current Nerospace body); then
  *       ×1.2 for a HEAT hazard (Cindara's intense insolation → 1.5 total) or ×0.5 for COLD
  *       (Glacira's distant, weak sun → 0.625 total). Greenxertz/Station land on 1.25.</li>
+ *   <li><b>Wind multiplier</b> ({@code machine.WindTurbineBlockEntity}): 0 on an airless planet
+ *       (no atmosphere, no wind), 1 on any other known planet.</li>
  *   <li><b>Thermal ambient</b> ({@code heat.ThermalEnvironment} dimension base): HEAT → 200,
  *       COLD → −80 (the exact figures the {@code thermalAmbientByDimension} config doc has always
- *       suggested for Cindara/Glacira), NONE → 0 (Greenxertz/Station sit at the temperate
- *       baseline; biome flavour still applies on top).</li>
+ *       suggested for Cindara/Glacira), NONE → 0 (biome flavour still applies on top).</li>
  * </ul>
  *
  * <p><b>Precedence</b> (implemented at the consumers): api value when available and the dimension
@@ -41,21 +48,25 @@ import za.co.neroland.nerospace.api.PlanetTraits;
  */
 public final class NerospacePlanetCompat {
 
-    /** True when the Nerospace api facade is on the classpath (probed without initialising it). */
-    public static final boolean AVAILABLE = detect();
+    /** Airless bonus: no atmosphere attenuating sunlight. */
+    private static final double SOLAR_AIRLESS = 1.25D;
+    /** HEAT-hazard factor (Cindara): close, intense insolation — 1.25 × 1.2 = 1.5 total. */
+    private static final double SOLAR_HEAT = 1.2D;
+    /** COLD-hazard factor (Glacira): distant, weak sun — 1.25 × 0.5 = 0.625 total. */
+    private static final double SOLAR_COLD = 0.5D;
+
+    /** HEAT-hazard ambient (Cindara) — the config doc's long-suggested figure. */
+    private static final int AMBIENT_HEAT = 200;
+    /** COLD-hazard ambient (Glacira) — the config doc's long-suggested figure. */
+    private static final int AMBIENT_COLD = -80;
+
+    @Nullable
+    private static final Api API = Api.resolve();
+
+    /** True when the Nerospace api facade resolved reflectively (probed without initialising it). */
+    public static final boolean AVAILABLE = API != null;
 
     private NerospacePlanetCompat() {
-    }
-
-    private static boolean detect() {
-        try {
-            // initialize=false: probe only — never run Nerospace static init from the probe.
-            Class.forName("za.co.neroland.nerospace.api.NerospacePlanets", false,
-                    NerospacePlanetCompat.class.getClassLoader());
-            return true;
-        } catch (Throwable absent) {
-            return false;
-        }
     }
 
     /**
@@ -63,15 +74,24 @@ public final class NerospacePlanetCompat {
      * when Nerospace is absent or the dimension is not a Nerospace planet (Earth included).
      */
     public static OptionalDouble solarMultiplier(Level level) {
-        return AVAILABLE ? Holder.solarMultiplier(level) : OptionalDouble.empty();
-    }
-
-    /**
-     * Thermal ambient (heat units) for {@code level}'s dimension from Nerospace planet traits, or
-     * empty when Nerospace is absent or the dimension is not a Nerospace planet.
-     */
-    public static OptionalInt thermalAmbient(Level level) {
-        return AVAILABLE ? Holder.thermalAmbient(level) : OptionalInt.empty();
+        Api api = API;
+        if (api == null) {
+            return OptionalDouble.empty();
+        }
+        Object traits = api.traitsFor(level.dimension());
+        if (traits == null) {
+            return OptionalDouble.empty();
+        }
+        double multiplier = 1.0D;
+        if (api.airless(traits)) {
+            multiplier *= SOLAR_AIRLESS;
+        }
+        multiplier *= switch (api.hazardName(traits)) {
+            case "HEAT" -> SOLAR_HEAT;
+            case "COLD" -> SOLAR_COLD;
+            default -> 1.0D; // future Hazard constants: no solar opinion
+        };
+        return OptionalDouble.of(multiplier);
     }
 
     /**
@@ -81,68 +101,99 @@ public final class NerospacePlanetCompat {
      * Nerospace planet (Earth included), so the config table keeps full authority there.
      */
     public static OptionalDouble windMultiplier(Level level) {
-        return AVAILABLE ? Holder.windMultiplier(level) : OptionalDouble.empty();
+        Api api = API;
+        if (api == null) {
+            return OptionalDouble.empty();
+        }
+        Object traits = api.traitsFor(level.dimension());
+        if (traits == null) {
+            return OptionalDouble.empty();
+        }
+        // Airless bodies have no atmosphere to move — a turbine there is inert, not merely weak.
+        return OptionalDouble.of(api.airless(traits) ? 0.0D : 1.0D);
     }
 
     /**
-     * The only class that touches {@code nerospace.api} types — loaded lazily, and only behind an
-     * {@link #AVAILABLE} check, so the api never needs to resolve when Nerospace is not installed.
+     * Thermal ambient (heat units) for {@code level}'s dimension from Nerospace planet traits, or
+     * empty when Nerospace is absent or the dimension is not a Nerospace planet.
      */
-    private static final class Holder {
+    public static OptionalInt thermalAmbient(Level level) {
+        Api api = API;
+        if (api == null) {
+            return OptionalInt.empty();
+        }
+        Object traits = api.traitsFor(level.dimension());
+        if (traits == null) {
+            return OptionalInt.empty();
+        }
+        return OptionalInt.of(switch (api.hazardName(traits)) {
+            case "HEAT" -> AMBIENT_HEAT;
+            case "COLD" -> AMBIENT_COLD;
+            default -> 0; // temperate baseline; biome flavour still applies on top
+        });
+    }
 
-        /** Airless bonus: no atmosphere attenuating sunlight. */
-        private static final double SOLAR_AIRLESS = 1.25D;
-        /** HEAT-hazard factor (Cindara): close, intense insolation — 1.25 × 1.2 = 1.5 total. */
-        private static final double SOLAR_HEAT = 1.2D;
-        /** COLD-hazard factor (Glacira): distant, weak sun — 1.25 × 0.5 = 0.625 total. */
-        private static final double SOLAR_COLD = 0.5D;
+    /**
+     * The cached reflective handles onto the api facade. Resolution never initialises Nerospace
+     * classes ({@code Class.forName(..., initialize=false, ...)}); initialisation happens on the
+     * first real call, by which point mod loading is complete. Any resolution failure — class
+     * absent, method renamed, signature drift — yields {@code null} and the compat degrades to the
+     * config tables, logged once at debug level (an absent optional mod is normal, never an error).
+     */
+    private record Api(Method byDimension, Method traits, Method airless, Method hazard) {
 
-        /** HEAT-hazard ambient (Cindara) — the config doc's long-suggested figure. */
-        private static final int AMBIENT_HEAT = 200;
-        /** COLD-hazard ambient (Glacira) — the config doc's long-suggested figure. */
-        private static final int AMBIENT_COLD = -80;
-
-        private Holder() {
+        @Nullable
+        static Api resolve() {
+            try {
+                ClassLoader loader = NerospacePlanetCompat.class.getClassLoader();
+                Class<?> planets = Class.forName("za.co.neroland.nerospace.api.NerospacePlanets", false, loader);
+                Class<?> planetId = Class.forName("za.co.neroland.nerospace.api.PlanetId", false, loader);
+                Class<?> planetTraits = Class.forName("za.co.neroland.nerospace.api.PlanetTraits", false, loader);
+                Method byDimension = planets.getMethod("byDimension", ResourceKey.class);
+                Method traits = planets.getMethod("traits", planetId);
+                Method airless = planetTraits.getMethod("airless");
+                Method hazard = planetTraits.getMethod("hazard");
+                return new Api(byDimension, traits, airless, hazard);
+            } catch (ClassNotFoundException absent) {
+                return null; // Nerospace not installed — the normal standalone case, not an error
+            } catch (ReflectiveOperationException | RuntimeException drift) {
+                // Present but unrecognisable (api drift): degrade to config, note it once for packs.
+                NeroTechCommon.LOGGER.debug("[NeroTech] Nerospace present but planet api unresolvable"
+                        + " — using per-dimension config tables", drift);
+                return null;
+            }
         }
 
-        static OptionalDouble solarMultiplier(Level level) {
-            Optional<PlanetId> planet = NerospacePlanets.byDimension(level.dimension());
-            if (planet.isEmpty()) {
-                return OptionalDouble.empty();
+        /** {@code PlanetTraits} for the dimension, or {@code null} when it is not a known planet. */
+        @Nullable
+        Object traitsFor(ResourceKey<Level> dimension) {
+            try {
+                Optional<?> planet = (Optional<?>) byDimension.invoke(null, dimension);
+                if (planet.isEmpty()) {
+                    return null;
+                }
+                return traits.invoke(null, planet.get());
+            } catch (ReflectiveOperationException | RuntimeException unexpected) {
+                return null; // fail soft: config tables keep authority
             }
-            PlanetTraits traits = NerospacePlanets.traits(planet.get());
-            double multiplier = 1.0D;
-            if (traits.airless()) {
-                multiplier *= SOLAR_AIRLESS;
-            }
-            multiplier *= switch (traits.hazard()) {
-                case HEAT -> SOLAR_HEAT;
-                case COLD -> SOLAR_COLD;
-                default -> 1.0D; // future Hazard constants: no solar opinion
-            };
-            return OptionalDouble.of(multiplier);
         }
 
-        static OptionalDouble windMultiplier(Level level) {
-            Optional<PlanetId> planet = NerospacePlanets.byDimension(level.dimension());
-            if (planet.isEmpty()) {
-                return OptionalDouble.empty();
+        boolean airless(Object planetTraits) {
+            try {
+                return (Boolean) airless.invoke(planetTraits);
+            } catch (ReflectiveOperationException | RuntimeException unexpected) {
+                return false;
             }
-            // Airless bodies have no atmosphere to move — a turbine there is inert, not merely weak.
-            return OptionalDouble.of(NerospacePlanets.traits(planet.get()).airless() ? 0.0D : 1.0D);
         }
 
-        static OptionalInt thermalAmbient(Level level) {
-            Optional<PlanetId> planet = NerospacePlanets.byDimension(level.dimension());
-            if (planet.isEmpty()) {
-                return OptionalInt.empty();
+        /** The hazard enum constant's name, or {@code ""} when unreadable (→ no opinion). */
+        String hazardName(Object planetTraits) {
+            try {
+                Object value = hazard.invoke(planetTraits);
+                return value instanceof Enum<?> constant ? constant.name() : "";
+            } catch (ReflectiveOperationException | RuntimeException unexpected) {
+                return "";
             }
-            Hazard hazard = NerospacePlanets.traits(planet.get()).hazard();
-            return OptionalInt.of(switch (hazard) {
-                case HEAT -> AMBIENT_HEAT;
-                case COLD -> AMBIENT_COLD;
-                default -> 0; // temperate baseline; biome flavour still applies on top
-            });
         }
     }
 }

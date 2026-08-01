@@ -11,7 +11,6 @@ def mc = stonecutter.current.version
 def fabricApi = project.findProperty("fabric_api_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def nerolandcoreVersion = project.findProperty('nerolandcore_version')
-def nerospaceVersion = project.findProperty('nerospace_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // resources live in the BRANCH root (fabric/). Resolve branch-root paths via the parent.
@@ -65,11 +64,9 @@ dependencies {
 
     // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
-    // za.co.neroland.nerospace.api facade. Never runtime/`include` — fabric.mod.json only `suggests`
-    // nerospace and NeroTech runs fully without it. Resolved from mavenLocal (run
-    // `./gradlew publishToMavenLocal` in ../nerospace) or, in CI/fresh clones, from the
-    // NerospaceGitHubPackages repo in stonecutter.gradle.
-    compileOnly "za.co.neroland.nerospace:nerospace-fabric-${mc}:${nerospaceVersion}"
+    // Nerospace: NO build dependency at all — compat/NerospacePlanetCompat resolves the
+    // za.co.neroland.nerospace.api facade by pure reflection at runtime. fabric.mod.json only
+    // `suggests` nerospace; NeroTech builds and runs fully without it.
 
     // Sentry SDK (telemetry/NeroTechTelemetry): compile against it + embed it as a jar-in-jar so the
     // shipped Fabric jar carries it. Counterpart to the NeoForge JarJar bundling.

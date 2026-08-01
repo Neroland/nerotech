@@ -238,6 +238,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Nerospace is no longer a build requirement** — CI failed on every cell because the planet-trait
+  compat compiled against `za.co.neroland.nerospace:nerospace-<loader>-<mc>` (`compileOnly`), an
+  artifact that only ever existed in the developer's local Maven. `NerospacePlanetCompat` is now
+  **pure reflection**: the api facade is resolved by name at runtime, absent-Nerospace returns
+  empty (config tables keep authority), and api drift degrades softly with a debug log instead of a
+  crash. The dependency, its `nerospace_version` pin and the Maven wiring are gone — NeroTech now
+  builds from a bare clone with no sibling repos published anywhere. Runtime behaviour is unchanged
+  (planet-aware solar/wind/thermal when Nerospace is installed).
 - **Gallery labels hijacked pick-block** — the invisible armor stands `/nerotech gallery` spawns as
   floating labels kept a full hitbox, so middle-clicking a machine they overlapped returned an Armor
   Stand item. Labels are now marker stands (zero-size hitbox — unpickable, unhittable; the flag is

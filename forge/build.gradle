@@ -12,7 +12,6 @@ def mc = stonecutter.current.version
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def nerolandcoreVersion = project.findProperty('nerolandcore_version')
-def nerospaceVersion = project.findProperty('nerospace_version')
 
 if (!forgeVersion) {
     throw new GradleException("Missing forge_version_${mc} in gradle.properties")
@@ -101,10 +100,8 @@ dependencies {
     // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
     // za.co.neroland.nerospace.api facade. Never runtime/jar-in-jar — mods.toml lists nerospace as
-    // optional (ordering AFTER) and NeroTech runs fully without it. Resolved from mavenLocal (run
-    // `./gradlew publishToMavenLocal` in ../nerospace) or, in CI/fresh clones, from the
-    // NerospaceGitHubPackages repo in stonecutter.gradle.
-    compileOnly "za.co.neroland.nerospace:nerospace-forge-${mc}:${nerospaceVersion}"
+    // optional (ordering AFTER); NeroTech builds and runs fully without it — NO build dependency:
+    // compat/NerospacePlanetCompat resolves the api facade by pure reflection at runtime.
 
     implementation 'io.sentry:sentry:8.45.0'
     jarJar(group: 'io.sentry', name: 'sentry', version: '8.45.0')
