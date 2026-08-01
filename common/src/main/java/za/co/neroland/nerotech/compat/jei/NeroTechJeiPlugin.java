@@ -14,6 +14,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.recipe.ColliderRecipe;
 import za.co.neroland.nerotech.recipe.MachineRecipe;
 import za.co.neroland.nerotech.registry.ModBlocks;
 import za.co.neroland.nerotech.registry.ModRecipeTypes;
@@ -43,8 +44,10 @@ public final class NeroTechJeiPlugin implements IModPlugin {
     /** Advanced Fabricator pages ({@code nerotech:advanced_fabricating}). */
     public static final IRecipeType<RecipeHolder<MachineRecipe>> ADVANCED_FABRICATING =
             machineType("advanced_fabricating");
-    /** Particle Collider pages ({@code nerotech:collider}). */
-    public static final IRecipeType<RecipeHolder<MachineRecipe>> COLLIDER = machineType("collider");
+    /** Particle Accelerator pages ({@code nerotech:collider} — two inputs + an energy floor). */
+    public static final IRecipeType<RecipeHolder<ColliderRecipe>> COLLIDER =
+            IRecipeHolderType.<ColliderRecipe>create(
+                    Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "collider"));
     /** Chemical Processor pages ({@code nerotech:chemical_processing} — the oxygen wash). */
     public static final IRecipeType<RecipeHolder<MachineRecipe>> CHEMICAL_PROCESSING =
             machineType("chemical_processing");
@@ -67,7 +70,7 @@ public final class NeroTechJeiPlugin implements IModPlugin {
                 new MachineRecipeCategory(guiHelper, ADVANCED_FABRICATING,
                         Component.translatable("gui.nerotech.jei.advanced_fabricating"),
                         ModBlocks.ADVANCED_FABRICATOR.get()),
-                new MachineRecipeCategory(guiHelper, COLLIDER,
+                new ColliderRecipeCategory(guiHelper, COLLIDER,
                         Component.translatable("gui.nerotech.jei.collider"),
                         ModBlocks.COLLIDER_CORE.get()),
                 // The oxygen cost is a single config value, not a recipe field, so the shared

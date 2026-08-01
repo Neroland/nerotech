@@ -32,7 +32,7 @@ raises its tier. The shell size gates the tier:
 | 1 | **Fusion Cell** (any `nerotech:fusion_fuels` entry not tagged tier 2/3/4) | Starsteel + Void Crystal (or the Advanced Fabricator) | 3×3×3 |
 | 2 | **Plasma Cell** (`nerotech:fusion_fuel/tier2`) | Starsteel | 5×5×5 |
 | 3 | **Stellar Cell** (`nerotech:fusion_fuel/tier3`) | Void Crystal + Starsteel | 7×7×7 |
-| 4 | **Antimatter Cell** (`nerotech:fusion_fuel/tier4`) | a Stellar Cell through the [Particle Collider](Particle-Collider.md) | 7×7×7 **only** |
+| 4 | **Antimatter Cell** (`nerotech:fusion_fuel/tier4`) | two Stellar Cells collided at 12,000 J in the [Particle Accelerator](Particle-Collider.md) | 7×7×7 **only** |
 
 Tier 4 is the one exception to "tier ≤ shell tier": the **maximal 7×7×7 shell reaches one tier
 further than its own**, which is exactly why antimatter is burnable there and nowhere else. Burning

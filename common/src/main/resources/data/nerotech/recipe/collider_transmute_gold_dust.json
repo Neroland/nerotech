@@ -1,1 +1,1 @@
-{ "type": "nerotech:collider", "ingredient": "nerotech:iron_dust", "result": { "id": "nerotech:gold_dust" } }
+{ "type": "nerotech:collider", "input_a": "nerotech:iron_dust", "input_b": "nerotech:iron_dust", "min_energy": 1500, "result": { "id": "nerotech:gold_dust" } }

@@ -567,7 +567,7 @@ def gen_fusion_containment_glass():
     save(img, "block", "fusion_containment_glass")
 
 
-def gen_accelerator_coil():
+def _accelerator_coil_face():
     # Particle Collider ring segment: alloy plate wrapped in magnet windings, with the teal beam
     # channel running straight through the middle so a placed ring reads as one continuous loop.
     # No hazard striping — that stays on the Fusion Reactor shell.
@@ -589,7 +589,82 @@ def gen_accelerator_coil():
         px[x, 15] = T_PLASMA
         px[x, 16] = T_PLASMA
     rivets(img, ((7, 8), (24, 8), (7, 23), (24, 23)))
-    save(img, "block", "accelerator_coil")
+    return img
+
+
+def gen_accelerator_coil():
+    save(_accelerator_coil_face(), "block", "accelerator_coil")
+
+
+# ---- guide-coil direction indicators (24 top faces: 3 bends x 8 headings) ----
+#
+# The Accelerator Controller writes each traced guide's OUTGOING heading into its `heading`
+# blockstate, and these are the top faces that blockstate picks. Each is the plain coil face with a
+# beam-cyan arrow composited on: the arrow ENTERS along the incoming heading, kinks 45 degrees at the
+# coil's centre (where the magnet actually bends the beam) and LEAVES pointing at the named heading.
+# Only the north-facing variant of each bend is painted; the other seven are that overlay rotated in
+# 45-degree steps (NEAREST, so the pixel art stays hard-edged and the alpha stays binary).
+
+# Clockwise from north — the same order as AcceleratorMath.Heading, so index == rotation step.
+ARROW_HEADINGS = ("north", "north_east", "east", "south_east", "south",
+                  "south_west", "west", "north_west")
+
+# Overlay canvas: 2x the tile, tile inset at [16, 48), so a stroke that runs off the tile edge is
+# still on-canvas after a 45-degree rotation and crops back to a clean edge-to-edge line.
+_OV = 2 * S
+_OV_OFF = S // 2
+_OV_MID = _OV_OFF + (S - 1) / 2.0          # the tile's centre in canvas coordinates
+
+
+def _arrow_stroke(px, x0, y0, x1, y1, width, col):
+    """Stamp a `width`-thick line of `col` on the (canvas-sized) overlay — chunky pixel art, no AA."""
+    span = max(abs(x1 - x0), abs(y1 - y0))
+    steps = int(span * 3) + 1
+    lo = -(width // 2)
+    hi = width + lo
+    for i in range(steps + 1):
+        t = i / steps
+        cx = int(round(x0 + (x1 - x0) * t))
+        cy = int(round(y0 + (y1 - y0) * t))
+        for dy in range(lo, hi):
+            for dx in range(lo, hi):
+                x, y = cx + dx, cy + dy
+                if 0 <= x < _OV and 0 <= y < _OV:
+                    px[x, y] = col
+
+
+def _arrow_overlay(bend):
+    """The north-pointing arrow for one bend, drawn on the oversized overlay canvas.
+
+    The incoming leg matches AcceleratorMath.Heading exactly: a LEFT guide leaving north was entered
+    on NORTH_EAST (up-and-right, so it enters at the lower LEFT), a RIGHT guide on NORTH_WEST.
+    """
+    ov = Image.new("RGBA", (_OV, _OV), CLEAR)
+    px = ov.load()
+    o = _OV_OFF
+    mid = _OV_MID
+    # entry leg -> the coil centre, then the exit leg north to the head.
+    entry = {"straight": (o + 15.5, o + 38.0),
+             "left": (o - 6.0, o + 37.0),
+             "right": (o + 37.0, o + 37.0)}[bend]
+    legs = [(entry[0], entry[1], mid, mid), (mid, mid, o + 15.5, o + 6.0)]
+    head = [(o + 15.5, o + 4.0, o + 8.5, o + 12.0), (o + 15.5, o + 4.0, o + 22.5, o + 12.0)]
+    for (width, col) in ((6, T_DEEP), (4, T_CYAN), (2, T_PLASMA)):
+        for (x0, y0, x1, y1) in legs + head:
+            _arrow_stroke(px, x0, y0, x1, y1, width, col)
+    return ov
+
+
+def gen_accelerator_coil_indicators():
+    base = _accelerator_coil_face()
+    for bend in ("straight", "left", "right"):
+        overlay = _arrow_overlay(bend)
+        for (step, heading) in enumerate(ARROW_HEADINGS):
+            # PIL rotates anticlockwise; the headings run clockwise, hence the negative angle.
+            spun = overlay.rotate(-45 * step, resample=Image.NEAREST, center=(_OV_MID, _OV_MID))
+            img = base.copy()
+            img.alpha_composite(spun.crop((_OV_OFF, _OV_OFF, _OV_OFF + S, _OV_OFF + S)))
+            save(img, "block", "accelerator_coil_top_%s_%s" % (bend, heading))
 
 
 def gen_collider_core():
@@ -2582,6 +2657,7 @@ def main():
     gen_fusion_casing()
     gen_fusion_containment_glass()
     gen_accelerator_coil()
+    gen_accelerator_coil_indicators()
     gen_collider_core()
     gen_electrolyzer()
     gen_gas_turbine()

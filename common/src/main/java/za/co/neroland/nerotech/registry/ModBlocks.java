@@ -11,6 +11,7 @@ import net.minecraft.world.level.material.MapColor;
 
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.guide.TechGuideBlock;
+import za.co.neroland.nerotech.machine.AcceleratorGuideBlock;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlock;
 import za.co.neroland.nerotech.machine.AnalyticsTerminalBlock;
 import za.co.neroland.nerotech.machine.AdvancedOreProcessorBlock;
@@ -96,13 +97,15 @@ public final class ModBlocks {
                             .isSuffocating((state, level, pos) -> false)
                             .isViewBlocking((state, level, pos) -> false)));
 
-    // --- Particle Collider multiblock (Stage B) ------------------------------
+    // --- Particle Accelerator (Stage B; free-form rework) --------------------
     /**
-     * Accelerator ring segment — a plain full cube like {@link #FUSION_CASING}, so it KEEPS
-     * full-cube occlusion (no {@code noOcclusion}): ring walls cull their neighbours normally.
+     * Accelerator Guide Coil — the beam-steering block of the free-form accelerator. A plain full
+     * cube like {@link #FUSION_CASING}, so it KEEPS full-cube occlusion (no {@code noOcclusion}),
+     * with a {@code bend} blockstate cycled by right-click (see
+     * {@link za.co.neroland.nerotech.machine.AcceleratorGuideBlock}).
      */
-    public static final RegistryEntry<Block> ACCELERATOR_COIL =
-            BLOCKS.register("accelerator_coil", key -> new Block(BlockBehaviour.Properties.of()
+    public static final RegistryEntry<AcceleratorGuideBlock> ACCELERATOR_COIL =
+            BLOCKS.register("accelerator_coil", key -> new AcceleratorGuideBlock(BlockBehaviour.Properties.of()
                     .setId(key)
                     .mapColor(MapColor.METAL)
                     .strength(3.5F)

@@ -1,1 +1,1 @@
-{ "type": "nerotech:collider", "ingredient": "minecraft:echo_shard", "result": { "id": "nerolandcore:void_crystal_dust" } }
+{ "type": "nerotech:collider", "input_a": "minecraft:echo_shard", "input_b": "minecraft:amethyst_shard", "min_energy": 3000, "result": { "id": "nerolandcore:void_crystal_dust" } }

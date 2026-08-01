@@ -16,10 +16,10 @@ import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 
 /**
- * Collider Core block — the Particle Collider's controller; ticks its
- * {@link ColliderCoreBlockEntity} and, on any neighbour change, tells it to re-validate the
- * Accelerator Coil ring (so breaking the loop next to the core registers immediately instead of
- * waiting out the re-check cadence).
+ * Accelerator Controller block — the head of the free-form particle accelerator; ticks its
+ * {@link ColliderCoreBlockEntity} and, on any neighbour change, tells it to re-trace its beam line
+ * (so laying or breaking the first guide right next to the controller registers immediately instead
+ * of waiting out the re-trace cadence). Guides further out are picked up on the cadence.
  */
 public class ColliderCoreBlock extends NeroTechMachineBlock {
 
@@ -50,7 +50,7 @@ public class ColliderCoreBlock extends NeroTechMachineBlock {
             @Nullable net.minecraft.world.level.redstone.Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ColliderCoreBlockEntity collider) {
-            collider.invalidateStructure();
+            collider.invalidatePath();
         }
     }
 }

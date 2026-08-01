@@ -67,7 +67,8 @@ dependencies {
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
     // za.co.neroland.nerospace.api facade. Never runtime/`include` — fabric.mod.json only `suggests`
     // nerospace and NeroTech runs fully without it. Resolved from mavenLocal (run
-    // `./gradlew publishToMavenLocal` in ../nerospace).
+    // `./gradlew publishToMavenLocal` in ../nerospace) or, in CI/fresh clones, from the
+    // NerospaceGitHubPackages repo in stonecutter.gradle.
     compileOnly "za.co.neroland.nerospace:nerospace-fabric-${mc}:${nerospaceVersion}"
 
     // Sentry SDK (telemetry/NeroTechTelemetry): compile against it + embed it as a jar-in-jar so the

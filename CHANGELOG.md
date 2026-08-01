@@ -49,32 +49,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a fraction of capacity. It draws **no power** and is exempt from Grid Controller load shedding.
   Crafted from 4 Void Crystal + 4 Obsidian around an Antimatter Cell, which puts it behind both
   multiblocks. **Empty it before you break it** — the stored bulk does not drop.
-- **Collider transmutation** — two new lossy `nerotech:collider` recipes: **Copper Dust → Iron Dust**
-  and **Iron Dust → Gold Dust**. They are 1:1 by item count and pay their loss in a full collider
-  operation each (480,000 NE on a 5×5 ring at the defaults), so transmuted gold is the most expensive
-  gold in the game. Both appear automatically in the JEI collider page.
-- **Tech Guide chapter: Exotic Matter** — three steps (widen the collider ring to 7×7, collide a
-  Stellar Cell into antimatter, build a Singularity Vault) closing the guide's arc, plus the
-  **Contained Annihilation** and **Room for Everything** advancements behind *Breaking Matter Open*.
+- **Accelerator transmutation** — two lossy `nerotech:collider` recipes: **Copper Dust ×2 → Iron
+  Dust** (800 J) and **Iron Dust ×2 → Gold Dust** (1,500 J). They pay their loss in items *and* in the
+  run it takes to wind the beam up, so transmuted gold is the most expensive gold in the game. Both
+  appear automatically in the JEI accelerator page.
+- **Tech Guide chapter: Exotic Matter** — three steps (widen the accelerator ring until its stretches
+  run eleven blocks or more, collide two Stellar Cells into antimatter, build a Singularity Vault)
+  closing the guide's arc, plus the **Contained Annihilation** and **Room for Everything**
+  advancements behind *Breaking Matter Open*.
 - **New config keys** — `roboticArmNePerMove`, `roboticArmStackPerMove`, `singularityVaultCapacity`,
-  `fusionFuelTier4BurnTicks`.
+  `fusionFuelTier4BurnTicks`, and the accelerator set: `acceleratorMaxGap`, `acceleratorMaxGuides`,
+  `acceleratorTickScale`, `acceleratorLaunchSpeed`, `acceleratorBoostPerGuide`,
+  `acceleratorNePerGuide`, `acceleratorDragPerGuide`, `acceleratorMinGapAllowance`,
+  `acceleratorGapPerSpeed`, `acceleratorBendSpeedBase`, `acceleratorEnergyScale`.
 - **New wiki page** — [Exotic Endgame](wiki/Exotic-Endgame.md), with the Conveyor Belt and Robotic
   Arm documented in [Automation](wiki/Automation.md), the transmutation and antimatter recipes in
-  [Particle Collider](wiki/Particle-Collider.md), tier 4 in the
+  [Particle Accelerator](wiki/Particle-Collider.md), tier 4 in the
   [Fusion Reactor](wiki/Fusion-Reactor.md) fuel table, and the cross-type paste in
   [Side Config & the Configurator](wiki/Side-Config-and-Configurator.md).
 
-- **Particle Collider** — a new endgame multiblock and NeroTech's **standalone** route to
-  space-grade materials. A horizontal 5×5 or 7×7 ring of the new **Accelerator Coil** blocks around
-  the new **Collider Core** transmutes a catalyst into **Starsteel Dust** (from Netherite Scrap) or
-  **Void Crystal Dust** (from an Echo Shard) via the datapack-driven `nerotech:collider` recipe
-  type. Inert until the ring is formed; the 7×7 ring halves the operation time. Deliberately
-  expensive — `colliderNePerTick` (default 400) for `colliderOperationTicks` (default 1200) per
-  operation at triple heat — so meteor mining stays the faster source wherever Nerospace is
-  installed. Both blocks are crafted from vanilla materials and Tier-1 NeroTech components only, so
-  the advanced tier (Fusion Reactor included) is now reachable on Earth alone. Ships with a JEI
-  page, a Tech Guide step, an advancement, and the [Particle Collider](wiki/Particle-Collider.md)
-  wiki page.
+- **Particle Accelerator** — a new endgame build and NeroTech's **standalone** route to space-grade
+  materials, and a **free-form** one: no multiblock, no fixed footprint. **Accelerator Guide Coils**
+  are laid at the **Accelerator Controller**'s own Y level in any shape at all, each right-clicked
+  (empty hand or the Configurator) to cycle its `bend` blockstate **straight / 45° left / 45° right**;
+  the controller ray-marches its facing heading up to `acceleratorMaxGap` blocks per hop, follows the
+  bends, and if the line comes back into itself it has a **closed loop**. Guides need not touch and
+  need not be square. A virtual particle (server-side state, no entity, drawn as a vanilla END_ROD
+  streak so you can watch it lap) is injected from the first slot and boosted at every guide.
+  Three rules — implemented as pure, unit-tested maths in `machine/AcceleratorMath` — make ring
+  GEOMETRY the progression axis: the **gap rule** (a stretch too long for the current speed loses the
+  particle; inverted, it sets the injection speed), the **bend rule** (a 45° turn survives at most
+  `acceleratorBendSpeedBase` × the run-up before it, so the shortest bend stretch caps the loop), and
+  **collision energy** `E = 0.5·v²·acceleratorEnergyScale`. Put a second item in the collision slot
+  and every lap through the controller attempts the collision. The `nerotech:collider` recipe type is
+  now its own `ColliderRecipe` class — **two order-free ingredients plus a `min_energy` floor** — so a
+  recipe's energy requirement is really a minimum ring size: 800 J and 1,500 J for the dust
+  transmutations (an 11×11 octagon), 3,000 J for **Starsteel Dust** (Netherite Scrap + Iron Dust) and
+  **Void Crystal Dust** (Echo Shard + Amethyst Shard), and 12,000 J for the **Antimatter Cell** (two
+  Stellar Cells — a 29×29 ring). Both blocks are still crafted from vanilla materials and Tier-1
+  NeroTech components only, so the advanced tier (Fusion Reactor included) is reachable on Earth
+  alone. The ring also **reads itself back**: after every trace the controller writes each guide's
+  outgoing beam direction into a display-only `heading` blockstate, and the coil's top face lights up
+  with a cyan arrow — one of 24 hand-painted tops (3 bends × 8 compass headings, the bend's 45° kink
+  drawn in) — so you can walk a loop and see the beam's route. A coil with no arrow is not part of a
+  closed line, which makes the arrows the first debugging tool for a ring that will not close. The
+  writes are compare-before-set and carry no neighbour update, so a settled ring costs nothing to
+  re-trace and the arrows never feed back into the physics. Ships with a dedicated two-input JEI page,
+  a Tech Guide step, an advancement, and a rewritten
+  [Particle Accelerator](wiki/Particle-Collider.md) wiki page. *Mechanic inspired by Oritech's
+  particle accelerator; clean-room implementation.*
 - **Power tier** — six new blocks that absorb the whole feature set once planned for a separate
   **NeroPower** mod. Three generators: the **Wind Turbine** is fuel-free and works day *and* night —
   `windTurbineNePerTick` (default 25) scaled by an altitude curve (0.5× at or below y=80 rising
@@ -168,6 +191,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`/nerotech gallery` now demonstrates the full 0.2.0 lineup** — the creative-only showcase gains
+  five more spokes, each running the way survival would wire it rather than posed: a **closed
+  octagonal Particle Accelerator** (eight RIGHT guide coils, sized so the beam reaches ~1045 J on its
+  third lap and transmutes Copper Dust into Iron Dust for ever without crashing a bend) with its own
+  Coolant Pump tower; the **gas chain** — an Electrolyzer flanked by a Gas Turbine burning its
+  hydrogen and a Chemical Processor washing raw iron with its oxygen; a **coolant loop** (pump plus
+  two Radiators) draining the 5×5×5 Fusion Reactor; a **power park** with a Wind Turbine on a
+  15-block mast, a Geothermal Generator over a walled 3×3 lava basin, a Bio Generator, a Battery Bank
+  taking both their pushes, a Grid Controller and a **linked Wireless Node pair** powering an Ore
+  Processor ten blocks away with no cable; and an **automation lane** — a Conveyor Belt run with a
+  corner carrying live item entities, a Robotic Arm shuttling chest to chest, and a Singularity Vault
+  holding 10 000 Iron Dust. `gallery clear` covers the enlarged footprint, including the mast and the
+  lava basin (removed without letting the lava flow). The command still records nothing about the
+  player.
 - **The NeroPower split is retired** — as of 2026-07-31, NeroPower will not ship as a separate mod
   and its planned feature set is absorbed into NeroTech (see the power tier above). One mod, one
   power network, no cross-mod dependency to reason about. Generation still talks only to Core's

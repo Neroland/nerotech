@@ -52,6 +52,19 @@ subprojects {
                 password = providers.gradleProperty('gpr.key').orElse(providers.environmentVariable('GITHUB_TOKEN')).getOrNull()
             }
         }
+        // Nerospace from GitHub Packages — the compileOnly planet-compat dep
+        // (za.co.neroland.nerospace:nerospace-<loader>-<mc>) previously resolved ONLY from mavenLocal,
+        // which is empty in CI: every matrix cell failed at configuration. Same lazy-credential
+        // pattern as Core above; mavenLocal still wins for local devs. Nerospace must publish its
+        // per-loader artifacts to this repo (Core's publish pattern) for CI to go green.
+        maven {
+            name = 'NerospaceGitHubPackages'
+            url = 'https://maven.pkg.github.com/Neroland/nerospace'
+            credentials {
+                username = providers.gradleProperty('gpr.user').orElse(providers.environmentVariable('GITHUB_ACTOR')).getOrNull()
+                password = providers.gradleProperty('gpr.key').orElse(providers.environmentVariable('GITHUB_TOKEN')).getOrNull()
+            }
+        }
         mavenCentral()
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://maven.neoforged.net/releases/' }

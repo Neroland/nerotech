@@ -37,8 +37,8 @@ of sci-fi mods. Built on **Neroland Core**.
 
 - [Advanced Tier](Advanced-Tier.md) — the Starsteel-gated tier (soft Nerospace coupling via Core
   tags/gates).
-- [Particle Collider](Particle-Collider.md) — the 5×5/7×7 accelerator ring: the standalone route to
-  Starsteel and Void Crystal dust.
+- [Particle Accelerator](Particle-Collider.md) — the free-form guide-coil ring: the standalone route
+  to Starsteel and Void Crystal dust, where ring size *is* the tier.
 - [Fusion Reactor](Fusion-Reactor.md) — the 3³/5³/7³ multiblock: shells, fuel tiers, meltdown and
   containment breach.
 - [Automation & Handoff](Automation.md) — Auto Crafter, Item Sorter, Conveyor Belt, Robotic Arm, and

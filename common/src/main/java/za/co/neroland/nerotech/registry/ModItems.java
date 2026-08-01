@@ -68,9 +68,12 @@ public final class ModItems {
     /** Tier-3 Fusion Reactor fuel; tagged into {@code nerotech:fusion_fuel/tier3} (+ {@code fusion_fuels}). */
     public static final RegistryEntry<Item> STELLAR_CELL = item("stellar_cell", p -> p.stacksTo(16));
 
-    // --- Particle Collider multiblock (Stage B) ------------------------------
-    public static final RegistryEntry<BlockItem> ACCELERATOR_COIL_ITEM = blockItem("accelerator_coil", ModBlocks.ACCELERATOR_COIL);
-    /** Carries the tooltip naming the ring requirement (26.x blocks expose no hover-text hook). */
+    // --- Particle Accelerator (Stage B; free-form rework) --------------------
+    /** Carries the tooltip naming the right-click bend cycle (26.x blocks expose no hover-text hook). */
+    public static final RegistryEntry<BlockItem> ACCELERATOR_COIL_ITEM = ITEMS.register("accelerator_coil",
+            key -> new TooltipBlockItem(ModBlocks.ACCELERATOR_COIL.get(), new Item.Properties().setId(key),
+                    "block.nerotech.accelerator_coil.tooltip"));
+    /** Carries the tooltip explaining how a free-form ring is built. */
     public static final RegistryEntry<BlockItem> COLLIDER_CORE_ITEM = ITEMS.register("collider_core",
             key -> new ColliderCoreBlockItem(ModBlocks.COLLIDER_CORE.get(), new Item.Properties().setId(key)));
 
@@ -216,8 +219,8 @@ public final class ModItems {
     }
 
     /**
-     * Collider Core block-item with the one-line tooltip: what the machine does and the ring it
-     * needs, so the multiblock requirement is discoverable before the block is ever placed.
+     * Accelerator Controller block-item with the one-line tooltip: how a free-form ring is laid out
+     * and what the controller does with it, so the build is discoverable before the block is placed.
      */
     private static final class ColliderCoreBlockItem extends BlockItem {
         ColliderCoreBlockItem(Block block, Item.Properties properties) {

@@ -202,13 +202,41 @@ public final class NeroTechConfig {
             + "reactor's heat rate (the meltdown risk is the price)");
     private static final ConfigValue<Integer> ADVANCED_YIELD_BONUS = SCHEMA.intRange("advancedOreProcessorYieldBonus",
             1, 0, 64, true, "extra dust the Advanced Ore Processor yields over the Tier-1 processor");
-    // --- Particle Collider (Stage B: the standalone route to space-grade dusts) ---------------
-    private static final ConfigValue<Integer> COLLIDER_NE_PER_TICK = SCHEMA.intRange("colliderNePerTick",
-            400, 0, 10_000_000, true, "NE/tick the Collider Core draws while running — deliberately huge: "
-            + "the collider must never undercut mining the dusts where a planet mod supplies them");
-    private static final ConfigValue<Integer> COLLIDER_OPERATION_TICKS = SCHEMA.intRange("colliderOperationTicks",
-            1_200, 1, 720_000, true, "base ticks one Collider Core operation takes on a 5x5 ring (before Speed "
-            + "modules); a 7x7 accelerator ring halves it");
+    // --- Particle Accelerator (free-form ring; the standalone route to space-grade dusts) -----
+    private static final ConfigValue<Integer> ACCEL_MAX_GAP = SCHEMA.intRange("acceleratorMaxGap",
+            16, 1, 64, true, "blocks the Accelerator Controller marches along the current heading looking "
+            + "for the next Accelerator Guide Coil; nothing found within this and the beam line is OPEN");
+    private static final ConfigValue<Integer> ACCEL_MAX_GUIDES = SCHEMA.intRange("acceleratorMaxGuides",
+            256, 4, 4_096, true, "safety cap on guides in one traced beam line (a pathological build stops "
+            + "here and reads as an open line); the trace costs O(guides x acceleratorMaxGap) block reads");
+    private static final ConfigValue<Double> ACCEL_TICK_SCALE = SCHEMA.doubleRange("acceleratorTickScale",
+            0.05D, 0.001D, 1.0D, true, "blocks a particle travels per tick per unit of speed "
+            + "(0.05 = speed 100 covers 5 blocks/tick)");
+    private static final ConfigValue<Double> ACCEL_LAUNCH_SPEED = SCHEMA.doubleRange("acceleratorLaunchSpeed",
+            10.0D, 0.1D, 10_000.0D, true, "floor on the injection speed; the controller actually injects at "
+            + "the slowest speed the loop's LONGEST stretch tolerates (see acceleratorMinGapAllowance), so a "
+            + "wide ring starts fast and a tight one crawls");
+    private static final ConfigValue<Double> ACCEL_BOOST_PER_GUIDE = SCHEMA.doubleRange("acceleratorBoostPerGuide",
+            2.0D, 0.0D, 10_000.0D, true, "speed a powered Accelerator Guide Coil adds as the particle passes");
+    private static final ConfigValue<Integer> ACCEL_NE_PER_GUIDE = SCHEMA.intRange("acceleratorNePerGuide",
+            50, 0, 10_000_000, true, "NE the controller spends per guide passed (and once to inject); with no "
+            + "NE the particle coasts instead of accelerating");
+    private static final ConfigValue<Double> ACCEL_DRAG_PER_GUIDE = SCHEMA.doubleRange("acceleratorDragPerGuide",
+            0.5D, 0.0D, 10_000.0D, true, "speed an UNPOWERED guide bleeds off a coasting particle — coast long "
+            + "enough and it drops below the gap rule and is lost");
+    private static final ConfigValue<Double> ACCEL_MIN_GAP_ALLOWANCE = SCHEMA.doubleRange(
+            "acceleratorMinGapAllowance", 4.0D, 0.0D, 256.0D, true, "gap rule: the longest stretch a particle "
+            + "at speed 0 could cross. The real allowance is this + speed x acceleratorGapPerSpeed — slow "
+            + "particles need close guides");
+    private static final ConfigValue<Double> ACCEL_GAP_PER_SPEED = SCHEMA.doubleRange("acceleratorGapPerSpeed",
+            0.12D, 0.0D, 100.0D, true, "gap rule: extra blocks of allowed stretch per unit of speed");
+    private static final ConfigValue<Double> ACCEL_BEND_SPEED_BASE = SCHEMA.doubleRange(
+            "acceleratorBendSpeedBase", 20.0D, 0.1D, 100_000.0D, true, "bend rule: a 45 degree turn survives a "
+            + "speed of at most this x the length of the stretch before it — the shortest bend stretch in a "
+            + "loop caps the whole loop's top speed, so big rings are what buy big speeds");
+    private static final ConfigValue<Integer> ACCEL_ENERGY_SCALE = SCHEMA.intRange("acceleratorEnergyScale",
+            500, 1, 1_000_000, true, "permille scale in the collision energy formula E = 0.5 x speed^2 x scale; "
+            + "collider recipes gate on the resulting joules");
 
     private static final ConfigValue<String> SOLAR_DIM_MULTIPLIERS = SCHEMA.string("solarDimensionMultipliers",
             "", true, "per-dimension solar multiplier FALLBACK (since Stage H, nerospace.api planet traits take "
@@ -483,12 +511,48 @@ public final class NeroTechConfig {
         return ADVANCED_YIELD_BONUS.get();
     }
 
-    public static int colliderNePerTick() {
-        return COLLIDER_NE_PER_TICK.get();
+    public static int acceleratorMaxGap() {
+        return ACCEL_MAX_GAP.get();
     }
 
-    public static int colliderOperationTicks() {
-        return COLLIDER_OPERATION_TICKS.get();
+    public static int acceleratorMaxGuides() {
+        return ACCEL_MAX_GUIDES.get();
+    }
+
+    public static double acceleratorTickScale() {
+        return ACCEL_TICK_SCALE.get();
+    }
+
+    public static double acceleratorLaunchSpeed() {
+        return ACCEL_LAUNCH_SPEED.get();
+    }
+
+    public static double acceleratorBoostPerGuide() {
+        return ACCEL_BOOST_PER_GUIDE.get();
+    }
+
+    public static int acceleratorNePerGuide() {
+        return ACCEL_NE_PER_GUIDE.get();
+    }
+
+    public static double acceleratorDragPerGuide() {
+        return ACCEL_DRAG_PER_GUIDE.get();
+    }
+
+    public static double acceleratorMinGapAllowance() {
+        return ACCEL_MIN_GAP_ALLOWANCE.get();
+    }
+
+    public static double acceleratorGapPerSpeed() {
+        return ACCEL_GAP_PER_SPEED.get();
+    }
+
+    public static double acceleratorBendSpeedBase() {
+        return ACCEL_BEND_SPEED_BASE.get();
+    }
+
+    public static int acceleratorEnergyScale() {
+        return ACCEL_ENERGY_SCALE.get();
     }
 
     public static String solarDimensionMultipliers() {

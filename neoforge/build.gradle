@@ -60,7 +60,8 @@ dependencies {
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
     // za.co.neroland.nerospace.api facade. Never runtime/jar-in-jar — the neoforge.mods.toml lists
     // nerospace as optional (ordering AFTER) and NeroTech runs fully without it. Resolved from
-    // mavenLocal (run `./gradlew publishToMavenLocal` in ../nerospace).
+    // mavenLocal (run `./gradlew publishToMavenLocal` in ../nerospace) or, in CI/fresh clones,
+    // from the NerospaceGitHubPackages repo in stonecutter.gradle.
     compileOnly "za.co.neroland.nerospace:nerospace-neoforge-${mc}:${nerospaceVersion}"
 
     // Sentry SDK embedded via NeoForge JarJar so players need no extra download (JarJar dedupes if

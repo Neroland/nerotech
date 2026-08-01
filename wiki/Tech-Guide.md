@@ -31,8 +31,9 @@ Eight chapters, twenty-two steps, mirroring NeroTech's arc:
 6. **Analytics** — place an [Analytics Terminal](Analytics.md).
 7. **Fusion** — cast Fusion Casing, form a [reactor shell](Fusion-Reactor.md), burn a Stellar
    Cell.
-8. **Exotic Matter** — widen the [collider ring](Particle-Collider.md) to 7×7, collide a Stellar
-   Cell into antimatter, build a [Singularity Vault](Exotic-Endgame.md).
+8. **Exotic Matter** — widen the [accelerator ring](Particle-Collider.md) until its stretches run
+   eleven blocks or more, collide two Stellar Cells into antimatter, build a
+   [Singularity Vault](Exotic-Endgame.md).
 
 ## See also
 

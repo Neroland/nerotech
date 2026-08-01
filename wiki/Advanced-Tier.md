@@ -13,15 +13,15 @@ left inert. (This is the "planet-ore possession" gate from the Phase-3 plan; it 
 
 ### Standalone path
 
-The advanced tier is **no longer space-only**. The [Particle Collider](Particle-Collider.md) — a ring of
-Accelerator Coils around a Collider Core, built from vanilla materials and Tier-1 NeroTech components —
-transmutes cheap catalysts into **Starsteel Dust** and **Void Crystal Dust**, which smelt into the
-materials through Neroland Core's recipes. That makes the whole advanced tier, Fusion Reactor included,
-reachable on Earth alone.
+The advanced tier is **no longer space-only**. The [Particle Accelerator](Particle-Collider.md) — a
+free-form loop of Accelerator Guide Coils around an Accelerator Controller, built from vanilla
+materials and Tier-1 NeroTech components — collides cheap materials into **Starsteel Dust** and
+**Void Crystal Dust**, which smelt into the materials through Neroland Core's recipes. That makes the
+whole advanced tier, Fusion Reactor included, reachable on Earth alone.
 
 It is deliberately the *slow, expensive* road: with Nerospace installed, mining meteors and planet ores
-stays much faster. The collider is the route that needs no other mod — and the only one you can fully
-automate.
+stays much faster. The accelerator is the route that needs no other mod — and the only one you can
+fully automate.
 
 ## Machines
 
@@ -42,12 +42,13 @@ A higher-yield Ore Processor (`advancedOreProcessorYieldBonus` extra dust per op
 sensible place to run the **bulk raw-ore-block** recipes (raw iron/gold/copper block → 18 dust) that
 ship alongside the per-item ones.
 
-### Particle Collider
+### Particle Accelerator
 
-The standalone source of space-grade dust: a horizontal 5×5 or 7×7 ring of Accelerator Coils around a
-Collider Core, which turns a Netherite Scrap into Starsteel Dust and an Echo Shard into Void Crystal
-Dust at an enormous energy and heat cost. The 7×7 ring halves the operation time. See the dedicated
-[Particle Collider](Particle-Collider.md) page.
+The standalone source of space-grade dust: a free-form horizontal loop of Accelerator Guide Coils
+closing back into an Accelerator Controller. The controller injects a particle, accelerates it round
+the loop and collides it with a second one — Netherite Scrap + Iron Dust into Starsteel Dust, Echo
+Shard + Amethyst Shard into Void Crystal Dust, both at 3,000 J. Bigger rings hold faster particles,
+so ring size *is* the tier. See the dedicated [Particle Accelerator](Particle-Collider.md) page.
 
 ### Advanced Fabricator
 
@@ -79,7 +80,7 @@ No Nerospace import is involved either way — the coupling is runtime-optional.
 ## See also
 
 - [Tier-1 Machines](Machines.md)
-- [Particle Collider](Particle-Collider.md)
+- [Particle Accelerator](Particle-Collider.md)
 - [Fusion Reactor](Fusion-Reactor.md)
 - [Planets](Planets.md)
 - [Consequence Systems](Consequence-Systems.md)

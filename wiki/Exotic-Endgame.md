@@ -1,14 +1,22 @@
 # Exotic Endgame
 
-Past the [Fusion Reactor](Fusion-Reactor.md) and the [Particle Collider](Particle-Collider.md) sits
-NeroTech's last tier: two blocks and one item that only exist because you already have both
-multiblocks running. Nothing here is a straight upgrade — each one trades something real.
+Past the [Fusion Reactor](Fusion-Reactor.md) and the [Particle Accelerator](Particle-Collider.md) sits
+NeroTech's last tier: two blocks and one item that only exist because you already have the reactor
+and a very large accelerator ring running. Nothing here is a straight upgrade — each one trades
+something real.
 
 ## Antimatter Cell
 
-**Tier-4 fusion fuel**, and the only item in the mod the [Particle Collider](Particle-Collider.md)
-alone can make: feed it a **Stellar Cell** and an **Antimatter Cell** comes out. There is no crafting
-recipe and no other source.
+**Tier-4 fusion fuel**, and the only item in the mod the
+[Particle Accelerator](Particle-Collider.md) alone can make: collide **two Stellar Cells** at
+**12,000 J** or more and an **Antimatter Cell** comes out. There is no crafting recipe and no other
+source.
+
+That energy floor is the real gate. A collision only carries 12,000 J at a beam speed of ~219, and
+the bend rule caps a loop at `20 ×` its shortest bend stretch — so antimatter needs a ring whose
+stretches are **eleven blocks or longer**, roughly a **29 × 29** octagon. The tight starter ring that
+made your first Starsteel Dust will never reach it, however long you leave it running. Clear the
+land first.
 
 | Property | Value |
 | --- | --- |
@@ -71,17 +79,17 @@ It uses **no power** — it is not on the energy surface at all, and a
 > itself does. Pull the contents out first.
 
 **Craft:** 4 Void Crystal (`#c:gems/void_crystal`) + 4 Obsidian around an **Antimatter Cell** — which
-is what puts the vault behind both multiblocks.
+is what puts the vault behind the reactor and the biggest ring you have built.
 
 ## Transmutation
 
-The collider also gains two lossy dust conversions at this tier — Copper Dust → Iron Dust and Iron
-Dust → Gold Dust. They are 1 : 1 by item count and pay their "loss" in a full collider operation
-each. See [Particle Collider → Transmutation](Particle-Collider.md#transmutation).
+The accelerator also gains two lossy dust conversions at this tier — Copper Dust ×2 → Iron Dust and
+Iron Dust ×2 → Gold Dust. They pay their loss in items *and* in the run it takes to reach 800 J /
+1,500 J. See [Particle Accelerator → Transmutation](Particle-Collider.md#transmutation).
 
 ## See also
 
-- [Particle Collider](Particle-Collider.md)
+- [Particle Accelerator](Particle-Collider.md)
 - [Fusion Reactor](Fusion-Reactor.md)
 - [Automation & Handoff](Automation.md)
 - [Thermal System](Thermal-System.md)

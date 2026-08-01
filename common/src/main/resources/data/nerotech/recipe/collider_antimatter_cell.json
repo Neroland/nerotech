@@ -1,1 +1,1 @@
-{ "type": "nerotech:collider", "ingredient": "nerotech:stellar_cell", "result": { "id": "nerotech:antimatter_cell" } }
+{ "type": "nerotech:collider", "input_a": "nerotech:stellar_cell", "input_b": "nerotech:stellar_cell", "min_energy": 12000, "result": { "id": "nerotech:antimatter_cell" } }

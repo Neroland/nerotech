@@ -28,7 +28,7 @@ Each machine's heat is the balance of four flows:
   against a machine counts as **four** natural coolant blocks — and, unlike ice, it never melts.
 - **Coolant Pumps cool actively.** A [Coolant Pump](Fluids-and-Gases.md#the-coolant-loop) spends NE
   to pull heat out of *every* adjacent machine, scaled by how many Radiators feed it. This is how you
-  keep a Fusion Reactor or Particle Collider running flat out without a wall of ice.
+  keep a Fusion Reactor or Particle Accelerator running flat out without a wall of ice.
 
 ## Throttling
 
