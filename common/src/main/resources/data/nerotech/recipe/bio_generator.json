@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "N": "nerotech:nero_coil", "H": "minecraft:hay_block",
+    "P": "minecraft:composter", "F": "nerotech:machine_frame" },
+  "pattern": [ " N ", "HFH", " P " ],
+  "result": { "id": "nerotech:bio_generator" } }

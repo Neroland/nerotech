@@ -1,34 +1,54 @@
 # Advanced Tier (Tier 2/3)
 
-NeroTech's late game is **gated behind reaching space**, but coupled to Nerospace only *softly* — through
-Neroland Core's shared `c:` tags, never a direct dependency. With Nerospace absent the Earth tier still
-plays fully standalone, and the advanced tier is simply uncraftable.
+NeroTech's late game is **paced by Starsteel**, and coupled to Nerospace only *softly* — through
+Neroland Core's shared `c:` tags, never a direct dependency. With Nerospace installed, space is the fast
+road to that Starsteel; without it, NeroTech now supplies its own.
 
-## How the gate works (possession)
+## How the pacing works (possession)
 
-Every advanced machine is **crafted with Starsteel** (`#c:ingots/starsteel`) — a material only space
-supplies (via Nerospace). On Earth-only play there is no Starsteel source, so the advanced tier can't be
-crafted at all; once you *have* an advanced machine (you reached space to get the Starsteel), it works
-like any other machine — it is never separately locked or left inert. (This is the "planet-ore
-possession" gate from the Phase-3 plan; it replaced an earlier `reached_orbit` use-lock that wrongly
-bricked the machines in standalone/creative play.)
+Every advanced machine is **crafted with Starsteel** (`#c:ingots/starsteel`). Holding the material *is*
+the gate: once you have an advanced machine it works like any other — it is never separately locked or
+left inert. (This is the "planet-ore possession" gate from the Phase-3 plan; it replaced an earlier
+`reached_orbit` use-lock that wrongly bricked the machines in standalone/creative play.)
+
+### Standalone path
+
+The advanced tier is **no longer space-only**. The [Particle Accelerator](Particle-Collider.md) — a
+free-form loop of Accelerator Guide Coils around an Accelerator Controller, built from vanilla
+materials and Tier-1 NeroTech components — collides cheap materials into **Starsteel Dust** and
+**Void Crystal Dust**, which smelt into the materials through Neroland Core's recipes. That makes the
+whole advanced tier, Fusion Reactor included, reachable on Earth alone.
+
+It is deliberately the *slow, expensive* road: with Nerospace installed, mining meteors and planet ores
+stays much faster. The accelerator is the route that needs no other mod — and the only one you can
+fully automate.
 
 ## Machines
 
 ### Fusion Reactor
 
-Late-game high-output generation. Burns a fuel from the **`nerotech:fusion_fuels`** tag — a
-datapack-overridable tag, so NeroTech's Fusion Cell, a Nerospace fuel, or a Mekanism product can all
-power it (recognised by tag, never by class). It runs very hot; the red heat gauge telegraphs the
-danger. Left unmanaged it reaches max heat and:
-
-- with **`fusionReactorMeltdownEnabled=true`** (default) — **melts down destructively** (a contained
-  explosion), or
-- with it **false** (survival-friendly servers) — simply **stalls** until it cools.
+Late-game high-output generation — and, since 0.1.0-beta.1, a **scalable multiblock**: a hollow
+3×3×3, 5×5×5 or 7×7×7 shell of Fusion Casing / Containment Glass around a controller that is inert
+until the shell forms. It burns fuels from the **`nerotech:fusion_fuels`** tag family — a
+datapack-overridable surface, so NeroTech's cells, a Nerospace fuel, or a Mekanism product can all
+power it (recognised by tag, never by class) — with three fuel tiers gated by shell size. It runs
+very hot, and left unmanaged melts down with a shell-scaled blast (`fusionReactorMeltdownEnabled=false`
+makes it merely stall instead). See the dedicated [Fusion Reactor](Fusion-Reactor.md) page for shell
+sizes, fuel tiers, meltdown and containment breach.
 
 ### Advanced Ore Processor
 
-A higher-yield Ore Processor (`advancedOreProcessorYieldBonus` extra dust per operation).
+A higher-yield Ore Processor (`advancedOreProcessorYieldBonus` extra dust per operation), and the
+sensible place to run the **bulk raw-ore-block** recipes (raw iron/gold/copper block → 18 dust) that
+ship alongside the per-item ones.
+
+### Particle Accelerator
+
+The standalone source of space-grade dust: a free-form horizontal loop of Accelerator Guide Coils
+closing back into an Accelerator Controller. The controller injects a particle, accelerates it round
+the loop and collides it with a second one — Netherite Scrap + Iron Dust into Starsteel Dust, Echo
+Shard + Amethyst Shard into Void Crystal Dust, both at 3,000 J. Bigger rings hold faster particles,
+so ring size *is* the tier. See the dedicated [Particle Accelerator](Particle-Collider.md) page.
 
 ### Advanced Fabricator
 
@@ -36,20 +56,32 @@ Refines space materials into reactor fuel: **Void Crystal (`#c:gems/void_crystal
 
 The advanced machines reuse the Tier-1 GUIs (their titles identify them).
 
-## Reactor fuel — the Fusion Cell
+## Reactor fuels — Fusion, Plasma & Stellar Cells
 
-Crafted from Starsteel + Void Crystal, or produced by the Advanced Fabricator. Tagged into
-`nerotech:fusion_fuels`.
+The **Fusion Cell** is tier 1 and is now **machine-exclusive**: its shaped crafting recipe is gone, so
+the only source is the Advanced Fabricator (Void Crystal → Fusion Cell). Building the machine is the
+price of entry to fusion fuel. The **Plasma Cell** (Starsteel, tier 2) and **Stellar Cell** (Void
+Crystal + Starsteel, tier 3) keep their crafting recipes — they are multi-ingredient, and the
+`advanced_fabricating` recipe type takes a single input — but each is built on the tier below it, so
+the whole fuel ladder now starts at the Advanced Fabricator. Higher tiers demand bigger reactor
+shells — see [Fusion Reactor](Fusion-Reactor.md).
 
-## Deferred: per-planet generation
+The **Remediator** — the heavy pollution cleaner from
+[Pollution & Mitigation](Pollution-and-Mitigation.md) — is also Starsteel-gated and arrives with
+this tier.
 
-Per-planet generation modifiers (e.g. Solar Array output by world) wait on a published `nerospace.api`
-planet-trait query. Until then NeroTech reads a **Core-config fallback** keyed by dimension id
-(`solarDimensionMultipliers`, e.g. `nerospace:greenxertz=1.5`); Earth (overworld) defaults to 1.0. No
-Nerospace import is involved.
+## Per-planet generation
+
+Shipped in 0.1.0-beta.1: with Nerospace installed, Solar Array output and thermal ambient follow
+**planet traits** automatically; without it, the per-dimension config fallback
+(`solarDimensionMultipliers`, `thermalAmbientByDimension`) applies. See [Planets](Planets.md).
+No Nerospace import is involved either way — the coupling is runtime-optional.
 
 ## See also
 
 - [Tier-1 Machines](Machines.md)
+- [Particle Accelerator](Particle-Collider.md)
+- [Fusion Reactor](Fusion-Reactor.md)
+- [Planets](Planets.md)
 - [Consequence Systems](Consequence-Systems.md)
 - [Home](Home.md)

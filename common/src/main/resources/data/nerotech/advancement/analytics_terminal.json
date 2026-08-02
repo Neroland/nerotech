@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:item_sorter",
+  "criteria": {
+    "has_analytics_terminal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:analytics_terminal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.analytics_terminal.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:analytics_terminal"
+    },
+    "title": {
+      "translate": "advancements.nerotech.analytics_terminal.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_analytics_terminal"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

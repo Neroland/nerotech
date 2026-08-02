@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:starsteel_dust",
+  "criteria": {
+    "has_antimatter_cell": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:antimatter_cell"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.antimatter_cell.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "nerotech:antimatter_cell"
+    },
+    "title": {
+      "translate": "advancements.nerotech.antimatter_cell.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_antimatter_cell"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

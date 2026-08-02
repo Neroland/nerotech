@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 1.0,
+  "ingredient": "nerotech:gold_dust",
+  "result": { "id": "minecraft:gold_ingot" }
+}

@@ -6,17 +6,21 @@ tunable (`config/nerotech.properties`, managed by Core).
 
 ## Heat
 
-Every machine carries a **heat** value (shown as the red gauge on the right of its GUI):
+Every machine carries a **heat** value (shown as the red gauge on the right of its GUI, and in the
+colour of its glow in-world):
 
-- **Accumulates** while the machine works — generators while burning, processors each work tick.
-- **Dissipates** passively every tick, and **faster when adjacent to a coolant block** (water, ice,
-  packed/blue ice, snow block, powder snow) — the simplest cooling.
+- **Accumulates** while the machine works — generators while burning, processors each work tick —
+  scaled by the machine's [overclock preset](Overclock-Presets.md).
+- **Flows**: since 0.1.0-beta.1, heat is a [full thermal model](Thermal-System.md) — adjacent
+  machines conduct heat to each other, everything relaxes toward a per-dimension/biome **ambient**,
+  and **coolant blocks** (water, ice, packed/blue ice, snow block, powder snow) vent it faster.
 - **Throttles**: once heat reaches the threshold, a processing machine **stalls** until it cools back
   down. This is the counter-pressure that stops players trivially overclocking everything with Speed
   modules.
 
-Heat is per-block-entity (no global scan) and persists across relog. Tuning keys: `heatCapacity`,
-`heatPerOperation`, `heatDissipationPerTick`, `heatThrottleThreshold`.
+Heat is per-block-entity with cached neighbour links (no global scan) and persists across relog.
+Tuning keys: `heatCapacity`, `heatPerOperation`, `heatDissipationPerTick`, `heatThrottleThreshold`,
+plus the `thermal*` keys listed in [Thermal System](Thermal-System.md).
 
 ## Pollution
 
@@ -31,6 +35,10 @@ per-block-per-tick:
 
 Tuning keys: `pollutionPerOperation`, `pollutionContributionIntervalTicks`,
 `pollutionDecayIntervalTicks`, `pollutionDecayAmount`.
+
+Since 0.1.0-beta.1, pollution can also be **actively cleaned** — see
+[Pollution & Mitigation](Pollution-and-Mitigation.md) for the Scrubber, the Filter Cartridge cycle,
+the Remediator, and the (dormant) regional threshold events.
 
 ### Per-player attribution & privacy (POPIA / GDPR)
 
@@ -47,4 +55,6 @@ When (and only when) this is enabled:
 ## See also
 
 - [Tier-1 Machines](Machines.md)
+- [Thermal System](Thermal-System.md)
+- [Pollution & Mitigation](Pollution-and-Mitigation.md)
 - [Home](Home.md)

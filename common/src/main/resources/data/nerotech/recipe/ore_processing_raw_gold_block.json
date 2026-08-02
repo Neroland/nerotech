@@ -1,0 +1,1 @@
+{ "type": "nerotech:ore_processing", "ingredient": "minecraft:raw_gold_block", "result": { "id": "nerotech:gold_dust", "count": 18 } }

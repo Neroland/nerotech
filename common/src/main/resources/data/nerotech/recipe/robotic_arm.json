@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "N": "nerotech:nero_coil", "C": "nerotech:circuit_board", "F": "nerotech:machine_frame", "D": "nerotech:iron_dust" },
+  "pattern": [ " N ", "CFC", "DND" ],
+  "result": { "id": "nerotech:robotic_arm" } }

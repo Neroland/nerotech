@@ -24,6 +24,28 @@ base { archivesName = "nerotech-fabric-${mc}" }
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
 
+// Plain-JVM unit tests (JUnit 5, no game bootstrap) — the same shared tests the neoforge nodes run,
+// so a regression is caught on every loader instead of only one. They live in common/src/test/java
+// (mirroring Core's layout) but `common` is not a Gradle project (see settings.gradle), so each
+// loader node wires the source dir itself.
+// Loom has no equivalent of ModDevGradle's `addModdingDependenciesTo`, so the test source set simply
+// inherits main's resolved classpath (de-obfuscated Minecraft + fabric-api + Core). testImplementation
+// already extends implementation, which carries Core; the extendsFrom below adds Loom's Minecraft.
+// Run with `gradlew :fabric:<mc>:test`; `build`/`check` runs them automatically.
+sourceSets.test.java.srcDir "${rootProject.projectDir}/common/src/test/java"
+configurations.testCompileClasspath.extendsFrom configurations.compileClasspath
+configurations.testRuntimeClasspath.extendsFrom configurations.runtimeClasspath
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${mc}"
     // NOTE: no `mappings` — de-obfuscated 26.x needs none (Fabric Loom 1.17+).
@@ -39,6 +61,12 @@ dependencies {
     // classpath and Fabric Loader discovers it as a mod via its bundled fabric.mod.json. Resolved from
     // mavenLocal(). Core loads BEFORE NeroTech (see fabric.mod.json depends).
     implementation "za.co.neroland.nerolandcore:nerolandcore-fabric-${mc}:${nerolandcoreVersion}"
+
+    // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
+    // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
+    // Nerospace: NO build dependency at all — compat/NerospacePlanetCompat resolves the
+    // za.co.neroland.nerospace.api facade by pure reflection at runtime. fabric.mod.json only
+    // `suggests` nerospace; NeroTech builds and runs fully without it.
 
     // Sentry SDK (telemetry/NeroTechTelemetry): compile against it + embed it as a jar-in-jar so the
     // shipped Fabric jar carries it. Counterpart to the NeoForge JarJar bundling.
@@ -70,6 +98,9 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_license          : rootProject.mod_license,
         fabric_loader_version: rootProject.fabric_loader_version,
         minecraft_version    : mc,
+        // Floor the required Core version at what we compile against so the loader refuses to
+        // run against a Core too old to have the APIs it references.
+        nerolandcore_version : nerolandcoreVersion,
     ]
     inputs.properties(props)
     expand(props)
@@ -78,6 +109,44 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
 }
 sourceSets.main.resources.srcDir generateModMetadata
 eclipse.synchronizationTasks generateModMetadata
+
+// Bundle the in-repo wiki/ pages as runtime classpath resources under assets/nerotech/wiki/ so the
+// NeroLink `wiki` section (link.WikiLibrary) can serve them on the server. wiki/ stays the single
+// source of truth; a generated index.json (slug + title per page) rides along, since classpath
+// directory listing is unreliable across loaders.
+def generateWikiResources = tasks.register('generateWikiResources', Copy) {
+    def wikiSrcDir = file("${rootProject.projectDir}/wiki")
+    from(wikiSrcDir) {
+        include '*.md'
+        into 'assets/nerotech/wiki'
+    }
+    into layout.buildDirectory.dir('generated/sources/wiki')
+    doLast {
+        def outDir = layout.buildDirectory.dir('generated/sources/wiki/assets/nerotech/wiki').get().asFile
+        outDir.mkdirs()
+        def entries = []
+        wikiSrcDir.listFiles()?.findAll { it.isFile() && it.name.endsWith('.md') }?.sort { it.name }?.each { f ->
+            def slug = f.name.substring(0, f.name.length() - 3)
+            def title = slug.replace('-', ' ')
+            for (String line : f.readLines('UTF-8')) {
+                def t = line.trim()
+                if (t.startsWith('# ')) { title = t.substring(2).trim(); break }
+                if (!t.isEmpty()) break
+            }
+            entries << [slug: slug, title: title]
+        }
+        def sb = new StringBuilder('{\n  "pages": [\n')
+        entries.eachWithIndex { e, i ->
+            sb.append('    {"slug": ').append(groovy.json.JsonOutput.toJson(e.slug))
+              .append(', "title": ').append(groovy.json.JsonOutput.toJson(e.title)).append('}')
+              .append(i < entries.size() - 1 ? ',' : '').append('\n')
+        }
+        sb.append('  ]\n}\n')
+        new File(outDir, 'index.json').write(sb.toString(), 'UTF-8')
+    }
+}
+sourceSets.main.resources.srcDir generateWikiResources
+eclipse.synchronizationTasks generateWikiResources
 
 loom {
     accessWidenerPath = file("${branchDir}/src/main/resources/nerotech.accesswidener")

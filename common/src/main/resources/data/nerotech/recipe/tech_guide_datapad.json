@@ -1,0 +1,3 @@
+{ "type": "minecraft:crafting_shapeless", "category": "misc",
+  "ingredients": [ "minecraft:book", "nerotech:circuit_board" ],
+  "result": { "id": "nerotech:tech_guide_datapad" } }

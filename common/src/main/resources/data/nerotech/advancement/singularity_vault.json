@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:antimatter_cell",
+  "criteria": {
+    "has_singularity_vault": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:singularity_vault"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.singularity_vault.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "nerotech:singularity_vault"
+    },
+    "title": {
+      "translate": "advancements.nerotech.singularity_vault.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_singularity_vault"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

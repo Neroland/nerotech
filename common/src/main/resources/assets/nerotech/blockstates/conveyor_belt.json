@@ -1,0 +1,5 @@
+{ "variants": {
+  "facing=north": { "model": "nerotech:block/conveyor_belt" },
+  "facing=east":  { "model": "nerotech:block/conveyor_belt", "y": 90 },
+  "facing=south": { "model": "nerotech:block/conveyor_belt", "y": 180 },
+  "facing=west":  { "model": "nerotech:block/conveyor_belt", "y": 270 } } }

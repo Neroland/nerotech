@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nerotech:block/grid_controller" },
+    "facing=east":  { "model": "nerotech:block/grid_controller", "y": 90 },
+    "facing=south": { "model": "nerotech:block/grid_controller", "y": 180 },
+    "facing=west":  { "model": "nerotech:block/grid_controller", "y": 270 }
+  }
+}

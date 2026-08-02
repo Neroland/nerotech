@@ -1,0 +1,6 @@
+{
+  "parent": "nerotech:block/accelerator_coil_arrow",
+  "textures": {
+    "top": "nerotech:block/accelerator_coil_top_right_west"
+  }
+}

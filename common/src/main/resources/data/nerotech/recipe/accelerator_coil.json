@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "C": "nerotech:nero_coil", "I": "minecraft:iron_ingot", "F": "nerotech:machine_frame" },
+  "pattern": [ "CIC", "IFI", "CIC" ],
+  "result": { "id": "nerotech:accelerator_coil", "count": 2 } }

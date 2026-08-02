@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:fusion_containment",
+  "criteria": {
+    "has_stellar_cell": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:stellar_cell"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.stellar_fuel.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "nerotech:stellar_cell"
+    },
+    "title": {
+      "translate": "advancements.nerotech.stellar_fuel.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_stellar_cell"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

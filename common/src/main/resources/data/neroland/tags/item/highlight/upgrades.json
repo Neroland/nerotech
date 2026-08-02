@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "nerotech:speed_module",
+    "nerotech:efficiency_module",
+    "nerotech:capacity_module",
+    "nerotech:range_module"
+  ]
+}

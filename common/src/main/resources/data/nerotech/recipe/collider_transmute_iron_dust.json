@@ -1,0 +1,1 @@
+{ "type": "nerotech:collider", "input_a": "nerotech:copper_dust", "input_b": "nerotech:copper_dust", "min_energy": 800, "result": { "id": "nerotech:iron_dust" } }

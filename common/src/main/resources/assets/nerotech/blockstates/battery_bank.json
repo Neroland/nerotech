@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nerotech:block/battery_bank" },
+    "facing=east":  { "model": "nerotech:block/battery_bank", "y": 90 },
+    "facing=south": { "model": "nerotech:block/battery_bank", "y": 180 },
+    "facing=west":  { "model": "nerotech:block/battery_bank", "y": 270 }
+  }
+}

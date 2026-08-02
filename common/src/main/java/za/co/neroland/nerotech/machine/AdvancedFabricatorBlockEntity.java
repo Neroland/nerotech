@@ -5,13 +5,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import za.co.neroland.nerotech.menu.FabricatorMenu;
+import za.co.neroland.nerotech.recipe.MachineRecipe;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
+import za.co.neroland.nerotech.registry.ModRecipeTypes;
 
-/** Advanced Fabricator (Tier 2) — turns space materials (Void Crystal) into Fusion Cells (reactor fuel). */
+/**
+ * Advanced Fabricator (Tier 2) — turns space materials (Void Crystal) into Fusion Cells (reactor
+ * fuel). Recipes: {@code nerotech:advanced_fabricating} datapack (tag-matched inputs keep the
+ * Nerospace coupling soft).
+ */
 public class AdvancedFabricatorBlockEntity extends AbstractProcessingBlockEntity {
 
     public AdvancedFabricatorBlockEntity(BlockPos pos, BlockState state) {
@@ -19,8 +25,8 @@ public class AdvancedFabricatorBlockEntity extends AbstractProcessingBlockEntity
     }
 
     @Override
-    protected ItemStack resultFor(ItemStack input) {
-        return AdvancedFabricatorRecipes.resultFor(input);
+    protected RecipeType<MachineRecipe> recipeType() {
+        return ModRecipeTypes.ADVANCED_FABRICATING.get();
     }
 
     @Override

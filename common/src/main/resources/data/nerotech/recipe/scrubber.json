@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "I": "minecraft:iron_ingot", "C": "nerotech:nero_coil", "F": "nerotech:machine_frame", "T": "nerotech:filter_cartridge" },
+  "pattern": [ "ICI", "TFT", "III" ],
+  "result": { "id": "nerotech:scrubber" } }

@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "B": "nerotech:circuit_board", "C": "minecraft:copper_ingot",
+    "F": "nerotech:machine_frame" },
+  "pattern": [ "BCB", "CFC", "BCB" ],
+  "result": { "id": "nerotech:electrolyzer" } }

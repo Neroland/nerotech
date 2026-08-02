@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "N": "nerotech:nero_coil", "I": "minecraft:iron_ingot",
+    "F": "nerotech:machine_frame" },
+  "pattern": [ " N ", "IFI", "INI" ],
+  "result": { "id": "nerotech:wind_turbine" } }

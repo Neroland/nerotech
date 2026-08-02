@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "V": "#c:gems/void_crystal", "O": "minecraft:obsidian", "A": "nerotech:antimatter_cell" },
+  "pattern": [ "VOV", "OAO", "VOV" ],
+  "result": { "id": "nerotech:singularity_vault" } }

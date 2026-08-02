@@ -1,6 +1,7 @@
 package za.co.neroland.nerotech.forge;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.common.Mod;
@@ -8,6 +9,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.command.NeroTechCommands;
 import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ForgeRegistrationFactory;
 import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
@@ -25,9 +27,14 @@ public final class NeroTechForge {
         // Anonymous, NeroTech-only crash reporting (opt-out via config/nerotech.properties; off in dev unless DSN set).
         NeroTechTelemetry.init();
         ForgeRegistrationFactory.registerAll(modBusGroup);
+        // NeroTech's own payloads (menu → machine position sync); see network.NeroTechNetwork.
+        ForgeNetwork.register();
         ForgeCapabilities.register();
         // Periodic regional pollution decay + retention sweep (game bus; gated by interval inside tick).
         TickEvent.ServerTickEvent.Post.BUS.addListener(event -> PollutionManager.tick(event.server()));
+        // Creative-only debug commands (/nerotech gallery); shared brigadier tree in common.
+        RegisterCommandsEvent.BUS.addListener(event ->
+                NeroTechCommands.register(event.getDispatcher()));
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ForgeClientSetup.init(modBusGroup);
         }

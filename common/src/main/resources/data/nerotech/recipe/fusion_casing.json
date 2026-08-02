@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "F": "nerotech:machine_frame", "S": "#c:ingots/starsteel" },
+  "pattern": [ "FSF", "S S", "FSF" ],
+  "result": { "id": "nerotech:fusion_casing", "count": 4 } }

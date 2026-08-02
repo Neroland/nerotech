@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:fusion_containment",
+  "criteria": {
+    "has_plasma_cell": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:plasma_cell"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.plasma_cell.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:plasma_cell"
+    },
+    "title": {
+      "translate": "advancements.nerotech.plasma_cell.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_plasma_cell"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,1 @@
+{ "type": "nerotech:chemical_processing", "ingredient": "minecraft:raw_iron", "result": { "id": "nerotech:iron_dust", "count": 3 } }

@@ -20,8 +20,14 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /**
  * Solar Array — daytime, fuel-free generation. Output is gated by sky access and daylight; it produces
  * into Core's energy buffer and pushes to neighbours via Core's energy seam. Per-planet output
- * modifiers (Nerospace) are deferred behind a Core-config fallback (Stage 4), so on Earth it runs
- * fully standalone.
+ * modifiers come from Nerospace's planet-trait api when installed (runtime-guarded), else the
+ * Core-config fallback — see {@link PlanetModifiers} — so on Earth it runs fully standalone.
+ *
+ * <p><b>Niche vs Nerospace's Solar Panels:</b> this is deliberately the basic, single-block Earth-tier
+ * panel — low output, no tiers, no array pooling, no airless 2× bonus — but it takes NeroTech upgrade
+ * modules and side config like every other Tier-1 machine. Nerospace's three-tier, poolable Solar
+ * Panels are the scalable solar line; both generate onto the same Core energy network, so the two
+ * products complement rather than duplicate each other.
  */
 public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
 
@@ -46,18 +52,29 @@ public class SolarArrayBlockEntity extends NeroTechMachineBlockEntity {
         // Display hook: show "working" in the GUI while generating.
         this.maxProgress = producing ? 1 : 0;
         this.progress = producing ? 1 : 0;
+        // BER surface: the tracking deck reads as "generating" while daylight reaches the panel.
+        // Analytics: night / a blocked sky is simply IDLE — the base RUNNING/IDLE default covers it.
+        setActive(producing);
 
         if (producing && getEnergy().getAmount() < getEnergy().getCapacity()) {
             UpgradeModifiers mods = modifiers();
-            // Per-planet output is the deferred Core-config fallback (1.0 on Earth) until a Nerospace API lands.
+            // Per-planet output: nerospace.api traits when installed, else the Core-config fallback
+            // (1.0 on Earth) — see PlanetModifiers. Stage H preset scales output like other generators.
             double planet = PlanetModifiers.solarMultiplier(level);
-            int rate = (int) Math.round(NeroTechConfig.solarArrayNePerTick() * mods.speedMultiplier() * factor * planet);
+            int rate = (int) Math.round(NeroTechConfig.solarArrayNePerTick()
+                    * mods.speedMultiplier() * presetSpeedFactor() * factor * planet);
             if (rate > 0) {
                 energyBuffer().generate(rate);
             }
         }
 
         MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
+    }
+
+    /** A generator is never load-shed by a Grid Controller (Stage D). */
+    @Override
+    public boolean shedable() {
+        return false;
     }
 
     @Override

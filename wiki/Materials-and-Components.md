@@ -46,6 +46,6 @@ dusts into their own processing equivalences.
 ## See also
 
 - [Home](Home.md)
-- [Build & contributor context](../AGENTS.md)
-- Neroland Core materials and the `c:` / `neroland:` tag conventions (see Core's
-  `docs/TAGS-AND-DATAPACKS.md`).
+- [Tier-1 Machines](Machines.md)
+- Neroland Core materials and the `c:` / `neroland:` tag conventions (documented in
+  Neroland Core's own wiki/docs).

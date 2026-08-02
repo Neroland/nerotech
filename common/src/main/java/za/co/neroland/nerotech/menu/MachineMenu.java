@@ -1,6 +1,8 @@
 package za.co.neroland.nerotech.menu;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -13,11 +15,20 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
+import za.co.neroland.nerotech.network.MachineStatsPayload;
+import za.co.neroland.nerotech.network.NeroTechNetwork;
+
 /**
  * Shared base for NeroTech machine menus. Lays out the upgrade-module slots and the player inventory,
  * exposes the synced {@link ContainerData} (energy + work progress as permille for short-safe sync),
  * and implements a standard shift-click transfer between the machine block and the player inventory.
  * Subclasses add their machine-specific I/O slots in index order before calling {@link #addUpgradeAndPlayerSlots}.
+ *
+ * <p>Stage G analytics ride the menu: on the server ctor path (live block-entity container + a
+ * {@link ServerPlayer} inventory) {@link #broadcastChanges()} pushes the machine's analytics
+ * payload to that one viewer every {@value #STATS_SYNC_TICKS} ticks while the menu is open —
+ * analytics never broadcast to non-viewers, and nothing here carries player data (POPIA/GDPR).
  */
 public abstract class MachineMenu extends AbstractContainerMenu {
 
@@ -28,11 +39,24 @@ public abstract class MachineMenu extends AbstractContainerMenu {
 
     /**
      * The machine's world position. Set server-side when the backing container is the live block-entity;
-     * the client resolves it from the looked-at block (see the screen), so the Side Config tab can target
-     * this machine. World/block data only — never a player identity (POPIA/GDPR).
+     * the client receives it via {@code network.MachineMenuPosPayload} right after the menu opens (the
+     * screen keeps a looked-at-block fallback), so the Side Config tab can target this machine. World/block
+     * data only — never a player identity (POPIA/GDPR).
      */
     @Nullable
     private BlockPos machinePos;
+
+    /** Interval (ticks) between analytics pushes while the menu is open (matches the 1 Hz sampling). */
+    protected static final int STATS_SYNC_TICKS = 20;
+
+    /** The one viewer to stream analytics to — set on the server ctor path only, never synced. */
+    @Nullable
+    private ServerPlayer statsViewer;
+    /** The live machine behind this menu (server ctor path only). */
+    @Nullable
+    private NeroTechMachineBlockEntity statsSource;
+    /** Ticks until the next analytics push; starts at 0 so the first broadcast populates the GUI. */
+    private int statsCountdown;
 
     protected MachineMenu(MenuType<?> type, int id, Container container, ContainerData data, int machineSlots) {
         super(type, id);
@@ -43,6 +67,9 @@ public abstract class MachineMenu extends AbstractContainerMenu {
         if (container instanceof BlockEntity be) {
             this.machinePos = be.getBlockPos();
         }
+        // Vanilla data-slot sync: without this the client's SimpleContainerData stays zeroed and
+        // every gauge reads empty (the known 26.x "missing addDataSlots = dead gauges" gotcha).
+        this.addDataSlots(data);
     }
 
     /** The machine's position, or {@code null} if not yet known (client before resolution). */
@@ -56,8 +83,48 @@ public abstract class MachineMenu extends AbstractContainerMenu {
         this.machinePos = pos;
     }
 
+    /**
+     * Capture the analytics push target: on the server ctor path the backing container is the live
+     * machine block-entity and the inventory belongs to a {@link ServerPlayer}. Called by every
+     * subclass ctor (both paths) — the client path simply matches neither test.
+     */
+    protected void captureStatsTarget(Inventory playerInventory) {
+        if (playerInventory.player instanceof ServerPlayer serverPlayer
+                && this.container instanceof NeroTechMachineBlockEntity machine) {
+            this.statsViewer = serverPlayer;
+            this.statsSource = machine;
+        }
+    }
+
+    /**
+     * Vanilla calls this once per server tick while the menu is open — the seam for the Stage G
+     * analytics stream: every {@value #STATS_SYNC_TICKS} ticks, push this machine's snapshot to
+     * the one viewing player.
+     */
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+        if (this.statsViewer == null || this.statsSource == null) {
+            return; // client instance, or a menu without a live machine behind it
+        }
+        if (--this.statsCountdown > 0) {
+            return;
+        }
+        this.statsCountdown = STATS_SYNC_TICKS;
+        NeroTechNetwork.sendToPlayer(this.statsViewer, analyticsPayload(this.statsSource));
+    }
+
+    /**
+     * The analytics payload this menu streams while open. Default: the per-machine stats snapshot;
+     * the Analytics Terminal menu overrides this with its dashboard payload.
+     */
+    protected CustomPacketPayload analyticsPayload(NeroTechMachineBlockEntity machine) {
+        return MachineStatsPayload.of(this.containerId, machine);
+    }
+
     /** Add the upgrade-module slots (right column) then the player inventory + hotbar. */
     protected void addUpgradeAndPlayerSlots(Inventory playerInventory) {
+        captureStatsTarget(playerInventory);
         int upgrades = this.totalNonPlayer - this.machineSlots;
         // Upgrade modules: a tidy 2×2 block in the top-right of the machine area (clear of the gauges).
         for (int i = 0; i < upgrades; i++) {
@@ -95,6 +162,40 @@ public abstract class MachineMenu extends AbstractContainerMenu {
 
     public float heatFraction() {
         return this.data.get(5) <= 0 ? 0f : this.data.get(4) / (float) this.data.get(5);
+    }
+
+    /** The synced Stage H overclock preset ordinal (index 6; see {@code MachinePreset.byOrdinal}). */
+    public int presetOrdinal() {
+        return this.data.get(6);
+    }
+
+    /**
+     * A machine-specific synced gauge (Stage C fluid/gas tanks) as a 0..1 fraction — index 0 is the
+     * first value after the seven shared ones. Returns 0 for machines that sync none.
+     */
+    public float extraFraction(int index) {
+        int i = 7 + index;
+        return i < this.data.getCount() ? Math.max(0f, Math.min(1f, this.data.get(i) / 1000f)) : 0f;
+    }
+
+    /**
+     * The raw value of a machine-specific synced int (Stage D's Grid Controller status readouts),
+     * for gauges whose value is a count or a flag rather than a 0..1000 fraction. Returns 0 for
+     * machines that sync none.
+     */
+    public int extraValue(int index) {
+        int i = 7 + index;
+        return i < this.data.getCount() ? this.data.get(i) : 0;
+    }
+
+    /**
+     * The live machine behind this menu — non-null only on the server ctor path (the same target
+     * the analytics stream uses). The preset intent handler resolves its machine through this, so
+     * a client can only ever re-preset the machine of the menu it actually has open.
+     */
+    @Nullable
+    public NeroTechMachineBlockEntity serverMachine() {
+        return this.statsSource;
     }
 
     @Override
@@ -148,6 +249,32 @@ public abstract class MachineMenu extends AbstractContainerMenu {
         @Override
         public boolean mayPlace(ItemStack stack) {
             return false;
+        }
+    }
+
+    /**
+     * A display/sync-only slot: never picked up or placed into. Used to sync server-written stacks
+     * (recipe previews, lock templates) to the client through vanilla's slot sync — position it
+     * off-panel (negative x) when it should not be visible.
+     */
+    protected static class GhostSlot extends Slot {
+        public GhostSlot(Container container, int index, int x, int y) {
+            super(container, index, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return false;
+        }
+
+        @Override
+        public boolean mayPickup(Player player) {
+            return false;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
         }
     }
 }

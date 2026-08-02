@@ -1,0 +1,1 @@
+{ "type": "nerotech:collider", "input_a": "minecraft:netherite_scrap", "input_b": "nerotech:iron_dust", "min_energy": 3000, "result": { "id": "nerolandcore:starsteel_dust" } }

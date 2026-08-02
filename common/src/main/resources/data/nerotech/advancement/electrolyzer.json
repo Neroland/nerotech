@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:fabricator",
+  "criteria": {
+    "has_electrolyzer": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:electrolyzer"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.electrolyzer.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:electrolyzer"
+    },
+    "title": {
+      "translate": "advancements.nerotech.electrolyzer.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_electrolyzer"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

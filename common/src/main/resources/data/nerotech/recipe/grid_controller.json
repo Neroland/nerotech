@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "R": "minecraft:comparator", "B": "nerotech:circuit_board",
+    "F": "nerotech:machine_frame" },
+  "pattern": [ " R ", "BFB" ],
+  "result": { "id": "nerotech:grid_controller" } }

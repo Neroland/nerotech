@@ -1,0 +1,85 @@
+{
+  "variants": {
+    "bend=straight,heading=none": {
+      "model": "nerotech:block/accelerator_coil"
+    },
+    "bend=left,heading=none": {
+      "model": "nerotech:block/accelerator_coil"
+    },
+    "bend=right,heading=none": {
+      "model": "nerotech:block/accelerator_coil"
+    },
+    "bend=straight,heading=north": {
+      "model": "nerotech:block/accelerator_coil_straight_north"
+    },
+    "bend=straight,heading=north_east": {
+      "model": "nerotech:block/accelerator_coil_straight_north_east"
+    },
+    "bend=straight,heading=east": {
+      "model": "nerotech:block/accelerator_coil_straight_east"
+    },
+    "bend=straight,heading=south_east": {
+      "model": "nerotech:block/accelerator_coil_straight_south_east"
+    },
+    "bend=straight,heading=south": {
+      "model": "nerotech:block/accelerator_coil_straight_south"
+    },
+    "bend=straight,heading=south_west": {
+      "model": "nerotech:block/accelerator_coil_straight_south_west"
+    },
+    "bend=straight,heading=west": {
+      "model": "nerotech:block/accelerator_coil_straight_west"
+    },
+    "bend=straight,heading=north_west": {
+      "model": "nerotech:block/accelerator_coil_straight_north_west"
+    },
+    "bend=left,heading=north": {
+      "model": "nerotech:block/accelerator_coil_left_north"
+    },
+    "bend=left,heading=north_east": {
+      "model": "nerotech:block/accelerator_coil_left_north_east"
+    },
+    "bend=left,heading=east": {
+      "model": "nerotech:block/accelerator_coil_left_east"
+    },
+    "bend=left,heading=south_east": {
+      "model": "nerotech:block/accelerator_coil_left_south_east"
+    },
+    "bend=left,heading=south": {
+      "model": "nerotech:block/accelerator_coil_left_south"
+    },
+    "bend=left,heading=south_west": {
+      "model": "nerotech:block/accelerator_coil_left_south_west"
+    },
+    "bend=left,heading=west": {
+      "model": "nerotech:block/accelerator_coil_left_west"
+    },
+    "bend=left,heading=north_west": {
+      "model": "nerotech:block/accelerator_coil_left_north_west"
+    },
+    "bend=right,heading=north": {
+      "model": "nerotech:block/accelerator_coil_right_north"
+    },
+    "bend=right,heading=north_east": {
+      "model": "nerotech:block/accelerator_coil_right_north_east"
+    },
+    "bend=right,heading=east": {
+      "model": "nerotech:block/accelerator_coil_right_east"
+    },
+    "bend=right,heading=south_east": {
+      "model": "nerotech:block/accelerator_coil_right_south_east"
+    },
+    "bend=right,heading=south": {
+      "model": "nerotech:block/accelerator_coil_right_south"
+    },
+    "bend=right,heading=south_west": {
+      "model": "nerotech:block/accelerator_coil_right_south_west"
+    },
+    "bend=right,heading=west": {
+      "model": "nerotech:block/accelerator_coil_right_west"
+    },
+    "bend=right,heading=north_west": {
+      "model": "nerotech:block/accelerator_coil_right_north_west"
+    }
+  }
+}

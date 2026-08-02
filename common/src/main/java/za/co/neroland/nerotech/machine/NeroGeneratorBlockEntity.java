@@ -58,10 +58,24 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
         return 0;
     }
 
+    /** Burning emits — the analytics panel shows the config-derived nominal rate. */
+    @Override
+    public int pollutionPerMinute() {
+        return emissionPerMinute();
+    }
+
+    /** A generator is never load-shed: throttling the supply during a shortage is backwards. */
+    @Override
+    public boolean shedable() {
+        return false;
+    }
+
     @Override
     protected void tickMachine(Level level, BlockPos pos, BlockState state) {
         UpgradeModifiers mods = modifiers();
-        int rate = (int) Math.round(NeroTechConfig.neroGeneratorNePerTick() * mods.speedMultiplier());
+        // Stage H preset: output NE scales with the speed factor (heat/pollution scale at the base).
+        int rate = (int) Math.round(NeroTechConfig.neroGeneratorNePerTick()
+                * mods.speedMultiplier() * presetSpeedFactor());
         boolean roomToStore = getEnergy().getAmount() < getEnergy().getCapacity();
 
         if (this.progress > 0) {
@@ -80,10 +94,17 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
                 this.maxProgress = value;
                 fuel.shrink(1);
                 setChanged();
-            } else if (this.maxProgress != 0) {
-                this.maxProgress = 0;
+            } else {
+                // Analytics: waiting on fuel reads STARVED; fuel ready but the buffer full, BLOCKED.
+                reportStatus(value > 0 ? MachineStatus.BLOCKED : MachineStatus.STARVED);
+                if (this.maxProgress != 0) {
+                    this.maxProgress = 0;
+                }
             }
         }
+
+        // BER surface: the turbine spins (and the intake glows) while a fuel charge is burning.
+        setActive(this.progress > 0);
 
         MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(), sideConfig());
     }

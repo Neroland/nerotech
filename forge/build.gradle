@@ -33,6 +33,27 @@ jarJar.register()
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
 
+// Plain-JVM unit tests (JUnit 5, no game bootstrap) — the same shared tests the neoforge nodes run,
+// so a regression is caught on every loader instead of only one. They live in common/src/test/java
+// (mirroring Core's layout) but `common` is not a Gradle project (see settings.gradle), so each
+// loader node wires the source dir itself.
+// ForgeGradle has no equivalent of ModDevGradle's `addModdingDependenciesTo`, so the test source set
+// simply inherits main's resolved classpath (de-obfuscated Minecraft + Forge + Core).
+// Run with `gradlew :forge:<mc>:test`; `build`/`check` runs them automatically.
+sourceSets.test.java.srcDir "${rootProject.projectDir}/common/src/test/java"
+configurations.testCompileClasspath.extendsFrom configurations.compileClasspath
+configurations.testRuntimeClasspath.extendsFrom configurations.runtimeClasspath
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
 // Forge 26's ModLauncher builds a JPMS layer from the dev runtime classpath. If classes and
 // processed resources are separate entries, the mod's classes can be seen as module "main" while
 // mods.toml names the resources entry "nerotech", producing split-package startup failures.
@@ -76,6 +97,12 @@ dependencies {
     // BEFORE NeroTech (see mods.toml dependency). Resolved from mavenLocal() (nerolandcore-forge-<mc>).
     implementation "za.co.neroland.nerolandcore:nerolandcore-forge-${mc}:${nerolandcoreVersion}"
 
+    // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
+    // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
+    // za.co.neroland.nerospace.api facade. Never runtime/jar-in-jar — mods.toml lists nerospace as
+    // optional (ordering AFTER); NeroTech builds and runs fully without it — NO build dependency:
+    // compat/NerospacePlanetCompat resolves the api facade by pure reflection at runtime.
+
     implementation 'io.sentry:sentry:8.45.0'
     jarJar(group: 'io.sentry', name: 'sentry', version: '8.45.0')
 
@@ -95,6 +122,10 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_license               : rootProject.mod_license,
         forge_loader_version_range: "[${forgeMajor},)",
         minecraft_version_range   : "[${mc},)",
+        // Floor the required Core version at what we compile against so Forge refuses to
+        // load against a Core too old to have the APIs it references, instead of crashing
+        // at registration.
+        nerolandcore_version_range: "[${nerolandcoreVersion},2.0)",
     ]
     inputs.properties(props)
     expand(props)
@@ -102,6 +133,43 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
     into layout.buildDirectory.dir('generated/sources/modMetadata')
 }
 sourceSets.main.resources.srcDir generateModMetadata
+
+// Bundle the in-repo wiki/ pages as runtime classpath resources under assets/nerotech/wiki/ so the
+// NeroLink `wiki` section (link.WikiLibrary) can serve them on the server. wiki/ stays the single
+// source of truth; a generated index.json (slug + title per page) rides along, since classpath
+// directory listing is unreliable across loaders.
+def generateWikiResources = tasks.register('generateWikiResources', Copy) {
+    def wikiSrcDir = file("${rootProject.projectDir}/wiki")
+    from(wikiSrcDir) {
+        include '*.md'
+        into 'assets/nerotech/wiki'
+    }
+    into layout.buildDirectory.dir('generated/sources/wiki')
+    doLast {
+        def outDir = layout.buildDirectory.dir('generated/sources/wiki/assets/nerotech/wiki').get().asFile
+        outDir.mkdirs()
+        def entries = []
+        wikiSrcDir.listFiles()?.findAll { it.isFile() && it.name.endsWith('.md') }?.sort { it.name }?.each { f ->
+            def slug = f.name.substring(0, f.name.length() - 3)
+            def title = slug.replace('-', ' ')
+            for (String line : f.readLines('UTF-8')) {
+                def t = line.trim()
+                if (t.startsWith('# ')) { title = t.substring(2).trim(); break }
+                if (!t.isEmpty()) break
+            }
+            entries << [slug: slug, title: title]
+        }
+        def sb = new StringBuilder('{\n  "pages": [\n')
+        entries.eachWithIndex { e, i ->
+            sb.append('    {"slug": ').append(groovy.json.JsonOutput.toJson(e.slug))
+              .append(', "title": ').append(groovy.json.JsonOutput.toJson(e.title)).append('}')
+              .append(i < entries.size() - 1 ? ',' : '').append('\n')
+        }
+        sb.append('  ]\n}\n')
+        new File(outDir, 'index.json').write(sb.toString(), 'UTF-8')
+    }
+}
+sourceSets.main.resources.srcDir generateWikiResources
 
 // Pre-create run directories so VS Code debug-terminal cwd exists before first launch.
 def createForgeRunDirs = tasks.register('createForgeRunDirs') {

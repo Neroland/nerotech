@@ -1,0 +1,32 @@
+{
+  "parent": "nerotech:root",
+  "criteria": {
+    "has_tech_guide_datapad": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:tech_guide_datapad"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.tech_guide.description"
+    },
+    "icon": {
+      "id": "nerotech:tech_guide_datapad"
+    },
+    "title": {
+      "translate": "advancements.nerotech.tech_guide.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_tech_guide_datapad"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -4,7 +4,12 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
@@ -12,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +32,10 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.heat.ThermalEnvironment;
+import za.co.neroland.nerotech.heat.ThermalMath;
 import za.co.neroland.nerotech.pollution.PollutionManager;
+import za.co.neroland.nerotech.registry.ModBlocks;
 import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
 
 /**
@@ -53,8 +62,78 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     protected int progress;
     protected int maxProgress;
 
-    /** Heat (Stage 3 consequence axis): accumulates while working, sheds passively + via cooling. */
+    /**
+     * Heat (Stage 3 consequence axis; full thermal model per Stage C decision 2026-07-10):
+     * accumulates while working, relaxes toward the location's ambient level (dimension + biome,
+     * see {@link za.co.neroland.nerotech.heat.ThermalEnvironment}), conducts to/from adjacent
+     * machines, and sheds extra next to coolant blocks.
+     */
     protected int heat;
+
+    /** Client-visible heat granularity: sync fires on BUCKET change over heatCapacity, never per raw heat tick. */
+    public static final int HEAT_SYNC_BUCKETS = 6;
+
+    /**
+     * Client-visible "the machine is working" flag (burning / processing / generating), driven by
+     * subclasses from {@link #tickMachine} via {@link #setActive}. BERs gate their dynamic geometry on
+     * it. Synced to watching clients only when it flips (see {@link #syncRenderState}).
+     */
+    protected boolean active;
+
+    /**
+     * Client-visible pulse counter for one-shot machines (Auto Crafter craft, Item Sorter sort): each
+     * server-side {@link #pulseClient} bumps it, and the BER plays a short animation when the synced
+     * value changes. Wraps harmlessly; synced only on change.
+     */
+    protected int clientPulse;
+
+    /** Last values pushed to clients — the sync-discipline comparators (active flip / heat bucket / pulse). */
+    private boolean syncedActive;
+    private int syncedHeatBucket;
+    private int syncedPulse;
+
+    // --- client-side BER display state (never saved, never synced; POPIA: pure visuals, no player data).
+    // The quarry-renderer easing recipe: the BER eases displayPos toward its target ONCE per game tick
+    // (storing the previous tick's value) and lerps by partialTick, so motion is FPS-independent.
+
+    /** Whether the display easing has been seeded (client render thread only). */
+    public boolean displayInit;
+    /** Current eased display scalar (e.g. the Fabricator arm's traverse position). */
+    public double displayPos;
+    /** Previous tick's eased display scalar (lerp partner). */
+    public double prevDisplayPos;
+    /** Game tick the easing last advanced on. */
+    public long displayLastTick;
+    /** Pulse-change detection: the last synced {@link #renderPulse()} the client renderer consumed... */
+    public int clientSeenPulse = Integer.MIN_VALUE;
+    /** ...and the game time it arrived (start of the client-side pulse animation). */
+    public long clientPulseTime = Long.MIN_VALUE;
+
+    /**
+     * Cached positions of adjacent machine BEs for heat conduction. Rebuilt lazily after
+     * {@link #invalidateThermalLinks()} (neighbour change / load) — never scanned per tick.
+     */
+    @Nullable
+    private java.util.List<BlockPos> thermalLinks;
+
+    /**
+     * Adjacent coolant strength, cached with the links: 1 per natural coolant face (water/ice/snow)
+     * and {@value #RADIATOR_COOLANT_WEIGHT} per adjacent Radiator (Stage C coolant loop).
+     */
+    private int coolantStrength;
+
+    /**
+     * A Radiator sheds as much heat as this many natural coolant blocks — the "enhanced coolant"
+     * half of the Stage C coolant loop (the active half is the Coolant Pump).
+     */
+    public static final int RADIATOR_COOLANT_WEIGHT = 4;
+
+    /** Cached ambient heat for this position; refreshed on an interval (dimension never changes in-place). */
+    private int ambientCache;
+    private long ambientCacheUntil = Long.MIN_VALUE;
+
+    /** Spreads conduction exchanges across ticks so linked pairs don't all fire on the same tick. */
+    private final int thermalPhase = Math.floorMod(System.identityHashCode(this) * 31, 1024);
 
     /** Placing player's UUID — captured only when per-player pollution attribution is enabled. */
     @Nullable
@@ -64,8 +143,29 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     private final int pollutionPhase = Math.floorMod(System.identityHashCode(this), 40);
 
     /**
+     * Stage G analytics window: 60 one-second samples of heat/energy/ops plus the current
+     * {@link MachineStatus}. Transient — never persisted, and it leaves the server only inside
+     * the menu-open stats payload. Machine-scoped numbers only, no player data (POPIA/GDPR).
+     */
+    private final MachineStats stats = new MachineStats();
+
+    /** Whether a subclass called {@link #reportStatus} this tick (else the RUNNING/IDLE default applies). */
+    private boolean statusReported;
+
+    /**
+     * Stage H overclock preset — a free GUI selector trading speed against energy/heat/pollution
+     * (see {@link MachinePreset} for the curve). Persisted as its ordinal ({@code "Preset"}), which
+     * also rides the BE update tag automatically via {@link #saveAdditional}, so the BER-side heat
+     * consequences stay in sync. Synced to menus as {@code ContainerData} index 6.
+     */
+    protected MachinePreset preset = MachinePreset.BALANCED;
+
+    /** Spreads the once-per-second stats sample across ticks (the pollutionPhase recipe, mod 20). */
+    private final int statsPhase = Math.floorMod(System.identityHashCode(this) * 61, 20);
+
+    /**
      * Synced to the menu: [0]=energy permille, [1]=1000, [2]=work permille, [3]=1000 when working,
-     * [4]=heat permille, [5]=1000.
+     * [4]=heat permille, [5]=1000, [6]=preset ordinal ({@link MachinePreset}).
      */
     protected final ContainerData data = new ContainerData() {
         @Override
@@ -77,7 +177,9 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
                 case 3 -> maxProgress > 0 ? 1000 : 0;
                 case 4 -> permille(heat, NeroTechConfig.heatCapacity());
                 case 5 -> 1000;
-                default -> 0;
+                case 6 -> preset.ordinal();
+                // 7+ : machine-specific gauges (Stage C fluid/gas tank levels), permille.
+                default -> index >= 7 ? extraData(index - 7) : 0;
             };
         }
 
@@ -88,21 +190,54 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
         @Override
         public int getCount() {
-            return 6;
+            return 7 + extraDataCount();
         }
     };
 
+    /**
+     * How many machine-specific gauges this machine syncs after the seven shared indices (Stage C:
+     * fluid/gas tank levels). A menu's client-side {@code SimpleContainerData} must be sized
+     * {@code 7 + extraDataCount()} to match.
+     */
+    protected int extraDataCount() {
+        return 0;
+    }
+
+    /** Value of machine-specific gauge {@code index} (0-based, permille). */
+    protected int extraData(int index) {
+        return 0;
+    }
+
     protected NeroTechMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
             int machineSlots) {
-        super(type, pos, state,
-                NeroTechConfig.machineEnergyCapacity(), NeroTechConfig.machineMaxTransfer(),
-                UPGRADE_SLOTS, UpgradeModuleItem.CLASSIFIER);
+        this(type, pos, state, machineSlots,
+                NeroTechConfig.machineEnergyCapacity(), NeroTechConfig.machineMaxTransfer());
+    }
+
+    /**
+     * Explicit-buffer variant for machines whose whole point is a buffer other than the shared
+     * Tier-1 one (Stage D's Battery Bank). Everything else — upgrades, side config, heat, analytics
+     * — is identical to the standard constructor.
+     */
+    protected NeroTechMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
+            int machineSlots, int energyCapacity, int maxTransfer) {
+        super(type, pos, state, energyCapacity, maxTransfer, UPGRADE_SLOTS, UpgradeModuleItem.CLASSIFIER);
         this.machineSlots = machineSlots;
         this.items = NonNullList.withSize(machineSlots, ItemStack.EMPTY);
         this.machineFaceSlots = java.util.stream.IntStream.range(0, machineSlots).toArray();
     }
 
-    private static int permille(long amount, long max) {
+    /**
+     * Whether a Stage D {@link GridControllerBlockEntity} may drop this machine to
+     * {@link MachinePreset#ECO} during a brownout. Consumers say yes (the default); generators,
+     * buffers and passive consoles override to {@code false} — shedding a power <i>source</i> during
+     * a shortage would be exactly backwards.
+     */
+    public boolean shedable() {
+        return true;
+    }
+
+    protected static int permille(long amount, long max) {
         return max <= 0 ? 0 : (int) Math.max(0, Math.min(1000, amount * 1000L / max));
     }
 
@@ -168,41 +303,377 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
     @Override
     protected final void serverTick(Level level, BlockPos pos, BlockState state) {
+        this.statusReported = false;
         tickMachine(level, pos, state);
-        dissipateHeat(level, pos);
+        // Analytics default: RUNNING while visibly working, IDLE otherwise — subclasses that know
+        // the sharper cause (STARVED/BLOCKED/THROTTLED/...) reported it from tickMachine.
+        if (!this.statusReported) {
+            this.stats.status(this.active ? MachineStatus.RUNNING : MachineStatus.IDLE);
+        }
+        thermalTick(level, pos);
+        statsTick(level);
+        syncRenderState(level, pos, state);
     }
 
-    /** Per-machine server logic. The base shed of heat runs automatically after this each tick. */
+    /** Per-machine server logic. The thermal exchange runs automatically after this each tick. */
     protected abstract void tickMachine(Level level, BlockPos pos, BlockState state);
 
-    /** Add heat, clamped to capacity. */
+    // --- BER client sync (active flag + heat bucket + pulse ride the BE update packet) -----------
+
+    /** Subclasses flag work-in-progress from {@link #tickMachine}; drives the BER "running" animations. */
+    protected void setActive(boolean value) {
+        this.active = value;
+    }
+
+    /** Bump the client pulse counter (one-shot machines); the BER plays a short animation per bump. */
+    protected void pulseClient() {
+        this.clientPulse = (this.clientPulse + 1) & 0xFFFF;
+        // One-shot machines count each pulse as a work op toward the analytics rate.
+        this.stats.countOps(1);
+    }
+
+    // --- Stage G analytics (menu-open-only sync; see network.MachineStatsPayload) ----------------
+
+    /**
+     * Name what currently limits this machine (called from {@link #tickMachine}); the base default
+     * (RUNNING while active, IDLE otherwise) applies on any tick without a report, so subclasses
+     * only report where they know better.
+     */
+    protected void reportStatus(MachineStatus status) {
+        this.stats.status(status);
+        this.statusReported = true;
+    }
+
+    /**
+     * Count working ticks and take the once-per-second analytics sample on this machine's phase
+     * of the 20-tick interval (the pollutionPhase recipe) — never a per-tick array write. The
+     * sample includes the machine's regional pollution level (one map lookup per second — a
+     * region key is a place, never a person; POPIA/GDPR).
+     */
+    private void statsTick(Level level) {
+        if (this.active) {
+            this.stats.countOps(1);
+        }
+        if ((level.getGameTime() + this.statsPhase) % 20 == 0) {
+            int regionPollution = level instanceof ServerLevel serverLevel
+                    ? PollutionManager.regionPollution(serverLevel, this.worldPosition) : 0;
+            this.stats.sample(heatPermille(), energyPermille(), regionPollution);
+        }
+    }
+
+    /** The analytics window (server-side read surface for the menu's stats payload). */
+    public MachineStats stats() {
+        return this.stats;
+    }
+
+    /**
+     * Signed nominal pollution rate for the analytics panel, per minute (1200 ticks): positive =
+     * emits into its region, negative = removes (the Scrubber/Remediator overrides). Computed
+     * server-side from config × preset × the contribution interval so the client never duplicates
+     * the config math. Default 0 — machines that neither emit nor scrub (Solar Array, Auto
+     * Crafter, Item Sorter, Analytics Terminal) inherit it; emitters return
+     * {@link #emissionPerMinute()}.
+     */
+    public int pollutionPerMinute() {
+        return 0;
+    }
+
+    /**
+     * {@link #emitPollution}'s nominal per-minute rate: {@code pollutionPerOperation} × the Stage H
+     * preset pollution factor (floor 1, matching emitPollution's scaling), once per
+     * {@code pollutionContributionIntervalTicks}. Emitting subclasses return this from
+     * {@link #pollutionPerMinute()}.
+     */
+    protected final int emissionPerMinute() {
+        int amount = scaledEmission();
+        if (amount <= 0) {
+            return 0;
+        }
+        int interval = Math.max(1, NeroTechConfig.pollutionContributionIntervalTicks());
+        return amount * 1200 / interval;
+    }
+
+    /**
+     * A per-machine cleanliness factor applied on top of the Stage H preset scaling (permille;
+     * 1000 = the config rate). Stage D's Bio Generator returns 500 — burning farmed feedstock is
+     * half as dirty as burning coal. Machines that neither emit nor scrub never consult it.
+     */
+    protected int pollutionScalePermille() {
+        return 1000;
+    }
+
+    /** {@code pollutionPerOperation} × preset × {@link #pollutionScalePermille()}, floored at 1 when non-zero. */
+    private int scaledEmission() {
+        int amount = NeroTechConfig.pollutionPerOperation();
+        if (amount <= 0) {
+            return 0;
+        }
+        // Floor 1 at each step: a polluting machine on Eco (or a clean-burning one) still pollutes;
+        // only a config of 0 above disables emission entirely.
+        amount = Math.max(1, amount * this.preset.pollutionPermille() / 1000);
+        return Math.max(1, amount * pollutionScalePermille() / 1000);
+    }
+
+    /** Heat as permille of capacity (analytics payload scale). */
+    public int heatPermille() {
+        return permille(this.heat, NeroTechConfig.heatCapacity());
+    }
+
+    /** Stored energy as permille of capacity (analytics payload scale). */
+    public int energyPermille() {
+        return permille(getEnergy().getAmount(), getEnergy().getCapacity());
+    }
+
+    /**
+     * Hook for subclass-specific synced render state (compare-and-record inside the override; return
+     * true when a client-visible visual changed — e.g. the Auto Crafter's hologram item, the Item
+     * Sorter's port modes). Called once per server tick; default is never dirty.
+     */
+    protected boolean renderSyncDirty() {
+        return false;
+    }
+
+    /**
+     * Push a BE update packet when — and only when — the client-visible render surface changed: the
+     * active flag flipped, the heat BUCKET moved ({@value #HEAT_SYNC_BUCKETS} buckets over
+     * {@code heatCapacity}), the pulse counter bumped, or {@link #renderSyncDirty} reports a change.
+     * Never per-tick (the MODELS.md sync discipline).
+     */
+    private void syncRenderState(Level level, BlockPos pos, BlockState state) {
+        int bucket = heatBucket();
+        boolean dirty = this.active != this.syncedActive
+                || bucket != this.syncedHeatBucket
+                || this.clientPulse != this.syncedPulse;
+        // Evaluate the hook even when already dirty so its compare-and-record state stays current.
+        dirty |= renderSyncDirty();
+        if (dirty) {
+            this.syncedActive = this.active;
+            this.syncedHeatBucket = bucket;
+            this.syncedPulse = this.clientPulse;
+            level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+        }
+    }
+
+    private int heatBucket() {
+        int capacity = NeroTechConfig.heatCapacity();
+        return capacity <= 0 ? 0 : Math.min(HEAT_SYNC_BUCKETS - 1, this.heat * HEAT_SYNC_BUCKETS / capacity);
+    }
+
+    /** Whether the machine is visibly working (BER read surface; fed by the update tag client-side). */
+    public boolean renderActive() {
+        return this.active;
+    }
+
+    /** The synced pulse counter (BER read surface; fed by the update tag client-side). */
+    public int renderPulse() {
+        return this.clientPulse;
+    }
+
+    /** Heat as a 0..1 fraction of capacity — the BER heat-glow lerp input. */
+    public float heatFraction() {
+        int capacity = NeroTechConfig.heatCapacity();
+        return capacity <= 0 ? 0.0F : Math.min(1.0F, (float) this.heat / capacity);
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        // The full custom save: active + heat for every BER, the machine items (the Auto Crafter
+        // hologram reads its grid), and Core's packed side config (super.saveAdditional writes it —
+        // the Item Sorter's port-cap tints read it back on the client).
+        return saveCustomOnly(registries);
+    }
+
+    // --- Stage H overclock preset (scaled ONCE, here at the base) --------------------------------
+
+    /** The active overclock preset (server-authoritative; clients read ContainerData index 6). */
+    public MachinePreset preset() {
+        return this.preset;
+    }
+
+    /**
+     * Apply a preset (server side, from the validated {@code MachinePresetPayload} intent). On a
+     * real change it marks the BE dirty and pushes a BE update packet — the same render-sync path
+     * {@link #syncRenderState} uses — so watching clients pick the new preset up immediately.
+     * Player-driven and rare, so the eager packet is fine.
+     */
+    public void setPreset(MachinePreset newPreset) {
+        if (newPreset == null || newPreset == this.preset) {
+            return;
+        }
+        this.preset = newPreset;
+        setChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            BlockState state = getBlockState();
+            this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_CLIENTS);
+        }
+    }
+
+    /** Preset work-rate multiplier — apply at the machine's work site next to Speed modules. */
+    public double presetSpeedFactor() {
+        return this.preset.speedFactor();
+    }
+
+    /** Preset energy-cost multiplier — apply at the machine's work site next to Efficiency modules. */
+    public double presetEnergyFactor() {
+        return this.preset.energyFactor();
+    }
+
+    /**
+     * Add heat, clamped to capacity. The Stage H preset scales the amount here at the base (Eco
+     * halves it, Overdrive doubles it — the Overdrive BER glow), with a floor of 1 so a working
+     * machine on Eco never becomes heat-free.
+     */
     protected void addHeat(int amount) {
         if (amount > 0) {
-            this.heat = Math.min(NeroTechConfig.heatCapacity(), this.heat + amount);
+            int scaled = Math.max(1, amount * this.preset.heatPermille() / 1000);
+            this.heat = Math.min(NeroTechConfig.heatCapacity(), this.heat + scaled);
             setChanged();
         }
     }
 
-    /** Shed heat passively each tick, faster when adjacent to water/ice/snow (cooling). */
-    protected void dissipateHeat(Level level, BlockPos pos) {
-        if (this.heat <= 0) {
-            return;
+    /**
+     * Full thermal model, one tick: relax toward ambient (dimension + biome), shed extra next to
+     * coolant blocks, and — on this machine's phase of the exchange interval — conduct heat
+     * with cached adjacent machines. Costs a few integer ops per tick; the neighbour scan happens
+     * only when the link cache was invalidated by a neighbour change.
+     */
+    protected void thermalTick(Level level, BlockPos pos) {
+        int before = this.heat;
+        int ambient = ambient(level, pos);
+
+        // Environmental exchange: cool toward ambient when hot, warm toward it when cold.
+        this.heat += ThermalMath.ambientStep(this.heat, ambient, NeroTechConfig.thermalEnvLossPermille());
+
+        // Coolant adjacency only ever cools, and never below ambient. The coolant strength is
+        // cached alongside the conduction links (rebuilt on neighbour change, not per tick).
+        if (this.heat > ambient && this.coolantStrength > 0) {
+            this.heat = Math.max(ambient,
+                    this.heat - this.coolantStrength * NeroTechConfig.heatDissipationPerTick());
         }
-        this.heat = Math.max(0, this.heat - NeroTechConfig.heatDissipationPerTick() - coolingBonus(level, pos));
-        setChanged();
+
+        // Machine-to-machine conduction, on this machine's phase of the interval.
+        int interval = NeroTechConfig.thermalExchangeIntervalTicks();
+        if ((level.getGameTime() + this.thermalPhase) % interval == 0) {
+            if (this.thermalLinks == null) {
+                rebuildThermalLinks(level);
+            }
+            conductWithNeighbours(level);
+        }
+
+        this.heat = ThermalMath.clampHeat(this.heat, NeroTechConfig.heatCapacity());
+        if (this.heat != before) {
+            setChanged();
+        }
     }
 
-    private int coolingBonus(Level level, BlockPos pos) {
-        int perCoolant = NeroTechConfig.heatDissipationPerTick();
-        int bonus = 0;
-        for (Direction side : Direction.values()) {
-            BlockState ns = level.getBlockState(pos.relative(side));
-            if (ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE) || ns.is(Blocks.BLUE_ICE)
-                    || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW)) {
-                bonus += perCoolant;
+    /** Ambient heat here, cached and refreshed every 200 ticks (biome/dimension are near-static). */
+    protected int ambient(Level level, BlockPos pos) {
+        long now = level.getGameTime();
+        if (now >= this.ambientCacheUntil) {
+            this.ambientCache = ThermalEnvironment.ambientAt(level, pos);
+            this.ambientCacheUntil = now + 200;
+        }
+        return this.ambientCache;
+    }
+
+    /**
+     * Exchange heat with cached adjacent machines ({@link ThermalMath#conductionStep} — moves a
+     * share of the temperature difference, symmetric, hot to cold). Both sides of a pair run
+     * this on their own phase, so a pair exchanges ~twice per interval; the default
+     * conductivity accounts for that.
+     */
+    private void conductWithNeighbours(Level level) {
+        int conductivity = NeroTechConfig.thermalConductivityPermille();
+        if (conductivity <= 0 || this.thermalLinks == null) {
+            return;
+        }
+        for (BlockPos neighbourPos : this.thermalLinks) {
+            if (level.getBlockEntity(neighbourPos) instanceof NeroTechMachineBlockEntity other) {
+                int step = ThermalMath.conductionStep(this.heat, other.heat, conductivity);
+                if (step != 0) {
+                    int capacity = NeroTechConfig.heatCapacity();
+                    this.heat = ThermalMath.clampHeat(this.heat - step, capacity);
+                    other.heat = ThermalMath.clampHeat(other.heat + step, capacity);
+                    other.setChanged();
+                }
+            } else {
+                // Stale link (machine broken without a neighbour-change reaching us): rebuild next pass.
+                this.thermalLinks = null;
+                return;
             }
         }
-        return bonus;
+    }
+
+    /** One 6-face scan for machine links + coolant strength — only after invalidation, never per tick. */
+    private void rebuildThermalLinks(Level level) {
+        java.util.List<BlockPos> links = new java.util.ArrayList<>(6);
+        int coolants = 0;
+        for (Direction side : Direction.values()) {
+            BlockPos neighbourPos = this.worldPosition.relative(side);
+            if (level.getBlockEntity(neighbourPos) instanceof NeroTechMachineBlockEntity) {
+                links.add(neighbourPos.immutable());
+                continue;
+            }
+            BlockState ns = level.getBlockState(neighbourPos);
+            if (ns.is(ModBlocks.RADIATOR.get())) {
+                // Purpose-built coolant: a Radiator is worth several natural coolant blocks.
+                coolants += RADIATOR_COOLANT_WEIGHT;
+            } else if (ns.is(Blocks.WATER) || ns.is(Blocks.ICE) || ns.is(Blocks.PACKED_ICE)
+                    || ns.is(Blocks.BLUE_ICE) || ns.is(Blocks.SNOW_BLOCK) || ns.is(Blocks.POWDER_SNOW)) {
+                coolants++;
+            }
+        }
+        this.thermalLinks = links;
+        this.coolantStrength = coolants;
+    }
+
+    /**
+     * Coolant-loop extraction (Stage C): remove up to {@code amount} heat, never below {@code floor}.
+     * Called by an adjacent {@link CoolantPumpBlockEntity} on the thermal exchange interval — the heat
+     * is <b>deleted</b>, which is what the loop's radiators represent.
+     *
+     * @return heat actually removed
+     */
+    int extractHeat(int amount, int floor) {
+        if (amount <= 0 || this.heat <= floor) {
+            return 0;
+        }
+        int removed = Math.min(amount, this.heat - floor);
+        this.heat -= removed;
+        setChanged();
+        return removed;
+    }
+
+    // --- Stage C fluid/gas surfaces (exposed on Core's FluidLookup / GasLookup seams) ------------
+
+    /**
+     * The {@link za.co.neroland.nerolandcore.gas.NeroGasStorage} this machine exposes on
+     * {@code side}, or null when it handles no gas. Registered on every loader through Core's gas
+     * capability from {@code ModBlockEntities.gasMachineTypes()}.
+     */
+    @Nullable
+    public za.co.neroland.nerolandcore.gas.NeroGasStorage gasStorage(@Nullable Direction side) {
+        return null;
+    }
+
+    /**
+     * The {@link za.co.neroland.nerolandcore.fluid.NeroFluidStorage} this machine exposes on
+     * {@code side}, or null when it handles no fluid. Registered on every loader through Core's
+     * fluid capability from {@code ModBlockEntities.fluidMachineTypes()}.
+     */
+    @Nullable
+    public za.co.neroland.nerolandcore.fluid.NeroFluidStorage fluidStorage(@Nullable Direction side) {
+        return null;
+    }
+
+    /** Drop the cached conduction links; called by the block on neighbour changes and on load. */
+    public void invalidateThermalLinks() {
+        this.thermalLinks = null;
     }
 
     /** True once heat reaches the throttle threshold — processing machines stall until cooled. */
@@ -220,11 +691,23 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     }
 
     /**
+     * The placing player's UUID, or {@code null} when unknown (attribution was off at placement, or a
+     * pre-attribution machine). The NeroLink {@code set_machine_preset} action treats a null owner as
+     * "ownership cannot be established" and refuses — never a remote preset change on an unowned
+     * machine (POPIA/GDPR + safety).
+     */
+    @Nullable
+    public UUID ownerId() {
+        return this.ownerId;
+    }
+
+    /**
      * Emit this machine's pollution into its region, batched on a per-machine phase so contributions
      * spread across ticks (never a global per-tick scan). Call from {@link #tickMachine} while working.
      */
     protected void emitPollution(Level level, BlockPos pos) {
-        int amount = NeroTechConfig.pollutionPerOperation();
+        // Stage H preset scaling + the Stage D per-machine cleanliness factor, once at the base.
+        int amount = scaledEmission();
         if (amount <= 0 || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -242,6 +725,9 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         output.putInt("Progress", this.progress);
         output.putInt("MaxProgress", this.maxProgress);
         output.putInt("Heat", this.heat);
+        output.putInt("Preset", this.preset.ordinal());
+        output.putBoolean("Active", this.active);
+        output.putInt("Pulse", this.clientPulse);
         output.putLong("OwnerMost", this.ownerId == null ? 0L : this.ownerId.getMostSignificantBits());
         output.putLong("OwnerLeast", this.ownerId == null ? 0L : this.ownerId.getLeastSignificantBits());
         for (int i = 0; i < this.items.size(); i++) {
@@ -255,6 +741,9 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         this.progress = input.getIntOr("Progress", 0);
         this.maxProgress = input.getIntOr("MaxProgress", 0);
         this.heat = input.getIntOr("Heat", 0);
+        this.preset = MachinePreset.byOrdinal(input.getIntOr("Preset", MachinePreset.BALANCED.ordinal()));
+        this.active = input.getBooleanOr("Active", false);
+        this.clientPulse = input.getIntOr("Pulse", 0);
         long ownerMost = input.getLongOr("OwnerMost", 0L);
         long ownerLeast = input.getLongOr("OwnerLeast", 0L);
         this.ownerId = (ownerMost == 0L && ownerLeast == 0L) ? null : new UUID(ownerMost, ownerLeast);

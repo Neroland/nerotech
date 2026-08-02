@@ -1,0 +1,7 @@
+{
+  "_comment": "Fuels the Bio Generator will burn. Vanilla fallback only — NeroAgriculture and datapacks/modpacks are expected to add their own biofuels to this tag.",
+  "replace": false,
+  "values": [
+    "minecraft:dried_kelp_block"
+  ]
+}

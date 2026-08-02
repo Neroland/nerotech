@@ -1,0 +1,5 @@
+{ "type": "minecraft:crafting_shaped", "category": "misc",
+  "key": { "B": "nerotech:circuit_board", "G": "minecraft:glass",
+    "F": "nerotech:machine_frame" },
+  "pattern": [ "GBG", "GFG", "GBG" ],
+  "result": { "id": "nerotech:chemical_processor" } }

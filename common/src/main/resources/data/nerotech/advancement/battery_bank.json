@@ -1,0 +1,33 @@
+{
+  "parent": "nerotech:solar_array",
+  "criteria": {
+    "has_battery_bank": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:battery_bank"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nerotech.battery_bank.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "nerotech:battery_bank"
+    },
+    "title": {
+      "translate": "advancements.nerotech.battery_bank.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_battery_bank"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
