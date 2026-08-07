@@ -66,6 +66,8 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     public static final int SCHEMA_VERSION = 1;
 
     /** Display version reported in discovery (matches NeroTech's mod version). */
+    // TODO: hand-maintained duplicate — bump this in step with `mod_version` in gradle.properties,
+    // or the companion app reports a stale NeroTech version.
     public static final String MOD_VERSION = "0.1.0-beta.1";
 
     private static final List<String> SECTIONS = List.of("pollution", "guide", "wiki");

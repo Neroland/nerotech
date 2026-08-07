@@ -192,11 +192,14 @@ other Neroland mods accelerates progression rather than unlocking it.
 
 **A complete visual identity**
 
-- Every machine re-modelled and re-textured in a **32× teal/plasma** art language with animated
-  block-entity renderers: spinning turbine, sun-tracking solar deck, crusher drums, fabricator
-  arms, the fusion torus, Auto Crafter hologram + press, live-tinted sorter ports, fouling scrubber
-  cartridge, remediator boom, shimmering terminal. Machine glow shifts cyan → orange/red as heat
-  climbs. Client-only `renderAnimationsEnabled` turns it all off for low-end machines.
+- Every machine re-modelled and re-textured in a **32× teal/plasma** art language, and a subset of
+  them — eleven **animated block-entity renderers** — moves: spinning turbine, sun-tracking solar
+  deck, crusher drums, fabricator arms, the fusion torus, Auto Crafter hologram + press,
+  live-tinted sorter ports, fouling scrubber cartridge, remediator boom, shimmering terminal, Tech
+  Guide hologram. The blocks added by this release's expansion tiers (accelerator, gas chain, power
+  tier, automation, endgame) ship **static models** for now; animated renderers for them are still
+  to come. Machine glow shifts cyan → orange/red as heat climbs. Client-only
+  `renderAnimationsEnabled` turns it all off for low-end machines.
 - **`/nerotech gallery`** (creative/OP) builds a running showcase of the entire mod — every block
   on a display grid plus live exhibits: a colliding accelerator octagon, the gas chain, a coolant
   loop on a 5×5×5 reactor, the full power park with a linked wireless pair, and an automation lane

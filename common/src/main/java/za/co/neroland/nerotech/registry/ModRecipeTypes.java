@@ -18,7 +18,8 @@ import za.co.neroland.nerotech.recipe.MachineRecipe;
  *   <li>{@code nerotech:ore_processing} — Ore Processor and Advanced Ore Processor (the advanced
  *       tier adds its config-driven yield bonus on top of the same recipes).</li>
  *   <li>{@code nerotech:fabricating} — Fabricator.</li>
- *   <li>{@code nerotech:advanced_fabricating} — Advanced Fabricator (orbit-gated tier).</li>
+ *   <li>{@code nerotech:advanced_fabricating} — Advanced Fabricator (the Starsteel tier: ungated,
+ *       paced by its recipes and materials alone).</li>
  *   <li>{@code nerotech:collider} — Particle Accelerator collisions (two particles + a minimum
  *       collision energy → one product).</li>
  *   <li>{@code nerotech:chemical_processing} — Chemical Processor (Stage C oxygen wash: raw ore →

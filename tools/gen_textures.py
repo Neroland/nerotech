@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Generate the 32x32 teal/plasma texture set for NeroTech.
 
-Visual contract: ../neroland-mc-ecosystem/nerotech/MODELS.md (Stage D of BETA-0.1.0-PLAN.md).
 Ported from Nerospace's tools/gen_textures.py at 2x scale (32x32 art, 2px bevels). The shared
 machine-face recipe is `noise_fill(ALLOY)` + 2px `bevel(A_LIGHT, A_DARK)` + teal emissive
 core/LEDs + corner rivets; every emissive/LED pixel uses ONLY the T_* ramp so the PULSE

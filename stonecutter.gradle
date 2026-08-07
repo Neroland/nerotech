@@ -200,8 +200,7 @@ tasks.register('syncModels') {
 
 // ---------------------------------------------------------------------------
 // Regenerate the procedural 32x teal texture set for the MULTILOADER
-// (tools/gen_textures.py with --multiloader; the visual contract is the umbrella
-// repo's nerotech/MODELS.md). ADDITIVE by default — any PNG that already exists is
+// (tools/gen_textures.py with --multiloader). ADDITIVE by default — any PNG that already exists is
 // skipped, so reruns only fill gaps and never overwrite committed/edited art. Pass
 // -PgenAssetsArgs=--force for a wholesale regen (the one-shot Stage D run that
 // replaces the interim 16x art). gen_textures needs Pillow (exits 0 with a notice

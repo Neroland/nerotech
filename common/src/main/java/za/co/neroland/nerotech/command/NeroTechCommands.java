@@ -63,7 +63,8 @@ import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
  * strip, a loaded Tech Guide pedestal near the rotunda centre (hologram running), and both a formed
  * 3×3×3 and a formed 5×5×5 Fusion Reactor shell burning their tier fuels.
  *
- * <p>The 0.2.0 tech expansion adds five more spokes, each wired the way survival would wire it:
+ * <p>The tech expansion (shipped in 0.1.0-beta.1) adds five more spokes, each wired the way survival
+ * would wire it:
  * a <b>closed octagonal Particle Accelerator</b> with a circulating, colliding beam (plus its own
  * coolant tower), the <b>gas chain</b> (Electrolyzer → Gas Turbine / Chemical Processor), a
  * <b>coolant loop</b> draining the 5×5×5 reactor, a <b>power park</b> (Wind Turbine on a mast,
@@ -293,7 +294,7 @@ public final class NeroTechCommands {
                 new ItemStack(ModItems.PLASMA_CELL.get(), 16),
                 Component.literal("Fusion Reactor — formed 5×5×5 shell, Plasma Cells"));
 
-        // --- 0.2.0 tech expansion spokes ---------------------------------------------------------
+        // --- Tech expansion spokes (shipped in 0.1.0-beta.1) -------------------------------------
         buildAcceleratorExhibit(level, floor, origin.getX() - 20, origin.getZ() - 12, fy);
         buildGasChainExhibit(level, floor, origin.getX() + 3, origin.getZ() - 14, fy);
         buildCoolantExhibit(level, bigReactor);
@@ -458,7 +459,7 @@ public final class NeroTechCommands {
         return controllerPos;
     }
 
-    // --- 0.2.0 tech-expansion exhibits ------------------------------------------------------------
+    // --- Tech-expansion exhibits (shipped in 0.1.0-beta.1) ----------------------------------------
 
     /**
      * The demo accelerator ring: the eight Accelerator Guide Coil offsets from the controller, in

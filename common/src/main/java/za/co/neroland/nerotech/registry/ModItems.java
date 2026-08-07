@@ -53,7 +53,7 @@ public final class ModItems {
     public static final RegistryEntry<BlockItem> ORE_PROCESSOR_ITEM = blockItem("ore_processor", ModBlocks.ORE_PROCESSOR);
     public static final RegistryEntry<BlockItem> FABRICATOR_ITEM = blockItem("fabricator", ModBlocks.FABRICATOR);
 
-    // --- Tier 2/3 (gated behind orbit + Starsteel) --------------------------
+    // --- Tier 2/3 (no gate: paced by Starsteel-tier recipes alone) ----------
     /** Fusion Reactor fuel; tagged into {@code nerotech:fusion_fuels}. */
     public static final RegistryEntry<Item> FUSION_CELL = item("fusion_cell");
     public static final RegistryEntry<BlockItem> FUSION_REACTOR_ITEM = blockItem("fusion_reactor", ModBlocks.FUSION_REACTOR);

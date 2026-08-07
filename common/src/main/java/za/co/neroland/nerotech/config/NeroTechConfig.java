@@ -181,7 +181,7 @@ public final class NeroTechConfig {
             16, 4, 64, true, "block radius an Analytics Terminal scans for NeroTech machines (loaded "
             + "chunks only, batched every 100 ticks — large radii make each scan pass more expensive)");
 
-    // --- Tier 2/3 (gated behind Nerospace / orbit) --------------------------
+    // --- Tier 2/3 (no gate: paced by Starsteel-tier recipes alone) ----------
     private static final ConfigValue<Integer> FUSION_NE_PER_TICK = SCHEMA.intRange("fusionReactorNePerTick",
             400, 1, 10_000_000, true, "NE/tick the Fusion Reactor produces while running (high-output late-game)");
     private static final ConfigValue<Boolean> FUSION_FAILURE = SCHEMA.bool("fusionReactorMeltdownEnabled",

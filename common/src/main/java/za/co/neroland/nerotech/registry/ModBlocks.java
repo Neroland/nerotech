@@ -58,7 +58,7 @@ public final class ModBlocks {
     public static final RegistryEntry<FabricatorBlock> FABRICATOR =
             register("fabricator", FabricatorBlock::new);
 
-    // --- Tier 2/3 (gated behind orbit + Starsteel) --------------------------
+    // --- Tier 2/3 (no gate: paced by Starsteel-tier recipes alone) ----------
     public static final RegistryEntry<FusionReactorBlock> FUSION_REACTOR =
             register("fusion_reactor", FusionReactorBlock::new);
     public static final RegistryEntry<AdvancedOreProcessorBlock> ADVANCED_ORE_PROCESSOR =
