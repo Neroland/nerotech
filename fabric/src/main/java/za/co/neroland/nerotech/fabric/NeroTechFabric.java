@@ -6,12 +6,19 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import za.co.neroland.nerolandcore.platform.FabricEnergyLookup;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import za.co.neroland.nerolandcore.fluid.GatedFluidView;
+import za.co.neroland.nerolandcore.platform.FabricFluidHandlers;
 import za.co.neroland.nerolandcore.platform.FabricFluidLookup;
 import za.co.neroland.nerolandcore.platform.FabricGasLookup;
 
@@ -95,6 +102,17 @@ public final class NeroTechFabric implements ModInitializer {
                 : ModBlockEntities.fluidMachineTypes()) {
             fluidHandler(machineType(type.get()));
         }
+
+        // ... and the same tanks on FABRIC'S OWN fluid storage, so third-party fluid pipes see them:
+        // Core's lookup is Nero-private, which is why the Electrolyzer took water from a bucket and
+        // nothing else (issue #9). Gas tanks join in wearing their transport fluid, so a pipe can carry
+        // hydrogen and oxygen as well. One registration per type covers both.
+        Set<BlockEntityType<? extends NeroTechMachineBlockEntity>> standardFluid = new LinkedHashSet<>();
+        ModBlockEntities.fluidMachineTypes().forEach(type -> standardFluid.add(type.get()));
+        ModBlockEntities.gasMachineTypes().forEach(type -> standardFluid.add(type.get()));
+        for (BlockEntityType<? extends NeroTechMachineBlockEntity> type : standardFluid) {
+            standardFluidHandler(machineType(type));
+        }
     }
 
     private static <T extends NeroTechMachineBlockEntity> void gasHandler(BlockEntityType<T> type) {
@@ -103,6 +121,17 @@ public final class NeroTechFabric implements ModInitializer {
 
     private static <T extends NeroTechMachineBlockEntity> void fluidHandler(BlockEntityType<T> type) {
         FabricFluidLookup.FLUID.registerForBlockEntity((be, dir) -> be.fluidStorage(dir), type);
+    }
+
+    /**
+     * The machine's fluid tank and its gas tanks (as their transport fluids) on Fabric's standard
+     * fluid storage — one storage per face, with a slot per tank when a machine offers both.
+     */
+    private static <T extends NeroTechMachineBlockEntity> void standardFluidHandler(BlockEntityType<T> type) {
+        FluidStorage.SIDED.registerForBlockEntity((be, dir) -> {
+            List<GatedFluidView> views = be.standardFluidViews(dir);
+            return views.isEmpty() ? null : FabricFluidHandlers.asFluidStorage(views);
+        }, type);
     }
 
     /**

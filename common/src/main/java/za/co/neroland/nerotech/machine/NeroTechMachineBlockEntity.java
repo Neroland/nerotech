@@ -26,10 +26,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.fluid.GatedFluidView;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
+import za.co.neroland.nerolandcore.sideconfig.SideMode;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.heat.ThermalEnvironment;
@@ -669,6 +671,56 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     @Nullable
     public za.co.neroland.nerolandcore.fluid.NeroFluidStorage fluidStorage(@Nullable Direction side) {
         return null;
+    }
+
+    /**
+     * Everything this machine offers on the loaders' <b>standard</b> fluid capability for one face:
+     * the fluid tank, plus every gas tank wearing its transport fluid ({@code nerotech:hydrogen} /
+     * {@code nerotech:oxygen}). Gases are Core {@code Identifier}s, a surface no other mod speaks, so
+     * this is what lets a third-party pipe carry them — see
+     * {@link za.co.neroland.nerotech.fluid.NeroTechFluids}.
+     *
+     * <p>Each entry pairs the <b>raw</b> tank with the permissions its face currently allows, rather
+     * than a pre-gated tank: a loader's fluid handler is transactional and these tanks are not, so an
+     * aborted transfer is undone by moving the fluid back — which a one-way face would refuse, leaving
+     * the mutation standing. Tank order is fixed per machine so an index a pipe remembers keeps
+     * pointing at the same resource; a closed face refuses both directions instead of disappearing.
+     *
+     * <p>The default is no fluid surface at all. Override per machine; the list is rebuilt per query.
+     */
+    public java.util.List<GatedFluidView> standardFluidViews(@Nullable Direction side) {
+        return java.util.List.of();
+    }
+
+    /**
+     * Pair a raw tank with the permissions {@code channel} allows on {@code side}. An unsided query
+     * (no face to consult) is permitted wherever <i>any</i> face permits it, so a player's layout
+     * still governs what other mods can do rather than being bypassed entirely.
+     */
+    protected GatedFluidView gatedView(za.co.neroland.nerolandcore.fluid.NeroFluidStorage raw,
+            Channel channel, @Nullable Direction side) {
+        SideConfigComponent config = sideConfig();
+        if (config == null || !config.config().has(channel)) {
+            return GatedFluidView.open(raw);
+        }
+        if (side == null) {
+            return new GatedFluidView(raw,
+                    () -> anyFaceAllows(config, channel, true),
+                    () -> anyFaceAllows(config, channel, false));
+        }
+        return new GatedFluidView(raw,
+                () -> config.config().modeAbsolute(channel, config.facing(), side).canInsert(),
+                () -> config.config().modeAbsolute(channel, config.facing(), side).canExtract());
+    }
+
+    private static boolean anyFaceAllows(SideConfigComponent config, Channel channel, boolean insert) {
+        for (net.minecraft.core.Direction face : net.minecraft.core.Direction.values()) {
+            SideMode mode = config.config().modeAbsolute(channel, config.facing(), face);
+            if (insert ? mode.canInsert() : mode.canExtract()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Drop the cached conduction links; called by the block on neighbour changes and on load. */

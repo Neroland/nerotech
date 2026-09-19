@@ -1,7 +1,9 @@
 # Side Config & the Configurator
 
 Every NeroTech machine carries Neroland Core's **universal side-configuration** system: each of the
-six faces can be set, per channel (**Power** / **Item**), to disabled, input, output or both. Faces
+six faces can be set, per channel (**Power** / **Item** / **Fluid** / **Gas**), to disabled, input,
+output or both — a machine shows a tab for each channel it actually has, so the Electrolyzer has
+Power, Fluid and Gas, and the Ore Processor has Power and Item. Faces
 are **relative to the machine's facing**, so a layout travels with the block when it is rotated or
 re-placed, and a face's capability is gated by its mode — pipes connect exactly where you allow
 them.

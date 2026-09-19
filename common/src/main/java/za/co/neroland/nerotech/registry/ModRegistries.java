@@ -16,6 +16,7 @@ public final class ModRegistries {
 
     public static void init() {
         ModDataComponents.init();
+        za.co.neroland.nerotech.fluid.NeroTechFluids.init();
         ModBlocks.init();
         ModItems.init();
         ModBlockEntities.init();

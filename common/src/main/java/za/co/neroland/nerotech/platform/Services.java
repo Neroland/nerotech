@@ -23,6 +23,9 @@ public final class Services {
     /** Packet-send seam for NeroTech's own payloads (see {@code network.NeroTechNetwork}). */
     public static final INetworkHelper NETWORK = load(INetworkHelper.class);
 
+    /** Builds the loader's flavour of NeroTech's gas fluids (see {@code fluid.NeroTechFluids}). */
+    public static final IFluidHelper FLUIDS = load(IFluidHelper.class);
+
     private Services() {
     }
 

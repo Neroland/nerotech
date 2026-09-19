@@ -24,6 +24,9 @@ public final class NeroTechForge {
         // Shared init builds the DeferredRegisters via the RegistrationProvider seam;
         // attach them to NeroTech's mod bus group.
         NeroTechCommon.init();
+        // The FluidTypes behind NeroTech's gas fluids — a Forge-only registry, so its register is
+        // created here, after common init and before the registers are flushed to the bus group.
+        ForgeFluidTypes.init();
         // Anonymous, NeroTech-only crash reporting (opt-out via config/nerotech.properties; off in dev unless DSN set).
         NeroTechTelemetry.init();
         ForgeRegistrationFactory.registerAll(modBusGroup);

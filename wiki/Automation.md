@@ -11,6 +11,10 @@ Every NeroTech machine exposes its inventory through the **standard loader item 
 
 - **Inputs are insertable, outputs are extractable**, and the internal upgrade-module slots are never
   exposed to automation.
+- **Fluids and gases ride the standard fluid capability too** (NeoForge `Capabilities.Fluid.BLOCK`,
+  Forge `FLUID_HANDLER`, Fabric `FluidStorage.SIDED`): a machine's fluid tank, plus each gas tank
+  wearing its transport fluid (`nerotech:hydrogen`, `nerotech:oxygen`), so ordinary fluid pipes feed
+  the Electrolyzer and carry its products away. Needs Neroland Core 1.12.0 or newer.
 - Machines are also discoverable through Core's `c:` tags.
 
 So a generic capability/tag client routes NeroTech production endpoints generically — exactly what

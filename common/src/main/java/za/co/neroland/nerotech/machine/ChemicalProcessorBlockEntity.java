@@ -15,9 +15,17 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
+import za.co.neroland.nerolandcore.fluid.GatedFluidView;
 import za.co.neroland.nerolandcore.gas.NeroGasStorage;
+import za.co.neroland.nerolandcore.sideconfig.Channel;
+import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
+import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.fluid.NeroTechFluids;
 import za.co.neroland.nerotech.gas.MachineGasTank;
 import za.co.neroland.nerotech.gas.NeroTechGases;
 import za.co.neroland.nerotech.menu.ChemicalProcessorMenu;
@@ -34,7 +42,9 @@ import za.co.neroland.nerotech.registry.ModRecipeTypes;
  * in throughput rather than in free energy.
  *
  * <p>Oxygen arrives through Core's gas capability (pushed by an adjacent Electrolyzer, or from a
- * Core Gas Tank); the tank refuses every other gas, so it can never jam on hydrogen.
+ * Core Gas Tank); the tank refuses every other gas, so it can never jam on hydrogen. The GAS
+ * side-config channel gates which faces accept it — and its auto-input, on by default, makes the
+ * processor <i>pull</i> from an adjacent gas source rather than waiting to be fed.
  */
 public class ChemicalProcessorBlockEntity extends AbstractProcessingBlockEntity {
 
@@ -43,6 +53,17 @@ public class ChemicalProcessorBlockEntity extends AbstractProcessingBlockEntity 
 
     public ChemicalProcessorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.CHEMICAL_PROCESSOR.get(), pos, state);
+        sideConfig().withGas(() -> this.oxygen);
+    }
+
+    @Override
+    protected void configureSideChannels(SideConfig.Builder builder) {
+        // STORAGE (I/O on every face) rather than ALL_INPUT: the tank was extractable on every face
+        // before it had a channel at all, and a world full of setups that pull reagent back out must
+        // keep working. Auto-input makes it pull its own oxygen rather than waiting to be fed.
+        builder.channel(Channel.GAS)
+                .preset(Channel.GAS, SidePreset.STORAGE)
+                .autoInput(Channel.GAS, true);
     }
 
     @Override
@@ -50,10 +71,16 @@ public class ChemicalProcessorBlockEntity extends AbstractProcessingBlockEntity 
         return ModRecipeTypes.CHEMICAL_PROCESSING.get();
     }
 
+    @Override
+    public List<GatedFluidView> standardFluidViews(@Nullable Direction side) {
+        return List.of(gatedView(NeroTechFluids.asFluid(this.oxygen), Channel.GAS, side));
+    }
+
     @Nullable
     @Override
     public NeroGasStorage gasStorage(@Nullable Direction side) {
-        return this.oxygen;
+        SideConfigComponent config = sideConfig();
+        return config == null ? this.oxygen : config.gasView(side);
     }
 
     @Override

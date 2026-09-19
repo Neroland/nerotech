@@ -2,8 +2,12 @@ package za.co.neroland.nerotech.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.recipe.v1.sync.ClientRecipeSynchronizedEvent;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.resources.Identifier;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.world.item.crafting.RecipeMap;
@@ -34,6 +38,7 @@ import za.co.neroland.nerotech.client.TechGuideScreen;
 import za.co.neroland.nerotech.client.WindTurbineScreen;
 import za.co.neroland.nerotech.client.WirelessNodeScreen;
 import za.co.neroland.nerotech.compat.jei.JeiSyncedRecipes;
+import za.co.neroland.nerotech.fluid.NeroTechFluids;
 import za.co.neroland.nerotech.registry.ModMenuTypes;
 
 /** Fabric client entry point for NeroTech — registers the machine screens + block-entity renderers. */
@@ -42,6 +47,7 @@ public final class NeroTechFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         NeroTechCommon.LOGGER.info("[NeroTech] Fabric client bootstrap");
+        registerGasFluidRendering();
         // Clientbound receivers for NeroTech's own payloads (client-only API, so wired here).
         FabricNetwork.registerClient();
         // Keep the client's copy of the server's synced recipes so recipe viewers (compat.jei) can
@@ -79,4 +85,23 @@ public final class NeroTechFabricClient implements ClientModInitializer {
             }
         });
     }
+
+    /**
+     * Sprites for the gas transport fluids. A gas is never placed in the world, so these only show up
+     * in other mods' tank and pipe GUIs — but an unregistered fluid draws the missing texture there.
+     * Registering the model alone is enough; the tessellation hook is only for fluids in the world.
+     */
+    private static void registerGasFluidRendering() {
+        FluidRenderingRegistry.register(NeroTechFluids.HYDROGEN.get(), gasFluidModel("hydrogen"));
+        FluidRenderingRegistry.register(NeroTechFluids.OXYGEN.get(), gasFluidModel("oxygen"));
+    }
+
+    private static FluidModel.Unbaked gasFluidModel(String gas) {
+        return new FluidModel.Unbaked(
+                new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "fluid/" + gas + "_still")),
+                new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "fluid/" + gas + "_flow")),
+                null,
+                null);
+    }
+
 }

@@ -1,12 +1,16 @@
 package za.co.neroland.nerotech.neoforge;
 
+import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.resources.Identifier;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -32,7 +36,9 @@ import za.co.neroland.nerotech.client.SolarArrayScreen;
 import za.co.neroland.nerotech.client.TechGuideScreen;
 import za.co.neroland.nerotech.client.WindTurbineScreen;
 import za.co.neroland.nerotech.client.WirelessNodeScreen;
+import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.compat.jei.JeiSyncedRecipes;
+import za.co.neroland.nerotech.fluid.NeroTechFluids;
 import za.co.neroland.nerotech.registry.ModMenuTypes;
 
 /** NeoForge client-only wiring (machine screens + block-entity renderers). Loaded only behind Dist.CLIENT. */
@@ -44,6 +50,7 @@ public final class NeoForgeClientSetup {
     public static void init(IEventBus modEventBus) {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterScreens);
         modEventBus.addListener(NeoForgeClientSetup::onRegisterEntityRenderers);
+        modEventBus.addListener(NeoForgeClientSetup::onRegisterFluidModels);
         // Keep the client's copy of the server's synced recipes so recipe viewers (compat.jei) can
         // list NeroTech's machine recipes — 26.x clients hold no full recipe list of their own.
         NeoForge.EVENT_BUS.addListener((RecipesReceivedEvent event) ->
@@ -84,4 +91,24 @@ public final class NeoForgeClientSetup {
         event.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
         event.register(ModMenuTypes.TECH_GUIDE.get(), TechGuideScreen::new);
     }
+
+    /**
+     * Sprites for the gas transport fluids. A gas is never placed in the world, so these only show up
+     * in other mods' tank and pipe GUIs — but a fluid with no model draws the missing texture there
+     * (and NeoForge logs a warning for it at bake time). Sprites only: the fog and overlay extensions
+     * are for a camera inside the fluid, which a gas with no fluid block can never manage.
+     */
+    private static void onRegisterFluidModels(RegisterFluidModelsEvent event) {
+        event.register(gasFluidModel("hydrogen"), NeroTechFluids.HYDROGEN.get());
+        event.register(gasFluidModel("oxygen"), NeroTechFluids.OXYGEN.get());
+    }
+
+    private static FluidModel.Unbaked gasFluidModel(String gas) {
+        return new FluidModel.Unbaked(
+                new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "fluid/" + gas + "_still")),
+                new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "fluid/" + gas + "_flow")),
+                null,
+                null);
+    }
+
 }

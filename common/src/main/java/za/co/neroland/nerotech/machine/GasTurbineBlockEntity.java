@@ -13,13 +13,18 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
+import za.co.neroland.nerolandcore.fluid.GatedFluidView;
 import za.co.neroland.nerolandcore.gas.NeroGasStorage;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.fluid.NeroTechFluids;
 import za.co.neroland.nerotech.gas.MachineGasTank;
 import za.co.neroland.nerotech.gas.NeroTechGases;
 import za.co.neroland.nerotech.gas.TurbineFuels;
@@ -57,15 +62,25 @@ public class GasTurbineBlockEntity extends NeroTechMachineBlockEntity {
         // GENERATOR preset: ENERGY OUTPUT on every face. No item channel — the fuel is a gas.
         setupSideConfig(SideConfig.builder()
                 .channel(Channel.ENERGY)
+                .channel(Channel.GAS)
                 .defaultPreset(SidePreset.GENERATOR)
+                .preset(Channel.GAS, SidePreset.STORAGE)
                 .autoEject(Channel.ENERGY, true)
+                .autoInput(Channel.GAS, true)
                 .build());
+        sideConfig().withGas(() -> this.fuel);
+    }
+
+    @Override
+    public List<GatedFluidView> standardFluidViews(@Nullable Direction side) {
+        return List.of(gatedView(NeroTechFluids.asFluid(this.fuel), Channel.GAS, side));
     }
 
     @Nullable
     @Override
     public NeroGasStorage gasStorage(@Nullable Direction side) {
-        return this.fuel;
+        SideConfigComponent config = sideConfig();
+        return config == null ? this.fuel : config.gasView(side);
     }
 
     @Override

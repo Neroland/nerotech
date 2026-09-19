@@ -263,6 +263,10 @@
 
   "gas.nerotech.hydrogen": "Hydrogen",
   "gas.nerotech.oxygen": "Oxygen",
+  "fluid_type.nerotech.hydrogen": "Hydrogen",
+  "fluid_type.nerotech.oxygen": "Oxygen",
+  "block.nerotech.hydrogen": "Hydrogen",
+  "block.nerotech.oxygen": "Oxygen",
 
   "advancements.nerotech.root.title": "NeroTech",
   "advancements.nerotech.root.description": "Fabricate your first machine component and start industrialising",

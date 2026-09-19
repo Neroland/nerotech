@@ -19,6 +19,12 @@ import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import za.co.neroland.nerolandcore.platform.NeoForgeEnergyLookup;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import za.co.neroland.nerolandcore.fluid.GatedFluidView;
+import za.co.neroland.nerolandcore.platform.NeoForgeFluidHandlers;
 import za.co.neroland.nerolandcore.platform.NeoForgeFluidLookup;
 import za.co.neroland.nerolandcore.platform.NeoForgeGasLookup;
 
@@ -40,6 +46,9 @@ public final class NeroTechNeoForge {
         // Shared init builds the DeferredRegisters via the RegistrationProvider seam;
         // attach them to NeroTech's mod event bus.
         NeroTechCommon.init();
+        // The FluidTypes behind NeroTech's gas fluids — a NeoForge-only registry, so its register is
+        // created here, after common init and before the registers are flushed to the bus.
+        NeoForgeFluidTypes.init();
         // Anonymous, NeroTech-only crash reporting (opt-out via config/nerotech.properties; off in dev unless DSN set).
         NeroTechTelemetry.init();
         NeoForgeRegistrationFactory.registerAll(modEventBus);
@@ -89,6 +98,17 @@ public final class NeroTechNeoForge {
                 : ModBlockEntities.fluidMachineTypes()) {
             fluidCap(event, machineType(type.get()));
         }
+
+        // ... and the same tanks on NEOFORGE'S OWN fluid capability, so third-party fluid pipes see
+        // them: Core's lookup is Nero-private, which is why the Electrolyzer took water from a bucket
+        // and nothing else (issue #9). Gas tanks join in wearing their transport fluid, so a pipe can
+        // carry hydrogen and oxygen as well. One registration per type covers both.
+        Set<BlockEntityType<? extends NeroTechMachineBlockEntity>> standardFluid = new LinkedHashSet<>();
+        ModBlockEntities.fluidMachineTypes().forEach(type -> standardFluid.add(type.get()));
+        ModBlockEntities.gasMachineTypes().forEach(type -> standardFluid.add(type.get()));
+        for (BlockEntityType<? extends NeroTechMachineBlockEntity> type : standardFluid) {
+            standardFluidCap(event, machineType(type));
+        }
     }
 
     /**
@@ -128,5 +148,17 @@ public final class NeroTechNeoForge {
     private static <T extends NeroTechMachineBlockEntity> void fluidCap(RegisterCapabilitiesEvent event,
             BlockEntityType<T> type) {
         event.registerBlockEntity(NeoForgeFluidLookup.FLUID, type, (be, side) -> be.fluidStorage(side));
+    }
+
+    /**
+     * The machine's fluid tank and its gas tanks (as their transport fluids) on NeoForge's standard
+     * fluid capability — one handler per face, with a tank per index when a machine offers both.
+     */
+    private static <T extends NeroTechMachineBlockEntity> void standardFluidCap(RegisterCapabilitiesEvent event,
+            BlockEntityType<T> type) {
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, type, (be, side) -> {
+            List<GatedFluidView> views = be.standardFluidViews(side);
+            return views.isEmpty() ? null : NeoForgeFluidHandlers.asResourceHandler(views);
+        });
     }
 }

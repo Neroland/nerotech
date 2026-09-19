@@ -48,11 +48,21 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
     protected AbstractProcessingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state, 2);
         // PROCESSOR preset: ITEM input on every face except BOTTOM (=output), ENERGY input on every face.
-        setupSideConfig(SideConfig.builder()
+        SideConfig.Builder builder = SideConfig.builder()
                 .channel(Channel.ITEM, SlotGroup.of("input", INPUT_SLOT), SlotGroup.of("output", OUTPUT_SLOT))
                 .channel(Channel.ENERGY)
-                .defaultPreset(SidePreset.PROCESSOR)
-                .build());
+                .defaultPreset(SidePreset.PROCESSOR);
+        configureSideChannels(builder);
+        setupSideConfig(builder.build());
+    }
+
+    /**
+     * Hook for subclasses that expose more than items and power — the Chemical Processor adds its
+     * GAS intake here, which is what puts a Gas tab in its side-config screen. Called from this
+     * constructor, so an override may only touch the builder, never the subclass's own fields
+     * (they are not initialised yet).
+     */
+    protected void configureSideChannels(SideConfig.Builder builder) {
     }
 
     /** This machine family's datapack recipe type (see {@code registry.ModRecipeTypes}). */

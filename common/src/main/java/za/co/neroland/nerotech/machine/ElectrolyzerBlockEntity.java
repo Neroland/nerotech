@@ -2,30 +2,35 @@ package za.co.neroland.nerotech.machine;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.Nullable;
 
-import za.co.neroland.nerolandcore.fluid.FluidBuffer;
+import java.util.List;
+
+import za.co.neroland.nerolandcore.fluid.GatedFluidView;
 import za.co.neroland.nerolandcore.fluid.NeroFluidStorage;
 import za.co.neroland.nerolandcore.gas.NeroGasStorage;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
+import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
+import za.co.neroland.nerolandcore.sideconfig.SideGating;
+import za.co.neroland.nerolandcore.sideconfig.SideMode;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
+import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.fluid.MachineFluidTank;
+import za.co.neroland.nerotech.fluid.NeroTechFluids;
 import za.co.neroland.nerotech.gas.MachineGasTank;
 import za.co.neroland.nerotech.gas.NeroTechGases;
 import za.co.neroland.nerotech.menu.ElectrolyzerMenu;
@@ -38,9 +43,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  * adjacent gas-accepting block through Core's {@code GasLookup} seam (Core's Gas Tank, the Gas
  * Turbine, the Chemical Processor, or any third-party block on the same capability).
  *
- * <p><b>Water in</b>: right-click with a water bucket (1000 mB per bucket), or push water in through
- * Core's fluid capability — the tank is exposed on {@code FluidLookup} on every face, so a Core Fluid
- * Tank or a future fluid pipe fills it with no NeroTech dependency.
+ * <p><b>Water in</b>: right-click with a water bucket (1000 mB per bucket), or pipe it in — the tank
+ * is exposed both on Core's {@code FluidLookup} and on each loader's <i>standard</i> fluid capability
+ * (NeoForge {@code Capabilities.Fluid.BLOCK}, Forge {@code FLUID_HANDLER}, Fabric
+ * {@code FluidStorage.SIDED}), so any mod's fluid pipe fills it with no NeroTech dependency. The
+ * FLUID side-config channel gates which faces accept it, and its auto-input pulls from an adjacent
+ * tank on its own.
  *
  * <p>No item slots at all: this machine's whole I/O is fluid in, gas out. Emits no pollution — the
  * gas chain is NeroTech's <i>clean</i> branch, and its cost is the electricity bill.
@@ -53,8 +61,8 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
     /** Per-side gas handoff budget each second (4 units). */
     private static final long PUSH_BUDGET_MB = NeroTechGases.UNIT_MB * 4L;
 
-    private final FluidBuffer water =
-            new FluidBuffer(NeroTechConfig.machineFluidCapacity(), this::setChanged);
+    private final MachineFluidTank water = MachineFluidTank.of(Fluids.WATER,
+            NeroTechConfig.machineFluidCapacity(), this::setChanged);
     private final MachineGasTank hydrogen = MachineGasTank.of(NeroTechGases.HYDROGEN,
             NeroTechConfig.machineGasCapacity(), this::setChanged);
     private final MachineGasTank oxygen = MachineGasTank.of(NeroTechGases.OXYGEN,
@@ -65,11 +73,20 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
 
     public ElectrolyzerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ELECTROLYZER.get(), pos, state, 0);
-        // Pure NE sink with no item channel: PROCESSOR preset gives ENERGY input on every face.
+        // No item channel: power and water in, gas out. PROCESSOR gives ENERGY input on every face;
+        // the per-channel presets keep water accepted on every face (ALL_INPUT) and both gases
+        // extractable on every face (STORAGE = I/O), which is the handoff this machine always had.
+        // FLUID auto-input is on by default so an adjacent tank or pipe end feeds it unattended.
         setupSideConfig(SideConfig.builder()
                 .channel(Channel.ENERGY)
+                .channel(Channel.FLUID)
+                .channel(Channel.GAS)
                 .defaultPreset(SidePreset.PROCESSOR)
+                .preset(Channel.FLUID, SidePreset.ALL_INPUT)
+                .preset(Channel.GAS, SidePreset.STORAGE)
+                .autoInput(Channel.FLUID, true)
                 .build());
+        sideConfig().withFluid(this::waterTank);
     }
 
     /**
@@ -77,16 +94,32 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
      * a full bucket (partial fills would silently eat the rest of the bucket).
      */
     public boolean fillFromBucket() {
-        if (this.water.fill(Fluids.WATER, BUCKET_MB, true) < BUCKET_MB) {
+        if (!this.water.hasRoomFor(BUCKET_MB)) {
             return false;
         }
-        this.water.fill(Fluids.WATER, BUCKET_MB, false);
-        return true;
+        // Verify what actually landed: a tank holding something else takes none of it, and a bucket
+        // that vanished into a full or mismatched tank is a player's lost item.
+        return this.water.forceFill(Fluids.WATER, BUCKET_MB) == BUCKET_MB;
     }
 
     /** The internal water tank (read surface for tooling; the GUI reads the synced gauge instead). */
     public NeroFluidStorage waterTank() {
         return this.water;
+    }
+
+    /**
+     * Drop any non-water left in the tank by an older build. The tank only accepts water now, but a
+     * world saved before the filter existed can still hold something else, which would read STARVED
+     * for good with no way to empty it.
+     */
+    private void purgeNonWater() {
+        if (this.water.getAmount() > 0 && this.water.getFluid() != Fluids.WATER) {
+            NeroTechCommon.LOGGER.info(
+                    "Electrolyzer at {} held {} mB of a non-water fluid from an older build; emptying it "
+                            + "so the machine can run again.",
+                    getBlockPos(), this.water.getAmount());
+            this.water.drain(this.water.getAmount(), false);
+        }
     }
 
     // --- Core fluid/gas surfaces ---------------------------------------------
@@ -99,13 +132,36 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
     @Nullable
     @Override
     public NeroGasStorage gasStorage(@Nullable Direction side) {
-        return side == Direction.DOWN ? this.oxygen : this.hydrogen;
+        MachineGasTank tank = side == Direction.DOWN ? this.oxygen : this.hydrogen;
+        SideConfigComponent config = sideConfig();
+        if (side == null || config == null || !config.config().has(Channel.GAS)) {
+            return tank; // unsided/internal access is ungated, as everywhere else in Core
+        }
+        SideMode mode = config.config().modeAbsolute(Channel.GAS, config.facing(), side);
+        if (mode == SideMode.DISABLED) {
+            return null;
+        }
+        return SideGating.gas(tank,
+                () -> config.config().modeAbsolute(Channel.GAS, config.facing(), side));
+    }
+
+    /**
+     * Tank 0 is water (in), tank 1 the gas this face serves (out) — a fixed order, so an index a pipe
+     * remembers keeps meaning the same thing even when a channel is closed on that face.
+     */
+    @Override
+    public List<GatedFluidView> standardFluidViews(@Nullable Direction side) {
+        MachineGasTank product = side == Direction.DOWN ? this.oxygen : this.hydrogen;
+        return List.of(
+                gatedView(this.water, Channel.FLUID, side),
+                gatedView(NeroTechFluids.asFluid(product), Channel.GAS, side));
     }
 
     @Nullable
     @Override
     public NeroFluidStorage fluidStorage(@Nullable Direction side) {
-        return this.water;
+        SideConfigComponent config = sideConfig();
+        return config == null ? this.water : config.fluidView(side);
     }
 
     // --- GUI gauges (indices 7..9 after the seven shared ones) ---------------
@@ -131,7 +187,7 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
         int hydrogenPerOp = NeroTechConfig.electrolyzerHydrogenPerOp();
         int oxygenPerOp = NeroTechConfig.electrolyzerOxygenPerOp();
 
-        boolean hasWater = this.water.getFluid() == Fluids.WATER && this.water.getAmount() >= waterPerOp;
+        boolean hasWater = this.water.getAmount() >= waterPerOp;
         boolean roomForGas = this.hydrogen.hasRoomFor(hydrogenPerOp) && this.oxygen.hasRoomFor(oxygenPerOp);
 
         if (!hasWater || !roomForGas) {
@@ -187,8 +243,8 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
         if ((level.getGameTime() + this.pushPhase) % 20 != 0) {
             return;
         }
-        MachineGas.pushToNeighbours(level, pos, this.hydrogen, PUSH_BUDGET_MB);
-        MachineGas.pushToNeighbours(level, pos, this.oxygen, PUSH_BUDGET_MB);
+        MachineGas.pushToNeighbours(level, pos, this.hydrogen, PUSH_BUDGET_MB, sideConfig());
+        MachineGas.pushToNeighbours(level, pos, this.oxygen, PUSH_BUDGET_MB, sideConfig());
     }
 
     // --- persistence ---------------------------------------------------------
@@ -196,8 +252,7 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putString("WaterFluid", BuiltInRegistries.FLUID.getKey(this.water.getRawFluid()).toString());
-        output.putInt("WaterAmount", this.water.getRawAmount());
+        this.water.save(output, "Water");
         this.hydrogen.save(output, "Hydrogen");
         this.oxygen.save(output, "Oxygen");
     }
@@ -209,9 +264,8 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
         this.water.resize(NeroTechConfig.machineFluidCapacity());
         this.hydrogen.resize(NeroTechConfig.machineGasCapacity());
         this.oxygen.resize(NeroTechConfig.machineGasCapacity());
-        Fluid fluid = BuiltInRegistries.FLUID.getValue(
-                Identifier.parse(input.getStringOr("WaterFluid", "minecraft:empty")));
-        this.water.setRaw(fluid, input.getIntOr("WaterAmount", 0));
+        this.water.load(input, "Water");
+        purgeNonWater();
         this.hydrogen.load(input, "Hydrogen");
         this.oxygen.load(input, "Oxygen");
     }

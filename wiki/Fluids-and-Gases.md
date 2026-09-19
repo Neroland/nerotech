@@ -27,7 +27,7 @@ Splits stored water into hydrogen and oxygen at the electrolytic 2:1 ratio.
 
 | | |
 | --- | --- |
-| **Water in** | Right-click with a water bucket (1000 mB), or push water in through Core's fluid capability on any face |
+| **Water in** | Right-click with a water bucket (1000 mB), or pipe it in on any face — the tank sits on Core's fluid capability *and* on the loader's standard one, so any mod's fluid pipe works |
 | **Power** | `electrolyzerNePerTick` (default 40) while running |
 | **Operation** | `electrolyzerOperationTicks` (default 200), consuming `electrolyzerWaterPerOp` (default 500 mB) |
 | **Output** | `electrolyzerHydrogenPerOp` (default 200 mB = 2 units) + `electrolyzerOxygenPerOp` (default 100 mB = 1 unit) |
@@ -38,6 +38,11 @@ It has **no item slots**: its entire I/O is fluid in, gas out. Once a second it 
 to any adjacent gas-accepting block — a Core Gas Tank, a Gas Turbine, a Chemical Processor. On the
 capability itself the two products are split by face: the **bottom** face serves oxygen, every other
 face serves hydrogen.
+
+Its side-config screen has three tabs — **Power**, **Fluid** and **Gas**. Water is accepted on every
+face and the two gases leave on every face by default, and the Fluid channel's **auto-input** is on,
+so an Electrolyzer sitting against a full tank fills itself. Close a face on the Fluid tab and pipes
+on that side are ignored; close it on the Gas tab and no product leaves that way.
 
 The GUI shows three extra gauges beside energy and heat: water (blue), hydrogen (pale), oxygen (teal).
 
@@ -129,6 +134,19 @@ gases to content mods. Storage and transfer go through Core's `NeroGasStorage` /
 contracts and the shared fluid/gas capabilities, so:
 
 - Core's **Gas Tank** and **Fluid Tank** work with these machines out of the box.
+- **Fluids cross the mod boundary.** Every NeroTech fluid tank is exposed on the loader's standard
+  fluid capability too (NeoForge `Capabilities.Fluid`, Forge `FLUID_HANDLER`, Fabric
+  `FluidStorage.SIDED`), so another mod's fluid pipes — Oritech's Universal Pipes, for instance —
+  fill the Electrolyzer directly. This needs Neroland Core **1.12.0** or newer.
+- **Gases travel too, as fluids.** A gas is an `Identifier` to Core — a name no other mod speaks —
+  so each of NeroTech's gases is *also* registered as a fluid (`nerotech:hydrogen`,
+  `nerotech:oxygen`) purely to travel. Gas tanks appear on the standard fluid capability wearing
+  that fluid, so an ordinary fluid pipe carries oxygen from the Electrolyzer to the Chemical
+  Processor across any distance. Inside NeroTech nothing changes: tanks are still gas tanks, still
+  filtered, still measured in mB, and adjacent machines still hand off directly. Each gas machine
+  now also *pulls* from adjacent sources, so placement order no longer matters.
+- These gas fluids are **not placeable** — no bucket, no fluid block, no pool of oxygen on the
+  ground. They exist only inside tanks and pipes.
 - Another mod's gas (say a Nerospace oxygen) can be fed to the turbine by adding it to
   `turbineGasBurn`.
 - There is **no NeroTech gas network** — handoff is direct block-to-block adjacency, once a second.
