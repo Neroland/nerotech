@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Fusion Reactor block — late-game (crafted from Starsteel); ticks its {@link FusionReactorBlockEntity}. */
 public class FusionReactorBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<FusionReactorBlock> CODEC = simpleCodec(FusionReactorBlock::new);
+    public static final MapCodec<FusionReactorBlock> CODEC = BlockCodecs.simple(FusionReactorBlock::new);
 
     public FusionReactorBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<FusionReactorBlock> codec() {
         return CODEC;
     }

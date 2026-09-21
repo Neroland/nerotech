@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Ore Processor block — directional, ticks its {@link OreProcessorBlockEntity}. */
 public class OreProcessorBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<OreProcessorBlock> CODEC = simpleCodec(OreProcessorBlock::new);
+    public static final MapCodec<OreProcessorBlock> CODEC = BlockCodecs.simple(OreProcessorBlock::new);
 
     public OreProcessorBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<OreProcessorBlock> codec() {
         return CODEC;
     }

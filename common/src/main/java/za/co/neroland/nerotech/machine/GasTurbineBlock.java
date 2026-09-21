@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Gas Turbine block — directional, ticks its {@link GasTurbineBlockEntity}. */
 public class GasTurbineBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<GasTurbineBlock> CODEC = simpleCodec(GasTurbineBlock::new);
+    public static final MapCodec<GasTurbineBlock> CODEC = BlockCodecs.simple(GasTurbineBlock::new);
 
     public GasTurbineBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<GasTurbineBlock> codec() {
         return CODEC;
     }

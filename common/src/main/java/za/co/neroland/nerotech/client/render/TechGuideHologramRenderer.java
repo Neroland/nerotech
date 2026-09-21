@@ -80,7 +80,11 @@ public class TechGuideHologramRenderer
         }
         poseStack.pushPose();
         poseStack.translate(0.5F, 1.35F + state.bob, 0.5F);
+        //? if >=26.3 {
+        /*poseStack.rotate(Axis.YP.rotationDegrees(state.spin));
+        *///?} else {
         poseStack.mulPose(Axis.YP.rotationDegrees(state.spin));
+        //?}
         poseStack.scale(0.75F, 0.75F, 0.75F);
         // Emissive: a hologram is its own light source, so render full-bright instead of with the
         // pedestal's world light (it reads pitch-black at night otherwise).

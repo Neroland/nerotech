@@ -1,5 +1,6 @@
 package za.co.neroland.nerotech.compat.jei;
 
+import java.util.Collection;
 import java.util.List;
 
 import net.minecraft.world.item.crafting.Recipe;
@@ -29,14 +30,22 @@ import net.minecraft.world.item.crafting.RecipeType;
 public final class JeiSyncedRecipes {
 
     /** Written from the network thread, read from the render thread — hence volatile. */
-    private static volatile RecipeMap recipes = RecipeMap.EMPTY;
+    private static volatile List<RecipeHolder<?>> recipes = List.of();
 
     private JeiSyncedRecipes() {
     }
 
     /** Called by each loader's client wiring when the server's recipe payload arrives. */
     public static void accept(RecipeMap recipeMap) {
-        recipes = recipeMap == null ? RecipeMap.EMPTY : recipeMap;
+        accept(recipeMap == null ? null : recipeMap.values());
+    }
+
+    /**
+     * Same as {@link #accept(RecipeMap)} for loaders that hand over a plain collection (Fabric). Minecraft
+     * 26.3 no longer builds a {@link RecipeMap} from a collection, so this is the version-neutral path.
+     */
+    public static void accept(Collection<RecipeHolder<?>> holders) {
+        recipes = holders == null ? List.of() : List.copyOf(holders);
     }
 
     /**
@@ -44,6 +53,14 @@ public final class JeiSyncedRecipes {
      * does not send them (an older NeroTech), and on any loader without a recipe-sync API.
      */
     public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> byType(RecipeType<T> type) {
-        return List.copyOf(recipes.byType(type));
+        List<RecipeHolder<T>> out = new java.util.ArrayList<>();
+        for (RecipeHolder<?> holder : recipes) {
+            if (holder.value().getType() == type) {
+                @SuppressWarnings("unchecked")
+                RecipeHolder<T> typed = (RecipeHolder<T>) holder;
+                out.add(typed);
+            }
+        }
+        return List.copyOf(out);
     }
 }

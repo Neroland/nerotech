@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Fabricator block — directional, ticks its {@link FabricatorBlockEntity}. */
 public class FabricatorBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<FabricatorBlock> CODEC = simpleCodec(FabricatorBlock::new);
+    public static final MapCodec<FabricatorBlock> CODEC = BlockCodecs.simple(FabricatorBlock::new);
 
     public FabricatorBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<FabricatorBlock> codec() {
         return CODEC;
     }

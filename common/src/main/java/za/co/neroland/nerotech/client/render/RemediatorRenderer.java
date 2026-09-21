@@ -121,7 +121,11 @@ public class RemediatorRenderer
         if (state.active) {
             poseStack.pushPose();
             poseStack.translate(0.5F, MIST_Y, 0.5F);
+            //? if >=26.3 {
+            /*poseStack.rotate(Axis.YP.rotationDegrees(state.mistSpin));
+            *///?} else {
             poseStack.mulPose(Axis.YP.rotationDegrees(state.mistSpin));
+            //?}
             collector.order(2).submitCustomGeometry(poseStack, RenderTypes.entityCutout(MIST_TEX),
                     (pose, c) -> {
                         MachineRenderHelper.face(c, pose, light, MIST_RGB, 0, 0, -1,
@@ -145,7 +149,11 @@ public class RemediatorRenderer
             float pivotX, float angle) {
         poseStack.pushPose();
         poseStack.translate(pivotX, PIVOT_Y, PIVOT_Z);
+        //? if >=26.3 {
+        /*poseStack.rotate(Axis.ZP.rotationDegrees(angle));
+        *///?} else {
         poseStack.mulPose(Axis.ZP.rotationDegrees(angle));
+        //?}
         collector.order(1).submitCustomGeometry(poseStack, RenderTypes.entityCutout(BOOM_TEX),
                 (pose, c) -> MachineRenderHelper.face(c, pose, light, 0xFFFFFF, 0, 0, -1,
                         -BOOM_HALF_W, 0, 0, 0, 1,

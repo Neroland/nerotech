@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Wind Turbine block (Stage D) — directional, ticks its {@link WindTurbineBlockEntity}. */
 public class WindTurbineBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<WindTurbineBlock> CODEC = simpleCodec(WindTurbineBlock::new);
+    public static final MapCodec<WindTurbineBlock> CODEC = BlockCodecs.simple(WindTurbineBlock::new);
 
     public WindTurbineBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<WindTurbineBlock> codec() {
         return CODEC;
     }

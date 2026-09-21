@@ -120,7 +120,11 @@ public class OreProcessorRenderer
             float xCentre, float spin) {
         poseStack.pushPose();
         poseStack.translate(xCentre, DRUM_Y, (DRUM_Z0 + DRUM_Z1) / 2.0F);
+        //? if >=26.3 {
+        /*poseStack.rotate(Axis.ZP.rotationDegrees(spin));
+        *///?} else {
         poseStack.mulPose(Axis.ZP.rotationDegrees(spin));
+        //?}
         float halfLen = (DRUM_Z1 - DRUM_Z0) / 2.0F;
         collector.order(1).submitCustomGeometry(poseStack, RenderTypes.entityCutout(DRUM_TEX),
                 (pose, c) -> MachineRenderHelper.box(c, pose, light,

@@ -89,7 +89,11 @@ public final class MachineRenderHelper {
         };
         if (yRot != 0.0F) {
             poseStack.translate(0.5F, 0.0F, 0.5F);
+            //? if >=26.3 {
+            /*poseStack.rotate(Axis.YP.rotationDegrees(-yRot));
+            *///?} else {
             poseStack.mulPose(Axis.YP.rotationDegrees(-yRot));
+            //?}
             poseStack.translate(-0.5F, 0.0F, -0.5F);
         }
     }

@@ -130,7 +130,11 @@ public class AutoCrafterRenderer
         if (state.visible) {
             poseStack.pushPose();
             poseStack.translate(0.5F, 1.3F + state.bob, 0.5F);
+            //? if >=26.3 {
+            /*poseStack.rotate(Axis.YP.rotationDegrees(state.spin));
+            *///?} else {
             poseStack.mulPose(Axis.YP.rotationDegrees(state.spin));
+            //?}
             poseStack.scale(0.6F, 0.6F, 0.6F);
             state.hologram.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, 0);
             poseStack.popPose();

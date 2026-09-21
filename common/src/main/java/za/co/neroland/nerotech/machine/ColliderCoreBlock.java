@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -23,13 +24,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  */
 public class ColliderCoreBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<ColliderCoreBlock> CODEC = simpleCodec(ColliderCoreBlock::new);
+    public static final MapCodec<ColliderCoreBlock> CODEC = BlockCodecs.simple(ColliderCoreBlock::new);
 
     public ColliderCoreBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<ColliderCoreBlock> codec() {
         return CODEC;
     }

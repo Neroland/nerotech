@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Item Sorter block — ticks its {@link ItemSorterBlockEntity}. */
 public class ItemSorterBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<ItemSorterBlock> CODEC = simpleCodec(ItemSorterBlock::new);
+    public static final MapCodec<ItemSorterBlock> CODEC = BlockCodecs.simple(ItemSorterBlock::new);
 
     public ItemSorterBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<ItemSorterBlock> codec() {
         return CODEC;
     }

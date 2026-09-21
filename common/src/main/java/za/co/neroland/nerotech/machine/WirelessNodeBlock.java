@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -20,13 +21,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  */
 public class WirelessNodeBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<WirelessNodeBlock> CODEC = simpleCodec(WirelessNodeBlock::new);
+    public static final MapCodec<WirelessNodeBlock> CODEC = BlockCodecs.simple(WirelessNodeBlock::new);
 
     public WirelessNodeBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<WirelessNodeBlock> codec() {
         return CODEC;
     }

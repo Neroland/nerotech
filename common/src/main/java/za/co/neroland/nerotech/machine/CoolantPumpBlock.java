@@ -14,6 +14,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -25,13 +26,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  */
 public class CoolantPumpBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<CoolantPumpBlock> CODEC = simpleCodec(CoolantPumpBlock::new);
+    public static final MapCodec<CoolantPumpBlock> CODEC = BlockCodecs.simple(CoolantPumpBlock::new);
 
     public CoolantPumpBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<CoolantPumpBlock> codec() {
         return CODEC;
     }

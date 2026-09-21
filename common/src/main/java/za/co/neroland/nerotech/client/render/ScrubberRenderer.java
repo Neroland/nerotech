@@ -160,7 +160,11 @@ public class ScrubberRenderer
             float z, float angle, int order) {
         poseStack.pushPose();
         poseStack.translate(CENTRE_X, CENTRE_Y, z);
+        //? if >=26.3 {
+        /*poseStack.rotate(Axis.ZP.rotationDegrees(angle));
+        *///?} else {
         poseStack.mulPose(Axis.ZP.rotationDegrees(angle));
+        //?}
         collector.order(order).submitCustomGeometry(poseStack, RenderTypes.entityCutout(FAN_TEX),
                 (pose, c) -> MachineRenderHelper.face(c, pose, light, 0xFFFFFF, 0, 0, -1,
                         -FAN_R, -FAN_R, 0, 0, 1,

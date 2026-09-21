@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Auto Crafter block — ticks its {@link AutoCrafterBlockEntity}. */
 public class AutoCrafterBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<AutoCrafterBlock> CODEC = simpleCodec(AutoCrafterBlock::new);
+    public static final MapCodec<AutoCrafterBlock> CODEC = BlockCodecs.simple(AutoCrafterBlock::new);
 
     public AutoCrafterBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<AutoCrafterBlock> codec() {
         return CODEC;
     }

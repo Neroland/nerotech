@@ -10,7 +10,6 @@ import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -53,7 +52,7 @@ public final class NeroTechFabricClient implements ClientModInitializer {
         // Keep the client's copy of the server's synced recipes so recipe viewers (compat.jei) can
         // list NeroTech's machine recipes — 26.x clients hold no full recipe list of their own.
         ClientRecipeSynchronizedEvent.EVENT.register((client, synchronizedRecipes) ->
-                JeiSyncedRecipes.accept(RecipeMap.create(synchronizedRecipes.recipes())));
+                JeiSyncedRecipes.accept(synchronizedRecipes.recipes()));
         MenuScreens.register(ModMenuTypes.NERO_GENERATOR.get(), NeroGeneratorScreen::new);
         MenuScreens.register(ModMenuTypes.SOLAR_ARRAY.get(), SolarArrayScreen::new);
         MenuScreens.register(ModMenuTypes.ORE_PROCESSOR.get(), OreProcessorScreen::new);

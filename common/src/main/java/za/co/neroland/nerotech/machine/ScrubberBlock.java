@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Scrubber block — directional, ticks its {@link ScrubberBlockEntity}. */
 public class ScrubberBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<ScrubberBlock> CODEC = simpleCodec(ScrubberBlock::new);
+    public static final MapCodec<ScrubberBlock> CODEC = BlockCodecs.simple(ScrubberBlock::new);
 
     public ScrubberBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<ScrubberBlock> codec() {
         return CODEC;
     }

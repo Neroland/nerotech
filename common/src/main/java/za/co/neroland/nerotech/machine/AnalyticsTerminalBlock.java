@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Analytics Terminal block — directional, ticks its {@link AnalyticsTerminalBlockEntity}. */
 public class AnalyticsTerminalBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<AnalyticsTerminalBlock> CODEC = simpleCodec(AnalyticsTerminalBlock::new);
+    public static final MapCodec<AnalyticsTerminalBlock> CODEC = BlockCodecs.simple(AnalyticsTerminalBlock::new);
 
     public AnalyticsTerminalBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<AnalyticsTerminalBlock> codec() {
         return CODEC;
     }

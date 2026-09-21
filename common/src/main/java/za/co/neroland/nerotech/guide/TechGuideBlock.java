@@ -23,6 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.registry.ModItems;
 
@@ -33,13 +34,12 @@ import za.co.neroland.nerotech.registry.ModItems;
  */
 public class TechGuideBlock extends BaseEntityBlock {
 
-    public static final MapCodec<TechGuideBlock> CODEC = simpleCodec(TechGuideBlock::new);
+    public static final MapCodec<TechGuideBlock> CODEC = BlockCodecs.simple(TechGuideBlock::new);
 
     public TechGuideBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<TechGuideBlock> codec() {
         return CODEC;
     }
@@ -95,7 +95,11 @@ public class TechGuideBlock extends BaseEntityBlock {
             // Return the installed datapad.
             ItemStack datapad = guide.removeDatapad();
             if (!datapad.isEmpty() && !player.addItem(datapad)) {
+                //? if >=26.3 {
+                /*player.drop(datapad, false, net.minecraft.util.Prediction.SERVER_ONLY);
+                *///?} else {
                 player.drop(datapad, false);
+                //?}
             }
             level.playSound(null, pos, SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 0.8F);
             return InteractionResult.SUCCESS;

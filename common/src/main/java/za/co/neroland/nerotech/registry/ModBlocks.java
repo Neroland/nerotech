@@ -95,7 +95,11 @@ public final class ModBlocks {
                             .isValidSpawn((state, level, pos, type) -> false)
                             .isRedstoneConductor((state, level, pos) -> false)
                             .isSuffocating((state, level, pos) -> false)
+                            //? if >=26.3 {
+                            /*.isViewBlocking((state, level, pos, box) -> false)));
+                            *///?} else {
                             .isViewBlocking((state, level, pos) -> false)));
+                            //?}
 
     // --- Particle Accelerator (Stage B; free-form rework) --------------------
     /**

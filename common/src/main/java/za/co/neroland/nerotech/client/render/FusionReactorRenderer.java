@@ -124,7 +124,11 @@ public class FusionReactorRenderer
             float radius = Math.max(0.25F, (state.shellSize - 2) * 0.38F);
             poseStack.pushPose();
             poseStack.translate(0.5F, 0.5F, 0.5F + inward);
+            //? if >=26.3 {
+            /*poseStack.rotate(Axis.YP.rotationDegrees(state.spin));
+            *///?} else {
             poseStack.mulPose(Axis.YP.rotationDegrees(state.spin));
+            //?}
             float r = radius;
             collector.order(1).submitCustomGeometry(poseStack, RenderTypes.entityCutout(PLASMA_TEX),
                     (pose, c) -> {

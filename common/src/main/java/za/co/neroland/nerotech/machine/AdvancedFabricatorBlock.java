@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Advanced Fabricator block — late-game (crafted from Starsteel); ticks its {@link AdvancedFabricatorBlockEntity}. */
 public class AdvancedFabricatorBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<AdvancedFabricatorBlock> CODEC = simpleCodec(AdvancedFabricatorBlock::new);
+    public static final MapCodec<AdvancedFabricatorBlock> CODEC = BlockCodecs.simple(AdvancedFabricatorBlock::new);
 
     public AdvancedFabricatorBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<AdvancedFabricatorBlock> codec() {
         return CODEC;
     }

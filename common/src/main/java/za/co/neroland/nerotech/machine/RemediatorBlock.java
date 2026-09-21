@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Remediator block — directional, ticks its {@link RemediatorBlockEntity}. */
 public class RemediatorBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<RemediatorBlock> CODEC = simpleCodec(RemediatorBlock::new);
+    public static final MapCodec<RemediatorBlock> CODEC = BlockCodecs.simple(RemediatorBlock::new);
 
     public RemediatorBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<RemediatorBlock> codec() {
         return CODEC;
     }

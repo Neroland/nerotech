@@ -82,7 +82,11 @@ public class SolarArrayRenderer
         int light = MachineRenderHelper.FULL_BRIGHT;
         poseStack.pushPose();
         poseStack.translate(0.5F, PIVOT_Y, 0.5F);
+        //? if >=26.3 {
+        /*poseStack.rotate(Axis.ZP.rotationDegrees(state.angle));
+        *///?} else {
         poseStack.mulPose(Axis.ZP.rotationDegrees(state.angle));
+        //?}
         collector.order(1).submitCustomGeometry(poseStack, RenderTypes.entityCutout(DECK_TEX),
                 (pose, c) -> MachineRenderHelper.box(c, pose, light,
                         -0.5F, -THICK / 2.0F, -0.5F, 0.5F, THICK / 2.0F, 0.5F));

@@ -116,7 +116,11 @@ public class NeroGeneratorRenderer
         if (state.active) {
             poseStack.pushPose();
             poseStack.translate(CENTRE_X, CENTRE_Y, ROTOR_Z);
+            //? if >=26.3 {
+            /*poseStack.rotate(Axis.ZP.rotationDegrees(state.spin));
+            *///?} else {
             poseStack.mulPose(Axis.ZP.rotationDegrees(state.spin));
+            //?}
             collector.order(2).submitCustomGeometry(poseStack, RenderTypes.entityCutout(ROTOR_TEX),
                     (pose, c) -> MachineRenderHelper.face(c, pose, light, 0xFFFFFF, 0, 0, -1,
                             -ROTOR_R, -ROTOR_R, 0, 0, 1,

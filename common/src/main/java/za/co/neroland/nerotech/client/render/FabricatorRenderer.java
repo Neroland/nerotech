@@ -134,7 +134,11 @@ public class FabricatorRenderer
         if (state.advanced) {
             poseStack.pushPose();
             poseStack.translate(CENTRE_X, 8.75F / 16.0F, 8.0F / 16.0F);
+            //? if >=26.3 {
+            /*poseStack.rotate(Axis.YP.rotationDegrees(state.crystalSpin));
+            *///?} else {
             poseStack.mulPose(Axis.YP.rotationDegrees(state.crystalSpin));
+            //?}
             collector.order(2).submitCustomGeometry(poseStack, RenderTypes.entityCutout(CRYSTAL_TEX),
                     (pose, c) -> {
                         float r = 1.5F / 16.0F;

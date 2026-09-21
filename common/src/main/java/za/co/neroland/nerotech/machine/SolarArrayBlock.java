@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -24,13 +25,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  */
 public class SolarArrayBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<SolarArrayBlock> CODEC = simpleCodec(SolarArrayBlock::new);
+    public static final MapCodec<SolarArrayBlock> CODEC = BlockCodecs.simple(SolarArrayBlock::new);
 
     public SolarArrayBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<SolarArrayBlock> codec() {
         return CODEC;
     }

@@ -21,6 +21,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
+
 /**
  * Conveyor Belt — the cheapest automation in NeroTech and the one block here with <b>no block
  * entity at all</b>: a flat, 4-pixel-high directional plate that nudges item entities riding it
@@ -37,7 +39,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public class ConveyorBeltBlock extends Block {
 
-    public static final MapCodec<ConveyorBeltBlock> CODEC = simpleCodec(ConveyorBeltBlock::new);
+    public static final MapCodec<ConveyorBeltBlock> CODEC = BlockCodecs.simple(ConveyorBeltBlock::new);
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
@@ -53,7 +55,6 @@ public class ConveyorBeltBlock extends Block {
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
-    @Override
     protected MapCodec<ConveyorBeltBlock> codec() {
         return CODEC;
     }

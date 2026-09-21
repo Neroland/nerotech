@@ -18,6 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.item.ConfiguratorItem;
@@ -34,13 +35,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  */
 public class SingularityVaultBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<SingularityVaultBlock> CODEC = simpleCodec(SingularityVaultBlock::new);
+    public static final MapCodec<SingularityVaultBlock> CODEC = BlockCodecs.simple(SingularityVaultBlock::new);
 
     public SingularityVaultBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<SingularityVaultBlock> codec() {
         return CODEC;
     }
@@ -110,7 +110,11 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
             return;
         }
         if (!player.getInventory().add(stack)) {
+            //? if >=26.3 {
+            /*player.drop(stack, false, net.minecraft.util.Prediction.SERVER_ONLY);
+            *///?} else {
             player.drop(stack, false);
+            //?}
         }
     }
 

@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Battery Bank block (Stage D) — directional, ticks its {@link BatteryBankBlockEntity}. */
 public class BatteryBankBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<BatteryBankBlock> CODEC = simpleCodec(BatteryBankBlock::new);
+    public static final MapCodec<BatteryBankBlock> CODEC = BlockCodecs.simple(BatteryBankBlock::new);
 
     public BatteryBankBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<BatteryBankBlock> codec() {
         return CODEC;
     }

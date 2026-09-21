@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Advanced Ore Processor block — late-game (crafted from Starsteel); ticks its {@link AdvancedOreProcessorBlockEntity}. */
 public class AdvancedOreProcessorBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<AdvancedOreProcessorBlock> CODEC = simpleCodec(AdvancedOreProcessorBlock::new);
+    public static final MapCodec<AdvancedOreProcessorBlock> CODEC = BlockCodecs.simple(AdvancedOreProcessorBlock::new);
 
     public AdvancedOreProcessorBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<AdvancedOreProcessorBlock> codec() {
         return CODEC;
     }

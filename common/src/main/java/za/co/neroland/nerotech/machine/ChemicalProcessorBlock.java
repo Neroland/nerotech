@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Chemical Processor block — directional, ticks its {@link ChemicalProcessorBlockEntity}. */
 public class ChemicalProcessorBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<ChemicalProcessorBlock> CODEC = simpleCodec(ChemicalProcessorBlock::new);
+    public static final MapCodec<ChemicalProcessorBlock> CODEC = BlockCodecs.simple(ChemicalProcessorBlock::new);
 
     public ChemicalProcessorBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<ChemicalProcessorBlock> codec() {
         return CODEC;
     }

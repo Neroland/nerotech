@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerotech.item.ConfiguratorItem;
 import za.co.neroland.nerotech.machine.AcceleratorMath.Heading;
 import za.co.neroland.nerotech.registry.ModBlocks;
@@ -111,7 +112,7 @@ public class AcceleratorGuideBlock extends Block {
 
     public static final EnumProperty<Indicator> HEADING = EnumProperty.create("heading", Indicator.class);
 
-    public static final MapCodec<AcceleratorGuideBlock> CODEC = simpleCodec(AcceleratorGuideBlock::new);
+    public static final MapCodec<AcceleratorGuideBlock> CODEC = BlockCodecs.simple(AcceleratorGuideBlock::new);
 
     @SuppressWarnings("this-escape")
     public AcceleratorGuideBlock(Properties properties) {
@@ -121,7 +122,6 @@ public class AcceleratorGuideBlock extends Block {
                 .setValue(HEADING, Indicator.NONE));
     }
 
-    @Override
     protected MapCodec<AcceleratorGuideBlock> codec() {
         return CODEC;
     }

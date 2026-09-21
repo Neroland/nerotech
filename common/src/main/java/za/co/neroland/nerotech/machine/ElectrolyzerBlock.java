@@ -16,6 +16,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -31,13 +32,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  */
 public class ElectrolyzerBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<ElectrolyzerBlock> CODEC = simpleCodec(ElectrolyzerBlock::new);
+    public static final MapCodec<ElectrolyzerBlock> CODEC = BlockCodecs.simple(ElectrolyzerBlock::new);
 
     public ElectrolyzerBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<ElectrolyzerBlock> codec() {
         return CODEC;
     }
@@ -70,7 +70,11 @@ public class ElectrolyzerBlock extends NeroTechMachineBlock {
                 if (stack.isEmpty()) {
                     player.setItemInHand(hand, empty);
                 } else if (!player.getInventory().add(empty)) {
+                    //? if >=26.3 {
+                    /*player.drop(empty, false, net.minecraft.util.Prediction.SERVER_ONLY);
+                    *///?} else {
                     player.drop(empty, false);
+                    //?}
                 }
             }
             return InteractionResult.SUCCESS;

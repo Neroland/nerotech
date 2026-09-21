@@ -98,7 +98,11 @@ public class AnalyticsTerminalRenderer
         // The holographic shimmer: two crossed vertical quads slowly rotating above the console,
         // teal-dimmed so they read as projection light (the Remediator mist recipe, raised).
         poseStack.translate(0.5F, SHIMMER_Y, 0.5F);
+        //? if >=26.3 {
+        /*poseStack.rotate(Axis.YP.rotationDegrees(state.spin));
+        *///?} else {
         poseStack.mulPose(Axis.YP.rotationDegrees(state.spin));
+        //?}
         collector.order(1).submitCustomGeometry(poseStack, RenderTypes.entityCutout(SHIMMER_TEX),
                 (pose, c) -> {
                     MachineRenderHelper.face(c, pose, light, SHIMMER_RGB, 0, 0, -1,

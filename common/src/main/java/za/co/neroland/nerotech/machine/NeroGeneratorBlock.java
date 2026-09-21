@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.registry.BlockCodecs;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -16,13 +17,12 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
 /** Nero Generator block — directional, ticks its {@link NeroGeneratorBlockEntity}. */
 public class NeroGeneratorBlock extends NeroTechMachineBlock {
 
-    public static final MapCodec<NeroGeneratorBlock> CODEC = simpleCodec(NeroGeneratorBlock::new);
+    public static final MapCodec<NeroGeneratorBlock> CODEC = BlockCodecs.simple(NeroGeneratorBlock::new);
 
     public NeroGeneratorBlock(Properties properties) {
         super(properties);
     }
 
-    @Override
     protected MapCodec<NeroGeneratorBlock> codec() {
         return CODEC;
     }
