@@ -22,8 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   adapters added in Neroland Core `1.12.0`, which this release requires.
 - The water tank is now a filtered `MachineFluidTank` (the fluid twin of `MachineGasTank`): it
   accepts water and refuses everything else. Without the filter, the first millibucket of lava from
-  someone's pipe would have latched the tank and starved the machine permanently. A tank left
-  holding a non-water fluid by an older build is emptied on load.
+  someone's pipe would have latched the tank and starved the machine permanently. A tank left holding
+  a non-water fluid by an older build is emptied on load, with a line in the log saying where — that
+  water could not have been removed any other way, and the machine would have read STARVED for good.
 
 ### Added
 
