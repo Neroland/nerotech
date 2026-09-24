@@ -72,8 +72,13 @@ ingots by hand but a single ingot in the Fabricator, and one Gold or Copper Dust
 Boards / Nero Coils instead of one. Building the machine pays for itself.
 
 Some recipes are machine-only: **Fusion Cells no longer have a crafting recipe** and come solely from
-the [Advanced Fabricator](Advanced-Tier.md). The Advanced Ore Processor additionally takes whole **raw
-ore blocks** (raw iron/gold/copper block → 18 dust) on top of its yield bonus.
+the [Advanced Fabricator](Advanced-Tier.md). Both ore processors also take whole **raw ore blocks**
+(raw iron/gold/copper block → 18 dust); the Advanced Ore Processor adds its yield bonus on top.
+
+Nothing in the Tier-1 line needs dust *before* you have power: the Nero Coil and Circuit Board have
+hand recipes from vanilla ingots (Copper Ingot + Iron Ingot + Copper Ingot; Redstone + Gold Ingot +
+Redstone), so the first generator is always craftable. The dust recipes and the Fabricator are the
+cheaper routes once the processor is running. See [Standalone Progression](Progression.md).
 
 ## Upgrade modules
 
@@ -94,6 +99,7 @@ locks anything in NeroTech. The [Advanced Tier](Advanced-Tier.md) is paced purel
 ## See also
 
 - [Materials & Components](Materials-and-Components.md)
+- [Standalone Progression](Progression.md)
 - [Thermal System](Thermal-System.md)
 - [Overclock Presets](Overclock-Presets.md)
 - [Analytics](Analytics.md)

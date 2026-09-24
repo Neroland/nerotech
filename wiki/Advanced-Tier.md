@@ -38,9 +38,9 @@ sizes, fuel tiers, meltdown and containment breach.
 
 ### Advanced Ore Processor
 
-A higher-yield Ore Processor (`advancedOreProcessorYieldBonus` extra dust per operation), and the
-sensible place to run the **bulk raw-ore-block** recipes (raw iron/gold/copper block → 18 dust) that
-ship alongside the per-item ones.
+A higher-yield Ore Processor (`advancedOreProcessorYieldBonus`, default 1, extra dust per operation).
+It also runs the **bulk raw-ore-block** recipes (raw iron/gold/copper block → 18 dust, 19 with the
+bonus), which the basic Ore Processor accepts too. See [Making Dust](Dusts.md).
 
 ### Particle Accelerator
 

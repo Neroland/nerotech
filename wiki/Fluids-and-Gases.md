@@ -83,7 +83,7 @@ in yield:
 | Raw Gold | 2 Gold Dust | **3** Gold Dust |
 | Raw Copper | 2 Copper Dust | **3** Copper Dust |
 
-Recipes are datapack-driven (`nerotech:chemical_processing`) and appear on their own JEI page, so a
+Recipes are datapack-driven (`nerotech:chemical_processing`) and appear on their own JEI/EMI page ([Recipe Viewers](Recipe-Viewers.md)), so a
 pack can add washes for any item. With a dry oxygen tank the machine reports **Starved** and draws
 no power at all.
 

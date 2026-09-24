@@ -260,6 +260,11 @@
   "gui.nerotech.jei.collider": "Particle Accelerator",
   "gui.nerotech.jei.collider.energy": "Needs %s J",
   "gui.nerotech.jei.chemical_processing": "Chemical Processing",
+  "emi.category.nerotech.ore_processing": "Ore Processing",
+  "emi.category.nerotech.fabricating": "Fabricating",
+  "emi.category.nerotech.advanced_fabricating": "Advanced Fabricating",
+  "emi.category.nerotech.collider": "Particle Accelerator",
+  "emi.category.nerotech.chemical_processing": "Chemical Processing",
 
   "gas.nerotech.hydrogen": "Hydrogen",
   "gas.nerotech.oxygen": "Oxygen",

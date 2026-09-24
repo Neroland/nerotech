@@ -11,6 +11,8 @@ of sci-fi mods. Built on **Neroland Core**.
 
 ## Getting started
 
+- [Standalone Progression](Progression.md) — the full path from first components to antimatter with
+  only Neroland Core installed: every recipe from vanilla materials, no gates.
 - [Tech Guide](Tech-Guide.md) — the in-game handbook: 8 chapters from first power to exotic matter.
 - [Materials & Components](Materials-and-Components.md) — Tier-1 crafting components and
   Earth-metal processing dusts, with their `c:` tags.
@@ -34,6 +36,7 @@ of sci-fi mods. Built on **Neroland Core**.
 - [Analytics](Analytics.md) — the per-machine Analytics tab and the Analytics Terminal dashboard.
 - [Overclock Presets](Overclock-Presets.md) — Eco / Balanced / Overdrive on every machine.
 - [Side Config & the Configurator](Side-Config-and-Configurator.md) — per-face I/O and the wrench.
+- [Recipe Viewers (JEI & EMI)](Recipe-Viewers.md) — the machine recipe pages, and EMI support on 26.x.
 
 ## Advanced & automation
 

@@ -12,29 +12,33 @@ page gathers every way to make it in one place.
 | Starsteel Dust | `nerolandcore:starsteel_dust` | `c:dusts/starsteel` (Neroland Core item) |
 | Void Crystal Dust | `nerolandcore:void_crystal_dust` | `c:dusts/void_crystal` (Neroland Core item) |
 
-There is **no crafting-table recipe** for any dust — it always comes out of a powered machine.
+There is **no crafting-table recipe** for any dust — it always comes out of a powered machine. You
+do **not** need dust to build your first machines: the Nero Coil and Circuit Board they use can be
+crafted from copper and gold ingots (see [Standalone Progression](Progression.md)).
 
 ## Quick start: your first dust
 
 1. **Machine Frame** — 8 iron ingots in a ring (`III` / `I I` / `III`).
 2. **Ore Processor** — craft it around the frame:
 
-   ```
+   ```text
    I P I      I = Iron Ingot     P = Piston
    R F R      R = Redstone       F = Machine Frame
    I I I
    ```
 
 3. **Power** — place a [Nero Generator](Machines.md#nero-generator) (burns coal, charcoal, etc.) or a
-   [Solar Array](Machines.md#solar-array) next to the Ore Processor. Generators push Nero Energy (NE)
+   [Solar Array](Machines.md#solar-array) next to the Ore Processor. Their Nero Coils and Circuit
+   Boards craft from ingots: Copper Ingot + Iron Ingot + Copper Ingot for a coil, Redstone + Gold
+   Ingot + Redstone for a board. Generators push Nero Energy (NE)
    into adjacent machines automatically.
 4. **Process** — put ore or raw metal in the input slot. Each operation gives **2 dust**:
 
-| Input | Output |
-| --- | --- |
-| Iron Ore, Deepslate Iron Ore or Raw Iron | 2 Iron Dust |
-| Copper Ore, Deepslate Copper Ore or Raw Copper | 2 Copper Dust |
-| Gold Ore, Deepslate Gold Ore or Raw Gold | 2 Gold Dust |
+   | Input | Output |
+   | --- | --- |
+   | Iron Ore, Deepslate Iron Ore or Raw Iron | 2 Iron Dust |
+   | Copper Ore, Deepslate Copper Ore or Raw Copper | 2 Copper Dust |
+   | Gold Ore, Deepslate Gold Ore or Raw Gold | 2 Gold Dust |
 
 5. **Smelt** — every Iron, Copper and Gold Dust smelts (200 ticks) or blasts (100 ticks) into its
    vanilla ingot, at vanilla XP. So *1 raw ore → 2 dust → 2 ingots*: double yield.
@@ -50,7 +54,7 @@ Washes raw metal with oxygen for a third more dust. Each operation also burns
 `chemicalProcessorGasPerOp` (default 250 mB) of oxygen, which you make by splitting water in the
 [Electrolyzer](Fluids-and-Gases.md).
 
-```
+```text
 G B G      G = Glass
 G F G      B = Circuit Board
 G B G      F = Machine Frame
@@ -66,10 +70,9 @@ It only accepts **raw metal**, not ore blocks — mine with a non-Silk-Touch pic
 too). With an empty oxygen tank it reports **Starved** and uses no power. See
 [Fluids & Gases](Fluids-and-Gases.md#chemical-processor) for piping oxygen in.
 
-### Advanced Ore Processor — bonus dust and bulk blocks
+### Raw metal blocks — bulk processing
 
-An Ore Processor surrounded by eight Starsteel Ingots. It adds `advancedOreProcessorYieldBonus` extra
-dust to every operation and is the place to run the **bulk raw-block** recipes:
+Both the Ore Processor and the Advanced Ore Processor accept whole raw metal blocks:
 
 | Input | Output |
 | --- | --- |
@@ -77,8 +80,14 @@ dust to every operation and is the place to run the **bulk raw-block** recipes:
 | Block of Raw Copper | 18 Copper Dust |
 | Block of Raw Gold | 18 Gold Dust |
 
-A raw block is nine raw metal, so 18 dust matches the per-item rate while taking a ninth of the
-operations. See [Advanced Tier](Advanced-Tier.md#advanced-ore-processor).
+A raw block is nine raw metal, so 18 dust matches the per-item rate in a ninth of the operations.
+
+### Advanced Ore Processor — bonus dust
+
+An Ore Processor surrounded by eight Starsteel Ingots. It adds `advancedOreProcessorYieldBonus`
+(default **1**) extra dust to every operation: raw metal gives 3 dust instead of 2, and a raw block
+gives 19. Running raw metal one at a time therefore beats blocks here (27 dust per block's worth).
+See [Advanced Tier](Advanced-Tier.md#advanced-ore-processor).
 
 ## Recycling: Dirty Filters
 

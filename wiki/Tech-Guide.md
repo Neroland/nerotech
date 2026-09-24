@@ -22,7 +22,8 @@ you have already done are already ticked).
 Eight chapters, twenty-two steps, mirroring NeroTech's arc:
 
 1. **First Power** — craft a Machine Frame, build a Nero Generator and a Solar Array, give the
-   array clear skies.
+   array clear skies. Their Nero Coils and Circuit Boards craft from copper and gold ingots, so no
+   dust is needed yet ([Standalone Progression](Progression.md)).
 2. **Processing** — Ore Processor and Fabricator, then their Advanced tiers.
 3. **Consequences** — manage [heat](Thermal-System.md); meet your first Dirty Filter.
 4. **Mitigation** — build a [Scrubber and a Remediator](Pollution-and-Mitigation.md).

@@ -18,6 +18,15 @@ creative-tab registry through NeroTech's `RegistrationProvider` seam (each Nero 
 | Circuit Board | Basic electronic component — the "logic" ingredient in machine recipes. | `nerotech:machine_components` |
 | Nero Coil | Wound conductive coil — the "power" ingredient in generator/motor recipes. | `nerotech:machine_components` |
 
+| Component | By hand | In the Fabricator |
+| --- | --- | --- |
+| Machine Frame | 8 Iron Ingots in a ring | 1 Iron Ingot → 1 |
+| Nero Coil | Copper Ingot (or Copper Dust) + Iron Ingot + Copper Ingot (or Dust), in a row | 1 Copper Dust → 2 |
+| Circuit Board | Redstone + Gold Ingot (or Gold Dust) + Redstone, in a row | 1 Gold Dust → 2 |
+
+The ingot recipes let you build your first generator before you have any dust; see
+[Standalone Progression](Progression.md).
+
 `nerotech:machine_components` is an internal grouping tag used by NeroTech's own
 recipe checks; it is not part of the cross-mod `c:` convention.
 

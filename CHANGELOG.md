@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0-beta.1] - 2026-09-24
+
+EMI support and working JEI pages on Fabric for the machine pages, and NeroTech can now be started
+without dust.
+
+### Added
+
+- **EMI support.** The five machine recipe pages JEI already had (ore processing, fabricating, advanced
+  fabricating, particle accelerator, chemical processing) now come from a native EMI plugin too. Official
+  EMI has no Minecraft 26.x release, so this targets the community EMI Unofficial Port (Unstable) on
+  NeoForge and Fabric; that port has no Forge build. With JEI and EMI both installed, the pages show once.
+  EMI stays optional. See the wiki's Recipe Viewers page.
+
+### Fixed
+
+- **JEI pages now appear on Fabric.** JEI on Fabric only loads plugins listed under the `jei_mod_plugin`
+  entrypoint and ignores the `@JeiPlugin` annotation, so NeroTech's five machine pages never showed
+  there. NeoForge was not affected.
+
+**NeroTech can be started without dust**
+
+- The first generator could not be crafted in survival. Every generator needs a Nero Coil or a
+  Circuit Board, both needed dust, and dust needs a powered Ore Processor. The Nero Coil now also
+  crafts from Copper Ingot + Iron Ingot + Copper Ingot, and the Circuit Board from Redstone + Gold
+  Ingot + Redstone. The dust recipes stay, and the Fabricator still makes two per dust.
+- Wiki: new Standalone Progression page covering the full path with only Neroland Core installed.
+  The Making Dust page now notes that both ore processors take raw ore blocks and gives the Advanced
+  Ore Processor's default yield bonus.
+
 ## [0.2.1-beta.1] - 2026-09-24
 
 Gases move through pipes, one oxygen shared with Nerospace, and the gas textures load. Pair it with

@@ -11,7 +11,9 @@
   "environment": "*",
   "entrypoints": {
     "main": ["za.co.neroland.nerotech.fabric.NeroTechFabric"],
-    "client": ["za.co.neroland.nerotech.fabric.NeroTechFabricClient"]
+    "client": ["za.co.neroland.nerotech.fabric.NeroTechFabricClient"],
+    "jei_mod_plugin": ["za.co.neroland.nerotech.compat.jei.NeroTechJeiPlugin"],
+    "emi": ["za.co.neroland.nerotech.compat.emi.NeroTechEmiPlugin"]
   },
   "mixins": [
     "nerotech-common.mixins.json",
