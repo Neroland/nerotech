@@ -14,6 +14,8 @@ of sci-fi mods. Built on **Neroland Core**.
 - [Tech Guide](Tech-Guide.md) — the in-game handbook: 8 chapters from first power to exotic matter.
 - [Materials & Components](Materials-and-Components.md) — Tier-1 crafting components and
   Earth-metal processing dusts, with their `c:` tags.
+- [Making Dust](Dusts.md) — every way to make dust: Ore Processor, Chemical Processor, Advanced
+  Ore Processor, Dirty Filter recycling and the Particle Accelerator.
 - [Tier-1 Machines](Machines.md) — Nero Generator, Solar Array, Ore Processor, Fabricator;
   power/energy, upgrade modules, and the `industrial_power` gate.
 - [Power Generation](Power-Generation.md) — the wider power tier: Wind Turbine, Geothermal and Bio

@@ -37,6 +37,8 @@ with NeroTech without a hard dependency.
 NeroTech's `c:dusts` entries merge with Core's (Nero Alloy, Starsteel, Void Crystal)
 and any other mod's, so `#c:dusts/iron` resolves to whichever iron dust is present.
 
+For every way to **make** these dusts — machines, yields and recipes — see [Making Dust](Dusts.md).
+
 ## Tags & datapacks
 
 All tags are hand-authored under `common/src/main/resources/data/` (the multiloader
@@ -47,5 +49,6 @@ dusts into their own processing equivalences.
 
 - [Home](Home.md)
 - [Tier-1 Machines](Machines.md)
+- [Making Dust](Dusts.md)
 - Neroland Core materials and the `c:` / `neroland:` tag conventions (documented in
   Neroland Core's own wiki/docs).
