@@ -95,10 +95,12 @@ public final class NeroTechFabricClient implements ClientModInitializer {
         FluidRenderingRegistry.register(NeroTechFluids.OXYGEN.get(), gasFluidModel("oxygen"));
     }
 
+    // Sprites live in textures/block/ so the vanilla block atlas stitches them; a separate
+    // textures/fluid/ directory is only stitched if the minecraft:blocks atlas definition lists it.
     private static FluidModel.Unbaked gasFluidModel(String gas) {
         return new FluidModel.Unbaked(
-                new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "fluid/" + gas + "_still")),
-                new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "fluid/" + gas + "_flow")),
+                new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_still")),
+                new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_flow")),
                 null,
                 null);
     }

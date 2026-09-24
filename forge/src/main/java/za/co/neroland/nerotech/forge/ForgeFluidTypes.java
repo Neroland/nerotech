@@ -36,7 +36,7 @@ public final class ForgeFluidTypes {
 
     /** The type for one of NeroTech's gases; hydrogen is the fallback for anything unknown. */
     public static FluidType forGas(Identifier gas) {
-        return NeroTechGases.OXYGEN.equals(gas) ? OXYGEN.get() : HYDROGEN.get();
+        return NeroTechGases.OXYGEN.equals(NeroTechGases.canonical(gas)) ? OXYGEN.get() : HYDROGEN.get();
     }
 
     private static FluidType gasType(String gas) {
@@ -61,8 +61,8 @@ public final class ForgeFluidTypes {
 
         private GasFluidType(Properties properties, String gas) {
             super(properties);
-            this.still = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "fluid/" + gas + "_still");
-            this.flowing = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "fluid/" + gas + "_flow");
+            this.still = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_still");
+            this.flowing = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_flow");
         }
 
         @Override

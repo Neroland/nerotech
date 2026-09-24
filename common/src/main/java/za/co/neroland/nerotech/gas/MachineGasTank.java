@@ -18,6 +18,10 @@ import za.co.neroland.nerolandcore.gas.NeroGases;
  *
  * <p>The machine's own production bypasses the filter through {@link #produce} — a machine always
  * owns what it makes. NBT save/load rides Core's raw accessors.
+ *
+ * <p>Every gas entering the tank (fill, produce, NBT load) is first mapped through
+ * {@link NeroTechGases#canonical}, so legacy {@code nerotech:oxygen} — from an old save or a Core
+ * Gas Tank filled by an older build — lands as the shared {@code nerospace:oxygen}.
  */
 public final class MachineGasTank implements NeroGasStorage {
 
@@ -51,7 +55,8 @@ public final class MachineGasTank implements NeroGasStorage {
 
     @Override
     public long fill(Identifier gas, long amount, boolean simulate) {
-        return this.accepts.test(gas) ? this.buffer.fill(gas, amount, simulate) : 0L;
+        Identifier canonical = NeroTechGases.canonical(gas);
+        return this.accepts.test(canonical) ? this.buffer.fill(canonical, amount, simulate) : 0L;
     }
 
     @Override
@@ -61,7 +66,7 @@ public final class MachineGasTank implements NeroGasStorage {
 
     /** Machine-internal production — bypasses the accept filter. @return mB actually stored. */
     public long produce(Identifier gas, long amount) {
-        return this.buffer.fill(gas, amount, false);
+        return this.buffer.fill(NeroTechGases.canonical(gas), amount, false);
     }
 
     /** Whether the tank could take {@code amount} more mB of its current (or any) gas. */
@@ -80,7 +85,8 @@ public final class MachineGasTank implements NeroGasStorage {
     }
 
     public void load(ValueInput input, String key) {
-        Identifier gas = Identifier.parse(input.getStringOr(key + "Gas", NeroGases.EMPTY.toString()));
+        Identifier gas = NeroTechGases.canonical(
+                Identifier.parse(input.getStringOr(key + "Gas", NeroGases.EMPTY.toString())));
         this.buffer.setRaw(gas, input.getIntOr(key + "Amount", 0));
     }
 }

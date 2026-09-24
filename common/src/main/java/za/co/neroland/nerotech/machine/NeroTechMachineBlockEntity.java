@@ -676,7 +676,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /**
      * Everything this machine offers on the loaders' <b>standard</b> fluid capability for one face:
      * the fluid tank, plus every gas tank wearing its transport fluid ({@code nerotech:hydrogen} /
-     * {@code nerotech:oxygen}). Gases are Core {@code Identifier}s, a surface no other mod speaks, so
+     * {@code nerotech:oxygen}, standing for the shared {@code nerospace:oxygen}). Gases are Core {@code Identifier}s, a surface no other mod speaks, so
      * this is what lets a third-party pipe carry them — see
      * {@link za.co.neroland.nerotech.fluid.NeroTechFluids}.
      *

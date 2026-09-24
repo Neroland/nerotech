@@ -128,6 +128,11 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
      * Gas view per face. A single lookup can expose only one store, so the products are split by
      * face: <b>DOWN</b> hands out oxygen (the heavier gas), every other face hydrogen. The automatic
      * push in {@link #pushGas} is unaffected — it queries the neighbours, not this view.
+     *
+     * <p>The products are outputs only: a face set to I/O hands gas out but never takes it back, and
+     * an INPUT face takes nothing. Otherwise a pipe that both pulls and pushes (a Universal Pipe on
+     * AUTO) hands every millibucket straight back, the tanks never empty and the machine sits
+     * BLOCKED on full product tanks.
      */
     @Nullable
     @Override
@@ -142,7 +147,16 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
             return null;
         }
         return SideGating.gas(tank,
-                () -> config.config().modeAbsolute(Channel.GAS, config.facing(), side));
+                () -> outputOnly(config.config().modeAbsolute(Channel.GAS, config.facing(), side)));
+    }
+
+    /** A face's GAS mode with insertion removed: I/O becomes OUTPUT, INPUT becomes DISABLED. */
+    private static SideMode outputOnly(SideMode mode) {
+        return switch (mode) {
+            case IO -> SideMode.OUTPUT;
+            case INPUT -> SideMode.DISABLED;
+            default -> mode;
+        };
     }
 
     /**

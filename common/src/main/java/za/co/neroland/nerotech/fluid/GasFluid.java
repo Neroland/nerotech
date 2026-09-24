@@ -15,9 +15,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import za.co.neroland.nerotech.gas.NeroTechGases;
+
 /**
  * A NeroTech gas seen as a Minecraft {@link Fluid} — the transport identity of
- * {@code nerotech:hydrogen} / {@code nerotech:oxygen}, so any mod's fluid pipe can carry them.
+ * {@code nerotech:hydrogen} / {@code nerospace:oxygen} (fluid ids {@code nerotech:hydrogen} /
+ * {@code nerotech:oxygen}), so any mod's fluid pipe can carry them.
  *
  * <p>It is deliberately <b>not placeable</b>: there is no fluid block, no flowing variant, no
  * bucket, no world physics. A gas exists only inside tanks and pipes, which is exactly what a
@@ -33,7 +36,7 @@ public class GasFluid extends Fluid {
     private final Identifier gas;
 
     public GasFluid(Identifier gas) {
-        this.gas = gas;
+        this.gas = NeroTechGases.canonical(gas);
     }
 
     /** The Core gas id this fluid is the transport identity of. */

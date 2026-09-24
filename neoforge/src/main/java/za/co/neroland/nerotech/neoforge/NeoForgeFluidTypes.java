@@ -36,7 +36,7 @@ public final class NeoForgeFluidTypes {
 
     /** The type for one of NeroTech's gases; hydrogen is the fallback for anything unknown. */
     public static FluidType forGas(Identifier gas) {
-        return NeroTechGases.OXYGEN.equals(gas) ? OXYGEN.get() : HYDROGEN.get();
+        return NeroTechGases.OXYGEN.equals(NeroTechGases.canonical(gas)) ? OXYGEN.get() : HYDROGEN.get();
     }
 
     private static FluidType gasType() {

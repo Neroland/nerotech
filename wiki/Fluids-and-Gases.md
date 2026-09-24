@@ -44,6 +44,11 @@ face and the two gases leave on every face by default, and the Fluid channel's *
 so an Electrolyzer sitting against a full tank fills itself. Close a face on the Fluid tab and pipes
 on that side are ignored; close it on the Gas tab and no product leaves that way.
 
+The products are **outputs only**: a Gas face set to I/O hands gas out but never takes any back.
+A pipe that both pulls and pushes can therefore drain the Electrolyzer, instead of handing the gas
+straight back into it. The machine still stops (reads **Blocked**) when **either** product tank is
+full, so give both the hydrogen and the oxygen somewhere to go.
+
 The GUI shows three extra gauges beside energy and heat: water (blue), hydrogen (pale), oxygen (teal).
 
 ## Gas Turbine
@@ -81,6 +86,10 @@ in yield:
 Recipes are datapack-driven (`nerotech:chemical_processing`) and appear on their own JEI page, so a
 pack can add washes for any item. With a dry oxygen tank the machine reports **Starved** and draws
 no power at all.
+
+Its Gas faces are I/O with **auto-input** on by default, so a pipe can push oxygen in on any face, and
+the processor also pulls from an adjacent tank or pipe by itself. Any oxygen works: the Electrolyzer's,
+a Core Gas Tank's, or a Nerospace Oxygen Generator's (see [One oxygen](#one-oxygen)).
 
 ## The coolant loop
 
@@ -128,12 +137,17 @@ Earth with no other mod installed.
 
 ## Interop
 
-NeroTech declares its own gases (`nerotech:hydrogen`, `nerotech:oxygen`) because Neroland Core
-deliberately ships none — Core's gas layer identifies a gas generically by id and leaves the actual
-gases to content mods. Storage and transfer go through Core's `NeroGasStorage` / `NeroFluidStorage`
+NeroTech uses two gases, `nerotech:hydrogen` and `nerospace:oxygen`. Neroland Core deliberately
+ships none: Core's gas layer identifies a gas generically by id and leaves the actual gases to
+content mods. Storage and transfer go through Core's `NeroGasStorage` / `NeroFluidStorage`
 contracts and the shared fluid/gas capabilities, so:
 
 - Core's **Gas Tank** and **Fluid Tank** work with these machines out of the box.
+- **Gas pipes on Core's gas capability carry NeroTech gases.** Every gas machine sits on Core's
+  `nerolandcore:gas` capability, so a pipe that speaks it (Nerospace's Universal Pipe, for
+  instance) pulls hydrogen and oxygen out of the Electrolyzer and pushes them into the Gas Turbine,
+  the Chemical Processor or a Core Gas Tank. The machines also push into, and pull from, such a
+  pipe by themselves.
 - **Fluids cross the mod boundary.** Every NeroTech fluid tank is exposed on the loader's standard
   fluid capability too (NeoForge `Capabilities.Fluid`, Forge `FLUID_HANDLER`, Fabric
   `FluidStorage.SIDED`), so another mod's fluid pipes — Oritech's Universal Pipes, for instance —
@@ -147,10 +161,28 @@ contracts and the shared fluid/gas capabilities, so:
   now also *pulls* from adjacent sources, so placement order no longer matters.
 - These gas fluids are **not placeable** — no bucket, no fluid block, no pool of oxygen on the
   ground. They exist only inside tanks and pipes.
-- Another mod's gas (say a Nerospace oxygen) can be fed to the turbine by adding it to
-  `turbineGasBurn`.
+- Another mod's gas can be fed to the turbine by adding it to `turbineGasBurn`.
 - There is **no NeroTech gas network** — handoff is direct block-to-block adjacency, once a second.
   Long-distance routing is a job for pipes, not for this mod.
+
+### One oxygen
+
+There is only one oxygen in the Neroland mods: `nerospace:oxygen`, the gas Nerospace's Oxygen
+Generator and life support use. The Electrolyzer makes it, and the Chemical Processor accepts it
+from any source. The gas id belongs to Nerospace, but NeroTech does not need Nerospace installed:
+the id is just a name, and NeroTech works the same without it.
+
+Builds before this change used a separate `nerotech:oxygen` gas. It is migrated automatically:
+
+- Machine tanks saved with `nerotech:oxygen` load as `nerospace:oxygen`.
+- NeroTech machines accept `nerotech:oxygen` from any source, such as a Core Gas Tank filled by an
+  older build, and store it as `nerospace:oxygen`.
+- A `turbineGasBurn` entry for `nerotech:oxygen` counts as `nerospace:oxygen`.
+- The transport **fluid** keeps its id `nerotech:oxygen`, so pipes and tanks from other mods keep
+  their contents. It now stands for `nerospace:oxygen`.
+
+A Core Gas Tank that still holds old oxygen hands it to NeroTech machines normally. It refuses new
+oxygen until it is empty, because a Core tank holds only one gas id at a time.
 
 ## Known simplifications
 

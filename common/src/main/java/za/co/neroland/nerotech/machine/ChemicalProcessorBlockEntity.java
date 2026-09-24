@@ -41,8 +41,10 @@ import za.co.neroland.nerotech.registry.ModRecipeTypes;
  * raw ore washes to <b>3</b> dust where the Ore Processor gives 2, so the gas chain pays for itself
  * in throughput rather than in free energy.
  *
- * <p>Oxygen arrives through Core's gas capability (pushed by an adjacent Electrolyzer, or from a
- * Core Gas Tank); the tank refuses every other gas, so it can never jam on hydrogen. The GAS
+ * <p>Oxygen — the shared {@code nerospace:oxygen}, so a Nerospace Oxygen Generator feeds it too —
+ * arrives through Core's gas capability (pushed by an adjacent Electrolyzer, from a Core Gas Tank,
+ * or out of a pipe on that capability); the tank refuses every other gas, so it can never jam on
+ * hydrogen, and legacy {@code nerotech:oxygen} is accepted as the same gas. The GAS
  * side-config channel gates which faces accept it — and its auto-input, on by default, makes the
  * processor <i>pull</i> from an adjacent gas source rather than waiting to be fed.
  */

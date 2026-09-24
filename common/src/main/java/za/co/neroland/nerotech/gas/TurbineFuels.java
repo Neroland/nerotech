@@ -1,5 +1,6 @@
 package za.co.neroland.nerotech.gas;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.resources.Identifier;
@@ -34,7 +35,7 @@ public final class TurbineFuels {
         if (gas == null) {
             return 0;
         }
-        return table().getOrDefault(gas.toString(), 0);
+        return table().getOrDefault(NeroTechGases.canonical(gas).toString(), 0);
     }
 
     /** Whether the turbine accepts this gas at all (the tank's fill filter). */
@@ -47,8 +48,23 @@ public final class TurbineFuels {
         if (raw.equals(parsedFrom)) {
             return cache;
         }
-        cache = GasFuelMap.parse(raw);
+        cache = canonicalKeys(GasFuelMap.parse(raw));
         parsedFrom = raw;
         return cache;
+    }
+
+    /**
+     * A config written before the oxygen unification may still name {@code nerotech:oxygen}; key it
+     * under the shared id instead (an explicit {@code nerospace:oxygen} entry wins).
+     */
+    private static Map<String, Integer> canonicalKeys(Map<String, Integer> parsed) {
+        String legacy = NeroTechGases.LEGACY_OXYGEN.toString();
+        if (!parsed.containsKey(legacy)) {
+            return parsed;
+        }
+        Map<String, Integer> remapped = new HashMap<>(parsed);
+        Integer multiplier = remapped.remove(legacy);
+        remapped.putIfAbsent(NeroTechGases.OXYGEN.toString(), multiplier);
+        return Map.copyOf(remapped);
     }
 }

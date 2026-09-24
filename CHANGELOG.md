@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1-beta.1] - 2026-09-24
+
+Gases move through pipes, one oxygen shared with Nerospace, and the gas textures load. Pair it with
+Nerospace 1.1.1, whose Universal Pipe now connects to NeroTech's gas machines.
+
+### Fixed
+
+**Gases move through gas pipes, and the Electrolyzer drains** ([#9](https://github.com/Neroland/nerotech/issues/9))
+
+- **One oxygen, shared with Nerospace.** NeroTech's oxygen is now `nerospace:oxygen`, the same gas
+  as the Nerospace Oxygen Generator and life support. The old separate `nerotech:oxygen` gas meant
+  the Chemical Processor refused Oxygen Generator oxygen even when a pipe delivered it. NeroTech
+  still does not depend on Nerospace: the id is only a name.
+- **Legacy oxygen migrates automatically.** Tanks saved with `nerotech:oxygen` load as
+  `nerospace:oxygen`. NeroTech machines accept `nerotech:oxygen` from any source, such as a Core Gas
+  Tank filled by an older build, and store it as the shared gas. A `turbineGasBurn` entry for the
+  old id counts for the new one. The transport fluid keeps its registry id `nerotech:oxygen`, so
+  other mods' pipes and tanks keep their contents. It now stands for `nerospace:oxygen`.
+- **Gas pipes carry NeroTech gases.** With a pipe on Core's `nerolandcore:gas` capability (such as
+  the Nerospace Universal Pipe from Nerospace 1.1.1), the Electrolyzer's products
+  flow out and into the Chemical Processor, the Gas Turbine or a Core Gas Tank. Those machines
+  accept gas on every face by default and pull from an adjacent pipe or tank on their own.
+- **The Electrolyzer's gas faces are output-only.** An I/O gas face used to take gas back, so a pipe
+  that both pulls and pushes returned every millibucket and the product tanks never emptied. The
+  machine then stopped with full tanks. On Core's gas capability, I/O now means output for the
+  Electrolyzer, and an input face takes nothing.
+
+**Crash reporting**
+
+- Crash reports no longer include vanilla's "Invalid block entity" message. Minecraft logs it when a
+  chunk's saved NeroTech machine data no longer matches the block there, for example after another mod
+  remapped blocks. Vanilla discards the stale data and the world keeps working. Exceptions thrown inside
+  another mod's own code are no longer reported either.
+- **Hydrogen and oxygen fluid textures render.** The sprites lived in `textures/fluid/`, listed by
+  an `assets/nerotech/atlases/blocks.json` that Minecraft never reads (atlas definitions are read
+  from the `minecraft` namespace only). The sprites were never stitched, so both gas fluids drew
+  the missing texture in tank and pipe GUIs and JEI. They now live in `textures/block/`, which the
+  block atlas always includes.
+
 ## [0.2.0-beta.1] - 2026-09-20
 
 Minecraft **26.3** support, plus one recipe fix.

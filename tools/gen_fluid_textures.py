@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the still/flow textures for NeroTech's gas transport fluids.
 
-NeroTech's gases (`nerotech:hydrogen`, `nerotech:oxygen`) are registered as fluids so that any
+NeroTech's gases (`nerotech:hydrogen`, and the shared `nerospace:oxygen` as fluid `nerotech:oxygen`) are registered as fluids so that any
 mod's fluid pipe can carry them (see wiki/Fluids-and-Gases.md). They are never placed in the
 world, so these textures only ever appear in *other* mods' tank and pipe GUIs — a flat, softly
 mottled tint per gas is enough, and keeps them readable next to water.
@@ -11,7 +11,10 @@ mottled tint per gas is enough, and keeps them readable next to water.
 * No Pillow needed — writes the PNGs directly (zlib + struct), so `gradlew genAssets` stays
   green everywhere.
 
-Outputs into common/src/main/resources/assets/nerotech/textures/fluid.
+Outputs into common/src/main/resources/assets/nerotech/textures/block — the vanilla block atlas
+already stitches every namespace's `textures/block/`, so no atlas source file is needed (an
+`assets/nerotech/atlases/blocks.json` is never read: atlas definitions live under the atlas's own
+`minecraft` namespace).
 """
 import os
 import random
@@ -65,7 +68,7 @@ def _png(path, rows):
 
 def main():
     force = "--force" in sys.argv
-    out_dir = os.path.join(src_base(), "src/main/resources/assets/nerotech/textures/fluid")
+    out_dir = os.path.join(src_base(), "src/main/resources/assets/nerotech/textures/block")
     os.makedirs(out_dir, exist_ok=True)
     print("gen_fluid_textures: target = %s" % target_label())
 

@@ -244,6 +244,9 @@ public final class NeroTechTelemetry {
         if (!isNeroTechRelated(event)) {
             return null;
         }
+        if (TelemetryNoise.isNoise(event)) {
+            return null; // another mod's bug, or stale world data vanilla already discards
+        }
         String fingerprint = fingerprintOf(event);
         if (!seenFingerprints.add(fingerprint)) {
             return null;
