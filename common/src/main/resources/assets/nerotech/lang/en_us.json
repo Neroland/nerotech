@@ -29,6 +29,7 @@
   "item.nerotech.configurator.link.cleared": "Node unlinked",
   "item.nerotech.configurator.link.too_far": "Nodes too far apart (max %s blocks)",
   "item.nerotech.configurator.link.same_node": "Pick a different node for the other end",
+  "item.nerotech.configurator.link_denied": "Configurator: you can't link nodes you aren't allowed to interact with.",
 
   "item.nerotech.speed_module": "Speed Module",
   "item.nerotech.efficiency_module": "Efficiency Module",

@@ -187,6 +187,13 @@ public final class NeroTechConfig {
     private static final ConfigValue<Boolean> FUSION_FAILURE = SCHEMA.bool("fusionReactorMeltdownEnabled",
             true, true, "true: an unmanaged Fusion Reactor melts down destructively at max heat (telegraphed by "
             + "the red gauge); false (survival-friendly): it just stalls until it cools");
+    private static final ConfigValue<String> FUSION_MELTDOWN_TERRAIN = SCHEMA.string("fusionMeltdownTerrainDamage",
+            "auto", true, "whether a Fusion Reactor meltdown destroys terrain: on / off / auto (auto = off on a "
+            + "dedicated server, on in singleplayer and LAN); off keeps the blast (damage, knockback, the "
+            + "reactor itself is still lost) but breaks no blocks");
+    private static final ConfigValue<Integer> FUSION_MELTDOWN_RADIUS_CAP = SCHEMA.intRange("fusionMeltdownRadiusCap",
+            8, 1, 16, true, "hard cap on a Fusion Reactor meltdown's blast radius (blocks); the radius is "
+            + "shell size + 1 (4/6/8 for the 3/5/7 shells), never more than this");
     private static final ConfigValue<String> FUSION_SIZE_OUTPUT = SCHEMA.string("fusionSizeOutputPermille",
             "3=1000,5=4000,7=12000", true, "multiblock output multiplier (permille of fusionReactorNePerTick) "
             + "per shell size: comma-list of size=permille for the 3/5/7 shells (Stage E multiblock)");
@@ -491,6 +498,44 @@ public final class NeroTechConfig {
 
     public static boolean fusionReactorMeltdownEnabled() {
         return FUSION_FAILURE.get();
+    }
+
+    /**
+     * Raw {@code fusionMeltdownTerrainDamage} setting: {@code "on"}, {@code "off"} or {@code "auto"}
+     * (anything unrecognised reads as {@code "auto"}). Resolve it with
+     * {@link #fusionMeltdownTerrainDamage(boolean)}.
+     */
+    public static String fusionMeltdownTerrainDamageMode() {
+        String raw = FUSION_MELTDOWN_TERRAIN.get();
+        if (raw == null) {
+            return "auto";
+        }
+        String mode = raw.trim().toLowerCase(java.util.Locale.ROOT);
+        return switch (mode) {
+            case "on", "off" -> mode;
+            default -> "auto";
+        };
+    }
+
+    /**
+     * Whether a Fusion Reactor meltdown may break blocks, resolved for this runtime: {@code "on"} /
+     * {@code "off"} are explicit; {@code "auto"} (the default) is <b>off on a dedicated server</b> —
+     * where one unattended reactor would otherwise crater a shared world — and on in singleplayer /
+     * LAN, where the blast is the player's own consequence to keep.
+     *
+     * @param dedicatedServer {@code MinecraftServer.isDedicatedServer()} for the running server
+     */
+    public static boolean fusionMeltdownTerrainDamage(boolean dedicatedServer) {
+        return switch (fusionMeltdownTerrainDamageMode()) {
+            case "on" -> true;
+            case "off" -> false;
+            default -> !dedicatedServer;
+        };
+    }
+
+    /** Hard cap on a Fusion Reactor meltdown's blast radius (blocks, 1..16). */
+    public static int fusionMeltdownRadiusCap() {
+        return FUSION_MELTDOWN_RADIUS_CAP.get();
     }
 
     public static String fusionSizeOutputPermille() {

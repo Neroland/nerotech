@@ -8,6 +8,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.api.MachineTypeRegistry;
 import za.co.neroland.nerotech.guide.TechGuideBlockEntity;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlockEntity;
@@ -154,10 +155,55 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("tech_guide",
                     key -> new BlockEntityType<>(TechGuideBlockEntity::new, Set.of(ModBlocks.TECH_GUIDE.get())));
 
+    /** Whether {@link #seed()} has run — it must contribute NeroTech's machines exactly once. */
+    private static boolean seeded;
+
     /**
-     * The single source of truth for which machines get an energy capability/lookup registration on
-     * every loader. Each loader entry point ({@code NeroTechFabric}, {@code NeroTechNeoForge}) iterates
-     * this list instead of hand-listing types, so a new machine is wired everywhere at once.
+     * Seed the public {@link MachineTypeRegistry} with NeroTech's own machines, once, before anything
+     * else in {@code NeroTechCommon.init()}. From 0.4.0 the registry — not these lists — is what every
+     * loader's capability wiring reads, so an add-on (NeroPower) registering its machines there is
+     * wired exactly like ours. The four {@code *MachineTypes()} accessors below return registry
+     * snapshots and therefore include add-on types once they have registered.
+     */
+    public static void seed() {
+        if (seeded) {
+            return;
+        }
+        seeded = true;
+        ownEnergyMachineTypes().forEach(MachineTypeRegistry::registerEnergy);
+        ownItemMachineTypes().forEach(MachineTypeRegistry::registerItem);
+        ownGasMachineTypes().forEach(MachineTypeRegistry::registerGas);
+        ownFluidMachineTypes().forEach(MachineTypeRegistry::registerFluid);
+    }
+
+    /**
+     * Every machine on the energy surface — NeroTech's own (seeded first) plus any add-on's — as an
+     * unmodifiable snapshot of {@link MachineTypeRegistry#energyTypes()}.
+     */
+    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> energyMachineTypes() {
+        return MachineTypeRegistry.energyTypes();
+    }
+
+    /** Every machine on the item surface — see {@link #energyMachineTypes()}. */
+    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> itemMachineTypes() {
+        return MachineTypeRegistry.itemTypes();
+    }
+
+    /** Every machine on the gas surface — see {@link #energyMachineTypes()}. */
+    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> gasMachineTypes() {
+        return MachineTypeRegistry.gasTypes();
+    }
+
+    /** Every machine on the fluid surface — see {@link #energyMachineTypes()}. */
+    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> fluidMachineTypes() {
+        return MachineTypeRegistry.fluidTypes();
+    }
+
+    /**
+     * NeroTech's own contribution to the energy surface: which of OUR machines get an energy
+     * capability/lookup registration on every loader. Seeded into the {@link MachineTypeRegistry}
+     * by {@link #seed()}; the loader entry points read the registry, so a new machine is wired
+     * everywhere at once.
      *
      * <p><b>Adding a machine?</b> Register its {@link BlockEntityType} above and add it here — that is
      * all the cross-loader wiring it needs. Two block entities are excluded <i>by design</i>: the
@@ -165,7 +211,7 @@ public final class ModBlockEntities {
      * empty buffer on them would advertise a power surface that does not exist. The Stage-D Grid
      * Controller joins them for the same reason: it is a passive supervisor that consumes no NE.
      */
-    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> energyMachineTypes() {
+    private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> ownEnergyMachineTypes() {
         return List.of(
                 NERO_GENERATOR::get,
                 SOLAR_ARRAY::get,
@@ -201,15 +247,15 @@ public final class ModBlockEntities {
     }
 
     /**
-     * The machines whose inventories are exposed on each loader's standard item-handling surface, so
-     * NeroLogistics / pipes / hoppers move items in and out with no NeroTech dependency.
+     * NeroTech's own machines whose inventories are exposed on each loader's standard item-handling
+     * surface, so NeroLogistics / pipes / hoppers move items in and out with no NeroTech dependency.
      *
-     * <p>Same list as {@link #energyMachineTypes()} minus the Remediator, which is slotless (it consumes
-     * NE and cleans terrain, and has nothing to insert into or extract from), and minus the Analytics
-     * Terminal and Tech Guide for the reasons given there. <b>New machines with slots MUST be added
-     * here</b> — they are then wired on every loader automatically.
+     * <p>Same list as {@link #ownEnergyMachineTypes()} minus the Remediator, which is slotless (it
+     * consumes NE and cleans terrain, and has nothing to insert into or extract from), and minus the
+     * Analytics Terminal and Tech Guide for the reasons given there. <b>New machines with slots MUST
+     * be added here</b> — they are then wired on every loader automatically.
      */
-    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> itemMachineTypes() {
+    private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> ownItemMachineTypes() {
         return List.of(
                 NERO_GENERATOR::get,
                 SOLAR_ARRAY::get,
@@ -237,14 +283,14 @@ public final class ModBlockEntities {
     }
 
     /**
-     * The machines that expose a gas tank on Core's shared {@code nerolandcore:gas} capability, so
-     * NeroTech's gas chain interoperates with Core's Gas Tank — and any other mod on that surface —
-     * with no cross-mod dependency. Each loader entry point iterates this list; a machine's own
-     * per-face view comes from {@code NeroTechMachineBlockEntity.gasStorage(side)}.
+     * NeroTech's own machines that expose a gas tank on Core's shared {@code nerolandcore:gas}
+     * capability, so NeroTech's gas chain interoperates with Core's Gas Tank — and any other mod on
+     * that surface — with no cross-mod dependency. Each loader entry point iterates the registry; a
+     * machine's own per-face view comes from {@code NeroTechMachineBlockEntity.gasStorage(side)}.
      *
      * <p><b>Adding a gas machine?</b> Override {@code gasStorage} and add it here.
      */
-    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> gasMachineTypes() {
+    private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> ownGasMachineTypes() {
         return List.of(
                 ELECTROLYZER::get,
                 GAS_TURBINE::get,
@@ -252,11 +298,11 @@ public final class ModBlockEntities {
     }
 
     /**
-     * The machines that expose a fluid tank on Core's shared {@code nerolandcore:fluid} capability.
-     * Currently just the Electrolyzer's water tank ({@code fluidStorage(side)}), so a Core Fluid Tank
-     * or a future fluid pipe can fill it without the bucket.
+     * NeroTech's own machines that expose a fluid tank on Core's shared {@code nerolandcore:fluid}
+     * capability. Currently just the Electrolyzer's water tank ({@code fluidStorage(side)}), so a Core
+     * Fluid Tank or a future fluid pipe can fill it without the bucket.
      */
-    public static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> fluidMachineTypes() {
+    private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> ownFluidMachineTypes() {
         return List.of(ELECTROLYZER::get);
     }
 

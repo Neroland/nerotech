@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0-beta.1] - 2026-09-26
+
+The add-on seam for NeroPower, and four safety fixes. Requires **Neroland Core 1.13.0** (was
+`1.13.0`).
+
+### Added
+
+- **Public API package `za.co.neroland.nerotech.api`** — stable within a 0.x minor; NeroPower depends
+  on it. Everything outside it stays internal.
+  - `PowerMachine`: the read/steer surface every `NeroTechMachineBlockEntity` now implements
+    (energy buffer, heat / capacity / add / extract / ambient / overheated, preset get + set,
+    `shedable()`, `owner()`, `reportStatus`). `addHeat`, `extractHeat` and `reportStatus` are public on
+    the base now; `heatCapacity()`, `ambient()`, `owner()` and `clearOwner()` are new.
+  - `MachineTypeRegistry`: register a block-entity type on the energy / item / gas / fluid surface
+    once and it is wired on every loader like NeroTech's own machines. NeroTech seeds it first from
+    `NeroTechCommon.init()`; `ModBlockEntities.*MachineTypes()` now return registry snapshots.
+    NeoForge reads the registry in `RegisterCapabilitiesEvent` (add-ons register from their mod
+    constructor); Fabric subscribes with `onRegistered` listeners so a registration from a later
+    initializer is still wired; Forge already attaches by `instanceof`.
+  - `MachineFailureEvents`: failure stages (1 warning/throttled, 2 unstable, 3 failure/meltdown,
+    4 containment breach) published on Core's `ThresholdEvents` bus, channel
+    `nerotech:machine_failure`, scope `machineId@dimension:pos` — never a player. The Fusion Reactor
+    fires stage 1 once per overheat episode (rising and falling), stage 3 on meltdown and stage 4
+    on a breach.
+  - `PlanetApi`: `solarMultiplier(Level)`, `windMultiplier(Level)` and `ambientAt(Level, BlockPos)` —
+    the same Nerospace-aware per-planet model NeroTech's generators and thermal model use.
+- **Maven publishing** of the nine loader cells as
+  `za.co.neroland.nerotech:nerotech-<loader>-<mc>:<version>` to Maven Local and GitHub Packages
+  (mirrors Core's setup; see `MANUAL-PUBLISH-YML.md` for the workflow step).
+- Config: `fusionMeltdownTerrainDamage` (`auto` | `on` | `off`, default `auto`) and
+  `fusionMeltdownRadiusCap` (1..16, default 8).
+
+### Fixed
+
+- **Wireless Power Node pairing is authorised.** Pairing or unlinking with the Configurator now
+  requires that the acting player may interact with the block at both endpoints (spawn protection,
+  world border, adventure rules) and, when both nodes have an owner, that they own both or hold
+  gamemaster permission. Refusals show `item.nerotech.configurator.link_denied`. The actor is
+  always the item holder, never a nearest-player lookup.
+- **Fusion meltdown terrain damage is off on dedicated servers by default.** `auto` resolves to no
+  block damage on a dedicated server (the blast still hurts and knocks back, and the reactor is
+  still lost) and full damage in singleplayer / LAN; the radius is `min(shellSize + 1,
+  fusionMeltdownRadiusCap)`.
+- **Saved-data stores recover instead of crashing.** The pollution, attribution-preference and
+  Tech Guide "seen" stores load through Core's `SavedDataRecovery` (last-known-good backup, then a
+  fresh store), and each erasure refreshes that backup at once.
+- **Data erasure reaches machine ownership.** An erase request through Core's `PlayerDataErasure`
+  hook now also drops the placing-player UUID from every machine the player owns: loaded machines
+  react on their next tick, unloaded ones on their next load, from a pending-erasure set kept in the
+  attribution-preference store for 30 days.
+
 ## [0.3.0-beta.1] - 2026-09-24
 
 EMI support and working JEI pages on Fabric for the machine pages, and NeroTech can now be started

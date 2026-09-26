@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 import za.co.neroland.nerolandcore.event.ThresholdEvents;
 import za.co.neroland.nerolandcore.event.ThresholdEvents.ThresholdCrossing;
 
@@ -151,9 +152,14 @@ public final class PollutionManager {
         state.pruneStale(NeroTechConfig.pollutionAttributionRetentionDays(), today());
     }
 
-    /** Shared data-erasure hook target (POPIA/GDPR). */
+    /**
+     * Shared data-erasure hook target (POPIA/GDPR). Refreshes Core's last-known-good backup at once
+     * so the erasure reaches that second copy too (the {@link SavedDataRecovery} contract).
+     */
     public static void erasePlayer(MinecraftServer server, UUID player) {
-        PollutionState.get(server).forgetPlayer(player);
+        PollutionState state = PollutionState.get(server);
+        state.forgetPlayer(player);
+        SavedDataRecovery.backupNow(server.overworld(), PollutionState.TYPE, state, PollutionState.ID.toString());
     }
 
     private static long today() {

@@ -1,5 +1,6 @@
 package za.co.neroland.nerotech.machine;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
@@ -33,9 +34,11 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 import za.co.neroland.nerolandcore.sideconfig.SideMode;
 
+import za.co.neroland.nerotech.api.PowerMachine;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.heat.ThermalEnvironment;
 import za.co.neroland.nerotech.heat.ThermalMath;
+import za.co.neroland.nerotech.pollution.PollutionAttributionPrefs;
 import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ModBlocks;
 import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
@@ -48,10 +51,14 @@ import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
  * Core upgrade slots) for the menu, GUI {@link ContainerData} sync, and save/load of the extra state.
  *
  * <p>Energy and upgrades are NOT re-implemented — they come from Core. Subclasses override
- * {@link #serverTick} and {@link #createMenu}.
+ * {@link #tickMachine} and {@link #createMenu}.
+ *
+ * <p>Add-on seam (0.4.0): the base implements {@link PowerMachine}, NeroTech's stable public read/steer
+ * surface, so an add-on machine (NeroPower) that subclasses this gets the API for free and other mods
+ * can consume any NeroTech-family machine through the interface alone.
  */
 public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEntity
-        implements WorldlyContainer, MenuProvider {
+        implements WorldlyContainer, MenuProvider, PowerMachine {
 
     public static final int UPGRADE_SLOTS = 4;
 
@@ -140,6 +147,14 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /** Placing player's UUID — captured only when per-player pollution attribution is enabled. */
     @Nullable
     protected UUID ownerId;
+
+    /**
+     * The {@link PollutionAttributionPrefs#erasureEpoch()} this machine last checked its owner
+     * against (POPIA/GDPR; see {@link #checkOwnerErasure}). {@code -1} = never since (re)load, so a
+     * re-loaded chunk re-checks against erasures that happened while it was unloaded; a bump of the
+     * epoch re-checks every loaded machine on its next tick.
+     */
+    private int ownerErasureEpoch = -1;
 
     /** Spreads pollution contributions across ticks so machines don't all flush on the same tick. */
     private final int pollutionPhase = Math.floorMod(System.identityHashCode(this), 40);
@@ -235,6 +250,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
      * buffers and passive consoles override to {@code false} — shedding a power <i>source</i> during
      * a shortage would be exactly backwards.
      */
+    @Override
     public boolean shedable() {
         return true;
     }
@@ -305,6 +321,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
     @Override
     protected final void serverTick(Level level, BlockPos pos, BlockState state) {
+        checkOwnerErasure(level);
         this.statusReported = false;
         tickMachine(level, pos, state);
         // Analytics default: RUNNING while visibly working, IDLE otherwise — subclasses that know
@@ -341,7 +358,8 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
      * (RUNNING while active, IDLE otherwise) applies on any tick without a report, so subclasses
      * only report where they know better.
      */
-    protected void reportStatus(MachineStatus status) {
+    @Override
+    public void reportStatus(MachineStatus status) {
         this.stats.status(status);
         this.statusReported = true;
     }
@@ -493,6 +511,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     // --- Stage H overclock preset (scaled ONCE, here at the base) --------------------------------
 
     /** The active overclock preset (server-authoritative; clients read ContainerData index 6). */
+    @Override
     public MachinePreset preset() {
         return this.preset;
     }
@@ -503,6 +522,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
      * {@link #syncRenderState} uses — so watching clients pick the new preset up immediately.
      * Player-driven and rare, so the eager packet is fine.
      */
+    @Override
     public void setPreset(MachinePreset newPreset) {
         if (newPreset == null || newPreset == this.preset) {
             return;
@@ -528,9 +548,10 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /**
      * Add heat, clamped to capacity. The Stage H preset scales the amount here at the base (Eco
      * halves it, Overdrive doubles it — the Overdrive BER glow), with a floor of 1 so a working
-     * machine on Eco never becomes heat-free.
+     * machine on Eco never becomes heat-free. Public since 0.4.0 as part of {@link PowerMachine}.
      */
-    protected void addHeat(int amount) {
+    @Override
+    public void addHeat(int amount) {
         if (amount > 0) {
             int scaled = Math.max(1, amount * this.preset.heatPermille() / 1000);
             this.heat = Math.min(NeroTechConfig.heatCapacity(), this.heat + scaled);
@@ -581,6 +602,15 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
             this.ambientCacheUntil = now + 200;
         }
         return this.ambientCache;
+    }
+
+    /**
+     * {@link PowerMachine} view of {@link #ambient(Level, BlockPos)} for this machine's own position;
+     * the configured default until the machine is in a level.
+     */
+    @Override
+    public int ambient() {
+        return this.level == null ? NeroTechConfig.thermalAmbientDefault() : ambient(this.level, this.worldPosition);
     }
 
     /**
@@ -637,11 +667,13 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /**
      * Coolant-loop extraction (Stage C): remove up to {@code amount} heat, never below {@code floor}.
      * Called by an adjacent {@link CoolantPumpBlockEntity} on the thermal exchange interval — the heat
-     * is <b>deleted</b>, which is what the loop's radiators represent.
+     * is <b>deleted</b>, which is what the loop's radiators represent. Public since 0.4.0 as part of
+     * {@link PowerMachine}, so an add-on coolant loop can drain NeroTech machines too.
      *
      * @return heat actually removed
      */
-    int extractHeat(int amount, int floor) {
+    @Override
+    public int extractHeat(int amount, int floor) {
         if (amount <= 0 || this.heat <= floor) {
             return 0;
         }
@@ -656,7 +688,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /**
      * The {@link za.co.neroland.nerolandcore.gas.NeroGasStorage} this machine exposes on
      * {@code side}, or null when it handles no gas. Registered on every loader through Core's gas
-     * capability from {@code ModBlockEntities.gasMachineTypes()}.
+     * capability from the {@code api.MachineTypeRegistry} GAS surface.
      */
     @Nullable
     public za.co.neroland.nerolandcore.gas.NeroGasStorage gasStorage(@Nullable Direction side) {
@@ -666,7 +698,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /**
      * The {@link za.co.neroland.nerolandcore.fluid.NeroFluidStorage} this machine exposes on
      * {@code side}, or null when it handles no fluid. Registered on every loader through Core's
-     * fluid capability from {@code ModBlockEntities.fluidMachineTypes()}.
+     * fluid capability from the {@code api.MachineTypeRegistry} FLUID surface.
      */
     @Nullable
     public za.co.neroland.nerolandcore.fluid.NeroFluidStorage fluidStorage(@Nullable Direction side) {
@@ -729,17 +761,65 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     }
 
     /** True once heat reaches the throttle threshold — processing machines stall until cooled. */
+    @Override
     public boolean overheated() {
         return this.heat >= NeroTechConfig.heatThrottleThreshold();
     }
 
+    @Override
     public int heat() {
         return this.heat;
+    }
+
+    /** The shared heat ceiling ({@code heatCapacity} config) — the denominator of every heat gauge. */
+    @Override
+    public int heatCapacity() {
+        return NeroTechConfig.heatCapacity();
     }
 
     /** Capture the placing player (only stored when per-player attribution is enabled). */
     public void setOwner(@Nullable UUID owner) {
         this.ownerId = owner;
+    }
+
+    /**
+     * Forget the placing player (POPIA/GDPR erasure): the machine becomes unowned, exactly as if
+     * attribution had been off at placement. Marks the BE dirty so the save drops the UUID too.
+     */
+    public void clearOwner() {
+        if (this.ownerId != null) {
+            this.ownerId = null;
+            setChanged();
+        }
+    }
+
+    /**
+     * Owner erasure (POPIA/GDPR): on the first server tick after (re)load, and again whenever an
+     * erase request lands while this machine is loaded, check the owner against the pending-erasure
+     * set in {@link PollutionAttributionPrefs} and drop it if listed. There is no public list of
+     * loaded block entities to sweep from the eraser, so the eraser bumps an epoch and every loaded
+     * machine reacts on its next tick; unloaded ones catch up when their chunk comes back. Per tick
+     * this is one static int compare — the store lookup happens only when the epoch moved.
+     */
+    private void checkOwnerErasure(Level level) {
+        int epoch = PollutionAttributionPrefs.erasureEpoch();
+        if (this.ownerErasureEpoch == epoch) {
+            return;
+        }
+        this.ownerErasureEpoch = epoch;
+        if (this.ownerId != null && level instanceof ServerLevel serverLevel
+                && PollutionAttributionPrefs.get(serverLevel.getServer()).isPendingErasure(this.ownerId)) {
+            clearOwner();
+        }
+    }
+
+    /**
+     * The placing player's UUID as an {@link Optional} — the {@link PowerMachine} view of
+     * {@link #ownerId()}. Personal data: never log it or send it to a client.
+     */
+    @Override
+    public Optional<UUID> owner() {
+        return Optional.ofNullable(this.ownerId);
     }
 
     /**
@@ -799,6 +879,8 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         long ownerMost = input.getLongOr("OwnerMost", 0L);
         long ownerLeast = input.getLongOr("OwnerLeast", 0L);
         this.ownerId = (ownerMost == 0L && ownerLeast == 0L) ? null : new UUID(ownerMost, ownerLeast);
+        // A (re)loaded owner is re-checked against the pending-erasure set on the next server tick.
+        this.ownerErasureEpoch = -1;
         for (int i = 0; i < this.items.size(); i++) {
             this.items.set(i, input.read("Item" + i, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         }

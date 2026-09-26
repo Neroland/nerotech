@@ -35,7 +35,9 @@ import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
  * {@code nerolandcore:energy} capability and (b) the standard {@code ITEM_HANDLER} capability (sided —
  * inputs insertable, outputs extractable), so machines interoperate on one power network and their
  * inventories are the NeroLogistics item-handoff surface. One provider per machine covers every
- * subclass via {@code instanceof}.
+ * subclass via {@code instanceof} — including add-on machines (NeroPower) that subclass
+ * {@link NeroTechMachineBlockEntity}, so Forge needs no per-type list and does not consult the
+ * {@code api.MachineTypeRegistry} the other two loaders wire from.
  */
 public final class ForgeCapabilities {
 

@@ -3,12 +3,15 @@ package za.co.neroland.nerotech.item;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -204,50 +207,109 @@ public class ConfiguratorItem extends Item {
      *
      * <p>The pending end lives in the stack's {@code configurator_state} data component: a block
      * position and a dimension id, never a player identity (POPIA/GDPR).
+     *
+     * <p><b>Authorisation (0.4.0):</b> pairing and unlinking both re-wire someone else's power, so
+     * the acting player must be allowed to interact with the block at <i>both</i> endpoints
+     * (vanilla {@code Player.mayInteract} — spawn protection, world border, adventure rules), and when
+     * both nodes carry an owner the player must own both or hold gamemaster permission
+     * ({@link #mayLink}). The acting player is always the one holding the item — never a nearest-player
+     * lookup.
      */
     private InteractionResult link(UseOnContext context, Level level, BlockPos pos,
             WirelessNodeBlockEntity node, ConfiguratorState state) {
         ItemStack stack = context.getItemInHand();
+        Player player = context.getPlayer();
         String dimension = level.dimension().identifier().toString();
 
         if (node.partner() != null) {
+            BlockPos partnerPos = node.partner();
+            WirelessNodeBlockEntity partner = level.hasChunkAt(partnerPos)
+                    && level.getBlockEntity(partnerPos) instanceof WirelessNodeBlockEntity other ? other : null;
+            if (!mayLink(player, level, node, partner)) {
+                tell(player, Component.translatable("item.nerotech.configurator.link_denied"));
+                return InteractionResult.SUCCESS;
+            }
             node.unlink();
             stack.set(ModDataComponents.CONFIGURATOR_STATE.get(), state.withoutLinkSource());
-            tell(context.getPlayer(), Component.translatable("item.nerotech.configurator.link.cleared"));
+            tell(player, Component.translatable("item.nerotech.configurator.link.cleared"));
             return InteractionResult.SUCCESS;
         }
 
         Optional<ConfiguratorState.Link> pending = state.linkSource();
         if (pending.isEmpty() || !pending.get().dimension().equals(dimension)) {
+            if (!mayLink(player, level, node, null)) {
+                tell(player, Component.translatable("item.nerotech.configurator.link_denied"));
+                return InteractionResult.SUCCESS;
+            }
             stack.set(ModDataComponents.CONFIGURATOR_STATE.get(),
                     state.withLinkSource(ConfiguratorState.Link.of(pos, dimension)));
-            tell(context.getPlayer(), Component.translatable("item.nerotech.configurator.link.stored"));
+            tell(player, Component.translatable("item.nerotech.configurator.link.stored"));
             return InteractionResult.SUCCESS;
         }
 
         BlockPos source = pending.get().toPos();
         if (source.equals(pos)) {
             // Same node twice: keep the pending end so the player can simply click the other one.
-            tell(context.getPlayer(), Component.translatable("item.nerotech.configurator.link.same_node"));
+            tell(player, Component.translatable("item.nerotech.configurator.link.same_node"));
             return InteractionResult.SUCCESS;
         }
         if (!level.hasChunkAt(source)
                 || !(level.getBlockEntity(source) instanceof WirelessNodeBlockEntity first)) {
             // Source gone (or asleep) — drop the stale pending end rather than pair blind.
             stack.set(ModDataComponents.CONFIGURATOR_STATE.get(), state.withoutLinkSource());
-            tell(context.getPlayer(), Component.translatable("item.nerotech.configurator.link.cleared"));
+            tell(player, Component.translatable("item.nerotech.configurator.link.cleared"));
             return InteractionResult.SUCCESS;
         }
         if (!first.canPairWith(node)) {
-            tell(context.getPlayer(), Component.translatable("item.nerotech.configurator.link.too_far",
+            tell(player, Component.translatable("item.nerotech.configurator.link.too_far",
                     NeroTechConfig.wirelessNodeRange()));
+            return InteractionResult.SUCCESS;
+        }
+        if (!mayLink(player, level, first, node)) {
+            // Keep the pending end: the player may simply have clicked a node that isn't theirs.
+            tell(player, Component.translatable("item.nerotech.configurator.link_denied"));
             return InteractionResult.SUCCESS;
         }
 
         first.pairWith(node, dimension);
         stack.set(ModDataComponents.CONFIGURATOR_STATE.get(), state.withoutLinkSource());
-        tell(context.getPlayer(), Component.translatable("item.nerotech.configurator.link.paired"));
+        tell(player, Component.translatable("item.nerotech.configurator.link.paired"));
         return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * Whether {@code player} may (re)wire the link between {@code node} and {@code other} ({@code null}
+     * when there is no second endpoint yet, or the partner is unloaded): server side only; the player
+     * must be able to interact with the block at each endpoint; and when <i>both</i> nodes have an
+     * owner the player must be that owner on both, unless they hold gamemaster (level 2) permission.
+     * Ownership is the placing player's UUID a machine keeps for pollution attribution — compared,
+     * never logged or shown (POPIA/GDPR).
+     */
+    private static boolean mayLink(@Nullable Player player, Level level, WirelessNodeBlockEntity node,
+            @Nullable WirelessNodeBlockEntity other) {
+        if (player == null || !(level instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        if (!player.mayInteract(serverLevel, node.getBlockPos())
+                || (other != null && !player.mayInteract(serverLevel, other.getBlockPos()))) {
+            return false;
+        }
+        if (other == null) {
+            return true;
+        }
+        Optional<UUID> ownerA = node.owner();
+        Optional<UUID> ownerB = other.owner();
+        if (ownerA.isEmpty() || ownerB.isEmpty()) {
+            return true;
+        }
+        UUID actor = player.getUUID();
+        return (actor.equals(ownerA.get()) && actor.equals(ownerB.get())) || isGamemaster(player);
+    }
+
+    /** Gamemaster (permission level 2) check, through the same predicate Core's commands gate on. */
+    private static boolean isGamemaster(Player player) {
+        return player instanceof ServerPlayer serverPlayer
+                && Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(serverPlayer.createCommandSourceStack());
     }
 
     // --- helpers ---------------------------------------------------------------

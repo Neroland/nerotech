@@ -7,6 +7,7 @@
 
 plugins {
     id 'net.neoforged.moddev'
+    id 'maven-publish'
 }
 
 // MC version comes from the Stonecutter node (e.g. :neoforge:26.1.2), not a global property.
@@ -23,6 +24,38 @@ def branchDir = project.parent.projectDir
 // Distinct, descriptive jar name per cell (the node project is named after the MC version, so the
 // default jar would be "<mc>-<version>.jar" and COLLIDE with the fabric cell of the same version).
 base { archivesName = "nerotech-neoforge-${mc}" }
+
+// Publish this cell's jar to Maven Local (~/.m2) so add-on Nero mods (NeroPower) can declare NeroTech
+// a dependency in dev: `za.co.neroland.nerotech:nerotech-neoforge-<mc>:<version>`.
+// Dependency-free POM on purpose — the consumer already resolves Minecraft + the loader + Core itself
+// (see USING-CORE.md); NeroTech's jar only layers its classes on top.
+// `./gradlew publishToMavenLocal` installs all nine cells. Mirrors Neroland Core's publishing setup.
+publishing {
+    publications {
+        register('mod', MavenPublication) {
+            groupId = rootProject.mod_group_id
+            artifactId = "nerotech-neoforge-${mc}"
+            version = rootProject.mod_version
+            artifact tasks.named('jar')
+        }
+    }
+    // Remote target so a fresh CI runner / clone (empty ~/.m2) can resolve NeroTech — GitHub Packages
+    // Maven for the NeroTech repo. `publishToMavenLocal` still works for local dev; `publish` (or
+    // publishModPublicationToGitHubPackagesRepository) pushes here. Auth: gradle props gpr.user/gpr.key,
+    // else env GITHUB_ACTOR/GITHUB_TOKEN (both present in GitHub Actions). Lazy getOrNull() means a
+    // build that doesn't touch this repo (e.g. a contributor with no token) won't fail at configuration.
+    // Privacy (POPIA/GDPR): publishes only build artifacts + version strings, no personal data.
+    repositories {
+        maven {
+            name = 'GitHubPackages'
+            url = 'https://maven.pkg.github.com/Neroland/nerotech'
+            credentials {
+                username = providers.gradleProperty('gpr.user').orElse(providers.environmentVariable('GITHUB_ACTOR')).getOrNull()
+                password = providers.gradleProperty('gpr.key').orElse(providers.environmentVariable('GITHUB_TOKEN')).getOrNull()
+            }
+        }
+    }
+}
 
 repositories {
     mavenLocal() // resolves a self-built NeoForge 26.2 until the official jar drops

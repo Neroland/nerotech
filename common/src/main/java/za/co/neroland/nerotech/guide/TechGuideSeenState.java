@@ -14,6 +14,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import za.co.neroland.nerolandcore.data.SavedDataRecovery;
+
 import za.co.neroland.nerotech.NeroTechCommon;
 
 /**
@@ -46,8 +48,13 @@ public final class TechGuideSeenState extends SavedData {
     public TechGuideSeenState() {
     }
 
+    /**
+     * The store for this server (overworld saved data), through Core's crash-safe
+     * {@link SavedDataRecovery} so a corrupt file degrades to the last backup or a fresh store
+     * instead of crashing every tick that touches it.
+     */
     public static TechGuideSeenState get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
+        return SavedDataRecovery.get(server.overworld(), TYPE, TechGuideSeenState::new, ID.toString());
     }
 
     /** The player's seen bitmask for {@code chapter} (0 = nothing clicked yet). */

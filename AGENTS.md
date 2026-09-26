@@ -9,7 +9,7 @@
   progression gates); add shared content under `common/` and wire it through each loader entry point.
 - Mod id: **`nerotech`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.nerotech`. Author: **Neroland**.
-- Version: **0.0.1-alpha.2**.
+- Version: **0.4.0-beta.1** (requires Neroland Core **1.13.0**; `nerolandcore_version` in `gradle.properties`).
 - Targets **MC 26.1.2, 26.2 AND 26.3** on **NeoForge, MinecraftForge/Forge, and Fabric** → the **"9 cells"**.
   **Java 25.** Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 
@@ -55,6 +55,12 @@
   `net.fabricmc.*` / `net.minecraftforge.*` imports.
 - Loader entry points: `NeroTechFabric` (+ `NeroTechFabricClient`), `NeroTechForge`,
   `NeroTechNeoForge` — each calls `NeroTechCommon.init()` during construction.
+- **Public add-on API = `za.co.neroland.nerotech.api`** (`PowerMachine`, `MachineTypeRegistry`,
+  `MachineFailureEvents`, `PlanetApi`): stable within a 0.x minor, NeroPower depends on it — a breaking
+  change there bumps the minor and goes in `CHANGELOG.md`. Everything else is internal. Capability wiring
+  on every loader reads `MachineTypeRegistry` (seeded first in `NeroTechCommon.init()`), not hand lists.
+- Each loader cell publishes to Maven (`za.co.neroland.nerotech:nerotech-<loader>-<mc>:<version>`,
+  `./gradlew publishToMavenLocal` / GitHub Packages) so add-ons resolve NeroTech like NeroTech resolves Core.
 - NeoForge/Forge debug tasks use `-PnerotechDebug`; Fabric Loom honours Gradle `--debug-jvm`.
 
 ## IDE (VS Code) run & debug

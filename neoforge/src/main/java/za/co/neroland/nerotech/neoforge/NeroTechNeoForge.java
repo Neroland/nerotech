@@ -29,10 +29,10 @@ import za.co.neroland.nerolandcore.platform.NeoForgeFluidLookup;
 import za.co.neroland.nerolandcore.platform.NeoForgeGasLookup;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.api.MachineTypeRegistry;
 import za.co.neroland.nerotech.command.NeroTechCommands;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.pollution.PollutionManager;
-import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.registry.ModRecipeTypes;
 import za.co.neroland.nerotech.registry.NeoForgeRegistrationFactory;
 import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
@@ -74,28 +74,36 @@ public final class NeroTechNeoForge {
         }
     }
 
-    /** Expose each machine's energy buffer on Core's shared {@code nerolandcore:energy} capability. */
+    /**
+     * Expose every registered machine's surfaces on the loader capabilities, reading the public
+     * {@link MachineTypeRegistry} (NeroTech's own machines seeded first in {@code NeroTechCommon.init()},
+     * then any add-on's). {@code RegisterCapabilitiesEvent} fires on the mod bus after <b>every</b> mod's
+     * constructor has run, so an add-on (NeroPower) that registers its machine types from its own mod
+     * constructor — it depends on NeroTech, so ours runs first — is always in the snapshot read here.
+     * A registration made later than mod construction (e.g. from a setup event) is too late for
+     * NeoForge and must be avoided by add-ons.
+     */
     private static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
         for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> type
-                : ModBlockEntities.energyMachineTypes()) {
+                : MachineTypeRegistry.energyTypes()) {
             energyCap(event, machineType(type.get()));
         }
 
         // Item handoff surface (Stage 5): expose every machine's sided inventory on the standard item
         // capability so NeroLogistics / pipes / hoppers move items in and out with no NeroTech dependency.
         for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> type
-                : ModBlockEntities.itemMachineTypes()) {
+                : MachineTypeRegistry.itemTypes()) {
             itemCap(event, machineType(type.get()));
         }
 
         // Stage C: the fluid/gas machines' tanks on Core's shared fluid/gas capabilities, so the gas
         // chain interoperates with Core's Fluid/Gas Tanks (and any other mod on those surfaces).
         for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> type
-                : ModBlockEntities.gasMachineTypes()) {
+                : MachineTypeRegistry.gasTypes()) {
             gasCap(event, machineType(type.get()));
         }
         for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> type
-                : ModBlockEntities.fluidMachineTypes()) {
+                : MachineTypeRegistry.fluidTypes()) {
             fluidCap(event, machineType(type.get()));
         }
 
@@ -104,8 +112,8 @@ public final class NeroTechNeoForge {
         // and nothing else (issue #9). Gas tanks join in wearing their transport fluid, so a pipe can
         // carry hydrogen and oxygen as well. One registration per type covers both.
         Set<BlockEntityType<? extends NeroTechMachineBlockEntity>> standardFluid = new LinkedHashSet<>();
-        ModBlockEntities.fluidMachineTypes().forEach(type -> standardFluid.add(type.get()));
-        ModBlockEntities.gasMachineTypes().forEach(type -> standardFluid.add(type.get()));
+        MachineTypeRegistry.fluidTypes().forEach(type -> standardFluid.add(type.get()));
+        MachineTypeRegistry.gasTypes().forEach(type -> standardFluid.add(type.get()));
         for (BlockEntityType<? extends NeroTechMachineBlockEntity> type : standardFluid) {
             standardFluidCap(event, machineType(type));
         }
@@ -113,9 +121,9 @@ public final class NeroTechNeoForge {
 
     /**
      * Re-brands a wildcard machine type as the exact type the registration helpers want. Safe by
-     * construction: the lists in {@code ModBlockEntities} only ever hold block-entity types whose
-     * value class extends {@link NeroTechMachineBlockEntity}, and the handlers below only ever read
-     * from the block entity through that base type.
+     * construction: the {@link MachineTypeRegistry} only ever holds block-entity types whose value
+     * class extends {@link NeroTechMachineBlockEntity}, and the handlers below only ever read from
+     * the block entity through that base type.
      */
     @SuppressWarnings("unchecked")
     private static BlockEntityType<NeroTechMachineBlockEntity> machineType(

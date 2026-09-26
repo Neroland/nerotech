@@ -1,7 +1,5 @@
 package za.co.neroland.nerotech.fabric;
 
-import java.util.function.Supplier;
-
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -23,15 +21,32 @@ import za.co.neroland.nerolandcore.platform.FabricFluidLookup;
 import za.co.neroland.nerolandcore.platform.FabricGasLookup;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.api.MachineTypeRegistry;
+import za.co.neroland.nerotech.api.MachineTypeRegistry.Surface;
 import za.co.neroland.nerotech.command.NeroTechCommands;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.pollution.PollutionManager;
-import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.registry.ModRecipeTypes;
 import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
 
-/** Fabric entry point for NeroTech. Registration is eager; energy capability is wired here. */
+/**
+ * Fabric entry point for NeroTech. Registration is eager; energy capability is wired here.
+ *
+ * <p>Capability wiring subscribes to the public {@link MachineTypeRegistry} with
+ * {@link MachineTypeRegistry#onRegistered} rather than reading a one-off snapshot: Fabric has no
+ * "after every initializer" event, and an add-on's initializer (NeroPower's) may run <i>after</i>
+ * this one even though it depends on NeroTech. A listener replays every type already registered
+ * (NeroTech's own, seeded in {@code NeroTechCommon.init()}) and then wires each late registration
+ * the moment it lands, so add-on machines are on the lookups by the time any world loads.
+ */
 public final class NeroTechFabric implements ModInitializer {
+
+    /**
+     * Types already given the standard Fabric fluid storage — a machine on both the gas and the fluid
+     * surface arrives through two listeners but must register that one handler once.
+     */
+    private static final Set<BlockEntityType<? extends NeroTechMachineBlockEntity>> STANDARD_FLUID_WIRED =
+            new LinkedHashSet<>();
 
     @Override
     public void onInitialize() {
@@ -53,14 +68,12 @@ public final class NeroTechFabric implements ModInitializer {
     }
 
     /**
-     * Expose every NeroTech machine's energy buffer on Core's shared {@code nerolandcore:energy} lookup,
-     * so machines from any Nero mod interoperate on one power network.
+     * Expose every registered machine's energy buffer on Core's shared {@code nerolandcore:energy}
+     * lookup, so machines from any Nero mod interoperate on one power network. Listener-based, so an
+     * add-on registering after this initializer is wired too (see the class note).
      */
     private static void registerCoreEnergy() {
-        for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> type
-                : ModBlockEntities.energyMachineTypes()) {
-            energyHandler(machineType(type.get()));
-        }
+        MachineTypeRegistry.onRegistered(Surface.ENERGY, type -> energyHandler(machineType(type.get())));
     }
 
     /**
@@ -78,10 +91,7 @@ public final class NeroTechFabric implements ModInitializer {
      * item storage, so NeroLogistics / pipes / hoppers move items in and out with no NeroTech dependency.
      */
     private static void registerItemHandlers() {
-        for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> type
-                : ModBlockEntities.itemMachineTypes()) {
-            itemHandler(machineType(type.get()));
-        }
+        MachineTypeRegistry.onRegistered(Surface.ITEM, type -> itemHandler(machineType(type.get())));
     }
 
     private static <T extends NeroTechMachineBlockEntity> void itemHandler(BlockEntityType<T> type) {
@@ -94,24 +104,28 @@ public final class NeroTechFabric implements ModInitializer {
      * Tanks — and any other mod on those surfaces — with no cross-mod dependency.
      */
     private static void registerCoreFluidAndGas() {
-        for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> type
-                : ModBlockEntities.gasMachineTypes()) {
-            gasHandler(machineType(type.get()));
-        }
-        for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> type
-                : ModBlockEntities.fluidMachineTypes()) {
-            fluidHandler(machineType(type.get()));
-        }
+        MachineTypeRegistry.onRegistered(Surface.GAS, type -> {
+            BlockEntityType<NeroTechMachineBlockEntity> machine = machineType(type.get());
+            gasHandler(machine);
+            standardFluidOnce(machine);
+        });
+        MachineTypeRegistry.onRegistered(Surface.FLUID, type -> {
+            BlockEntityType<NeroTechMachineBlockEntity> machine = machineType(type.get());
+            fluidHandler(machine);
+            standardFluidOnce(machine);
+        });
+    }
 
-        // ... and the same tanks on FABRIC'S OWN fluid storage, so third-party fluid pipes see them:
-        // Core's lookup is Nero-private, which is why the Electrolyzer took water from a bucket and
-        // nothing else (issue #9). Gas tanks join in wearing their transport fluid, so a pipe can carry
-        // hydrogen and oxygen as well. One registration per type covers both.
-        Set<BlockEntityType<? extends NeroTechMachineBlockEntity>> standardFluid = new LinkedHashSet<>();
-        ModBlockEntities.fluidMachineTypes().forEach(type -> standardFluid.add(type.get()));
-        ModBlockEntities.gasMachineTypes().forEach(type -> standardFluid.add(type.get()));
-        for (BlockEntityType<? extends NeroTechMachineBlockEntity> type : standardFluid) {
-            standardFluidHandler(machineType(type));
+    /**
+     * ... and the same tanks on FABRIC'S OWN fluid storage, so third-party fluid pipes see them:
+     * Core's lookup is Nero-private, which is why the Electrolyzer took water from a bucket and
+     * nothing else (issue #9). Gas tanks join in wearing their transport fluid, so a pipe can carry
+     * hydrogen and oxygen as well. One registration per type covers both — hence the once-guard, as
+     * a machine on both surfaces arrives through both listeners above.
+     */
+    private static void standardFluidOnce(BlockEntityType<NeroTechMachineBlockEntity> type) {
+        if (STANDARD_FLUID_WIRED.add(type)) {
+            standardFluidHandler(type);
         }
     }
 
@@ -149,9 +163,9 @@ public final class NeroTechFabric implements ModInitializer {
 
     /**
      * Re-brands a wildcard machine type as the exact type the registration helpers want. Safe by
-     * construction: the lists in {@code ModBlockEntities} only ever hold block-entity types whose
-     * value class extends {@link NeroTechMachineBlockEntity}, and the handlers below only ever read
-     * from the block entity through that base type.
+     * construction: the {@link MachineTypeRegistry} only ever holds block-entity types whose value
+     * class extends {@link NeroTechMachineBlockEntity}, and the handlers below only ever read from
+     * the block entity through that base type.
      */
     @SuppressWarnings("unchecked")
     private static BlockEntityType<NeroTechMachineBlockEntity> machineType(

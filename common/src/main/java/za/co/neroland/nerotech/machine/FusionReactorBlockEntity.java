@@ -20,6 +20,7 @@ import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
+import za.co.neroland.nerotech.api.MachineFailureEvents;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.link.NeroTechLinkModule;
 import za.co.neroland.nerotech.menu.NeroGeneratorMenu;
@@ -40,6 +41,17 @@ import za.co.neroland.nerotech.tag.NeroTechTags;
  * the shell ({@code fusionReactorMeltdownEnabled} still admin-disableable, stall otherwise).
  * Breaking the shell while a charge is burning is a <b>containment breach</b>: the charge is
  * lost and vents a pollution burst into the region (aggregate-only — no player data).
+ *
+ * <p><b>Meltdown safety (0.4.0):</b> the blast radius is {@code min(shellSize + 1,
+ * fusionMeltdownRadiusCap)} ({@link #meltdownRadius}), and whether it breaks blocks at all follows
+ * {@code fusionMeltdownTerrainDamage} — {@code auto} (default) means no terrain damage on a
+ * dedicated server and full damage in singleplayer/LAN; {@code on}/{@code off} force it. With
+ * terrain damage off the explosion still deals damage and knockback and the reactor block itself
+ * is still removed; only the crater is spared.
+ *
+ * <p><b>Failure events:</b> the reactor publishes its failure stages on
+ * {@link MachineFailureEvents} — stage 1 once per overheat episode (too hot to ignite / stalled),
+ * stage 3 on meltdown, stage 4 on a containment breach — keyed by machine + place, never the owner.
  */
 public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
 
@@ -60,6 +72,15 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
     private int shellSize;
     /** Burning fuel tier (for heat scaling across a charge); 0 when idle. */
     private int burningTier;
+
+    /** The failure-event machine id (the block-entity type id; a machine class, never a player). */
+    private static final String MACHINE_ID = "nerotech:fusion_reactor";
+
+    /**
+     * Whether the stage-1 (warning) failure event has been fired for the current overheat episode —
+     * transient, so the episode reads as one event per rising edge rather than one per tick.
+     */
+    private boolean overheatWarned;
 
     public FusionReactorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.FUSION_REACTOR.get(), pos, state, 1);
@@ -91,18 +112,24 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
             return;
         }
 
-        // Meltdown / safety check first — blast radius scales with the shell.
+        // Meltdown / safety check first — blast radius scales with the shell (capped by config).
         if (heat() >= NeroTechConfig.heatCapacity()) {
             if (NeroTechConfig.fusionReactorMeltdownEnabled() && level instanceof ServerLevel) {
                 meltdown(level);
                 return;
             }
             // Survival-friendly: stall until the thermal model cools it; stored power still flows.
+            warnOverheat(level, pos);
             reportStatus(MachineStatus.THROTTLED);
             setActive(false); // torus dies; only the BER warning strobe telegraphs the overheat
             MachineEnergy.pushToNeighbours(level, pos, energyBuffer(), NeroTechConfig.machineMaxTransfer(),
                     sideConfig());
             return;
+        }
+        // The overheat episode ends once the reactor is cool enough to ignite again (falling edge).
+        if (this.overheatWarned && !overheated()) {
+            this.overheatWarned = false;
+            fireFailure(level, pos, MachineFailureEvents.STAGE_WARNING, false);
         }
 
         boolean roomToStore = getEnergy().getAmount() < getEnergy().getCapacity();
@@ -135,6 +162,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 // Analytics: too hot to ignite reads THROTTLED; no fuel or a tier the shell can't
                 // contain, STARVED; a full buffer just idles (the default covers it).
                 if (overheated()) {
+                    warnOverheat(level, pos);
                     reportStatus(MachineStatus.THROTTLED);
                 } else if (!canContain(tier)) {
                     reportStatus(MachineStatus.STARVED);
@@ -177,6 +205,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
             // World-event broadcast + a CRITICAL alert to the owner (no personal data in the broadcast).
             NeroTechLinkModule.onReactorCritical(serverLevel.getServer(), this.ownerId, pos,
                     "containment_breach", this.shellSize);
+            fireFailure(serverLevel, pos, MachineFailureEvents.STAGE_BREACH, true);
         }
         this.formed = nowFormed;
         this.shellSize = nowSize;
@@ -219,20 +248,52 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
         return stack.is(NeroTechTags.FUSION_FUELS) ? 1 : 0;
     }
 
+    /**
+     * Stage-1 failure event, once per overheat episode: the reactor is too hot to ignite (or has
+     * stalled at capacity with meltdown disabled). Cleared on the falling edge in {@link #tickMachine}.
+     */
+    private void warnOverheat(Level level, BlockPos pos) {
+        if (!this.overheatWarned) {
+            this.overheatWarned = true;
+            fireFailure(level, pos, MachineFailureEvents.STAGE_WARNING, true);
+        }
+    }
+
+    /** Publish a failure stage for this reactor on the ecosystem bus (server side only). */
+    private void fireFailure(Level level, BlockPos pos, int stage, boolean rising) {
+        if (level instanceof ServerLevel) {
+            MachineFailureEvents.fire(MACHINE_ID, level.dimension().identifier().toString(), pos, stage, rising);
+        }
+    }
+
+    /**
+     * A meltdown's blast radius: the shell edge plus one (4/6/8 for the 3/5/7 shells), never above
+     * {@code cap} ({@code fusionMeltdownRadiusCap}) and never below 1. Pure, so the balance is
+     * unit-testable.
+     */
+    public static int meltdownRadius(int shellSize, int cap) {
+        return MeltdownMath.meltdownRadius(shellSize, cap);
+    }
+
     private void meltdown(Level level) {
         // Telegraph the meltdown to NeroLink: a world-event broadcast plus a CRITICAL alert to the
-        // owner. Fired before the explosion removes this block-entity. (meltdown() is only reached on a
-        // ServerLevel — see the heat check in tickMachine.)
+        // owner, and the stage-3 failure event for any listener on the ecosystem bus. Fired before the
+        // explosion removes this block-entity. (meltdown() is only reached on a ServerLevel — see the
+        // heat check in tickMachine.)
+        boolean terrainDamage = true;
         if (level instanceof ServerLevel serverLevel) {
             NeroTechLinkModule.onReactorCritical(serverLevel.getServer(), this.ownerId, this.worldPosition,
                     "meltdown", this.shellSize);
+            fireFailure(serverLevel, this.worldPosition, MachineFailureEvents.STAGE_FAILURE, true);
+            // auto → no terrain damage on a dedicated server (a shared world), full damage otherwise.
+            terrainDamage = NeroTechConfig.fusionMeltdownTerrainDamage(serverLevel.getServer().isDedicatedServer());
         }
-        // Epicentre is the shell's interior centre; radius grows with the shell (4/6/8).
+        // Epicentre is the shell's interior centre; radius grows with the shell (4/6/8), capped by config.
         Direction facing = getBlockState().getValue(NeroTechMachineBlock.FACING);
         BlockPos center = this.worldPosition.relative(facing.getOpposite(), (this.shellSize - 1) / 2);
-        float radius = this.shellSize + 1.0F;
+        float radius = meltdownRadius(this.shellSize, NeroTechConfig.fusionMeltdownRadiusCap());
         level.explode(null, center.getX() + 0.5D, center.getY() + 0.5D, center.getZ() + 0.5D, radius,
-                Level.ExplosionInteraction.BLOCK);
+                terrainDamage ? Level.ExplosionInteraction.BLOCK : Level.ExplosionInteraction.NONE);
         level.removeBlock(this.worldPosition, false);
     }
 
