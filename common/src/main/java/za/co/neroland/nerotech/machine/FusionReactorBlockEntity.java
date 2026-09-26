@@ -292,6 +292,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
         Direction facing = getBlockState().getValue(NeroTechMachineBlock.FACING);
         BlockPos center = this.worldPosition.relative(facing.getOpposite(), (this.shellSize - 1) / 2);
         float radius = meltdownRadius(this.shellSize, NeroTechConfig.fusionMeltdownRadiusCap());
+        // BLOCK vs NONE is a direct ternary on the resolved flag (MeltdownMath.terrainDamage, tested).
         level.explode(null, center.getX() + 0.5D, center.getY() + 0.5D, center.getZ() + 0.5D, radius,
                 terrainDamage ? Level.ExplosionInteraction.BLOCK : Level.ExplosionInteraction.NONE);
         level.removeBlock(this.worldPosition, false);

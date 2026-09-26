@@ -46,6 +46,17 @@ The add-on seam for NeroPower, and four safety fixes. Requires **Neroland Core 1
   world border, adventure rules) and, when both nodes have an owner, that they own both or hold
   gamemaster permission. Refusals show `item.nerotech.configurator.link_denied`. The actor is
   always the item holder, never a nearest-player lookup.
+- **Wireless pairing auth hardened.** The rule now covers *every* node an action touches — the
+  clicked node, the pending node, and any node whose current link would be broken (the clicked
+  node's partner on unlink, either end's old partner on pair). Each must be in a loaded chunk
+  (an unloaded endpoint can't be verified and is refused), interactable by the player, and — when
+  it has an owner — owned by the player unless they are a gamemaster; one owned endpoint is enough
+  to require ownership (previously only when both were owned, and an unloaded partner skipped the
+  owner check entirely). The decision lives in the Minecraft-free `item.LinkAuth`.
+- **Tests:** `WirelessPairingAuthTest` (pairing/unlink authorisation matrix) and
+  `MeltdownTerrainModeTest` (`fusionMeltdownTerrainDamage` on / off / auto × dedicated /
+  singleplayer, plus unrecognised values reading as `auto`); the resolver moved to the pure
+  `MeltdownMath.terrainDamage`.
 - **Fusion meltdown terrain damage is off on dedicated servers by default.** `auto` resolves to no
   block damage on a dedicated server (the blast still hurts and knocks back, and the reactor is
   still lost) and full damage in singleplayer / LAN; the radius is `min(shellSize + 1,

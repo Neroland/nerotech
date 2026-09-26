@@ -4,6 +4,8 @@ import za.co.neroland.nerolandcore.config.ConfigManager;
 import za.co.neroland.nerolandcore.config.ConfigSchema;
 import za.co.neroland.nerolandcore.config.ConfigValue;
 
+import za.co.neroland.nerotech.machine.MeltdownMath;
+
 /**
  * NeroTech's config, backed by Neroland Core's shared {@link ConfigManager}. Core owns the single
  * {@code config/nerotech.properties} file (defaults, range validation, in-place key migration, the
@@ -523,14 +525,15 @@ public final class NeroTechConfig {
      * where one unattended reactor would otherwise crater a shared world — and on in singleplayer /
      * LAN, where the blast is the player's own consequence to keep.
      *
+     * <p>The resolution itself lives in the Minecraft-free
+     * {@link MeltdownMath#terrainDamage(String, boolean)} so it is
+     * unit-tested without a loader.
+     *
      * @param dedicatedServer {@code MinecraftServer.isDedicatedServer()} for the running server
      */
     public static boolean fusionMeltdownTerrainDamage(boolean dedicatedServer) {
-        return switch (fusionMeltdownTerrainDamageMode()) {
-            case "on" -> true;
-            case "off" -> false;
-            default -> !dedicatedServer;
-        };
+        return MeltdownMath.terrainDamage(
+                fusionMeltdownTerrainDamageMode(), dedicatedServer);
     }
 
     /** Hard cap on a Fusion Reactor meltdown's blast radius (blocks, 1..16). */

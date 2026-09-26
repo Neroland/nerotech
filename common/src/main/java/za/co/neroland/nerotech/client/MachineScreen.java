@@ -34,6 +34,21 @@ import za.co.neroland.nerotech.network.NeroTechNetwork;
  * area. Two collapsible side tabs: Core's Side Config net and the Stage G {@link AnalyticsWidget}
  * (only one expands at a time). 26.x renders container screens via {@code extract*(GuiGraphicsExtractor, ...)}.
  *
+ * <h2>Add-on GUI contract (stable within 0.x)</h2>
+ * Add-ons (NeroPower) extend this screen for their own {@link MachineMenu} subclasses. It draws only
+ * the shared {@code ContainerData} indices, which NeroTech keeps fixed within a 0.x minor:
+ * <ul>
+ *   <li>0 — energy permille of capacity; 1 — constant 1000 (energy gauge);</li>
+ *   <li>2 — work progress permille; 3 — 1000 while working, else 0 (progress bar);</li>
+ *   <li>4 — heat permille of {@code heatCapacity}; 5 — constant 1000 (heat gauge);</li>
+ *   <li>6 — {@link MachinePreset} ordinal (preset button).</li>
+ * </ul>
+ * Indices {@code 7+} carry the block entity's {@code extraData(int)} values, {@code extraDataCount()}
+ * of them, and are the add-on's to draw (see {@link MachineMenu#extraFraction(int)} /
+ * {@link MachineMenu#extraValue(int)}); the menu's data must be sized {@code 7 + extraDataCount()}.
+ * That layout plus those two block-entity hooks is the stable extension point — see
+ * {@link MachineMenu} for the full table.
+ *
  * @param <T> the machine menu type
  */
 public class MachineScreen<T extends MachineMenu> extends AbstractContainerScreen<T> {

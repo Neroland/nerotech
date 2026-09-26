@@ -29,6 +29,35 @@ import za.co.neroland.nerotech.network.NeroTechNetwork;
  * {@link ServerPlayer} inventory) {@link #broadcastChanges()} pushes the machine's analytics
  * payload to that one viewer every {@value #STATS_SYNC_TICKS} ticks while the menu is open —
  * analytics never broadcast to non-viewers, and nothing here carries player data (POPIA/GDPR).
+ *
+ * <h2>Add-on GUI contract (stable within 0.x)</h2>
+ * The synced {@link ContainerData} layout, produced server-side by
+ * {@code NeroTechMachineBlockEntity}'s {@code data} and read back here, is the extension point
+ * add-ons (NeroPower) build machine GUIs on. Within a 0.x minor NeroTech keeps these indices, and
+ * the {@code extraDataCount()} / {@code extraData(int)} hooks, unchanged:
+ * <table>
+ *   <caption>Shared ContainerData indices</caption>
+ *   <tr><th>Index</th><th>Value</th><th>Read via</th></tr>
+ *   <tr><td>0</td><td>energy stored, permille of capacity</td><td>{@link #energyPermille()}</td></tr>
+ *   <tr><td>1</td><td>constant 1000 (energy denominator)</td><td>{@link #energyFraction()}</td></tr>
+ *   <tr><td>2</td><td>work progress, permille of {@code maxProgress}</td><td>{@link #workFraction()}</td></tr>
+ *   <tr><td>3</td><td>1000 while a job is running ({@code maxProgress > 0}), else 0</td>
+ *       <td>{@link #working()}</td></tr>
+ *   <tr><td>4</td><td>heat, permille of the configured {@code heatCapacity}</td>
+ *       <td>{@link #heatFraction()}</td></tr>
+ *   <tr><td>5</td><td>constant 1000 (heat denominator)</td><td>{@link #heatFraction()}</td></tr>
+ *   <tr><td>6</td><td>overclock preset ordinal ({@code MachinePreset})</td><td>{@link #presetOrdinal()}</td></tr>
+ * </table>
+ * Indices {@code 7} and up are machine-specific: index {@code 7 + i} is the block entity's
+ * {@code extraData(i)} (by convention permille, e.g. tank levels; a machine may document another
+ * scale), for {@code i} in {@code 0 .. extraDataCount() - 1}. Read them with
+ * {@link #extraFraction(int)} / {@link #extraValue(int)}, which take the 0-based extra index.
+ *
+ * <p>A menu subclass must size its client-side {@code SimpleContainerData} as
+ * {@code 7 + extraDataCount()} of its block entity (plain machines use {@code 7}), so the server
+ * and client containers agree; values ride {@code ContainerData}'s short-range sync, so keep each
+ * value within a short. {@code MachineScreen} renders indices 0..6 for every machine; add-on screens
+ * draw their extra gauges from 7+.
  */
 public abstract class MachineMenu extends AbstractContainerMenu {
 

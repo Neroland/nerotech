@@ -1,9 +1,12 @@
 package za.co.neroland.nerotech.item;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Optional;
-import java.util.UUID;
 
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -209,11 +212,13 @@ public class ConfiguratorItem extends Item {
      * position and a dimension id, never a player identity (POPIA/GDPR).
      *
      * <p><b>Authorisation (0.4.0):</b> pairing and unlinking both re-wire someone else's power, so
-     * the acting player must be allowed to interact with the block at <i>both</i> endpoints
-     * (vanilla {@code Player.mayInteract} — spawn protection, world border, adventure rules), and when
-     * both nodes carry an owner the player must own both or hold gamemaster permission
-     * ({@link #mayLink}). The acting player is always the one holding the item — never a nearest-player
-     * lookup.
+     * every node the action touches — the clicked node, the pending node, and any node whose current
+     * link the action would break (the clicked node's partner on unlink; either end's old partner on
+     * pair) — must pass {@link LinkAuth#allowed}: its chunk must be loaded (an unloaded endpoint
+     * can't be verified and is refused), the player must be allowed to interact at it (vanilla
+     * {@code Player.mayInteract} — spawn protection, world border, adventure rules), and when it has
+     * an owner the player must be that owner or hold gamemaster permission ({@link #mayLink}). The
+     * acting player is always the one holding the item — never a nearest-player lookup.
      */
     private InteractionResult link(UseOnContext context, Level level, BlockPos pos,
             WirelessNodeBlockEntity node, ConfiguratorState state) {
@@ -222,10 +227,8 @@ public class ConfiguratorItem extends Item {
         String dimension = level.dimension().identifier().toString();
 
         if (node.partner() != null) {
-            BlockPos partnerPos = node.partner();
-            WirelessNodeBlockEntity partner = level.hasChunkAt(partnerPos)
-                    && level.getBlockEntity(partnerPos) instanceof WirelessNodeBlockEntity other ? other : null;
-            if (!mayLink(player, level, node, partner)) {
+            // Unlink breaks the partner's end too, so the partner is an endpoint (refused if unloaded).
+            if (!mayLink(player, level, node)) {
                 tell(player, Component.translatable("item.nerotech.configurator.link_denied"));
                 return InteractionResult.SUCCESS;
             }
@@ -237,7 +240,7 @@ public class ConfiguratorItem extends Item {
 
         Optional<ConfiguratorState.Link> pending = state.linkSource();
         if (pending.isEmpty() || !pending.get().dimension().equals(dimension)) {
-            if (!mayLink(player, level, node, null)) {
+            if (!mayLink(player, level, node)) {
                 tell(player, Component.translatable("item.nerotech.configurator.link_denied"));
                 return InteractionResult.SUCCESS;
             }
@@ -265,6 +268,7 @@ public class ConfiguratorItem extends Item {
                     NeroTechConfig.wirelessNodeRange()));
             return InteractionResult.SUCCESS;
         }
+        // pairWith unlinks both ends first, so either end's old partner is an endpoint too.
         if (!mayLink(player, level, first, node)) {
             // Keep the pending end: the player may simply have clicked a node that isn't theirs.
             tell(player, Component.translatable("item.nerotech.configurator.link_denied"));
@@ -278,32 +282,44 @@ public class ConfiguratorItem extends Item {
     }
 
     /**
-     * Whether {@code player} may (re)wire the link between {@code node} and {@code other} ({@code null}
-     * when there is no second endpoint yet, or the partner is unloaded): server side only; the player
-     * must be able to interact with the block at each endpoint; and when <i>both</i> nodes have an
-     * owner the player must be that owner on both, unless they hold gamemaster (level 2) permission.
-     * Ownership is the placing player's UUID a machine keeps for pollution attribution — compared,
-     * never logged or shown (POPIA/GDPR).
+     * Whether {@code player} may (re)wire the given nodes: builds one {@link LinkAuth.Endpoint} per
+     * node plus one for each node's <i>current</i> partner (whose link the action breaks), then
+     * defers to {@link LinkAuth#allowed}. Server side only; a partner whose chunk is not loaded — or
+     * whose position no longer holds a node — cannot be verified and is refused. Ownership is the
+     * placing player's UUID a machine keeps for pollution attribution — compared, never logged or
+     * shown (POPIA/GDPR).
      */
-    private static boolean mayLink(@Nullable Player player, Level level, WirelessNodeBlockEntity node,
-            @Nullable WirelessNodeBlockEntity other) {
+    private static boolean mayLink(@Nullable Player player, Level level, WirelessNodeBlockEntity... nodes) {
         if (player == null || !(level instanceof ServerLevel serverLevel)) {
             return false;
         }
-        if (!player.mayInteract(serverLevel, node.getBlockPos())
-                || (other != null && !player.mayInteract(serverLevel, other.getBlockPos()))) {
-            return false;
+        Set<BlockPos> seen = new LinkedHashSet<>();
+        List<LinkAuth.Endpoint> endpoints = new ArrayList<>();
+        for (WirelessNodeBlockEntity node : nodes) {
+            if (seen.add(node.getBlockPos().immutable())) {
+                endpoints.add(endpoint(player, serverLevel, node));
+            }
         }
-        if (other == null) {
-            return true;
+        for (WirelessNodeBlockEntity node : nodes) {
+            BlockPos partnerPos = node.partner();
+            if (partnerPos == null || !seen.add(partnerPos.immutable())) {
+                continue;
+            }
+            if (serverLevel.hasChunkAt(partnerPos)
+                    && serverLevel.getBlockEntity(partnerPos) instanceof WirelessNodeBlockEntity partner) {
+                endpoints.add(endpoint(player, serverLevel, partner));
+            } else {
+                endpoints.add(LinkAuth.Endpoint.unloaded());
+            }
         }
-        Optional<UUID> ownerA = node.owner();
-        Optional<UUID> ownerB = other.owner();
-        if (ownerA.isEmpty() || ownerB.isEmpty()) {
-            return true;
-        }
-        UUID actor = player.getUUID();
-        return (actor.equals(ownerA.get()) && actor.equals(ownerB.get())) || isGamemaster(player);
+        return LinkAuth.allowed(player.getUUID(), isGamemaster(player), endpoints);
+    }
+
+    /** A loaded node as an authorisation endpoint: interactable-by-player plus its owner. */
+    private static LinkAuth.Endpoint endpoint(Player player, ServerLevel level, WirelessNodeBlockEntity node) {
+        BlockPos pos = node.getBlockPos();
+        boolean loaded = level.hasChunkAt(pos);
+        return new LinkAuth.Endpoint(loaded, loaded && player.mayInteract(level, pos), node.owner());
     }
 
     /** Gamemaster (permission level 2) check, through the same predicate Core's commands gate on. */
