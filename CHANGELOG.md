@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0-beta.2] - 2026-09-26
+
+Redeploy to Maven Local and GitHub Packages.
+
 ## [0.4.0-beta.1] - 2026-09-26
 
 The add-on seam for NeroPower, and four safety fixes. Requires **Neroland Core 1.13.0** (was
