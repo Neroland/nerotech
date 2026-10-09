@@ -1,12 +1,13 @@
 # NeroTech privacy & telemetry disclosure
 
-NeroTech includes optional, anonymous error reporting so that crashes and bugs caused by the
-mod can be found and fixed. This page is the full disclosure required by CurseForge's
+NeroTech includes anonymous error reporting so that crashes and bugs caused by the mod can be
+found and fixed. It is **on by default** and **opt-out** (see
+[How to opt out](#how-to-opt-out)). This page is the full disclosure required by CurseForge's
 moderation rules for mods that use an external analytics/error service, and it documents how
 the system is designed to comply with the GDPR (EU) and POPIA (South Africa).
 
-> **Note:** error reporting only becomes active once NeroTech's own Sentry DSN is configured
-> in the build (`NeroTechTelemetry.DSN`). While that field is blank, NeroTech sends **nothing**,
+> **Status:** NeroTech's own Sentry DSN is built into published jars, so reporting is live unless
+> you opt out. A build with the DSN blanked (`NeroTechTelemetry.DSN`) sends **nothing**,
 > regardless of the settings below.
 
 ## What is collected (error reporting)
@@ -46,7 +47,7 @@ telemetryEnabled=false
 ```
 
 This is a client-local switch (not server-synced) and covers everything error reporting sends.
-The change takes effect on config reload or next launch; nothing is sent while disabled, and
+The switch is read once at startup, so the change takes effect on next launch; nothing is sent while disabled, and
 nothing is ever sent before the config — and therefore your choice — has been loaded.
 
 ## Per-player pollution attribution (opt-in, off by default)
@@ -87,6 +88,6 @@ sends.
 
 > **Telemetry notice:** NeroTech sends anonymous error reports (stack trace + mod/game versions
 > only — never IPs, usernames, UUIDs, or world data) to the developers via Sentry (EU servers)
-> so crashes can be fixed. Opt out any time by setting `telemetryEnabled = false` in
-> `config/nerotech.properties`. Full details:
+> so crashes can be fixed. On by default — opt out any time by setting
+> `telemetryEnabled = false` in `config/nerotech.properties`. Full details:
 > [PRIVACY.md](https://github.com/Neroland/nerotech/blob/main/PRIVACY.md).

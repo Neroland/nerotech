@@ -39,3 +39,10 @@ The build is the repo root, with a flattened cross-loader structure driven by St
 ```
 
 See [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) for agent and contributor context.
+
+## Privacy
+
+NeroTech sends anonymous crash reports (stack trace + mod/game versions only — never IPs, usernames,
+UUIDs, or world data) via Sentry on EU servers. It is **on by default** and **opt-out**: set
+`telemetryEnabled=false` in `config/nerotech.properties` (client-local, takes effect on next launch).
+Optional per-player pollution attribution is off by default. Full disclosure: [`PRIVACY.md`](PRIVACY.md).
