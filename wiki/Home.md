@@ -34,6 +34,8 @@ of sci-fi mods. Built on **Neroland Core**.
 - [Pollution & Mitigation](Pollution-and-Mitigation.md) — Scrubber, the Filter Cartridge cycle,
   and the Remediator.
 - [Analytics](Analytics.md) — the per-machine Analytics tab and the Analytics Terminal dashboard.
+- [Operating Charges](Operating-Charges.md) — optional, server-configured credit charges for running
+  processing machines (needs NeroEconomy; off by default).
 - [Overclock Presets](Overclock-Presets.md) — Eco / Balanced / Overdrive on every machine.
 - [Side Config & the Configurator](Side-Config-and-Configurator.md) — per-face I/O and the wrench.
 - [Recipe Viewers (JEI & EMI)](Recipe-Viewers.md) — the machine recipe pages, and EMI support on 26.x.

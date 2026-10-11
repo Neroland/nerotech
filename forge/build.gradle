@@ -132,6 +132,10 @@ dependencies {
     // BEFORE NeroTech (see mods.toml dependency). Resolved from mavenLocal() (nerolandcore-forge-<mc>).
     implementation "za.co.neroland.nerolandcore:nerolandcore-forge-${mc}:${nerolandcoreVersion}"
 
+    // NeroEconomy — OPTIONAL per-operation machine charges: compileOnly ONLY (never bundled or
+    // required). Only compat/neroeconomy/NeroEconomyBridge imports it, behind isModLoaded("neroeconomy").
+    compileOnly "za.co.neroland.neroeconomy:neroeconomy-forge-${mc}:${project.findProperty('neroeconomy_version')}"
+
     // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
     // za.co.neroland.nerospace.api facade. Never runtime/jar-in-jar — mods.toml lists nerospace as

@@ -64,6 +64,16 @@ This data is **minimised** (UUIDs only), **retention-pruned** after
 hook — so a single erase request (or Core's inactivity sweep) purges a player's NeroTech data
 alongside every other Neroland mod. With the option off (the default), none of this is stored.
 
+## Optional machine operating charges (off by default)
+
+A server running **NeroEconomy** may set `machineOperationChargeCost` above 0. Only then does a
+newly placed machine record the **UUID** of the player who placed it (never their name), so its
+processing machines can charge that owner per batch of operations. The UUID is passed to NeroEconomy
+for the charge only, is never logged with an amount, and never leaves the server (it is stripped from
+the block data sent to clients). It is erased by the same data-erasure hook as above: an erased
+player's machines drop their owner and are no longer charged. The ledger entry for each charge is
+NeroEconomy's and is covered by NeroEconomy's own privacy notice, export and erasure.
+
 ## Legal basis and your rights (GDPR / POPIA)
 
 Error reports are processed on the basis of **legitimate interest** (GDPR Art. 6(1)(f); POPIA

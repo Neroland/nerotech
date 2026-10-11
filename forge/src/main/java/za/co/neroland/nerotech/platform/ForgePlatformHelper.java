@@ -40,4 +40,9 @@ public final class ForgePlatformHelper implements IPlatformHelper {
                 .sorted()
                 .toList();
     }
+
+    @Override
+    public boolean isModLoaded(String modId) {
+        return ModList.isLoaded(modId);
+    }
 }

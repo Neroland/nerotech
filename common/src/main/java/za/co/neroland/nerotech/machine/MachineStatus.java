@@ -28,7 +28,13 @@ public enum MachineStatus {
     /** Not enough stored NE for the next work tick / operation. */
     NO_ENERGY,
     /** Fusion Reactor multiblock shell not (or no longer) formed. */
-    UNFORMED;
+    UNFORMED,
+    /**
+     * The owner's optional per-operation charge (compat/neroeconomy, {@code machineOperationChargeCost})
+     * was refused; the machine idles until a retry succeeds. The analytics line shows the economy's
+     * own reason ({@link MachineStats#statusDetailKey()}) when one is known.
+     */
+    UNPAID;
 
     /** Stable view for ordinal decoding — never call {@code values()} per packet. */
     public static final MachineStatus[] VALUES = values();

@@ -11,7 +11,9 @@ Next to the Side Config tab on each machine GUI:
 - A colour-coded **status line naming the limiting cause**:
   **Running** · **Idle** (no work queued) · **Starved** (missing input) · **Blocked** (output
   full) · **Throttled** (over the [heat threshold](Thermal-System.md)) · **No energy** ·
-  **Unformed** (a [Fusion Reactor](Fusion-Reactor.md) without a valid shell). Machines report
+  **Unformed** (a [Fusion Reactor](Fusion-Reactor.md) without a valid shell) · **Unpaid** (an
+  [operating charge](Operating-Charges.md) was refused — the line shows the economy's reason).
+  Machines report
   their own causes — a Scrubber out of filter cartridges says so.
 - Current **heat**, **energy** and **operations rate**, plus **pollution** and **efficiency**
   readouts. Displayed pollution/efficiency rates are **nominal** — computed from the machine's

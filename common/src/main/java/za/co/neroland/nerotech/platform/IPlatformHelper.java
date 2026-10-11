@@ -23,4 +23,7 @@ public interface IPlatformHelper {
 
     /** Ids + versions of every loaded mod ("modid version"), sorted — public manifest strings only. */
     List<String> getLoadedModIds();
+
+    /** Whether the mod with {@code modId} is loaded (gates optional bridges such as compat/neroeconomy). */
+    boolean isModLoaded(String modId);
 }

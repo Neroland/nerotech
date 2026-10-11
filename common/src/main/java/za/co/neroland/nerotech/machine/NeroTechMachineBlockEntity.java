@@ -365,6 +365,15 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     }
 
     /**
+     * {@link #reportStatus(MachineStatus)} with a more precise lang key for the analytics line (for
+     * example NeroEconomy's refusal reason on {@link MachineStatus#UNPAID}). Lang keys only.
+     */
+    protected void reportStatus(MachineStatus status, @Nullable String detailKey) {
+        this.stats.status(status, detailKey);
+        this.statusReported = true;
+    }
+
+    /**
      * Count working ticks and take the once-per-second analytics sample on this machine's phase
      * of the 20-tick interval (the pollutionPhase recipe) — never a per-tick array write. The
      * sample includes the machine's regional pollution level (one map lookup per second — a
@@ -505,7 +514,11 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         // The full custom save: active + heat for every BER, the machine items (the Auto Crafter
         // hologram reads its grid), and Core's packed side config (super.saveAdditional writes it —
         // the Item Sorter's port-cap tints read it back on the client).
-        return saveCustomOnly(registries);
+        CompoundTag tag = saveCustomOnly(registries);
+        // POPIA/GDPR: the owner's UUID is server-side data — it never rides the update packet to clients.
+        tag.remove("OwnerMost");
+        tag.remove("OwnerLeast");
+        return tag;
     }
 
     // --- Stage H overclock preset (scaled ONCE, here at the base) --------------------------------

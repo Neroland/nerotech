@@ -32,6 +32,9 @@ public final class NeroTechCommon {
         // NeroLink: register NeroTech's link module (data sections + safe actions + live events) with
         // Core's link registry, so the NeroLink companion bridge auto-serves NeroTech.
         za.co.neroland.nerotech.link.NeroTechLinkModule.register();
+        // NeroEconomy (optional): claim the "machine_operation" charge handle now — claims close when the
+        // first server starts. Dormant (every charge free) when NeroEconomy is absent.
+        za.co.neroland.nerotech.compat.neroeconomy.MachineCharges.init();
         // POPIA/GDPR: register the shared data-erasure hook so a single erase request clears every
         // per-player store NeroTech keeps — pollution attribution (UUIDs only; default attribution is
         // off), the per-player attribution opt-out preference (UUIDs only), the Tech Guide "seen"

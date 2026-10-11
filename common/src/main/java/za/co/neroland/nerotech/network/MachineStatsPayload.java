@@ -58,12 +58,17 @@ import za.co.neroland.nerotech.pollution.PollutionManager;
  * @param energyHistory      stored-energy permille samples, oldest &rarr; newest (&le; 60)
  * @param opsHistory         per-second ops deltas, oldest &rarr; newest, clamped to 0..255 (&le; 60)
  * @param pollutionHistory   regional pollution samples (RAW units, short-clamped), oldest &rarr; newest
+ * @param statusDetail       a lang key refining {@code status} (NeroEconomy's refusal reason on UNPAID),
+ *                           or "" for none — a lang key only, never player data
  */
 public record MachineStatsPayload(int containerId, int status, int heatPermille, int energyPermille,
         int opsRate, int effSpeedPct, int effEnergyPct, int ambientHeat, int heatRaw, int heatCapacity,
         int heatThrottle, int regionPollution, int pollutionThreshold, int pollutionPerMinute,
-        short[] heatHistory, short[] energyHistory, byte[] opsHistory, short[] pollutionHistory)
-        implements CustomPacketPayload {
+        short[] heatHistory, short[] energyHistory, byte[] opsHistory, short[] pollutionHistory,
+        String statusDetail) implements CustomPacketPayload {
+
+    /** Longest status detail key carried (lang keys are short; anything longer is dropped). */
+    private static final int MAX_DETAIL_LENGTH = 96;
 
     public static final Type<MachineStatsPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "machine_stats"));
@@ -96,7 +101,12 @@ public record MachineStatsPayload(int containerId, int status, int heatPermille,
                 effSpeedPct, effEnergyPct, ambient, machine.heat(), NeroTechConfig.heatCapacity(),
                 NeroTechConfig.heatThrottleThreshold(), regionPollution,
                 NeroTechConfig.pollutionEventThreshold(), machine.pollutionPerMinute(),
-                stats.heatHistory(), stats.energyHistory(), opsBytes, stats.pollutionHistory());
+                stats.heatHistory(), stats.energyHistory(), opsBytes, stats.pollutionHistory(),
+                detail(stats.statusDetailKey()));
+    }
+
+    private static String detail(String key) {
+        return key == null || key.length() > MAX_DETAIL_LENGTH ? "" : key;
     }
 
     private static void write(RegistryFriendlyByteBuf buf, MachineStatsPayload payload) {
@@ -129,6 +139,7 @@ public record MachineStatsPayload(int containerId, int status, int heatPermille,
         for (int i = 0; i < samples; i++) {
             buf.writeShort(payload.pollutionHistory[i]);
         }
+        buf.writeUtf(payload.statusDetail, MAX_DETAIL_LENGTH);
     }
 
     private static MachineStatsPayload read(RegistryFriendlyByteBuf buf) {
@@ -163,9 +174,11 @@ public record MachineStatsPayload(int containerId, int status, int heatPermille,
         for (int i = 0; i < samples; i++) {
             pollution[i] = buf.readShort();
         }
+        String statusDetail = buf.readUtf(MAX_DETAIL_LENGTH);
         return new MachineStatsPayload(containerId, status, heatPermille, energyPermille, opsRate,
                 effSpeedPct, effEnergyPct, ambientHeat, heatRaw, heatCapacity, heatThrottle,
-                regionPollution, pollutionThreshold, pollutionPerMinute, heat, energy, ops, pollution);
+                regionPollution, pollutionThreshold, pollutionPerMinute, heat, energy, ops, pollution,
+                statusDetail);
     }
 
     @Override

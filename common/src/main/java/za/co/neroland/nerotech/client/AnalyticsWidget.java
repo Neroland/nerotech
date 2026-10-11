@@ -112,6 +112,7 @@ public final class AnalyticsWidget {
             case THROTTLED -> 0xFFE0543A;
             case NO_ENERGY -> 0xFFE8D44D;
             case UNFORMED -> 0xFFB06CE8;
+            case UNPAID -> 0xFFE05A8C;
         };
     }
 
@@ -183,7 +184,8 @@ public final class AnalyticsWidget {
 
         // The status line: one word naming the current limiting cause, colour-coded.
         MachineStatus status = MachineStatus.byOrdinal(stats.status());
-        g.text(font, Component.translatable(status.translationKey()), px + 5, top + STATUS_Y,
+        String statusKey = stats.statusDetail().isEmpty() ? status.translationKey() : stats.statusDetail();
+        g.text(font, Component.translatable(statusKey), px + 5, top + STATUS_Y,
                 statusColor(status), false);
 
         // Current values: heat / energy percentages + the net ops rate.

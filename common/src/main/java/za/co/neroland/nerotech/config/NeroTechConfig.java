@@ -70,6 +70,17 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> PROCESS_NE_PER_TICK = SCHEMA.intRange("machineNePerTick",
             30, 0, 1_000_000, true, "base NE/tick a processing machine consumes while working (before Efficiency)");
 
+    // --- optional per-operation charges (compat/neroeconomy; needs NeroEconomy 0.3.0+) ---------
+    private static final ConfigValue<Integer> OP_CHARGE_COST = SCHEMA.intRange("machineOperationChargeCost",
+            0, 0, 1_000_000, true, "credits an owned processing machine (Ore Processor, Fabricator, their Advanced "
+            + "tiers, Chemical Processor) charges its owner, in advance, for each batch of "
+            + "machineOperationChargeBatch operations. 0 (default) = off. Needs NeroEconomy; without it "
+            + "machines always run free. Charges go to the economy's Reserve; a machine never pays out. "
+            + "When above 0, machines record the placing player's UUID as owner (erasable; see PRIVACY.md)");
+    private static final ConfigValue<Integer> OP_CHARGE_BATCH = SCHEMA.intRange("machineOperationChargeBatch",
+            64, 1, 4_096, true, "operations one machineOperationChargeCost payment covers (64 = one stack). "
+            + "Charging per batch, never per tick, keeps a machine well inside the economy's rate limit");
+
     // --- heat (Stage 3 consequence axis; full thermal model per Stage C decision 2026-07-10) ----
     private static final ConfigValue<Integer> HEAT_CAPACITY = SCHEMA.intRange("heatCapacity",
             1_000, 1, 1_000_000, true, "max heat units a machine can hold (gauge scale)");
@@ -331,6 +342,16 @@ public final class NeroTechConfig {
 
     public static int machineNePerTick() {
         return PROCESS_NE_PER_TICK.get();
+    }
+
+    /** Credits per batch of operations an owned processing machine charges its owner (0 = off). */
+    public static int machineOperationChargeCost() {
+        return OP_CHARGE_COST.get();
+    }
+
+    /** Operations one {@link #machineOperationChargeCost()} payment covers. */
+    public static int machineOperationChargeBatch() {
+        return OP_CHARGE_BATCH.get();
     }
 
     public static int heatCapacity() {

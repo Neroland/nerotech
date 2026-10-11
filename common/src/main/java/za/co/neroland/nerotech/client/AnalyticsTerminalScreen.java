@@ -72,6 +72,7 @@ public class AnalyticsTerminalScreen extends AbstractContainerScreen<AnalyticsTe
             case THROTTLED -> 0xFFE0543A;
             case NO_ENERGY -> 0xFFE8D44D;
             case UNFORMED -> 0xFFB06CE8;
+            case UNPAID -> 0xFFE05A8C;
         };
     }
 

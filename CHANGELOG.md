@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0-beta.1] - 2026-10-11
+
+Optional NeroEconomy operating charges. Requires **Neroland Core 1.13.0** (unchanged). NeroEconomy stays
+optional: NeroTech builds, loads and runs without it.
+
+### Added
+
+- **Per-operation machine charges** (`compat/neroeconomy`). With NeroEconomy 0.3.0+ installed and
+  `machineOperationChargeCost` above 0 (default `0` = off), an owned Ore Processor, Fabricator, Advanced
+  Ore Processor, Advanced Fabricator or Chemical Processor charges its owner in advance for each batch
+  of `machineOperationChargeBatch` operations (default 64), under NeroEconomy caller `nerotech`, reason
+  `machine_operation`. Charges sink into the Reserve; a machine never pays out. A refused charge idles
+  the machine with the new **Unpaid** analytics status, showing NeroEconomy's reason, and is retried
+  every 30 seconds — never per tick. An unowned machine is never charged. With an older NeroEconomy the
+  bridge falls back to Core's `CurrencyApi.withdraw` and checks its result.
+- `MachineStatus.UNPAID` (appended; ordinals unchanged) and an optional status detail lang key on the
+  analytics payload.
+- `IPlatformHelper.isModLoaded(String)` on every loader.
+- NeroEconomy `compileOnly` dependency (`neroeconomy_version=0.3.1-beta.1`, never bundled); optional in
+  every loader manifest (`suggests` / `type = "optional"` / `mandatory = false`, floor `0.3.0-beta.1`).
+  Its GitHub Packages repository is declared only when credentials are present.
+
+### Changed
+
+- Machines also record the placing player's UUID as owner while operating charges are enabled (before:
+  only with `pollutionPerPlayerAttribution`). Same storage and erasure path; see `PRIVACY.md`.
+- The machine block-entity update tag sent to clients no longer carries the owner's UUID.
+
+### Notes
+
+- No processing recipe type or ore/scrubber bonus changed in this release. Iron, copper and gold dust
+  already carry their `c:dusts/*` tags.
+
 ## [0.4.0-beta.2] - 2026-09-26
 
 Redeploy to Maven Local and GitHub Packages.

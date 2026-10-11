@@ -28,6 +28,10 @@
   },
   "suggests": {
     "energizedpower": "*",
-    "nerospace": "*"
+    "nerospace": "*",
+    "neroeconomy": ">=0.3.0-beta.1"
+  },
+  "breaks": {
+    "neroeconomy": "<0.3.0-beta.1"
   }
 }

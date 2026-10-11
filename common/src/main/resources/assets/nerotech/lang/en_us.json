@@ -231,6 +231,8 @@
   "nerotech.analytics.status.throttled": "Overheated",
   "nerotech.analytics.status.no_energy": "Out of energy",
   "nerotech.analytics.status.unformed": "Structure unformed",
+  "nerotech.analytics.status.unpaid": "Operation charge refused",
+  "nerotech.machine_charge.refused": "The owner could not pay this machine's operating charge",
   "nerotech.analytics.no_data": "No data yet",
   "nerotech.analytics.efficiency": "Efficiency",
   "nerotech.analytics.pollution": "Pollution",

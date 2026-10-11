@@ -39,4 +39,9 @@ public final class FabricPlatformHelper implements IPlatformHelper {
                 .sorted()
                 .toList();
     }
+
+    @Override
+    public boolean isModLoaded(String modId) {
+        return FabricLoader.getInstance().isModLoaded(modId);
+    }
 }

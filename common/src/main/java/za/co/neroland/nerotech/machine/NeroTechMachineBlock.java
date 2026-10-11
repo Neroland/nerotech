@@ -115,9 +115,12 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
         // NeroTech is the canonical opener of INDUSTRIAL_POWER: building your first machine is the milestone.
         if (!level.isClientSide() && placer instanceof ServerPlayer serverPlayer) {
             ProgressionGates.tryOpen(serverPlayer, CoreGates.INDUSTRIAL_POWER);
-            // Record machine ownership ONLY when per-player pollution attribution is opted in (POPIA/GDPR:
+            // Record machine ownership ONLY when per-player pollution attribution is opted in, or when the
+            // server has configured per-operation charges and an economy can take them (POPIA/GDPR: both
             // default off = no player data stored). UUID only, erasable via the shared data-erasure hook.
-            if (NeroTechConfig.pollutionPerPlayerAttribution()
+            boolean charging = NeroTechConfig.machineOperationChargeCost() > 0
+                    && za.co.neroland.nerotech.compat.neroeconomy.MachineCharges.active();
+            if ((NeroTechConfig.pollutionPerPlayerAttribution() || charging)
                     && level.getBlockEntity(pos) instanceof NeroTechMachineBlockEntity machine) {
                 machine.setOwner(serverPlayer.getUUID());
             }

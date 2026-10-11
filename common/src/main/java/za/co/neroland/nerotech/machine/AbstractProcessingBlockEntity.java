@@ -1,6 +1,7 @@
 package za.co.neroland.nerotech.machine;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +12,8 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +23,7 @@ import za.co.neroland.nerolandcore.sideconfig.SidePreset;
 import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
 import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 
+import za.co.neroland.nerotech.compat.neroeconomy.MachineCharges;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.recipe.MachineRecipe;
 
@@ -44,6 +48,23 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
     /** Last matched recipe — passed back as a hint so repeat lookups skip the type scan. */
     @Nullable
     private RecipeHolder<MachineRecipe> lastRecipe;
+
+    /** Ticks a refused per-operation charge waits before it is tried again (30 s). */
+    private static final int CHARGE_RETRY_TICKS = 600;
+
+    /**
+     * Operations already paid for by the owner's last {@code machineOperationChargeCost} batch
+     * (compat/neroeconomy). Persisted ("PaidOps") so a chunk reload never charges twice for one batch.
+     * Machine-scoped count only — no player data.
+     */
+    private int paidOps;
+
+    /** Game time before which a refused charge is not retried (transient). */
+    private long chargeRetryAt;
+
+    /** The economy's lang key for the last refusal, or null when not refused (transient). */
+    @Nullable
+    private String chargeRefusalKey;
 
     protected AbstractProcessingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state, 2);
@@ -130,6 +151,14 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
             return;
         }
 
+        // Optional per-operation charge (compat/neroeconomy): settled at the start of an operation, in
+        // batches, and only for an owned machine with the charge configured. Refused = idle.
+        if (this.progress == 0 && energyBuffer().has(cost) && !ensurePaid(level)) {
+            reportStatus(MachineStatus.UNPAID, this.chargeRefusalKey);
+            setActive(false);
+            return;
+        }
+
         // BER surface: dynamic geometry runs exactly while progress actually advances.
         setActive(energyBuffer().has(cost));
 
@@ -141,12 +170,58 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
             if (this.progress >= effectiveTicks) {
                 craft(result);
                 this.progress = 0;
+                if (this.paidOps > 0) {
+                    this.paidOps--;
+                }
             }
             setChanged();
         } else {
             // Analytics: work is queued but the buffer can't cover the next tick's cost.
             reportStatus(MachineStatus.NO_ENERGY);
         }
+    }
+
+    /**
+     * Whether the next operation may start as far as the optional owner charge is concerned. Free when
+     * the charge is off ({@code machineOperationChargeCost = 0}), NeroEconomy is absent, the machine has
+     * no owner, or a paid batch still has operations left. Otherwise one batch is charged; a refusal is
+     * retried after {@link #CHARGE_RETRY_TICKS}, so a refused machine never calls the economy per tick.
+     */
+    private boolean ensurePaid(Level level) {
+        int price = NeroTechConfig.machineOperationChargeCost();
+        UUID owner = this.ownerId;
+        if (price <= 0 || owner == null || this.paidOps > 0 || !MachineCharges.active()
+                || !(level instanceof ServerLevel serverLevel)) {
+            this.chargeRefusalKey = null;
+            return true;
+        }
+        long now = level.getGameTime();
+        if (this.chargeRefusalKey != null && now < this.chargeRetryAt) {
+            return false;
+        }
+        MachineCharges.Outcome outcome = MachineCharges.charge(serverLevel.getServer(), owner, price);
+        if (outcome.ok()) {
+            this.paidOps = NeroTechConfig.machineOperationChargeBatch();
+            this.chargeRefusalKey = null;
+            setChanged();
+            return true;
+        }
+        String key = outcome.refusalKey();
+        this.chargeRefusalKey = key != null ? key : MachineCharges.GENERIC_REFUSAL_KEY;
+        this.chargeRetryAt = now + CHARGE_RETRY_TICKS;
+        return false;
+    }
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("PaidOps", this.paidOps);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.paidOps = Math.max(0, input.getIntOr("PaidOps", 0));
     }
 
     /** Whether the output slot can take {@code result} (empty, or a mergeable identical stack). */

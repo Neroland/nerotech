@@ -35,6 +35,13 @@ public final class MachineStats {
 
     private MachineStatus status = MachineStatus.IDLE;
 
+    /**
+     * Optional lang key that explains {@link #status} more precisely than the enum's own key (the
+     * economy's refusal reason for {@link MachineStatus#UNPAID}); null = use the status key.
+     */
+    @org.jetbrains.annotations.Nullable
+    private String statusDetailKey;
+
     /** Count work done this tick (working tick or one-shot op) toward the next sample's delta. */
     public void countOps(int amount) {
         this.workOps += amount;
@@ -65,6 +72,19 @@ public final class MachineStats {
 
     public void status(MachineStatus status) {
         this.status = status;
+        this.statusDetailKey = null;
+    }
+
+    /** Set the status with a more precise lang key for the analytics line (null = the status key). */
+    public void status(MachineStatus status, @org.jetbrains.annotations.Nullable String detailKey) {
+        this.status = status;
+        this.statusDetailKey = detailKey;
+    }
+
+    /** The detail lang key for the current status, or null. A lang key only — never player data. */
+    @org.jetbrains.annotations.Nullable
+    public String statusDetailKey() {
+        return this.statusDetailKey;
     }
 
     /** Work-ops recorded in the most recent full sample (the "current rate", per second). */

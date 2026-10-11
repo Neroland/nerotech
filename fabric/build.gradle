@@ -98,6 +98,10 @@ dependencies {
     // mavenLocal(). Core loads BEFORE NeroTech (see fabric.mod.json depends).
     implementation "za.co.neroland.nerolandcore:nerolandcore-fabric-${mc}:${nerolandcoreVersion}"
 
+    // NeroEconomy — OPTIONAL per-operation machine charges: compileOnly ONLY (never bundled or
+    // required). Only compat/neroeconomy/NeroEconomyBridge imports it, behind isModLoaded("neroeconomy").
+    compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${mc}:${project.findProperty('neroeconomy_version')}"
+
     // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
     // Nerospace: NO build dependency at all — compat/NerospacePlanetCompat resolves the
