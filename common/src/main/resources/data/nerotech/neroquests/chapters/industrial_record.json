@@ -1,0 +1,26 @@
+{
+  "title": "chapter.nerotech.industrial_record.title",
+  "icon": "nerotech:nero_generator",
+  "allow_server_scope": true,
+  "quests": [
+    { "quest": "nerotech:industrial_record/first_components", "x": 0, "y": 0 },
+    { "quest": "nerotech:industrial_record/first_spark", "x": 2, "y": 0 },
+    { "quest": "nerotech:industrial_record/ore_doubling", "x": 4, "y": -1 },
+    { "quest": "nerotech:industrial_record/fabrication", "x": 4, "y": 1 },
+    { "quest": "nerotech:industrial_record/clear_skies", "x": 6, "y": -1 },
+    { "quest": "nerotech:industrial_record/the_grid", "x": 6, "y": 1 },
+    { "quest": "nerotech:industrial_record/heat_and_gas", "x": 8, "y": -1 },
+    { "quest": "nerotech:industrial_record/clean_conscience", "x": 8, "y": 1 },
+    { "quest": "nerotech:industrial_record/ignition", "x": 10, "y": 0 },
+    { "quest": "nerotech:industrial_record/stellar_fuel", "x": 12, "y": -1 },
+    { "quest": "nerotech:industrial_record/particle_physics", "x": 12, "y": 1 },
+    { "quest": "nerotech:industrial_record/antimatter", "x": 14, "y": 0 },
+    { "quest": "nerotech:industrial_record/fusion_online", "x": 10, "y": -2 },
+    { "quest": "nerotech:industrial_record/first_collision", "x": 14, "y": 2 },
+    { "quest": "nerotech:industrial_record/grid_scale", "x": 6, "y": 3 },
+    { "quest": "nerotech:industrial_record/hands_on_cleanup", "x": 8, "y": 3 },
+    { "quest": "nerotech:industrial_record/world_skies_recovered", "x": 6, "y": 5 },
+    { "quest": "nerotech:industrial_record/world_remediation", "x": 8, "y": 5 },
+    { "quest": "nerotech:industrial_record/world_reactor_cooled", "x": 10, "y": 5 }
+  ]
+}

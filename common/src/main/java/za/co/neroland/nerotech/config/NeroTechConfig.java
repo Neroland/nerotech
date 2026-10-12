@@ -57,6 +57,10 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> GRID_RESTORE_PERMILLE = SCHEMA.intRange("gridRestorePermille",
             500, 0, 1000, true, "aggregate grid fill (permille) above which the Grid Controller restores "
             + "each shed machine's previous preset (keep it above gridShedThresholdPermille to avoid flapping)");
+    private static final ConfigValue<Integer> GRID_SCALE_CAPACITY = SCHEMA.intRange("gridScaleMilestoneCapacity",
+            5_000_000, 0, 2_000_000_000, true, "summed NE capacity of the machines one Grid Controller watches "
+            + "at which the Grid Controller's owner earns the Grid Scale progression record (a player-scope "
+            + "Core gate quest packs read; 0 disables the record)");
     private static final ConfigValue<Integer> WIRELESS_RANGE = SCHEMA.intRange("wirelessNodeRange",
             32, 1, 256, true, "maximum block distance between two paired Wireless Power Nodes "
             + "(same dimension only; a node never force-loads its partner's chunk)");
@@ -326,6 +330,11 @@ public final class NeroTechConfig {
 
     public static int gridRestorePermille() {
         return GRID_RESTORE_PERMILLE.get();
+    }
+
+    /** Summed grid capacity (NE) at which a Grid Controller records the Grid Scale milestone; 0 = never. */
+    public static int gridScaleMilestoneCapacity() {
+        return GRID_SCALE_CAPACITY.get();
     }
 
     public static int wirelessNodeRange() {

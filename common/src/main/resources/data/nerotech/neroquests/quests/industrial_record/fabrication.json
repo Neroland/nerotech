@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.fabrication.title",
+  "description": "quest.nerotech.industrial_record.fabrication.desc",
+  "icon": "nerotech:fabricator",
+  "prerequisites": ["nerotech:industrial_record/first_spark"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "nerotech:fabricator", "count": 1 },
+    { "type": "neroquests:collect_item", "item": "nerotech:circuit_board", "count": 8 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 100 },
+    { "type": "neroquests:currency", "amount": 75 }
+  ],
+  "scope": "player"
+}

@@ -29,8 +29,20 @@ public final class PollutionManager {
     /** Coarse 64×64-block regions, packed into a long. */
     private static final int REGION_SHIFT = 6;
 
-    /** Core threshold-event channel for regional pollution crossings (Stage F, dormant until NeroEvents). */
-    private static final Identifier POLLUTION_CHANNEL = Identifier.fromNamespaceAndPath("nerotech", "pollution");
+    /**
+     * Core threshold-event channel for regional pollution crossings caused by machines: rising when a
+     * region's emissions pass {@code pollutionEventThreshold}, falling only when a Scrubber or Remediator
+     * actively removes enough to bring it back under. Scope = the packed region key (a place).
+     */
+    public static final Identifier POLLUTION_CHANNEL = Identifier.fromNamespaceAndPath("nerotech", "pollution");
+
+    /**
+     * Companion channel for the periodic decay sweep: a region that merely drifted back under the
+     * threshold by waiting fires here (falling), never on {@link #POLLUTION_CHANNEL}, so a listener can
+     * tell cleanup from time passing. Same scope (region key); never rises.
+     */
+    public static final Identifier POLLUTION_DECAY_CHANNEL =
+            Identifier.fromNamespaceAndPath("nerotech", "pollution_decay");
 
     private PollutionManager() {
     }
@@ -119,7 +131,7 @@ public final class PollutionManager {
         boolean wasAbove = before >= threshold;
         boolean isAbove = after >= threshold;
         if (wasAbove != isAbove) {
-            ThresholdEvents.fire(new ThresholdCrossing(
+            ThresholdEvents.fire("nerotech", new ThresholdCrossing(
                     POLLUTION_CHANNEL, Long.toString(key), after, threshold, isAbove));
         }
     }
@@ -146,9 +158,10 @@ public final class PollutionManager {
         }
         PollutionState state = PollutionState.get(server);
         int threshold = NeroTechConfig.pollutionEventThreshold();
+        // Decay recoveries go on their own channel: nerotech:pollution falling is reserved for active removal.
         state.decay(NeroTechConfig.pollutionDecayAmount(), threshold, key ->
-                ThresholdEvents.fire(new ThresholdCrossing(
-                        POLLUTION_CHANNEL, Long.toString(key), threshold - 1L, threshold, false)));
+                ThresholdEvents.fire("nerotech", new ThresholdCrossing(
+                        POLLUTION_DECAY_CHANNEL, Long.toString(key), threshold - 1L, threshold, false)));
         state.pruneStale(NeroTechConfig.pollutionAttributionRetentionDays(), today());
     }
 

@@ -1,0 +1,17 @@
+{
+  "title": "quest.nerotech.industrial_record.ignition.title",
+  "description": "quest.nerotech.industrial_record.ignition.desc",
+  "icon": "nerotech:fusion_reactor",
+  "prerequisites": ["nerotech:industrial_record/heat_and_gas", "nerotech:industrial_record/clean_conscience"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "nerotech:fusion_reactor", "count": 1 },
+    { "type": "neroquests:collect_item", "item": "nerotech:fusion_casing", "count": 8 },
+    { "type": "neroquests:collect_item", "item": "nerotech:fusion_containment_glass", "count": 4 },
+    { "type": "neroquests:collect_item", "item": "nerotech:fusion_cell", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 300 },
+    { "type": "neroquests:currency", "amount": 250 }
+  ],
+  "scope": "player"
+}

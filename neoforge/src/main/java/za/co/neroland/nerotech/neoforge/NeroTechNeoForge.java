@@ -32,7 +32,6 @@ import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.api.MachineTypeRegistry;
 import za.co.neroland.nerotech.command.NeroTechCommands;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
-import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ModRecipeTypes;
 import za.co.neroland.nerotech.registry.NeoForgeRegistrationFactory;
 import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
@@ -55,8 +54,8 @@ public final class NeroTechNeoForge {
         // NeroTech's own payloads (menu → machine position sync); see network.NeroTechNetwork.
         NeoForgeNetwork.register(modEventBus);
         modEventBus.addListener(NeroTechNeoForge::onRegisterCapabilities);
-        // Periodic regional pollution decay + retention sweep (game bus; gated by interval inside tick).
-        NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> PollutionManager.tick(event.getServer()));
+        // Periodic regional pollution decay + retention sweep and quest-hook delivery (game bus; gated inside).
+        NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> NeroTechCommon.serverTick(event.getServer()));
         // Creative-only debug commands (/nerotech gallery); shared brigadier tree in common.
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NeroTechCommands.register(event.getDispatcher()));

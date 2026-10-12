@@ -1,0 +1,16 @@
+{
+  "title": "quest.nerotech.industrial_record.first_components.title",
+  "description": "quest.nerotech.industrial_record.first_components.desc",
+  "icon": "nerotech:machine_frame",
+  "prerequisites": [],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "nerotech:machine_frame", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:circuit_board", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:nero_coil", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 50 },
+    { "type": "neroquests:item", "item": "minecraft:copper_ingot", "count": 8 }
+  ],
+  "scope": "player"
+}

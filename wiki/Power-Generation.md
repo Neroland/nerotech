@@ -114,6 +114,7 @@ collapses.
 | **Measure** | Stored NE ÷ capacity summed across every NeroTech machine it finds |
 | **Shed below** | `gridShedThresholdPermille` (default 200 = 20%) |
 | **Restore above** | `gridRestorePermille` (default 500 = 50%) |
+| **Grid Scale record** | `gridScaleMilestoneCapacity` (default 5,000,000 NE summed capacity; `0` disables) |
 
 Below the shed threshold it drops every non-generator machine to the **Eco**
 [overclock preset](Overclock-Presets.md); above the restore threshold it puts each machine back on
@@ -209,7 +210,7 @@ advancement.
 
 `windTurbineNePerTick`, `windDimensionMultipliers`, `geothermalNePerTickPerSource`,
 `bioGeneratorNePerBurnTick`, `batteryBankCapacity`, `gridControllerRadius`,
-`gridShedThresholdPermille`, `gridRestorePermille`, `wirelessNodeRange`,
+`gridShedThresholdPermille`, `gridRestorePermille`, `gridScaleMilestoneCapacity`, `wirelessNodeRange`,
 `wirelessNodeTransferPerTick`.
 
 All live in `config/nerotech.properties` and hot-reload with `/neroland config reload`, except

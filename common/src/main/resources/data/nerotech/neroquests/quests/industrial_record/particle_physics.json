@@ -1,0 +1,16 @@
+{
+  "title": "quest.nerotech.industrial_record.particle_physics.title",
+  "description": "quest.nerotech.industrial_record.particle_physics.desc",
+  "icon": "nerotech:collider_core",
+  "prerequisites": ["nerotech:industrial_record/ignition"],
+  "objectives": [
+    { "type": "neroquests:collect_item", "item": "nerotech:accelerator_coil", "count": 8 },
+    { "type": "neroquests:craft_item", "item": "nerotech:collider_core", "count": 1 },
+    { "type": "neroquests:collect_item", "item": "nerolandcore:starsteel_dust", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 350 },
+    { "type": "neroquests:currency", "amount": 300 }
+  ],
+  "scope": "player"
+}

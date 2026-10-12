@@ -36,6 +36,8 @@ of sci-fi mods. Built on **Neroland Core**.
 - [Analytics](Analytics.md) — the per-machine Analytics tab and the Analytics Terminal dashboard.
 - [Operating Charges](Operating-Charges.md) — optional, server-configured credit charges for running
   processing machines (needs NeroEconomy; off by default).
+- [NeroQuests Integration](NeroQuests-Integration.md) — the *Industrial Record* quest chapter NeroTech
+  ships as inert data, the milestone record gates behind it, and the Tech Guide quest hook.
 - [Overclock Presets](Overclock-Presets.md) — Eco / Balanced / Overdrive on every machine.
 - [Side Config & the Configurator](Side-Config-and-Configurator.md) — per-face I/O and the wrench.
 - [Recipe Viewers (JEI & EMI)](Recipe-Viewers.md) — the machine recipe pages, and EMI support on 26.x.

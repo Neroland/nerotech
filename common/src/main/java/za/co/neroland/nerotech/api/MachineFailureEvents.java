@@ -27,8 +27,10 @@ import za.co.neroland.nerotech.NeroTechCommon;
  *   <li>{@link #STAGE_BREACH} — containment breach: the structure around it gave way.</li>
  * </ol>
  *
- * <p>Privacy (POPIA/GDPR): the scope names a <b>machine and a place</b> — {@code machineId} +
- * dimension + packed position — never a player. Publishers must not put the owner in it.
+ * <p>Privacy (POPIA/GDPR): the scope names a <b>machine type and a dimension</b> — {@code machineId}
+ * {@code @} dimension id — never a player, and (since 0.6.0) never a block position either: on a
+ * shared server a base's coordinates identify its builder. Publishers must not put the owner in it.
+ * Listeners filter on the stage ({@code value} / {@code threshold}) and {@code rising}, not the scope.
  * Server thread only, like every {@code ThresholdEvents} publication.
  */
 public final class MachineFailureEvents {
@@ -54,19 +56,37 @@ public final class MachineFailureEvents {
      * @param machineId   a stable, non-personal machine identifier — the block-entity type id
      *                    ({@code "nerotech:fusion_reactor"}) is the convention
      * @param dimensionId the dimension's id string ({@code level.dimension().identifier().toString()})
-     * @param pos         the machine's position
+     * @param pos         the machine's position — kept for source compatibility with 0.4/0.5 callers;
+     *                    it is <b>not</b> part of the published scope any more
      * @param stage       the failure stage entered or left (1..4, see the class note)
      * @param rising      {@code true} when the machine enters the stage, {@code false} on recovery
      */
     public static void fire(String machineId, String dimensionId, BlockPos pos, int stage, boolean rising) {
-        ThresholdEvents.fire(new ThresholdCrossing(CHANNEL, scope(machineId, dimensionId, pos), stage, stage, rising));
+        fire(machineId, dimensionId, stage, rising);
     }
 
     /**
-     * The scope key {@link #fire} publishes: {@code <machineId>@<dimensionId>:<pos.asLong()>} —
-     * a machine and a place, no player data.
+     * Publish a failure-stage crossing for one machine, attributed to NeroTech as the publishing mod
+     * (Core 1.15.0 sourced crossings). Parameters as {@link #fire(String, String, BlockPos, int, boolean)}.
+     */
+    public static void fire(String machineId, String dimensionId, int stage, boolean rising) {
+        ThresholdEvents.fire(NeroTechCommon.MOD_ID,
+                new ThresholdCrossing(CHANNEL, scope(machineId, dimensionId), stage, stage, rising));
+    }
+
+    /**
+     * The scope key {@link #fire} publishes: {@code <machineId>@<dimensionId>} — a machine type in a
+     * dimension, no player data and no coordinates.
+     */
+    public static String scope(String machineId, String dimensionId) {
+        return machineId + "@" + dimensionId;
+    }
+
+    /**
+     * Source-compatible form of {@link #scope(String, String)}; the position is ignored (0.6.0 dropped
+     * coordinates from the scope).
      */
     public static String scope(String machineId, String dimensionId, BlockPos pos) {
-        return machineId + "@" + dimensionId + ":" + pos.asLong();
+        return scope(machineId, dimensionId);
     }
 }

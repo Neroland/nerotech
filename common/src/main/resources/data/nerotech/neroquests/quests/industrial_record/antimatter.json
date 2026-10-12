@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.antimatter.title",
+  "description": "quest.nerotech.industrial_record.antimatter.desc",
+  "icon": "nerotech:antimatter_cell",
+  "prerequisites": ["nerotech:industrial_record/stellar_fuel", "nerotech:industrial_record/particle_physics"],
+  "objectives": [
+    { "type": "neroquests:collect_item", "item": "nerotech:antimatter_cell", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:singularity_vault", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 500 },
+    { "type": "neroquests:currency", "amount": 500 }
+  ],
+  "scope": "player"
+}

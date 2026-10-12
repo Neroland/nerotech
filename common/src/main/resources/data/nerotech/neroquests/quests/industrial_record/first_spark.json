@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.first_spark.title",
+  "description": "quest.nerotech.industrial_record.first_spark.desc",
+  "icon": "nerotech:nero_generator",
+  "prerequisites": ["nerotech:industrial_record/first_components"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "nerotech:nero_generator", "count": 1 },
+    { "type": "neroquests:gate_open", "gate": "nerolandcore:industrial_power" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 75 },
+    { "type": "neroquests:currency", "amount": 50 }
+  ],
+  "scope": "player"
+}

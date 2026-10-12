@@ -16,8 +16,9 @@ import za.co.neroland.nerolandcore.event.ThresholdEvents.ThresholdCrossing;
 
 /**
  * Locks the {@link MachineFailureEvents} wire contract an add-on or NeroEvents listens on: the
- * channel id, the {@code machineId@dimension:packedPos} scope (a machine and a place — never a
- * player), and stage/rising riding the crossing's value/threshold. Plain JVM: Core's
+ * channel id, the {@code machineId@dimension} scope (a machine type in a dimension — never a
+ * player, and since 0.6.0 never a block position), stage/rising riding the crossing's
+ * value/threshold, and NeroTech named as the publishing mod. Plain JVM: Core's
  * {@link ThresholdEvents} is a static listener list and {@link BlockPos} needs no bootstrap.
  */
 class MachineFailureEventsTest {
@@ -29,10 +30,31 @@ class MachineFailureEventsTest {
     }
 
     @Test
-    void scopeIsMachineAtDimensionColonPackedPos() {
+    void scopeIsMachineAtDimensionWithoutCoordinates() {
+        String scope = MachineFailureEvents.scope("nerotech:fusion_reactor", "minecraft:overworld");
+        assertEquals("nerotech:fusion_reactor@minecraft:overworld", scope);
+    }
+
+    @Test
+    void positionTakingScopeIgnoresThePosition() {
         BlockPos pos = new BlockPos(10, 64, -20);
         String scope = MachineFailureEvents.scope("nerotech:fusion_reactor", "minecraft:overworld", pos);
-        assertEquals("nerotech:fusion_reactor@minecraft:overworld:" + pos.asLong(), scope);
+        assertEquals("nerotech:fusion_reactor@minecraft:overworld", scope);
+        assertFalse(scope.contains(Long.toString(pos.asLong())), "a base's coordinates identify its builder");
+    }
+
+    @Test
+    void crossingsAreSourcedToNerotech() {
+        List<ThresholdEvents.SourcedCrossing> heard = new ArrayList<>();
+        ThresholdEvents.onSourcedCrossing(sourced -> {
+            if (sourced.crossing().channel().equals(MachineFailureEvents.CHANNEL)) {
+                heard.add(sourced);
+            }
+        });
+        MachineFailureEvents.fire("nerotech:fusion_reactor", "minecraft:overworld",
+                MachineFailureEvents.STAGE_UNSTABLE, true);
+        assertEquals(1, heard.size());
+        assertEquals("nerotech", heard.get(0).sourceModId());
     }
 
     @Test

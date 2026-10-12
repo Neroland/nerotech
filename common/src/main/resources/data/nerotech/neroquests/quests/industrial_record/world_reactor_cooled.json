@@ -1,0 +1,14 @@
+{
+  "title": "quest.nerotech.industrial_record.world_reactor_cooled.title",
+  "description": "quest.nerotech.industrial_record.world_reactor_cooled.desc",
+  "icon": "nerotech:coolant_pump",
+  "prerequisites": [],
+  "objectives": [
+    { "type": "neroquests:custom_event", "channel": "nerotech:machine_failure", "direction": "falling", "min_value": 1, "max_value": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 100 },
+    { "type": "neroquests:currency", "amount": 100 }
+  ],
+  "scope": "server"
+}

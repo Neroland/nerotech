@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.grid_scale.title",
+  "description": "quest.nerotech.industrial_record.grid_scale.desc",
+  "icon": "nerotech:battery_bank",
+  "prerequisites": ["nerotech:industrial_record/the_grid"],
+  "objectives": [
+    { "type": "neroquests:gate_open", "gate": "nerotech:grid_scale" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 200 },
+    { "type": "neroquests:currency", "amount": 150 },
+    { "type": "neroquests:mod_hook", "gate": "nerotech:hook/tech_guide_unlock" }
+  ],
+  "scope": "player"
+}

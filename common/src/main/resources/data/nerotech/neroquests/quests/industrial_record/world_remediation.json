@@ -1,0 +1,14 @@
+{
+  "title": "quest.nerotech.industrial_record.world_remediation.title",
+  "description": "quest.nerotech.industrial_record.world_remediation.desc",
+  "icon": "nerotech:scrubber",
+  "prerequisites": [],
+  "objectives": [
+    { "type": "neroquests:custom_event", "channel": "nerotech:pollution", "direction": "falling" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 100 },
+    { "type": "neroquests:currency", "amount": 100 }
+  ],
+  "scope": "server"
+}

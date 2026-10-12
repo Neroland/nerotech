@@ -1,0 +1,14 @@
+{
+  "title": "quest.nerotech.industrial_record.world_skies_recovered.title",
+  "description": "quest.nerotech.industrial_record.world_skies_recovered.desc",
+  "icon": "nerotech:remediator",
+  "prerequisites": [],
+  "objectives": [
+    { "type": "neroquests:custom_event", "channel": "nerotech:pollution_decay", "direction": "falling" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 100 },
+    { "type": "neroquests:currency", "amount": 100 }
+  ],
+  "scope": "server"
+}

@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.hands_on_cleanup.title",
+  "description": "quest.nerotech.industrial_record.hands_on_cleanup.desc",
+  "icon": "nerotech:filter_cartridge",
+  "prerequisites": ["nerotech:industrial_record/clean_conscience"],
+  "objectives": [
+    { "type": "neroquests:gate_open", "gate": "nerotech:remediated" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 200 },
+    { "type": "neroquests:currency", "amount": 150 },
+    { "type": "neroquests:mod_hook", "gate": "nerotech:hook/tech_guide_unlock" }
+  ],
+  "scope": "player"
+}

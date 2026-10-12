@@ -1,0 +1,17 @@
+{
+  "title": "quest.nerotech.industrial_record.heat_and_gas.title",
+  "description": "quest.nerotech.industrial_record.heat_and_gas.desc",
+  "icon": "nerotech:gas_turbine",
+  "prerequisites": ["nerotech:industrial_record/clear_skies"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "nerotech:radiator", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:coolant_pump", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:electrolyzer", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:gas_turbine", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 200 },
+    { "type": "neroquests:currency", "amount": 150 }
+  ],
+  "scope": "player"
+}

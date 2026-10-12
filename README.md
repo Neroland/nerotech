@@ -2,7 +2,7 @@
 
 > Part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
 
-**Status:** beta — version `0.5.0-beta.1` (requires Neroland Core 1.13.0; ships the public add-on API in `za.co.neroland.nerotech.api` that NeroPower builds on). 31 blocks, 26 of them block-entity machines, including the scalable multiblock Fusion Reactor (3³/5³/7³ shells), Scrubber/Remediator pollution mitigation, Auto Crafter with recipe preview + grid lock, Item Sorter, Analytics Terminal and the Tech Guide pedestal; a full thermal model, regional pollution with opt-in per-player attribution (POPIA/GDPR-compliant), overclock presets, side-config tooling, a NeroLink companion-app module, and a complete content pipeline (models, textures, recipes, advancements, lang). **Standalone-first:** no progression gate ever locks a machine — pacing is via recipes/materials, and pairing with other Neroland mods enhances rather than restricts. NeroTech opens Core's `INDUSTRIAL_POWER` milestone for the wider ecosystem.
+**Status:** beta — version `0.6.0-beta.1` (requires Neroland Core 1.15.0; ships the public add-on API in `za.co.neroland.nerotech.api` that NeroPower builds on). 31 blocks, 26 of them block-entity machines, including the scalable multiblock Fusion Reactor (3³/5³/7³ shells), Scrubber/Remediator pollution mitigation, Auto Crafter with recipe preview + grid lock, Item Sorter, Analytics Terminal and the Tech Guide pedestal; a full thermal model, regional pollution with opt-in per-player attribution (POPIA/GDPR-compliant), overclock presets, side-config tooling, a NeroLink companion-app module, and a complete content pipeline (models, textures, recipes, advancements, lang). **Standalone-first:** no progression gate ever locks a machine — pacing is via recipes/materials, and pairing with other Neroland mods enhances rather than restricts. NeroTech opens Core's `INDUSTRIAL_POWER` milestone for the wider ecosystem.
 
 The 0.1.0-beta.1 tech tree also covers:
 
@@ -11,6 +11,18 @@ The 0.1.0-beta.1 tech tree also covers:
 - **Power tier** — **Wind Turbine**, **Geothermal Generator**, **Bio Generator**, **Solar Array**, **Battery Bank**, **Grid Controller** and **Wireless Power Node**.
 - **Automation** — **Conveyor Belt** and **Robotic Arm**.
 - **Exotic endgame** — the accelerator-only **Antimatter Cell** (tier-4 fusion fuel) and the **Singularity Vault**.
+
+## Optional integrations
+
+- **NeroQuests** — NeroTech ships a quest-book chapter, *Industrial Record* (`nerotech:industrial_record`,
+  19 quests), as plain data inside its own jar. It appears when NeroQuests is installed and is inert
+  otherwise; NeroTech has no dependency on NeroQuests. Personal milestones (fusion online, first
+  collision, remediated, grid scale) are player-scope Neroland Core record gates; world events ride
+  Core's threshold channels (`nerotech:pollution`, `nerotech:pollution_decay`, `nerotech:machine_failure`).
+  See [`wiki/NeroQuests-Integration.md`](wiki/NeroQuests-Integration.md).
+- **NeroEconomy** — optional per-operation machine charges (off by default); see
+  [`wiki/Operating-Charges.md`](wiki/Operating-Charges.md).
+- **NeroLink** — the companion-app module; see [`wiki/Companion-App.md`](wiki/Companion-App.md).
 
 ## Build targets
 

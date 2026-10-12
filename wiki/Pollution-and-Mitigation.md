@@ -45,10 +45,18 @@ rather than a live measurement of the region.
 ## Threshold events
 
 When a region's pollution crosses a configurable line (`pollutionEventThreshold`; `0` disables),
-NeroTech publishes a **threshold event** through Neroland Core — both when rising past it and when
-recovering below it. Nothing in NeroTech reacts to these yet: the hook lies dormant until a
-listener mod (planned: NeroEvents, e.g. smog events) picks them up. Events are keyed by region,
-never by player.
+NeroTech publishes a **threshold event** through Neroland Core, on two channels so a listener can tell
+cleanup from waiting:
+
+| Channel | Fires |
+| --- | --- |
+| `nerotech:pollution` | **Rising** when machine emissions push a region past the line; **falling** only when a Scrubber or Remediator actively removes enough to bring it back under. |
+| `nerotech:pollution_decay` | **Falling** when the periodic decay sweep alone carries a region back under the line. Never rises. |
+
+Both are keyed by the region, never by a player. Nothing in NeroTech reacts to them itself; quest
+packs and event mods listen (the shipped quest chapter's world-log quests, for instance — see
+[NeroQuests Integration](NeroQuests-Integration.md)). A Remediator that actually removes pollution also
+records the **Remediated** milestone for its owner.
 
 ## Config keys
 

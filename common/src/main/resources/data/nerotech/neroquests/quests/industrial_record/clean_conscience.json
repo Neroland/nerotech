@@ -1,0 +1,16 @@
+{
+  "title": "quest.nerotech.industrial_record.clean_conscience.title",
+  "description": "quest.nerotech.industrial_record.clean_conscience.desc",
+  "icon": "nerotech:scrubber",
+  "prerequisites": ["nerotech:industrial_record/the_grid"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "nerotech:scrubber", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:remediator", "count": 1 },
+    { "type": "neroquests:collect_item", "item": "nerotech:filter_cartridge", "count": 2 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 200 },
+    { "type": "neroquests:currency", "amount": 150 }
+  ],
+  "scope": "player"
+}

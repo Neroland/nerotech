@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0-beta.1] - 2026-10-11
+
+Quest pack, personal milestone records and cleaner world signals. Requires **Neroland Core 1.15.0**
+(player gates by UUID, sourced threshold crossings). No new dependency: the quest pack is inert data.
+
+### Added
+
+- **NeroQuests quest pack** — chapter `nerotech:industrial_record` "Industrial Record", 19 quests
+  (16 player, 3 server world-log) — that appears in the quest book when NeroQuests is installed; inert
+  otherwise, no dependency in any form. The player line runs components → generator →
+  fabricator → ore processor → solar/wind → grid → scrubber and remediator → heat and gas → fusion
+  parts → stellar fuel → collider parts → antimatter, plus four milestone quests (below). Machine
+  outputs are `collect_item` objectives, never crafts.
+- **Milestone record gates** (`data/nerotech/neroland_gates/`, player scope, no `requires`, checked by
+  nothing): `nerotech:fusion_online` (the Fusion Reactor shell forms), `nerotech:first_collision`
+  (the Collider lands its first product), `nerotech:remediated` (a Remediator actually removes
+  pollution) and `nerotech:grid_scale` (a Grid Controller's summed machine capacity reaches the new
+  `gridScaleMilestoneCapacity`, default 5,000,000 NE; `0` disables). A machine opens them for its
+  stored owner, online or offline (`progression/MilestoneGates`); an unowned machine or an owner who
+  opted out of attribution records nothing.
+- **`nerotech:hook/tech_guide_unlock`** hook gate + `progression/QuestHooks`: when a quest mod opens
+  it for a player, NeroTech marks that player's next incomplete Tech Guide entry complete and says
+  which in chat, then closes the gate to re-arm it. Information only — NeroTech advancements carry no
+  recipe or item rewards. Delivered on next login when it opened while offline.
+- **`nerotech:pollution_decay`** threshold channel: a region that drifts back under
+  `pollutionEventThreshold` through the periodic decay sweep now fires here (falling, scope = region
+  key). `nerotech:pollution` falling is reserved for active Scrubber/Remediator removal, so a listener
+  can tell cleanup from waiting.
+- `NeroTechCommon.serverTick(MinecraftServer)`: the loaders' end-of-tick fan-out (pollution sweep +
+  quest-hook delivery).
+
+### Changed
+
+- **`nerotech:machine_failure` scope is now `machineId@dimension`** — the block position is gone.
+  On a shared server a base's coordinates identify its builder; listeners filter on the stage
+  (`value`/`threshold`) and `rising`, never on the scope. `MachineFailureEvents.fire(...)` and
+  `scope(...)` keep their 0.4/0.5 signatures (the `BlockPos` is ignored) and gain position-free
+  overloads.
+- Every NeroTech threshold crossing is published with `nerotech` as its source mod (Core 1.15.0
+  `ThresholdEvents.fire(String, ThresholdCrossing)`).
+- Version `0.6.0-beta.1`; Core pin `1.13.0` → `1.15.0`.
+
+### Privacy
+
+- The milestone and hook gates are rows in Neroland Core's progression store (UUID-keyed, covered by
+  Core's privacy notice and erased through Core's shared erasure hook). NeroTech writes them only
+  for a machine's stored owner and never logs or broadcasts the UUID. `PRIVACY.md` updated.
+
 ## [0.5.0-beta.1] - 2026-10-11
 
 Optional NeroEconomy operating charges. Requires **Neroland Core 1.13.0** (unchanged). NeroEconomy stays

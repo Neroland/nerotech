@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.ore_doubling.title",
+  "description": "quest.nerotech.industrial_record.ore_doubling.desc",
+  "icon": "nerotech:ore_processor",
+  "prerequisites": ["nerotech:industrial_record/first_spark"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "nerotech:ore_processor", "count": 1 },
+    { "type": "neroquests:collect_item", "tag": "c:dusts/iron", "count": 16 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 100 },
+    { "type": "neroquests:currency", "amount": 75 }
+  ],
+  "scope": "player"
+}

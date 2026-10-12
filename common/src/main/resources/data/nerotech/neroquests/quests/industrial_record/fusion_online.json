@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.fusion_online.title",
+  "description": "quest.nerotech.industrial_record.fusion_online.desc",
+  "icon": "nerotech:fusion_casing",
+  "prerequisites": ["nerotech:industrial_record/ignition"],
+  "objectives": [
+    { "type": "neroquests:gate_open", "gate": "nerotech:fusion_online" }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 300 },
+    { "type": "neroquests:currency", "amount": 250 },
+    { "type": "neroquests:mod_hook", "gate": "nerotech:hook/tech_guide_unlock" }
+  ],
+  "scope": "player"
+}

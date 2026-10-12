@@ -32,6 +32,7 @@ import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.machine.AcceleratorPath.Segment;
 import za.co.neroland.nerotech.menu.ColliderMenu;
+import za.co.neroland.nerotech.progression.MilestoneGates;
 import za.co.neroland.nerotech.recipe.ColliderRecipe;
 import za.co.neroland.nerotech.recipe.ColliderRecipeInput;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
@@ -380,6 +381,8 @@ public class ColliderCoreBlockEntity extends NeroTechMachineBlockEntity {
         }
         target.shrink(1);
         mergeOutput(result);
+        // The product is in the output slot: record the owner's "First Collision" milestone (idempotent).
+        MilestoneGates.record(serverLevel, this.ownerId, MilestoneGates.FIRST_COLLISION);
         addHeat(NeroTechConfig.heatPerOperation() * HEAT_MULTIPLIER);
         emitPollution(level, pos);
         burst(serverLevel, pos);

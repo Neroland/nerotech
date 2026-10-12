@@ -1,5 +1,7 @@
 package za.co.neroland.nerotech;
 
+import net.minecraft.server.MinecraftServer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,9 @@ public final class NeroTechCommon {
         // NeroLink: register NeroTech's link module (data sections + safe actions + live events) with
         // Core's link registry, so the NeroLink companion bridge auto-serves NeroTech.
         za.co.neroland.nerotech.link.NeroTechLinkModule.register();
+        // Quest-pack hooks: listen for the hook gates a quest mod opens when a player completes one of
+        // NeroTech's own quests (Core progression events only — no quest-mod dependency).
+        za.co.neroland.nerotech.progression.QuestHooks.init();
         // NeroEconomy (optional): claim the "machine_operation" charge handle now — claims close when the
         // first server starts. Dormant (every charge free) when NeroEconomy is absent.
         za.co.neroland.nerotech.compat.neroeconomy.MachineCharges.init();
@@ -60,5 +65,15 @@ public final class NeroTechCommon {
                     za.co.neroland.nerotech.guide.TechGuideSeenState.TYPE, seen,
                     za.co.neroland.nerotech.guide.TechGuideSeenState.ID.toString());
         });
+    }
+
+    /**
+     * Server tick fan-out, wired by every loader entry point to its end-of-server-tick event: the
+     * periodic pollution decay + retention sweep, and quest-hook delivery to freshly logged-in players.
+     * Each callee gates its own work by interval, so the per-tick cost is a couple of modulo checks.
+     */
+    public static void serverTick(MinecraftServer server) {
+        za.co.neroland.nerotech.pollution.PollutionManager.tick(server);
+        za.co.neroland.nerotech.progression.QuestHooks.tick(server);
     }
 }

@@ -1,0 +1,17 @@
+{
+  "title": "quest.nerotech.industrial_record.the_grid.title",
+  "description": "quest.nerotech.industrial_record.the_grid.desc",
+  "icon": "nerotech:grid_controller",
+  "prerequisites": ["nerotech:industrial_record/fabrication"],
+  "objectives": [
+    { "type": "neroquests:craft_item", "item": "nerotech:battery_bank", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:grid_controller", "count": 1 },
+    { "type": "neroquests:craft_item", "item": "nerotech:wireless_node", "count": 2 },
+    { "type": "neroquests:craft_item", "tag": "neroland:highlight/upgrades", "count": 2 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 150 },
+    { "type": "neroquests:currency", "amount": 100 }
+  ],
+  "scope": "player"
+}

@@ -17,6 +17,7 @@ import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.menu.RemediatorMenu;
 import za.co.neroland.nerotech.pollution.PollutionManager;
+import za.co.neroland.nerotech.progression.MilestoneGates;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 
 /**
@@ -88,7 +89,10 @@ public class RemediatorBlockEntity extends NeroTechMachineBlockEntity {
         if (PollutionManager.regionPollution(serverLevel, pos) > 0 && energyBuffer().has(cost)) {
             energyBuffer().consume(cost);
             // Own region only: cleanup is local; the Scrubber owns the cross-region reach.
-            PollutionManager.scrub(serverLevel, pos, rate, 0);
+            if (PollutionManager.scrub(serverLevel, pos, rate, 0) > 0) {
+                // Pollution actually left the region: record the owner's "Remediated" milestone (idempotent).
+                MilestoneGates.record(serverLevel, this.ownerId, MilestoneGates.REMEDIATED);
+            }
             // Remediation runs hot — a full operation's heat per op (the cooling half of the lever).
             addHeat(NeroTechConfig.heatPerOperation());
             remediating = true;

@@ -74,6 +74,16 @@ the block data sent to clients). It is erased by the same data-erasure hook as a
 player's machines drop their owner and are no longer charged. The ledger entry for each charge is
 NeroEconomy's and is covered by NeroEconomy's own privacy notice, export and erasure.
 
+## Progression milestone records
+
+NeroTech records four personal milestones (fusion online, first collision, remediated, grid scale) and
+one quest hook as **player-scope progression gates in Neroland Core's store**, keyed by the UUID of the
+machine's stored owner only — so only when a machine already has an owner under one of the two sections
+above, and never for an owner who has opted out of attribution. The gates are records, gate nothing,
+and the UUID is never logged, broadcast or put in a threshold event (world events name a region or a
+machine type and dimension — since 0.6.0 no longer a block position). The rows are covered by Neroland
+Core's privacy notice and erased through the same shared data-erasure hook.
+
 ## Legal basis and your rights (GDPR / POPIA)
 
 Error reports are processed on the basis of **legitimate interest** (GDPR Art. 6(1)(f); POPIA

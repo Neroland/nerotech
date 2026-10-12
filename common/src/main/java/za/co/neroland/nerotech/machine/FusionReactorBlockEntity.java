@@ -25,6 +25,7 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.link.NeroTechLinkModule;
 import za.co.neroland.nerotech.menu.NeroGeneratorMenu;
 import za.co.neroland.nerotech.pollution.PollutionManager;
+import za.co.neroland.nerotech.progression.MilestoneGates;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.tag.NeroTechTags;
 
@@ -129,7 +130,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
         // The overheat episode ends once the reactor is cool enough to ignite again (falling edge).
         if (this.overheatWarned && !overheated()) {
             this.overheatWarned = false;
-            fireFailure(level, pos, MachineFailureEvents.STAGE_WARNING, false);
+            fireFailure(level, MachineFailureEvents.STAGE_WARNING, false);
         }
 
         boolean roomToStore = getEnergy().getAmount() < getEnergy().getCapacity();
@@ -205,7 +206,11 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
             // World-event broadcast + a CRITICAL alert to the owner (no personal data in the broadcast).
             NeroTechLinkModule.onReactorCritical(serverLevel.getServer(), this.ownerId, pos,
                     "containment_breach", this.shellSize);
-            fireFailure(serverLevel, pos, MachineFailureEvents.STAGE_BREACH, true);
+            fireFailure(serverLevel, MachineFailureEvents.STAGE_BREACH, true);
+        }
+        // First light: the shell just formed — record the owner's "Fusion Online" milestone (idempotent).
+        if (nowFormed && !this.formed && level instanceof ServerLevel serverLevel) {
+            MilestoneGates.record(serverLevel, this.ownerId, MilestoneGates.FUSION_ONLINE);
         }
         this.formed = nowFormed;
         this.shellSize = nowSize;
@@ -255,14 +260,14 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
     private void warnOverheat(Level level, BlockPos pos) {
         if (!this.overheatWarned) {
             this.overheatWarned = true;
-            fireFailure(level, pos, MachineFailureEvents.STAGE_WARNING, true);
+            fireFailure(level, MachineFailureEvents.STAGE_WARNING, true);
         }
     }
 
     /** Publish a failure stage for this reactor on the ecosystem bus (server side only). */
-    private void fireFailure(Level level, BlockPos pos, int stage, boolean rising) {
+    private void fireFailure(Level level, int stage, boolean rising) {
         if (level instanceof ServerLevel) {
-            MachineFailureEvents.fire(MACHINE_ID, level.dimension().identifier().toString(), pos, stage, rising);
+            MachineFailureEvents.fire(MACHINE_ID, level.dimension().identifier().toString(), stage, rising);
         }
     }
 
@@ -284,7 +289,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
         if (level instanceof ServerLevel serverLevel) {
             NeroTechLinkModule.onReactorCritical(serverLevel.getServer(), this.ownerId, this.worldPosition,
                     "meltdown", this.shellSize);
-            fireFailure(serverLevel, this.worldPosition, MachineFailureEvents.STAGE_FAILURE, true);
+            fireFailure(serverLevel, MachineFailureEvents.STAGE_FAILURE, true);
             // auto → no terrain damage on a dedicated server (a shared world), full damage otherwise.
             terrainDamage = NeroTechConfig.fusionMeltdownTerrainDamage(serverLevel.getServer().isDedicatedServer());
         }

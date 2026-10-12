@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.stellar_fuel.title",
+  "description": "quest.nerotech.industrial_record.stellar_fuel.desc",
+  "icon": "nerotech:stellar_cell",
+  "prerequisites": ["nerotech:industrial_record/ignition"],
+  "objectives": [
+    { "type": "neroquests:collect_item", "item": "nerotech:plasma_cell", "count": 1 },
+    { "type": "neroquests:collect_item", "item": "nerotech:stellar_cell", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 350 },
+    { "type": "neroquests:currency", "amount": 300 }
+  ],
+  "scope": "player"
+}

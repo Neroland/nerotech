@@ -25,7 +25,6 @@ import za.co.neroland.nerotech.api.MachineTypeRegistry;
 import za.co.neroland.nerotech.api.MachineTypeRegistry.Surface;
 import za.co.neroland.nerotech.command.NeroTechCommands;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
-import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ModRecipeTypes;
 import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
 
@@ -60,8 +59,8 @@ public final class NeroTechFabric implements ModInitializer {
         registerItemHandlers();
         registerCoreFluidAndGas();
         registerRecipeSync();
-        // Periodic regional pollution decay + retention sweep (cheap; gated by interval inside tick).
-        ServerTickEvents.END_SERVER_TICK.register(PollutionManager::tick);
+        // Periodic regional pollution decay + retention sweep and quest-hook delivery (gated by interval inside).
+        ServerTickEvents.END_SERVER_TICK.register(NeroTechCommon::serverTick);
         // Creative-only debug commands (/nerotech gallery); shared brigadier tree in common.
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 NeroTechCommands.register(dispatcher));

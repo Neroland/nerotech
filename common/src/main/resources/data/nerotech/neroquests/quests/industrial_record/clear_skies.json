@@ -1,0 +1,15 @@
+{
+  "title": "quest.nerotech.industrial_record.clear_skies.title",
+  "description": "quest.nerotech.industrial_record.clear_skies.desc",
+  "icon": "nerotech:solar_array",
+  "prerequisites": ["nerotech:industrial_record/ore_doubling"],
+  "objectives": [
+    { "type": "neroquests:collect_item", "item": "nerotech:solar_array", "count": 4 },
+    { "type": "neroquests:craft_item", "item": "nerotech:wind_turbine", "count": 1 }
+  ],
+  "rewards": [
+    { "type": "neroquests:xp", "amount": 150 },
+    { "type": "neroquests:currency", "amount": 100 }
+  ],
+  "scope": "player"
+}

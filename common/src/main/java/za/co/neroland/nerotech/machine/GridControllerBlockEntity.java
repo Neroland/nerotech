@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.menu.GridControllerMenu;
+import za.co.neroland.nerotech.progression.MilestoneGates;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 
 /**
@@ -110,6 +112,11 @@ public class GridControllerBlockEntity extends NeroTechMachineBlockEntity {
         }
         this.roster = List.copyOf(found);
         this.fillPermille = permille(stored, capacity);
+        // Grid Scale: the watched grid's summed capacity reached the configured size (0 = off). Idempotent.
+        int scale = NeroTechConfig.gridScaleMilestoneCapacity();
+        if (scale > 0 && capacity >= scale && level instanceof ServerLevel serverLevel) {
+            MilestoneGates.record(serverLevel, this.ownerId, MilestoneGates.GRID_SCALE);
+        }
     }
 
     /**
