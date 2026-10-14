@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "nerotech:configurator"
+    "nerotech:configurator",
+    "nerotech:tech_guide",
+    "nerotech:tech_guide_datapad"
   ]
 }

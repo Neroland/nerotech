@@ -6,6 +6,10 @@
     "nerotech:stellar_cell",
     "nerotech:antimatter_cell",
     "nerotech:filter_cartridge",
-    "nerotech:dirty_filter"
+    "nerotech:dirty_filter",
+    "nerotech:circuit_board",
+    "nerotech:copper_dust",
+    "nerotech:gold_dust",
+    "nerotech:iron_dust"
   ]
 }

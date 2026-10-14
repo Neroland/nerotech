@@ -1,0 +1,40 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "nerotech:accelerator_coil",
+      "required": false
+    },
+    "nerotech:advanced_fabricator",
+    "nerotech:advanced_ore_processor",
+    "nerotech:analytics_terminal",
+    "nerotech:auto_crafter",
+    "nerotech:battery_bank",
+    "nerotech:bio_generator",
+    "nerotech:chemical_processor",
+    "nerotech:collider_core",
+    "nerotech:conveyor_belt",
+    "nerotech:coolant_pump",
+    "nerotech:electrolyzer",
+    "nerotech:fabricator",
+    "nerotech:fusion_casing",
+    "nerotech:fusion_containment_glass",
+    "nerotech:fusion_reactor",
+    "nerotech:gas_turbine",
+    "nerotech:geothermal_generator",
+    "nerotech:grid_controller",
+    "nerotech:item_sorter",
+    "nerotech:machine_frame",
+    "nerotech:nero_coil",
+    "nerotech:nero_generator",
+    "nerotech:ore_processor",
+    "nerotech:radiator",
+    "nerotech:remediator",
+    "nerotech:robotic_arm",
+    "nerotech:scrubber",
+    "nerotech:singularity_vault",
+    "nerotech:solar_array",
+    "nerotech:wind_turbine",
+    "nerotech:wireless_node"
+  ]
+}
