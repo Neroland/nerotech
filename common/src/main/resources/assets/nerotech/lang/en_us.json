@@ -99,7 +99,8 @@
   "block.nerotech.robotic_arm.tooltip": "Moves items once a second from the container behind it into the one in front; set the filter slot to move only one item",
   "block.nerotech.singularity_vault": "Singularity Vault",
   "item.nerotech.singularity_vault": "Singularity Vault",
-  "block.nerotech.singularity_vault.tooltip": "Bulk storage for ONE item type (singularityVaultCapacity). Empty it before you break it — the stored bulk does not drop",
+  "block.nerotech.singularity_vault.tooltip": "Bulk storage for ONE item type (singularityVaultCapacity). Breaking it keeps the contents: a small store spills as items, a large one stays inside the dropped vault",
+  "block.nerotech.singularity_vault.carrying": "Holding %2$s × %1$s — place it to restore",
   "block.nerotech.singularity_vault.empty": "Singularity Vault: empty",
   "block.nerotech.singularity_vault.count": "%1$s — %2$s / %3$s",
   "block.nerotech.singularity_vault.mismatch": "This vault is already holding a different item",
@@ -222,7 +223,7 @@
   "gui.nerotech.tech_guide.step.antimatter": "Contained Annihilation",
   "gui.nerotech.tech_guide.step.antimatter.text": "Collide two Stellar Cells at 12,000 J and what comes out is an Antimatter Cell — tier-4 fusion fuel, twice the burn of a Stellar Cell, and only the full 7x7x7 shell will hold it. It also drives the reactor's heat up by half again: this is the fuel that courts a meltdown on purpose.",
   "gui.nerotech.tech_guide.step.singularity_vault": "Room for Everything",
-  "gui.nerotech.tech_guide.step.singularity_vault.text": "The Singularity Vault folds a million of ONE item into a single block. Feed the input face, pull from the output face, and read the fill with a comparator. Empty it before you break it.",
+  "gui.nerotech.tech_guide.step.singularity_vault.text": "The Singularity Vault folds a million of ONE item into a single block. Feed the input face, pull from the output face, and read the fill with a comparator. Breaking it keeps what it holds.",
 
   "nerotech.analytics.status.running": "Running",
   "nerotech.analytics.status.idle": "Idle",

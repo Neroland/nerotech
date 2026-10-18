@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Block and loot drops work as intended on Minecraft 26.3** (NeoForge, Fabric and Forge). Minecraft
+  26.3 changed the loot-table file format and silently ignores the old one, so conditions and drop
+  modifiers (explosion survival, door/slab block-state checks, drop counts, random chances) were skipped.
+  The 26.3 builds now ship every loot table in the new format. 26.1.2 and 26.2 were not affected.
+- **Breaking a Singularity Vault no longer deletes what it holds.** A vault holding up to 64 stacks
+  now spills them as normal items. A fuller vault drops as a single vault item that keeps its whole
+  store (the tooltip shows what is inside); place it again to get everything back. The vault's
+  tooltip, Tech Guide step and wiki page no longer tell you to empty it first.
+
 ## [0.6.0-beta.1] - 2026-10-11
 
 Quest pack, personal milestone records and cleaner world signals. Requires **Neroland Core 1.15.0**

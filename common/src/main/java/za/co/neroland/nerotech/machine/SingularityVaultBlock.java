@@ -1,5 +1,8 @@
 package za.co.neroland.nerotech.machine;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
@@ -14,6 +17,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.Nullable;
@@ -91,6 +96,26 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
             report(player, vault);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * A store too large to spill as loose stacks (see
+     * {@link SingularityVaultBlockEntity#storeTooLargeToSpill}) leaves on a vault item that the block
+     * entity's {@code preRemoveSideEffects} drops itself, so the loot table's plain vault is withheld
+     * here and exactly one vault drops. That covers both orders vanilla uses: a player break removes
+     * the block before rolling loot ({@code carrierDropped}), an explosion rolls loot before removing
+     * the block (store still present). Deliberately side-effect free, so a mod that previews a block's
+     * drops can never move or clear the store.
+     */
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof SingularityVaultBlockEntity vault
+                && (vault.carrierDropped() || vault.storeTooLargeToSpill())) {
+            drops = new ArrayList<>(drops);
+            drops.removeIf(drop -> drop.is(asItem()));
+        }
+        return drops;
     }
 
     @Override

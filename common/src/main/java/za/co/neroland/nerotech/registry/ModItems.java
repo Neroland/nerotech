@@ -107,10 +107,9 @@ public final class ModItems {
     // --- Exotic endgame (Stage F) --------------------------------------------
     /** Tier-4 Fusion Reactor fuel; Collider-only, and only the 7³ shell will burn it. */
     public static final RegistryEntry<Item> ANTIMATTER_CELL = item("antimatter_cell", p -> p.stacksTo(16));
-    /** Carries the tooltip naming the "empty it before you break it" rule (blocks have no hover hook). */
+    /** Carries the vault tooltip, plus what a broken vault's dropped item still holds (blocks have no hover hook). */
     public static final RegistryEntry<BlockItem> SINGULARITY_VAULT_ITEM = ITEMS.register("singularity_vault",
-            key -> new TooltipBlockItem(ModBlocks.SINGULARITY_VAULT.get(), new Item.Properties().setId(key),
-                    "block.nerotech.singularity_vault.tooltip"));
+            key -> new SingularityVaultBlockItem(ModBlocks.SINGULARITY_VAULT.get(), new Item.Properties().setId(key)));
 
     // --- Pollution mitigation (Stage F) --------------------------------------
     /** Consumable scrubbing medium; fouls into a {@link #DIRTY_FILTER} at capacity. */
@@ -261,6 +260,34 @@ public final class ModItems {
             super.appendHoverText(stack, context, display, tooltip, flag);
             tooltip.accept(net.minecraft.network.chat.Component.translatable(this.tooltipKey)
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
+        }
+    }
+
+    /**
+     * Singularity Vault block-item: the vault tooltip, plus — on a vault dropped while holding a store
+     * too large to spill — a line naming what it carries ({@code nerotech:vault_contents}).
+     */
+    private static final class SingularityVaultBlockItem extends BlockItem {
+        SingularityVaultBlockItem(Block block, Item.Properties properties) {
+            super(block, properties);
+        }
+
+        @Override
+        public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
+                net.minecraft.world.item.component.TooltipDisplay display,
+                java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
+                net.minecraft.world.item.TooltipFlag flag) {
+            super.appendHoverText(stack, context, display, tooltip, flag);
+            tooltip.accept(net.minecraft.network.chat.Component
+                    .translatable("block.nerotech.singularity_vault.tooltip")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY));
+            za.co.neroland.nerotech.machine.VaultContents contents = stack.get(ModDataComponents.VAULT_CONTENTS.get());
+            if (contents != null) {
+                tooltip.accept(net.minecraft.network.chat.Component
+                        .translatable("block.nerotech.singularity_vault.carrying",
+                                contents.prototype().getHoverName(), contents.count())
+                        .withStyle(net.minecraft.ChatFormatting.AQUA));
+            }
         }
     }
 

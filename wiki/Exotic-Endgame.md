@@ -75,8 +75,9 @@ held), which makes "vault nearly full" a one-redstone-line signal.
 It uses **no power** — it is not on the energy surface at all, and a
 [Grid Controller](Power-Generation.md) leaves it alone.
 
-> **Empty it before you break it.** The stored bulk does **not** drop with the block; only the vault
-> itself does. Pull the contents out first.
+> **Breaking it keeps the contents.** A vault holding up to 64 stacks spills them as normal items.
+> A larger store stays inside the dropped vault item (its tooltip shows what it holds); place it
+> again to get everything back.
 
 **Craft:** 4 Void Crystal (`#c:gems/void_crystal`) + 4 Obsidian around an **Antimatter Cell** — which
 is what puts the vault behind the reactor and the biggest ring you have built.

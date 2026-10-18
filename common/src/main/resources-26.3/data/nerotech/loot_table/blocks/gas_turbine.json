@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "nerotech:gas_turbine"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "nerotech:blocks/gas_turbine"
+}

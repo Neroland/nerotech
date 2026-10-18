@@ -5,6 +5,7 @@ import net.minecraft.core.registries.Registries;
 
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.item.ConfiguratorState;
+import za.co.neroland.nerotech.machine.VaultContents;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
@@ -24,6 +25,12 @@ public final class ModDataComponents {
     public static final RegistryEntry<DataComponentType<ConfiguratorState>> CONFIGURATOR_STATE =
             COMPONENTS.register("configurator_state", key -> DataComponentType.<ConfiguratorState>builder()
                     .persistent(ConfiguratorState.CODEC)
+                    .build());
+
+    /** A broken Singularity Vault's bulk store, when too large to spill; item type + count only. */
+    public static final RegistryEntry<DataComponentType<VaultContents>> VAULT_CONTENTS =
+            COMPONENTS.register("vault_contents", key -> DataComponentType.<VaultContents>builder()
+                    .persistent(VaultContents.CODEC)
                     .build());
 
     private ModDataComponents() {
