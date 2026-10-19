@@ -24,8 +24,8 @@ import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
  * vanilla item registry.
  *
  * <p>NeroTech does not re-register Core's shared materials (Nero Alloy, Starsteel, Void Crystal,
- * Plasma Glass) — those live in Core. Every item is appended to Core's shared "Neroland" creative tab
- * via {@link CoreCreativeTab#add}.
+ * Plasma Glass) — those live in Core. Every item is listed in NeroTech's own creative tab
+ * ({@link ModCreativeTab}); nothing is added to Core's tab.
  *
  * <p>Tagging (hand-authored, no datagen): dusts carry {@code c:dusts/<metal>}; components carry the
  * internal {@code nerotech:machine_components} tag; modules are classified by item, not tag.
