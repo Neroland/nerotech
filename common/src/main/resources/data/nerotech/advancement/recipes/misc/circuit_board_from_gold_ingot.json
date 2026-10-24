@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:redstone",
+              "minecraft:gold_ingot"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "nerotech:circuit_board_from_gold_ingot"
+    ]
+  }
+}

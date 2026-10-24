@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "nerotech:nero_coil",
+              "nerotech:circuit_board",
+              "nerotech:machine_frame",
+              "nerotech:iron_dust"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "nerotech:robotic_arm"
+    ]
+  }
+}
