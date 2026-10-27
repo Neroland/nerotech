@@ -9,7 +9,7 @@
   progression gates); add shared content under `common/` and wire it through each loader entry point.
 - Mod id: **`nerotech`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.nerotech`. Author: **Neroland**.
-- Version: **0.6.0-beta.1** (requires Neroland Core **1.15.0**; `nerolandcore_version` in `gradle.properties`).
+- Version: **0.6.2-beta.1** (requires Neroland Core **1.15.0**; `nerolandcore_version` in `gradle.properties`).
 - Targets **MC 26.1.2, 26.2 AND 26.3** on **NeoForge, MinecraftForge/Forge, and Fabric** → the **"9 cells"**.
   **Java 25.** Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 

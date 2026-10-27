@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2-beta.1] - 2026-10-26
+
+### Fixed
+
+- EMI recipe registration now reads NeroTech's synced recipe cache instead of EMI registry methods that differ between unofficial port builds, preventing `NoSuchMethodError` during recipe reload.
+
 ## [0.6.1-beta.1] - 2026-10-26
 
 ### Fixed
