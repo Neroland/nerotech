@@ -41,8 +41,8 @@ Built on **Neroland Core**, so its Nero energy, upgrade modules, progression gat
 
 ## Requirements & compatibility
 
-- **Requires [Neroland Core](https://modrinth.com/mod/nerolandcore)** — install it alongside NeroTech (it loads first).
-- Optional but recommended: **[Nerospace](https://modrinth.com/mod/nerospace)** for the space materials that unlock the advanced tier.
+- **Requires [Neroland Core](https://nerolandmc.net/mods/neroland-core/)** — install it alongside NeroTech (it loads first).
+- Optional but recommended: **[Nerospace](https://nerolandmc.net/mods/nerospace/)** for the space materials that unlock the advanced tier.
 - Conventional `c:` tags on materials and loader-native item/energy capabilities on every machine face, so Create, AE2, Mekanism, and recipe viewers interoperate as the 26.x ecosystem fills in — no hard dependency on any of them.
 - **Modpacks are allowed and encouraged** — any platform, no need to ask. Use the official files and credit *NeroTech by Neroland* with links to the [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/nerotech) and the [GitHub repository](https://github.com/Neroland/nerotech). Full terms: [LICENSE](https://github.com/Neroland/nerotech/blob/main/LICENSE).
 

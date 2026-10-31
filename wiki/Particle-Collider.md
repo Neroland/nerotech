@@ -9,7 +9,7 @@ The whole progression axis is **ring geometry**. Bigger rings hold faster partic
 carry more collision energy; richer recipes demand more energy. There is no tier list of coils to
 craft — there is only how much room you are willing to give the beam.
 
-> Mechanic inspired by [Oritech](https://modrinth.com/mod/oritech)'s particle accelerator. NeroTech's
+> Mechanic inspired by Oritech's particle accelerator. NeroTech's
 > implementation is clean-room — no code or assets are shared.
 
 ## Building a ring

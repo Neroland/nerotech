@@ -35,7 +35,7 @@ Insert this step after the `Build all cells` step and before `Determine release 
 ```yaml
       # Publish the nine per-loader Maven artifacts to GitHub Packages so add-on Nero mods (NeroPower)
       # can resolve NeroTech from a remote repo (CI runners + fresh clones have an empty ~/.m2). This is
-      # the ONLY consumable Maven for NeroTech; CurseForge/Modrinth/GitHub Releases carry player-facing
+      # the ONLY consumable Maven for NeroTech; CurseForge/GitHub Releases carry player-facing
       # jars, not Gradle dependencies. The jars were just built above, so `publish`'s `jar` dependency is
       # UP-TO-DATE and this step only uploads — no second build. GITHUB_TOKEN is the workflow's own
       # token (packages: write granted above). Privacy (POPIA/GDPR): only build artifacts + version
