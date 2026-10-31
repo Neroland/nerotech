@@ -111,9 +111,14 @@ public class TechGuideBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /** Breaking a loaded pedestal pops the installed datapad (the block itself drops via loot). */
+    //? if >=1.21.5 {
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
+    //?} else {
+    /*// Before 1.21.5 there is no block-entity removal hook; the block's onRemove calls this.
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+    *///?}
         if (this.level instanceof ServerLevel && hasDatapad()) {
             Containers.dropItemStack(this.level,
                     pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, removeDatapad());
@@ -122,16 +127,30 @@ public class TechGuideBlockEntity extends BlockEntity implements MenuProvider {
 
     // --- Persistence + client sync -----------------------------------------------------------
 
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*@Override
+    protected void saveAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        ValueOutput output = ValueOutput.of(tag, registries);
+    *///?}
         output.store("Datapad", ItemStack.OPTIONAL_CODEC, this.datapad);
         output.store("Hologram", ItemStack.OPTIONAL_CODEC, this.hologram);
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*@Override
+    protected void loadAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ValueInput input = ValueInput.of(tag, registries);
+    *///?}
         this.datapad = input.read("Datapad", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
         this.hologram = input.read("Hologram", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
     }

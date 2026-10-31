@@ -28,11 +28,19 @@ final class ColliderEmiRecipe extends BasicEmiRecipe {
     private final int minEnergy;
 
     ColliderEmiRecipe(RecipeHolder<ColliderRecipe> holder) {
+        //? if >=1.21.2 {
         super(NeroTechEmiPlugin.COLLIDER, holder.id().identifier(), WIDTH, HEIGHT);
+        //?} else {
+        /*super(NeroTechEmiPlugin.COLLIDER, holder.id(), WIDTH, HEIGHT);
+        *///?}
         ColliderRecipe recipe = holder.value();
         this.minEnergy = recipe.minEnergy();
         this.inputs = List.of(EmiIngredient.of(recipe.inputA()), EmiIngredient.of(recipe.inputB()));
+        //? if >=26.1 {
         this.outputs = List.of(EmiStack.of(recipe.result().create()));
+        //?} else {
+        /*this.outputs = List.of(EmiStack.of(recipe.result()));
+        *///?}
     }
 
     @Override

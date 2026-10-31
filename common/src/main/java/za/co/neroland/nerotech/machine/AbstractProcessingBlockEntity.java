@@ -109,7 +109,11 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
             return ItemStack.EMPTY;
         }
         this.lastRecipe = match.get();
+        //? if >=26.1 {
         return this.lastRecipe.value().assemble(recipeInput);
+        //?} else {
+        /*return this.lastRecipe.value().assemble(recipeInput, serverLevel.registryAccess());
+        *///?}
     }
 
     /** Processing emits — the analytics panel shows the config-derived nominal rate. */
@@ -212,15 +216,29 @@ public abstract class AbstractProcessingBlockEntity extends NeroTechMachineBlock
         return false;
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*@Override
+    protected void saveAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        ValueOutput output = ValueOutput.of(tag, registries);
+    *///?}
         output.putInt("PaidOps", this.paidOps);
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*@Override
+    protected void loadAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ValueInput input = ValueInput.of(tag, registries);
+    *///?}
         this.paidOps = Math.max(0, input.getIntOr("PaidOps", 0));
     }
 

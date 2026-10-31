@@ -1,11 +1,12 @@
 package za.co.neroland.nerotech.registry;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+
+import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.api.MachineTypeRegistry;
@@ -46,114 +47,110 @@ public final class ModBlockEntities {
 
     public static final RegistryEntry<BlockEntityType<NeroGeneratorBlockEntity>> NERO_GENERATOR =
             BLOCK_ENTITIES.register("nero_generator",
-                    key -> new BlockEntityType<>(NeroGeneratorBlockEntity::new, Set.of(ModBlocks.NERO_GENERATOR.get())));
+                    key -> BlockEntityTypeCompat.create(NeroGeneratorBlockEntity::new, ModBlocks.NERO_GENERATOR.get()));
 
     public static final RegistryEntry<BlockEntityType<SolarArrayBlockEntity>> SOLAR_ARRAY =
             BLOCK_ENTITIES.register("solar_array",
-                    key -> new BlockEntityType<>(SolarArrayBlockEntity::new, Set.of(ModBlocks.SOLAR_ARRAY.get())));
+                    key -> BlockEntityTypeCompat.create(SolarArrayBlockEntity::new, ModBlocks.SOLAR_ARRAY.get()));
 
     public static final RegistryEntry<BlockEntityType<OreProcessorBlockEntity>> ORE_PROCESSOR =
             BLOCK_ENTITIES.register("ore_processor",
-                    key -> new BlockEntityType<>(OreProcessorBlockEntity::new, Set.of(ModBlocks.ORE_PROCESSOR.get())));
+                    key -> BlockEntityTypeCompat.create(OreProcessorBlockEntity::new, ModBlocks.ORE_PROCESSOR.get()));
 
     public static final RegistryEntry<BlockEntityType<FabricatorBlockEntity>> FABRICATOR =
             BLOCK_ENTITIES.register("fabricator",
-                    key -> new BlockEntityType<>(FabricatorBlockEntity::new, Set.of(ModBlocks.FABRICATOR.get())));
+                    key -> BlockEntityTypeCompat.create(FabricatorBlockEntity::new, ModBlocks.FABRICATOR.get()));
 
     public static final RegistryEntry<BlockEntityType<FusionReactorBlockEntity>> FUSION_REACTOR =
             BLOCK_ENTITIES.register("fusion_reactor",
-                    key -> new BlockEntityType<>(FusionReactorBlockEntity::new, Set.of(ModBlocks.FUSION_REACTOR.get())));
+                    key -> BlockEntityTypeCompat.create(FusionReactorBlockEntity::new, ModBlocks.FUSION_REACTOR.get()));
 
     public static final RegistryEntry<BlockEntityType<AdvancedOreProcessorBlockEntity>> ADVANCED_ORE_PROCESSOR =
             BLOCK_ENTITIES.register("advanced_ore_processor",
-                    key -> new BlockEntityType<>(AdvancedOreProcessorBlockEntity::new, Set.of(ModBlocks.ADVANCED_ORE_PROCESSOR.get())));
+                    key -> BlockEntityTypeCompat.create(AdvancedOreProcessorBlockEntity::new, ModBlocks.ADVANCED_ORE_PROCESSOR.get()));
 
     public static final RegistryEntry<BlockEntityType<AdvancedFabricatorBlockEntity>> ADVANCED_FABRICATOR =
             BLOCK_ENTITIES.register("advanced_fabricator",
-                    key -> new BlockEntityType<>(AdvancedFabricatorBlockEntity::new, Set.of(ModBlocks.ADVANCED_FABRICATOR.get())));
+                    key -> BlockEntityTypeCompat.create(AdvancedFabricatorBlockEntity::new, ModBlocks.ADVANCED_FABRICATOR.get()));
 
     public static final RegistryEntry<BlockEntityType<ColliderCoreBlockEntity>> COLLIDER_CORE =
             BLOCK_ENTITIES.register("collider_core",
-                    key -> new BlockEntityType<>(ColliderCoreBlockEntity::new, Set.of(ModBlocks.COLLIDER_CORE.get())));
+                    key -> BlockEntityTypeCompat.create(ColliderCoreBlockEntity::new, ModBlocks.COLLIDER_CORE.get()));
 
     // --- Fluid & gas chain + coolant loop (Stage C) --------------------------
     public static final RegistryEntry<BlockEntityType<ElectrolyzerBlockEntity>> ELECTROLYZER =
             BLOCK_ENTITIES.register("electrolyzer",
-                    key -> new BlockEntityType<>(ElectrolyzerBlockEntity::new, Set.of(ModBlocks.ELECTROLYZER.get())));
+                    key -> BlockEntityTypeCompat.create(ElectrolyzerBlockEntity::new, ModBlocks.ELECTROLYZER.get()));
 
     public static final RegistryEntry<BlockEntityType<GasTurbineBlockEntity>> GAS_TURBINE =
             BLOCK_ENTITIES.register("gas_turbine",
-                    key -> new BlockEntityType<>(GasTurbineBlockEntity::new, Set.of(ModBlocks.GAS_TURBINE.get())));
+                    key -> BlockEntityTypeCompat.create(GasTurbineBlockEntity::new, ModBlocks.GAS_TURBINE.get()));
 
     public static final RegistryEntry<BlockEntityType<ChemicalProcessorBlockEntity>> CHEMICAL_PROCESSOR =
             BLOCK_ENTITIES.register("chemical_processor",
-                    key -> new BlockEntityType<>(ChemicalProcessorBlockEntity::new,
-                            Set.of(ModBlocks.CHEMICAL_PROCESSOR.get())));
+                    key -> BlockEntityTypeCompat.create(ChemicalProcessorBlockEntity::new, ModBlocks.CHEMICAL_PROCESSOR.get()));
 
     public static final RegistryEntry<BlockEntityType<CoolantPumpBlockEntity>> COOLANT_PUMP =
             BLOCK_ENTITIES.register("coolant_pump",
-                    key -> new BlockEntityType<>(CoolantPumpBlockEntity::new, Set.of(ModBlocks.COOLANT_PUMP.get())));
+                    key -> BlockEntityTypeCompat.create(CoolantPumpBlockEntity::new, ModBlocks.COOLANT_PUMP.get()));
 
     // --- Power tech (Stage D: the absorbed NeroPower feature set) -------------
     public static final RegistryEntry<BlockEntityType<WindTurbineBlockEntity>> WIND_TURBINE =
             BLOCK_ENTITIES.register("wind_turbine",
-                    key -> new BlockEntityType<>(WindTurbineBlockEntity::new, Set.of(ModBlocks.WIND_TURBINE.get())));
+                    key -> BlockEntityTypeCompat.create(WindTurbineBlockEntity::new, ModBlocks.WIND_TURBINE.get()));
 
     public static final RegistryEntry<BlockEntityType<GeothermalGeneratorBlockEntity>> GEOTHERMAL_GENERATOR =
             BLOCK_ENTITIES.register("geothermal_generator",
-                    key -> new BlockEntityType<>(GeothermalGeneratorBlockEntity::new,
-                            Set.of(ModBlocks.GEOTHERMAL_GENERATOR.get())));
+                    key -> BlockEntityTypeCompat.create(GeothermalGeneratorBlockEntity::new, ModBlocks.GEOTHERMAL_GENERATOR.get()));
 
     public static final RegistryEntry<BlockEntityType<BioGeneratorBlockEntity>> BIO_GENERATOR =
             BLOCK_ENTITIES.register("bio_generator",
-                    key -> new BlockEntityType<>(BioGeneratorBlockEntity::new, Set.of(ModBlocks.BIO_GENERATOR.get())));
+                    key -> BlockEntityTypeCompat.create(BioGeneratorBlockEntity::new, ModBlocks.BIO_GENERATOR.get()));
 
     public static final RegistryEntry<BlockEntityType<BatteryBankBlockEntity>> BATTERY_BANK =
             BLOCK_ENTITIES.register("battery_bank",
-                    key -> new BlockEntityType<>(BatteryBankBlockEntity::new, Set.of(ModBlocks.BATTERY_BANK.get())));
+                    key -> BlockEntityTypeCompat.create(BatteryBankBlockEntity::new, ModBlocks.BATTERY_BANK.get()));
 
     public static final RegistryEntry<BlockEntityType<GridControllerBlockEntity>> GRID_CONTROLLER =
             BLOCK_ENTITIES.register("grid_controller",
-                    key -> new BlockEntityType<>(GridControllerBlockEntity::new,
-                            Set.of(ModBlocks.GRID_CONTROLLER.get())));
+                    key -> BlockEntityTypeCompat.create(GridControllerBlockEntity::new, ModBlocks.GRID_CONTROLLER.get()));
 
     public static final RegistryEntry<BlockEntityType<WirelessNodeBlockEntity>> WIRELESS_NODE =
             BLOCK_ENTITIES.register("wireless_node",
-                    key -> new BlockEntityType<>(WirelessNodeBlockEntity::new, Set.of(ModBlocks.WIRELESS_NODE.get())));
+                    key -> BlockEntityTypeCompat.create(WirelessNodeBlockEntity::new, ModBlocks.WIRELESS_NODE.get()));
 
     public static final RegistryEntry<BlockEntityType<AutoCrafterBlockEntity>> AUTO_CRAFTER =
             BLOCK_ENTITIES.register("auto_crafter",
-                    key -> new BlockEntityType<>(AutoCrafterBlockEntity::new, Set.of(ModBlocks.AUTO_CRAFTER.get())));
+                    key -> BlockEntityTypeCompat.create(AutoCrafterBlockEntity::new, ModBlocks.AUTO_CRAFTER.get()));
 
     public static final RegistryEntry<BlockEntityType<ItemSorterBlockEntity>> ITEM_SORTER =
             BLOCK_ENTITIES.register("item_sorter",
-                    key -> new BlockEntityType<>(ItemSorterBlockEntity::new, Set.of(ModBlocks.ITEM_SORTER.get())));
+                    key -> BlockEntityTypeCompat.create(ItemSorterBlockEntity::new, ModBlocks.ITEM_SORTER.get()));
 
     // --- Automation & QoL (Stage E) / exotic endgame (Stage F) -----------------
     public static final RegistryEntry<BlockEntityType<RoboticArmBlockEntity>> ROBOTIC_ARM =
             BLOCK_ENTITIES.register("robotic_arm",
-                    key -> new BlockEntityType<>(RoboticArmBlockEntity::new, Set.of(ModBlocks.ROBOTIC_ARM.get())));
+                    key -> BlockEntityTypeCompat.create(RoboticArmBlockEntity::new, ModBlocks.ROBOTIC_ARM.get()));
 
     public static final RegistryEntry<BlockEntityType<SingularityVaultBlockEntity>> SINGULARITY_VAULT =
             BLOCK_ENTITIES.register("singularity_vault",
-                    key -> new BlockEntityType<>(SingularityVaultBlockEntity::new,
-                            Set.of(ModBlocks.SINGULARITY_VAULT.get())));
+                    key -> BlockEntityTypeCompat.create(SingularityVaultBlockEntity::new, ModBlocks.SINGULARITY_VAULT.get()));
 
     public static final RegistryEntry<BlockEntityType<ScrubberBlockEntity>> SCRUBBER =
             BLOCK_ENTITIES.register("scrubber",
-                    key -> new BlockEntityType<>(ScrubberBlockEntity::new, Set.of(ModBlocks.SCRUBBER.get())));
+                    key -> BlockEntityTypeCompat.create(ScrubberBlockEntity::new, ModBlocks.SCRUBBER.get()));
 
     public static final RegistryEntry<BlockEntityType<RemediatorBlockEntity>> REMEDIATOR =
             BLOCK_ENTITIES.register("remediator",
-                    key -> new BlockEntityType<>(RemediatorBlockEntity::new, Set.of(ModBlocks.REMEDIATOR.get())));
+                    key -> BlockEntityTypeCompat.create(RemediatorBlockEntity::new, ModBlocks.REMEDIATOR.get()));
 
     public static final RegistryEntry<BlockEntityType<AnalyticsTerminalBlockEntity>> ANALYTICS_TERMINAL =
             BLOCK_ENTITIES.register("analytics_terminal",
-                    key -> new BlockEntityType<>(AnalyticsTerminalBlockEntity::new, Set.of(ModBlocks.ANALYTICS_TERMINAL.get())));
+                    key -> BlockEntityTypeCompat.create(AnalyticsTerminalBlockEntity::new, ModBlocks.ANALYTICS_TERMINAL.get()));
 
     public static final RegistryEntry<BlockEntityType<TechGuideBlockEntity>> TECH_GUIDE =
             BLOCK_ENTITIES.register("tech_guide",
-                    key -> new BlockEntityType<>(TechGuideBlockEntity::new, Set.of(ModBlocks.TECH_GUIDE.get())));
+                    key -> BlockEntityTypeCompat.create(TechGuideBlockEntity::new, ModBlocks.TECH_GUIDE.get()));
 
     /** Whether {@link #seed()} has run — it must contribute NeroTech's machines exactly once. */
     private static boolean seeded;

@@ -15,7 +15,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+//? if >=1.21.6 {
 import net.minecraft.util.ProblemReporter;
+//?}
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -26,7 +28,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+//? if >=1.21.6 {
 import net.minecraft.world.level.storage.TagValueInput;
+//?}
 import net.minecraft.world.phys.AABB;
 
 import za.co.neroland.nerolandcore.energy.EnergyBuffer;
@@ -130,7 +134,11 @@ public final class NeroTechCommands {
             source.sendFailure(Component.translatable("command.nerotech.gallery.creative_only"));
             return 0;
         }
+        //? if >=1.21.6 {
         ServerLevel level = player.level();
+        //?} else {
+        /*ServerLevel level = player.serverLevel();
+        *///?}
         BlockPos origin = player.blockPosition();
         int fy = origin.getY();
 
@@ -322,7 +330,11 @@ public final class NeroTechCommands {
             source.sendFailure(Component.translatable("command.nerotech.gallery.creative_only"));
             return 0;
         }
+        //? if >=1.21.6 {
         ServerLevel level = player.level();
+        //?} else {
+        /*ServerLevel level = player.serverLevel();
+        *///?}
         BlockPos origin = player.blockPosition();
         int oy = origin.getY();
 
@@ -791,7 +803,11 @@ public final class NeroTechCommands {
         // 26.x, so the flag goes in the only public way: replay {Marker:1b} through Entity#load.
         CompoundTag markerTag = new CompoundTag();
         markerTag.putBoolean("Marker", true);
+        //? if >=1.21.6 {
         stand.load(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), markerTag));
+        //?} else {
+        /*stand.load(markerTag);
+        *///?}
         stand.refreshDimensions(); // adopt the zero-size marker hitbox immediately
         // load() re-reads every field from that tag, so re-apply the label state afterwards.
         stand.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5); // load() zeroed Pos (absent)

@@ -13,7 +13,15 @@ def mc = stonecutter.current.version
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
+// Official EMI for 1.21.1 (no Forge build: the Forge cell compiles against the NeoForge API jar only).
+def emiVersion = project.findProperty("emi_version_${mc}")
 def nerolandcoreVersion = project.findProperty('nerolandcore_version')
+// Minecraft before 26.1 ships obfuscated; those cells have their own API differences (see common source).
+def legacyMc = mc.startsWith('1.')
+// Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
+def mcCeiling = project.findProperty("mc_ceiling_${mc}")
+def mcFloor = project.findProperty("mc_floor_${mc}") ?: mc
+def neroeconomyVersion = project.findProperty('neroeconomy_version')
 
 if (!forgeVersion) {
     throw new GradleException("Missing forge_version_${mc} in gradle.properties")
@@ -67,6 +75,17 @@ jarJar.register()
 // Pull in the shared common source + resources.
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
+// compat/emi compiles only where an EMI API exists for this Minecraft line (the 26.x unofficial port, or official
+// EMI on 1.21.1). The other 1.21.x lines have no EMI at all, so the plugin is left out of their jars.
+if (!emiFile && !emiVersion) {
+    sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/emi/**')
+}
+// The access transformer opens the 26.x BlockEntityType constructor; 1.21.x goes through Core's BlockEntityTypeCompat.
+if (legacyMc) {
+    tasks.named('processResources', ProcessResources) {
+        exclude 'META-INF/accesstransformer.cfg'
+    }
+}
 
 // Plain-JVM unit tests (JUnit 5, no game bootstrap) — the same shared tests the neoforge nodes run,
 // so a regression is caught on every loader instead of only one. They live in common/src/test/java
@@ -125,7 +144,10 @@ repositories {
 
 dependencies {
     implementation minecraft.dependency("net.minecraftforge:forge:${forgeVersion}")
-    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.6'
+    // EventBus 7's compile-time validator; Forge before 1.21.6 ships EventBus 6, which it cannot validate.
+    if (stonecutter.eval(mc, '>=1.21.6')) {
+        annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.6'
+    }
 
     // Neroland Core — REQUIRED shared foundation (machine/energy framework, progression gates, data
     // erasure). Compile + dev-runtime classpath; NOT jar-in-jar — Core ships as its own mod and loads
@@ -134,7 +156,9 @@ dependencies {
 
     // NeroEconomy — OPTIONAL per-operation machine charges: compileOnly ONLY (never bundled or
     // required). Only compat/neroeconomy/NeroEconomyBridge imports it, behind isModLoaded("neroeconomy").
-    compileOnly "za.co.neroland.neroeconomy:neroeconomy-forge-${mc}:${project.findProperty('neroeconomy_version')}"
+    if (neroeconomyVersion) {
+        compileOnly "za.co.neroland.neroeconomy:neroeconomy-forge-${mc}:${neroeconomyVersion}"
+    }
 
     // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
@@ -156,6 +180,9 @@ dependencies {
     if (emiFile) {
         compileOnly "curse.maven:emi-unofficial-port-unstable-1544558:${emiFile}"
     }
+    if (emiVersion) {
+        compileOnly "dev.emi:emi-neoforge:${emiVersion}:api"
+    }
 }
 
 // Expand mods.toml from src/main/templates into generated resources.
@@ -167,7 +194,7 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_authors               : rootProject.mod_authors,
         mod_license               : rootProject.mod_license,
         forge_loader_version_range: "[${forgeMajor},)",
-        minecraft_version_range   : "[${mc},)",
+        minecraft_version_range   : mcCeiling ? "[${mcFloor},${mcCeiling})" : "[${mc},)",
         // Floor the required Core version at what we compile against so Forge refuses to
         // load against a Core too old to have the APIs it references, instead of crashing
         // at registration.
@@ -247,7 +274,7 @@ tasks.register('ecjCheck', JavaExec) {
                 .join(File.pathSeparator)
         def srcDirs = sourceSets.main.java.srcDirs.findAll { it.exists() }.collect { it.absolutePath }
         args = [
-                '--release', '25',
+                '--release', "${project.javaRelease}",
                 '-proc:none',
                 '-d', 'none',
                 '-properties', rootProject.file('tools/ecj.prefs').absolutePath,

@@ -16,7 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
-
+import za.co.neroland.nerolandcore.data.SavedDataCompat;
 import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 
 import za.co.neroland.nerotech.NeroTechCommon;
@@ -59,7 +59,7 @@ public final class PollutionAttributionPrefs extends SavedData {
             Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "pollution_attribution_prefs");
 
     public static final SavedDataType<PollutionAttributionPrefs> TYPE =
-            new SavedDataType<>(ID, PollutionAttributionPrefs::new, codec(), null);
+            SavedDataCompat.type(ID, PollutionAttributionPrefs::new, codec());
 
     /** Players who explicitly opted OUT of attribution (absence = follow the global flag). */
     private final Set<UUID> optedOut = new HashSet<>();

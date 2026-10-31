@@ -13,8 +13,13 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+//? if >=1.21.9 {
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
+//?} else {
+/*import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
+*///?}
 
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -62,13 +67,20 @@ public final class NeroTechNeoForge {
         // Recipe sync is opt-in on NeoForge (26.x clients hold no full recipe list): ask the server to
         // send NeroTech's machine recipes so recipe viewers — see compat.jei — can list them. Recipe
         // definitions only; no player data crosses the wire.
+        // Before 1.21.2 vanilla still syncs every recipe, and the event has no sendRecipes.
+        //? if >=1.21.2 {
         NeoForge.EVENT_BUS.addListener((OnDatapackSyncEvent event) -> event.sendRecipes(
                 ModRecipeTypes.ORE_PROCESSING.get(),
                 ModRecipeTypes.FABRICATING.get(),
                 ModRecipeTypes.ADVANCED_FABRICATING.get(),
                 ModRecipeTypes.COLLIDER.get(),
                 ModRecipeTypes.CHEMICAL_PROCESSING.get()));
+        //?}
+        //? if >=1.21.9 {
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
+        //?} else {
+        /*if (FMLEnvironment.dist == Dist.CLIENT) {
+        *///?}
             NeoForgeClientSetup.init(modEventBus);
         }
     }
@@ -143,8 +155,14 @@ public final class NeroTechNeoForge {
 
     private static <T extends NeroTechMachineBlockEntity> void itemCap(RegisterCapabilitiesEvent event,
             BlockEntityType<T> type) {
+        //? if >=1.21.9 {
         event.registerBlockEntity(Capabilities.Item.BLOCK, type,
                 (be, side) -> side != null ? new WorldlyContainerWrapper(be, side) : VanillaContainerWrapper.of(be));
+        //?} else {
+        /*// Before 1.21.9 NeoForge has no transfer API: the item surface is IItemHandler.
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, type,
+                (be, side) -> side != null ? new SidedInvWrapper(be, side) : new InvWrapper(be));
+        *///?}
     }
 
     private static <T extends NeroTechMachineBlockEntity> void gasCap(RegisterCapabilitiesEvent event,
@@ -163,7 +181,11 @@ public final class NeroTechNeoForge {
      */
     private static <T extends NeroTechMachineBlockEntity> void standardFluidCap(RegisterCapabilitiesEvent event,
             BlockEntityType<T> type) {
+        //? if >=1.21.9 {
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, type, (be, side) -> {
+        //?} else {
+        /*event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, type, (be, side) -> {
+        *///?}
             List<GatedFluidView> views = be.standardFluidViews(side);
             return views.isEmpty() ? null : NeoForgeFluidHandlers.asResourceHandler(views);
         });

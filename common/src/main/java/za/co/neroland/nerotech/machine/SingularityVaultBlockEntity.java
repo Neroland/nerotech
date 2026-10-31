@@ -10,7 +10,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+//? if >=26.1 {
 import net.minecraft.world.item.ItemStackTemplate;
+//?}
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -269,7 +271,11 @@ public class SingularityVaultBlockEntity extends NeroTechMachineBlockEntity {
         if (this.storedType.isEmpty() || this.storedCount <= 0) {
             return null;
         }
+        //? if >=26.1 {
         return new VaultContents(ItemStackTemplate.fromNonEmptyStack(this.storedType.copyWithCount(1)), this.storedCount);
+        //?} else {
+        /*return new VaultContents(this.storedType.copyWithCount(1), this.storedCount);
+        *///?}
     }
 
     /** Forget the virtual store once it has been handed to a dropped vault item. */
@@ -307,9 +313,14 @@ public class SingularityVaultBlockEntity extends NeroTechMachineBlockEntity {
      * this hook (player, explosion, creative, wrong tool), so the store is never deleted, and it is
      * zeroed as it leaves, so nothing can drop it twice.
      */
+    //? if >=1.21.5 {
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
+    //?} else {
+    /*// Before 1.21.5 there is no block-entity removal hook; the block's onRemove calls this.
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+    *///?}
         if (!(this.level instanceof ServerLevel serverLevel) || this.storedType.isEmpty()
                 || this.storedCount <= 0) {
             return;
@@ -352,16 +363,30 @@ public class SingularityVaultBlockEntity extends NeroTechMachineBlockEntity {
 
     // --- persistence -----------------------------------------------------------------------------
 
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*@Override
+    protected void saveAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        ValueOutput output = ValueOutput.of(tag, registries);
+    *///?}
         output.store("StoredType", ItemStack.OPTIONAL_CODEC, this.storedType);
         output.putLong("StoredCount", this.storedCount);
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*@Override
+    protected void loadAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ValueInput input = ValueInput.of(tag, registries);
+    *///?}
         this.storedType = input.read("StoredType", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
         this.storedCount = input.getLongOr("StoredCount", 0L);
     }

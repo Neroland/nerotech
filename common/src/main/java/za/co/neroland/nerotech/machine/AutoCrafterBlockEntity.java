@@ -121,7 +121,11 @@ public class AutoCrafterBlockEntity extends NeroTechMachineBlockEntity {
             CraftingInput input = craftingInput();
             recipe = serverLevel.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, serverLevel);
             if (recipe.isPresent()) {
+                //? if >=26.1 {
                 result = recipe.get().value().assemble(input);
+                //?} else {
+                /*result = recipe.get().value().assemble(input, serverLevel.registryAccess());
+                *///?}
             }
         }
         updatePreview(result);

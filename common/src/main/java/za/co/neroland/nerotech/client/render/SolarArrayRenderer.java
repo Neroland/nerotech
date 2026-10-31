@@ -103,6 +103,12 @@ public class SolarArrayRenderer
      * animates without erroring (Nerospace's proven fallback).
      */
     private static long dayOfTime(Level level) {
+        //? if <26.1 {
+        /*if (clockAvailable) {
+            return level.getDayTime() % 24000L; // before 26.1 the day clock is plain level time
+        }
+        *///?}
+        //? if >=26.1 {
         if (clockAvailable) {
             try {
                 return level.getDefaultClockTime() % 24000L;
@@ -110,6 +116,7 @@ public class SolarArrayRenderer
                 clockAvailable = false;
             }
         }
+        //?}
         return level.getGameTime() % 24000L;
     }
 }

@@ -5,7 +5,9 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+//? if >=1.21.5 {
 import net.minecraft.world.entity.InsideBlockEffectApplier;
+//?}
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -47,7 +49,11 @@ public class ConveyorBeltBlock extends Block {
     private static final double SPEED = 0.15D;
 
     /** Flat plate: the bottom 4 pixels of the block (a half-slab is 8 — a belt sits lower). */
+    //? if >=1.21.5 {
     private static final VoxelShape SHAPE = Block.column(16.0D, 0.0D, 4.0D);
+    //?} else {
+    /*private static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 4.0D, 16.0D);
+    *///?}
 
     @SuppressWarnings("this-escape")
     public ConveyorBeltBlock(Properties properties) {
@@ -100,9 +106,20 @@ public class ConveyorBeltBlock extends Block {
      * <p>Nothing else happens here: no neighbour lookups, no block-above checks, no item merging.
      * A belt under a solid block simply carries items that are already on it.
      */
+    //? if >=1.21.9 {
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity,
             InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+    //?}
+    //? if >=1.21.5 && <1.21.9 {
+    /*@Override
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity,
+            InsideBlockEffectApplier effectApplier) {
+    *///?}
+    //? if <1.21.5 {
+    /*@Override
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    *///?}
         if (level.isClientSide() || !(entity instanceof ItemEntity)) {
             return;
         }

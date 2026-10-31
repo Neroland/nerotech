@@ -1,18 +1,31 @@
 package za.co.neroland.nerotech.neoforge;
 
+//? if >=26.1 {
 import net.minecraft.client.renderer.block.FluidModel;
+//?}
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+//? if >=26.1 {
 import net.minecraft.client.resources.model.sprite.Material;
+//?}
 import net.minecraft.resources.Identifier;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+//? if >=1.21.2 {
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
+//?}
+//? if >=26.1 {
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
+//?} else {
+/*import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+*///?}
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+//? if >=1.21.2 {
 import net.neoforged.neoforge.common.NeoForge;
+//?}
 
 import za.co.neroland.nerotech.client.AnalyticsTerminalScreen;
 import za.co.neroland.nerotech.client.AutoCrafterScreen;
@@ -37,8 +50,12 @@ import za.co.neroland.nerotech.client.TechGuideScreen;
 import za.co.neroland.nerotech.client.WindTurbineScreen;
 import za.co.neroland.nerotech.client.WirelessNodeScreen;
 import za.co.neroland.nerotech.NeroTechCommon;
+//? if >=1.21.2 {
 import za.co.neroland.nerotech.compat.jei.JeiSyncedRecipes;
+//?}
+//? if >=26.1 {
 import za.co.neroland.nerotech.fluid.NeroTechFluids;
+//?}
 import za.co.neroland.nerotech.registry.ModMenuTypes;
 
 /** NeoForge client-only wiring (machine screens + block-entity renderers). Loaded only behind Dist.CLIENT. */
@@ -50,21 +67,37 @@ public final class NeoForgeClientSetup {
     public static void init(IEventBus modEventBus) {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterScreens);
         modEventBus.addListener(NeoForgeClientSetup::onRegisterEntityRenderers);
+        //? if >=26.1 {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterFluidModels);
+        //?} else {
+        /*// Before 26.1 the gas sprites come from the fluid types' client extensions.
+        modEventBus.addListener(NeoForgeClientSetup::onRegisterClientExtensions);
+        *///?}
         // Keep the client's copy of the server's synced recipes so recipe viewers (compat.jei) can
-        // list NeroTech's machine recipes — 26.x clients hold no full recipe list of their own.
+        // list NeroTech's machine recipes — from 1.21.2 clients hold no full recipe list of their own
+        // (1.21.1 still receives every recipe; JeiSyncedRecipes reads the client level there).
+        //? if >=1.21.2 {
         NeoForge.EVENT_BUS.addListener((RecipesReceivedEvent event) ->
                 JeiSyncedRecipes.accept(event.getRecipeMap()));
+        //?}
     }
 
     /** Machine BERs through the shared cross-loader seam (Nerospace pattern). */
     private static void onRegisterEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {
+            //? if >=1.21.9 {
             @Override
             public <T extends BlockEntity, S extends BlockEntityRenderState> void register(
                     BlockEntityType<? extends T> type, BlockEntityRendererProvider<T, S> provider) {
                 event.registerBlockEntityRenderer(type, provider);
             }
+            //?} else {
+            /*@Override
+            public <T extends BlockEntity> void register(
+                    BlockEntityType<? extends T> type, BlockEntityRendererProvider<T> provider) {
+                event.registerBlockEntityRenderer(type, provider);
+            }
+            *///?}
         });
     }
 
@@ -98,6 +131,7 @@ public final class NeoForgeClientSetup {
      * (and NeoForge logs a warning for it at bake time). Sprites only: the fog and overlay extensions
      * are for a camera inside the fluid, which a gas with no fluid block can never manage.
      */
+    //? if >=26.1 {
     private static void onRegisterFluidModels(RegisterFluidModelsEvent event) {
         event.register(gasFluidModel("hydrogen"), NeroTechFluids.HYDROGEN.get());
         event.register(gasFluidModel("oxygen"), NeroTechFluids.OXYGEN.get());
@@ -112,5 +146,27 @@ public final class NeoForgeClientSetup {
                 null,
                 null);
     }
+    //?} else {
+    /*private static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
+        event.registerFluidType(gasExtensions("hydrogen"), NeoForgeFluidTypes.HYDROGEN.get());
+        event.registerFluidType(gasExtensions("oxygen"), NeoForgeFluidTypes.OXYGEN.get());
+    }
+
+    private static IClientFluidTypeExtensions gasExtensions(String gas) {
+        Identifier still = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_still");
+        Identifier flowing = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_flow");
+        return new IClientFluidTypeExtensions() {
+            @Override
+            public Identifier getStillTexture() {
+                return still;
+            }
+
+            @Override
+            public Identifier getFlowingTexture() {
+                return flowing;
+            }
+        };
+    }
+    *///?}
 
 }

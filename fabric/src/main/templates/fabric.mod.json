@@ -11,9 +11,7 @@
   "environment": "*",
   "entrypoints": {
     "main": ["za.co.neroland.nerotech.fabric.NeroTechFabric"],
-    "client": ["za.co.neroland.nerotech.fabric.NeroTechFabricClient"],
-    "jei_mod_plugin": ["za.co.neroland.nerotech.compat.jei.NeroTechJeiPlugin"],
-    "emi": ["za.co.neroland.nerotech.compat.emi.NeroTechEmiPlugin"]
+    "client": ["za.co.neroland.nerotech.fabric.NeroTechFabricClient"]${recipe_viewer_entrypoints}
   },
   "mixins": [
     "nerotech-common.mixins.json",
@@ -21,7 +19,7 @@
   ],
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
-    "minecraft": ">=${minecraft_version}",
+    "minecraft": "${minecraft_requirement}",
     "java": ">=21",
     "fabric-api": "*",
     "nerolandcore": ">=${nerolandcore_version}"

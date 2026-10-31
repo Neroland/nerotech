@@ -6,7 +6,9 @@ import java.util.List;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeInput;
+//? if >=1.21.2 {
 import net.minecraft.world.item.crafting.RecipeMap;
+//?}
 import net.minecraft.world.item.crafting.RecipeType;
 
 /**
@@ -35,10 +37,12 @@ public final class JeiSyncedRecipes {
     private JeiSyncedRecipes() {
     }
 
+    //? if >=1.21.2 {
     /** Called by each loader's client wiring when the server's recipe payload arrives. */
     public static void accept(RecipeMap recipeMap) {
         accept(recipeMap == null ? null : recipeMap.values());
     }
+    //?}
 
     /**
      * Same as {@link #accept(RecipeMap)} for loaders that hand over a plain collection (Fabric). Minecraft
@@ -53,6 +57,13 @@ public final class JeiSyncedRecipes {
      * does not send them (an older NeroTech), and on any loader without a recipe-sync API.
      */
     public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> byType(RecipeType<T> type) {
+        //? if <1.21.2 {
+        /*// Before 1.21.2 vanilla still syncs every recipe to the client, so the client level has them all.
+        net.minecraft.client.multiplayer.ClientLevel level = net.minecraft.client.Minecraft.getInstance().level;
+        if (level != null) {
+            return List.copyOf(level.getRecipeManager().getAllRecipesFor(type));
+        }
+        *///?}
         List<RecipeHolder<T>> out = new java.util.ArrayList<>();
         for (RecipeHolder<?> holder : recipes) {
             if (holder.value().getType() == type) {

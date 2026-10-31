@@ -12,10 +12,18 @@ plugins {
 
 // MC version comes from the Stonecutter node (e.g. :neoforge:26.1.2), not a global property.
 def mc = stonecutter.current.version
+// Minecraft before 26.1 ships obfuscated (NeoForge 1.21.x still runs Mojang-named in dev).
+def legacyMc = mc.startsWith('1.')
+// Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
+def mcCeiling = project.findProperty("mc_ceiling_${mc}")
+def mcFloor = project.findProperty("mc_floor_${mc}") ?: mc
 def neoVersion = project.findProperty("neo_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
+// Official EMI (dev.emi on the TerraformersMC maven) for lines the unofficial 26.x port does not cover (1.21.1).
+def emiVersion = project.findProperty("emi_version_${mc}")
 def nerolandcoreVersion = project.findProperty('nerolandcore_version')
+def neroeconomyVersion = project.findProperty('neroeconomy_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // templates live in the BRANCH root (neoforge/). Resolve branch-root paths via the parent.
@@ -64,6 +72,17 @@ repositories {
 // Pull in the shared common source + resources.
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
+// compat/emi compiles only where an EMI API exists for this Minecraft line (the 26.x unofficial port, or official
+// EMI on 1.21.1). The other 1.21.x lines have no EMI at all, so the plugin is left out of their jars.
+if (!emiFile && !emiVersion) {
+    sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/emi/**')
+}
+// The access transformer opens the 26.x BlockEntityType constructor; 1.21.x goes through Core's BlockEntityTypeCompat.
+if (legacyMc) {
+    tasks.named('processResources', ProcessResources) {
+        exclude 'META-INF/accesstransformer.cfg'
+    }
+}
 
 // Plain-JVM unit tests (JUnit 5, no game bootstrap). The shared tests live in
 // common/src/test/java (mirroring Core's layout) but — since `common` is not a Gradle
@@ -91,7 +110,9 @@ dependencies {
 
     // NeroEconomy — OPTIONAL per-operation machine charges: compileOnly ONLY (never bundled or
     // required). Only compat/neroeconomy/NeroEconomyBridge imports it, behind isModLoaded("neroeconomy").
-    compileOnly "za.co.neroland.neroeconomy:neroeconomy-neoforge-${mc}:${project.findProperty('neroeconomy_version')}"
+    if (neroeconomyVersion) {
+        compileOnly "za.co.neroland.neroeconomy:neroeconomy-neoforge-${mc}:${neroeconomyVersion}"
+    }
 
     // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
@@ -121,6 +142,12 @@ dependencies {
             runtimeOnly "curse.maven:emi-unofficial-port-unstable-1544558:${emiFile}"
         }
     }
+    if (emiVersion) {
+        compileOnly "dev.emi:emi-neoforge:${emiVersion}:api"
+        if (project.hasProperty('withEmi')) {
+            runtimeOnly "dev.emi:emi-neoforge:${emiVersion}"
+        }
+    }
 }
 
 // Expand neoforge.mods.toml from src/main/templates into a generated resources dir
@@ -144,7 +171,7 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_authors            : rootProject.mod_authors,
         mod_license            : rootProject.mod_license,
         mod_logo_entry         : modLogoEntry,
-        minecraft_version_range: "[${mc},)",
+        minecraft_version_range: mcCeiling ? "[${mcFloor},${mcCeiling})" : "[${mc},)",
         // Floor the required Core version at what we compile against so Forge refuses to
         // load against a Core too old to have the APIs it references, instead of crashing
         // at registration.
@@ -203,8 +230,10 @@ neoForge {
     // running server. testImplementation already extends implementation, which carries Core.
     addModdingDependenciesTo sourceSets.test
 
+    // The access transformer opens the 26.x BlockEntityType constructor; 1.21.x builds its block-entity
+    // types through Core's BlockEntityTypeCompat instead, so those cells need none.
     def at = rootProject.file('common/src/main/resources/META-INF/accesstransformer.cfg')
-    if (at.exists()) {
+    if (at.exists() && !legacyMc) {
         accessTransformers.from(at.absolutePath)
     }
 
@@ -268,7 +297,7 @@ tasks.register('ecjCheck', JavaExec) {
                 .join(File.pathSeparator)
         def srcDirs = sourceSets.main.java.srcDirs.findAll { it.exists() }.collect { it.absolutePath }
         args = [
-                '--release', '25',
+                '--release', "${project.javaRelease}",
                 '-proc:none',
                 '-d', 'none',
                 '-properties', rootProject.file('tools/ecj.prefs').absolutePath,

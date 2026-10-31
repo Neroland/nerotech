@@ -44,12 +44,21 @@ public final class MachineRecipeCategory extends AbstractRecipeCategory<RecipeHo
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MachineRecipe> recipe, IFocusGroup focuses) {
         MachineRecipe machineRecipe = recipe.value();
+        //? if >=1.21.2 {
         builder.addInputSlot(INPUT_X, INPUT_Y)
                 .setStandardSlotBackground()
                 .add(machineRecipe.input());
         builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
                 .setOutputSlotBackground()
                 .add(machineRecipe.result());
+        //?} else {
+        /*builder.addInputSlot(INPUT_X, INPUT_Y)
+                .setStandardSlotBackground()
+                .addIngredients(machineRecipe.input());
+        builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
+                .setOutputSlotBackground()
+                .addItemStack(machineRecipe.result());
+        *///?}
     }
 
     @Override

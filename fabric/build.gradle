@@ -2,17 +2,31 @@
 // module's source directly (single copy -> no drift).
 
 plugins {
-    id 'net.fabricmc.fabric-loom'
+    // Two Loom flavours from the same plugin jar: `fabric-loom` for de-obfuscated 26.x (no mappings, no
+    // remap) and `fabric-loom-remap` for obfuscated 1.21.x (Mojang mappings + remapJar to intermediary).
+    // Neither is applied here; the node picks one below from its Minecraft version.
+    id 'net.fabricmc.fabric-loom' apply false
+    id 'net.fabricmc.fabric-loom-remap' apply false
     id 'eclipse'   // for eclipse.synchronizationTasks (VS Code / Buildship import hook)
     id 'maven-publish'
 }
 
 // MC version comes from the Stonecutter node (e.g. :fabric:26.1.2), not a global property.
 def mc = stonecutter.current.version
+// Minecraft before 26.1 ships obfuscated, so those cells need mappings and a remapped jar.
+def obfuscated = mc.startsWith('1.')
+apply plugin: obfuscated ? 'net.fabricmc.fabric-loom-remap' : 'net.fabricmc.fabric-loom'
+// Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep >=mc.
+def mcCeiling = project.findProperty("mc_ceiling_${mc}")
+def mcFloor = project.findProperty("mc_floor_${mc}") ?: mc
+def minecraftRequirement = mcCeiling ? ">=${mcFloor} <${mcCeiling}" : ">=${mc}"
 def fabricApi = project.findProperty("fabric_api_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_fabric_${mc}")
+// Official EMI (dev.emi on the TerraformersMC maven) for lines the unofficial 26.x port does not cover (1.21.1).
+def emiVersion = project.findProperty("emi_version_${mc}")
 def nerolandcoreVersion = project.findProperty('nerolandcore_version')
+def neroeconomyVersion = project.findProperty('neroeconomy_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // resources live in the BRANCH root (fabric/). Resolve branch-root paths via the parent.
@@ -27,15 +41,16 @@ base { archivesName = "nerotech-fabric-${mc}" }
 // We publish the standard `jar` (carries the expanded fabric.mod.json), exactly as Core does: on
 // de-obfuscated 26.x there is no intermediary remap, so this is a valid consumable mod jar in dev. The
 // nested Sentry jar (only in remapJar) is unneeded for a dev dependency — Sentry is already on the consumer
-// classpath. `remapJar` is registered lazily by Loom and isn't resolvable here. Dependency-free POM on purpose.
-// `./gradlew publishToMavenLocal` installs all nine cells. Mirrors Neroland Core's publishing setup.
+// classpath. Dependency-free POM on purpose. 1.21.x consumers remap NeroTech with modImplementation, so
+// those cells publish the intermediary `remapJar` instead.
+// `./gradlew publishToMavenLocal` installs every cell. Mirrors Neroland Core's publishing setup.
 publishing {
     publications {
         register('mod', MavenPublication) {
             groupId = rootProject.mod_group_id
             artifactId = "nerotech-fabric-${mc}"
             version = rootProject.mod_version
-            artifact tasks.named('jar')
+            artifact tasks.named(obfuscated ? 'remapJar' : 'jar')
         }
     }
     // Remote target so a fresh CI runner / clone (empty ~/.m2) can resolve NeroTech — GitHub Packages
@@ -59,6 +74,12 @@ publishing {
 // Pull in the shared common source + resources.
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
+// compat/emi compiles only where an EMI API exists for this Minecraft line (the 26.x unofficial port, or official
+// EMI on 1.21.1). The other 1.21.x lines have no EMI at all, so the plugin is left out of their jars (and
+// fabric.mod.json does not list the emi entrypoint there; see recipe_viewer_entrypoints).
+if (!emiFile && !emiVersion) {
+    sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/emi/**')
+}
 
 // Plain-JVM unit tests (JUnit 5, no game bootstrap) — the same shared tests the neoforge nodes run,
 // so a regression is caught on every loader instead of only one. They live in common/src/test/java
@@ -84,6 +105,16 @@ tasks.named('test', Test) {
 
 dependencies {
     minecraft "com.mojang:minecraft:${mc}"
+    if (obfuscated) {
+        // Obfuscated 1.21.x: Mojang's official names, remapped to intermediary on jar. Mod dependencies
+        // (loader, Fabric API, Core) go through modImplementation so Loom remaps them.
+        mappings loom.officialMojangMappings()
+        modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+        if (fabricApi != null) {
+            modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricApi}"
+        }
+        modImplementation "za.co.neroland.nerolandcore:nerolandcore-fabric-${mc}:${nerolandcoreVersion}"
+    } else {
     // NOTE: no `mappings` — de-obfuscated 26.x needs none (Fabric Loom 1.17+).
     implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     if (fabricApi != null) {
@@ -97,10 +128,18 @@ dependencies {
     // classpath and Fabric Loader discovers it as a mod via its bundled fabric.mod.json. Resolved from
     // mavenLocal(). Core loads BEFORE NeroTech (see fabric.mod.json depends).
     implementation "za.co.neroland.nerolandcore:nerolandcore-fabric-${mc}:${nerolandcoreVersion}"
+    }
 
     // NeroEconomy — OPTIONAL per-operation machine charges: compileOnly ONLY (never bundled or
     // required). Only compat/neroeconomy/NeroEconomyBridge imports it, behind isModLoaded("neroeconomy").
-    compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${mc}:${project.findProperty('neroeconomy_version')}"
+    if (neroeconomyVersion) {
+        // 1.21.x publishes an intermediary jar, so Loom must remap it (modCompileOnly).
+        if (obfuscated) {
+            modCompileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${mc}:${neroeconomyVersion}"
+        } else {
+            compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${mc}:${neroeconomyVersion}"
+        }
+    }
 
     // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded
     // compat/NerospacePlanetCompat (shared common source) compiles against the semver-stable
@@ -117,7 +156,18 @@ dependencies {
     // the loader-agnostic JEI common API; on Fabric it compiles against the common + fabric APIs and loads
     // against the Fabric JEI mod at dev runtime. JEI is a soft dependency (compile-time API only; the mod
     // is runtime-only). Same per-MC version as NeoForge (jei_version_<mc>, BlameJared maven from the root).
-    if (jeiVersion) {
+    if (jeiVersion && obfuscated) {
+        // 1.21.x: JEI's Fabric artifacts are intermediary-named, so they go through Loom's remap. JEI published
+        // no Fabric build for 1.21.4, so that cell compiles against the (Mojang-named) common API only
+        // (jei_fabric_<mc>=false in gradle.properties).
+        if (project.findProperty("jei_fabric_${mc}") != 'false') {
+            modCompileOnly "mezz.jei:jei-${mc}-common-api-intermediary:${jeiVersion}"
+            modCompileOnly "mezz.jei:jei-${mc}-fabric-api:${jeiVersion}"
+            modRuntimeOnly "mezz.jei:jei-${mc}-fabric:${jeiVersion}"
+        } else {
+            compileOnly "mezz.jei:jei-${mc}-common-api:${jeiVersion}"
+        }
+    } else if (jeiVersion) {
         compileOnly "mezz.jei:jei-${mc}-common-api:${jeiVersion}"
         compileOnly "mezz.jei:jei-${mc}-fabric-api:${jeiVersion}"
         runtimeOnly "mezz.jei:jei-${mc}-fabric:${jeiVersion}"
@@ -131,6 +181,12 @@ dependencies {
         compileOnly "curse.maven:emi-unofficial-port-unstable-1544558:${emiFile}"
         if (project.hasProperty('withEmi')) {
             runtimeOnly "curse.maven:emi-unofficial-port-unstable-1544558:${emiFile}"
+        }
+    }
+    if (emiVersion) {
+        modCompileOnly "dev.emi:emi-fabric:${emiVersion}:api"
+        if (project.hasProperty('withEmi')) {
+            modRuntimeOnly "dev.emi:emi-fabric:${emiVersion}"
         }
     }
 }
@@ -149,6 +205,11 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_license          : rootProject.mod_license,
         fabric_loader_version: rootProject.fabric_loader_version,
         minecraft_version    : mc,
+        minecraft_requirement: minecraftRequirement,
+        // The EMI plugin exists only where an EMI API does (26.x, 1.21.1), so only those manifests name it.
+        recipe_viewer_entrypoints: ''',
+    "jei_mod_plugin": ["za.co.neroland.nerotech.compat.jei.NeroTechJeiPlugin"]''' + ((emiFile || emiVersion) ? ''',
+    "emi": ["za.co.neroland.nerotech.compat.emi.NeroTechEmiPlugin"]''' : ''),
         // Floor the required Core version at what we compile against so the loader refuses to
         // run against a Core too old to have the APIs it references.
         nerolandcore_version : nerolandcoreVersion,
@@ -199,8 +260,19 @@ def generateWikiResources = tasks.register('generateWikiResources', Copy) {
 sourceSets.main.resources.srcDir generateWikiResources
 eclipse.synchronizationTasks generateWikiResources
 
+// The access widener's namespace differs by era: 26.x is `official` (de-obfuscated), 1.21.x is `named`
+// (Mojang mappings, remapped in remapJar). The 1.21.x file is swapped into the jar under the same name.
+def awFile = obfuscated ? file("${branchDir}/src/main/accesswidener/legacy.accesswidener")
+        : file("${branchDir}/src/main/resources/nerotech.accesswidener")
+if (obfuscated) {
+    tasks.named('processResources', ProcessResources) {
+        exclude 'nerotech.accesswidener'
+        from(awFile) { rename { 'nerotech.accesswidener' } }
+    }
+}
+
 loom {
-    accessWidenerPath = file("${branchDir}/src/main/resources/nerotech.accesswidener")
+    accessWidenerPath = awFile
 
     runs {
         client {
@@ -254,7 +326,7 @@ tasks.register('ecjCheck', JavaExec) {
                 .join(File.pathSeparator)
         def srcDirs = sourceSets.main.java.srcDirs.findAll { it.exists() }.collect { it.absolutePath }
         args = [
-                '--release', '25',
+                '--release', "${project.javaRelease}",
                 '-proc:none',
                 '-d', 'none',
                 '-properties', rootProject.file('tools/ecj.prefs').absolutePath,

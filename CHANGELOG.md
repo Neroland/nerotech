@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0-beta.1] - 2026-10-30
+
+Minecraft 1.21.x support. Requires **Neroland Core 1.17.0**.
+
+### Added
+
+- **Builds for Minecraft 1.21.x** on NeoForge, Fabric and Forge: 1.21.1, 1.21.4, 1.21.5, 1.21.8 (also
+  runs on 1.21.7), 1.21.10 (also runs on 1.21.9) and 1.21.11, next to the existing 26.1.2, 26.2 and 26.3
+  builds. The 1.21.x builds need Java 21. Machines, recipes, power, gases, the Tech Guide, the analytics
+  screens, NeroEconomy machine charges and the machine animations are the same on every version.
+- **JEI recipe pages on every 1.21.x build**, and **EMI pages on 1.21.1** (official EMI only exists for
+  1.21.1 among the 1.21.x versions). On Fabric 1.21.4 to 1.21.8 the JEI pages can be empty, because
+  Fabric has no way to send the machine recipes to the client on those versions.
+
+### Changed
+
+- Now requires Neroland Core 1.17.0 or later.
+
 ## [0.6.2-beta.1] - 2026-10-26
 
 ### Fixed

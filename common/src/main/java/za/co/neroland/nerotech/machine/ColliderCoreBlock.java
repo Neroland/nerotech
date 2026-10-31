@@ -46,9 +46,15 @@ public class ColliderCoreBlock extends NeroTechMachineBlock {
     }
 
     @Override
+    //? if >=1.21.2 {
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
             @Nullable net.minecraft.world.level.redstone.Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
+    //?} else {
+    /*protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
+            BlockPos fromPos, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, block, fromPos, movedByPiston);
+    *///?}
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ColliderCoreBlockEntity collider) {
             collider.invalidatePath();
         }

@@ -24,10 +24,18 @@ final class MachineEmiRecipe extends BasicEmiRecipe {
     private static final int HEIGHT = 26;
 
     MachineEmiRecipe(EmiRecipeCategory category, RecipeHolder<MachineRecipe> holder) {
+        //? if >=1.21.2 {
         super(category, holder.id().identifier(), WIDTH, HEIGHT);
+        //?} else {
+        /*super(category, holder.id(), WIDTH, HEIGHT);
+        *///?}
         MachineRecipe recipe = holder.value();
         this.inputs = List.of(EmiIngredient.of(recipe.input()));
+        //? if >=26.1 {
         this.outputs = List.of(EmiStack.of(recipe.result().create()));
+        //?} else {
+        /*this.outputs = List.of(EmiStack.of(recipe.result()));
+        *///?}
     }
 
     @Override

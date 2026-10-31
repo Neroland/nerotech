@@ -202,12 +202,20 @@ public final class ModItems {
             super(block, properties);
         }
 
+        //? if >=1.21.5 {
         @Override
         public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
                 net.minecraft.world.item.component.TooltipDisplay display,
                 java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
                 net.minecraft.world.item.TooltipFlag flag) {
             super.appendHoverText(stack, context, display, tooltip, flag);
+        //?} else {
+        /*@Override
+        public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
+                java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
+            super.appendHoverText(stack, context, lines, flag);
+            java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip = lines::add;
+        *///?}
             tooltip.accept(net.minecraft.network.chat.Component
                     .translatable("block.nerotech.solar_array.tooltip")
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
@@ -226,12 +234,20 @@ public final class ModItems {
             super(block, properties);
         }
 
+        //? if >=1.21.5 {
         @Override
         public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
                 net.minecraft.world.item.component.TooltipDisplay display,
                 java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
                 net.minecraft.world.item.TooltipFlag flag) {
             super.appendHoverText(stack, context, display, tooltip, flag);
+        //?} else {
+        /*@Override
+        public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
+                java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
+            super.appendHoverText(stack, context, lines, flag);
+            java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip = lines::add;
+        *///?}
             tooltip.accept(net.minecraft.network.chat.Component
                     .translatable("block.nerotech.collider_core.tooltip")
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
@@ -252,12 +268,20 @@ public final class ModItems {
             this.tooltipKey = tooltipKey;
         }
 
+        //? if >=1.21.5 {
         @Override
         public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
                 net.minecraft.world.item.component.TooltipDisplay display,
                 java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
                 net.minecraft.world.item.TooltipFlag flag) {
             super.appendHoverText(stack, context, display, tooltip, flag);
+        //?} else {
+        /*@Override
+        public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
+                java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
+            super.appendHoverText(stack, context, lines, flag);
+            java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip = lines::add;
+        *///?}
             tooltip.accept(net.minecraft.network.chat.Component.translatable(this.tooltipKey)
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
         }
@@ -272,12 +296,20 @@ public final class ModItems {
             super(block, properties);
         }
 
+        //? if >=1.21.5 {
         @Override
         public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
                 net.minecraft.world.item.component.TooltipDisplay display,
                 java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
                 net.minecraft.world.item.TooltipFlag flag) {
             super.appendHoverText(stack, context, display, tooltip, flag);
+        //?} else {
+        /*@Override
+        public void appendHoverText(net.minecraft.world.item.ItemStack stack, Item.TooltipContext context,
+                java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
+            super.appendHoverText(stack, context, lines, flag);
+            java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip = lines::add;
+        *///?}
             tooltip.accept(net.minecraft.network.chat.Component
                     .translatable("block.nerotech.singularity_vault.tooltip")
                     .withStyle(net.minecraft.ChatFormatting.GRAY));

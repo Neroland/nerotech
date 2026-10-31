@@ -67,9 +67,13 @@ public class TechGuideHologramRenderer
         if (icon.isEmpty()) {
             icon = new ItemStack(ModItems.TECH_GUIDE_DATAPAD.get()); // all complete (or no player near)
         }
+        //? if >=1.21.9 {
         Minecraft.getInstance().getItemModelResolver().updateForTopItem(
                 state.renderState, icon, ItemDisplayContext.GROUND, guide.getLevel(), null,
                 (int) guide.getBlockPos().asLong());
+        //?} else {
+        /*state.renderState.update(icon, ItemDisplayContext.GROUND, guide.getLevel(), (int) guide.getBlockPos().asLong());
+        *///?}
     }
 
     @Override

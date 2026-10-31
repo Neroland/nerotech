@@ -374,7 +374,11 @@ public class ColliderCoreBlockEntity extends NeroTechMachineBlockEntity {
         if (collisionEnergy() < recipe.minEnergy()) {
             return; // not fast enough yet — keep lapping
         }
+        //? if >=26.1 {
         ItemStack result = recipe.assemble(input);
+        //?} else {
+        /*ItemStack result = recipe.assemble(input, serverLevel.registryAccess());
+        *///?}
         if (!canOutput(result)) {
             setStatus(ColliderStatus.BLOCKED);
             return;
@@ -560,24 +564,56 @@ public class ColliderCoreBlockEntity extends NeroTechMachineBlockEntity {
 
     // --- persistence -----------------------------------------------------------------------------
 
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*@Override
+    protected void saveAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        ValueOutput output = ValueOutput.of(tag, registries);
+    *///?}
         output.putBoolean("Running", this.running);
+        //? if >=1.21.6 {
         output.putDouble("Speed", this.speed);
+        //?} else {
+        /*output.tag().putDouble("Speed", this.speed);
+        *///?}
         output.putInt("SegmentIndex", this.segmentIndex);
+        //? if >=1.21.6 {
         output.putDouble("SegmentProgress", this.segmentProgress);
+        //?} else {
+        /*output.tag().putDouble("SegmentProgress", this.segmentProgress);
+        *///?}
         output.putInt("BeamStatus", this.status.ordinal());
         output.store("Circulating", ItemStack.OPTIONAL_CODEC, this.circulating);
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*@Override
+    protected void loadAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ValueInput input = ValueInput.of(tag, registries);
+    *///?}
         this.running = input.getBooleanOr("Running", false);
+        //? if >=1.21.6 {
         this.speed = input.getDoubleOr("Speed", 0.0D);
-        this.segmentIndex = input.getIntOr("SegmentIndex", 0);
         this.segmentProgress = input.getDoubleOr("SegmentProgress", 0.0D);
+        //?}
+        //? if >=1.21.5 && <1.21.6 {
+        /*this.speed = input.tag().getDoubleOr("Speed", 0.0D);
+        this.segmentProgress = input.tag().getDoubleOr("SegmentProgress", 0.0D);
+        *///?}
+        //? if <1.21.5 {
+        /*this.speed = input.tag().getDouble("Speed"); // 0 when absent
+        this.segmentProgress = input.tag().getDouble("SegmentProgress");
+        *///?}
+        this.segmentIndex = input.getIntOr("SegmentIndex", 0);
         this.status = ColliderStatus.byOrdinal(input.getIntOr("BeamStatus", ColliderStatus.NO_PATH.ordinal()));
         this.circulating = input.read("Circulating", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
         this.pathDirty = true;

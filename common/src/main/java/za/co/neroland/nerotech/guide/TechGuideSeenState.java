@@ -13,7 +13,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
-
+import za.co.neroland.nerolandcore.data.SavedDataCompat;
 import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 
 import za.co.neroland.nerotech.NeroTechCommon;
@@ -40,7 +40,7 @@ public final class TechGuideSeenState extends SavedData {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "tech_guide_seen");
 
     public static final SavedDataType<TechGuideSeenState> TYPE =
-            new SavedDataType<>(ID, TechGuideSeenState::new, codec(), null);
+            SavedDataCompat.type(ID, TechGuideSeenState::new, codec());
 
     /** player UUID -> per-chapter seen bitmasks (index = chapter, bit i = step i seen). */
     private final Map<UUID, List<Integer>> seen = new HashMap<>();

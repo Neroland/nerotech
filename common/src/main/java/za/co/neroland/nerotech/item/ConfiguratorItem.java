@@ -127,8 +127,22 @@ public class ConfiguratorItem extends Item {
     }
 
     /** Sneak-use away from a configurable machine: flip configure ↔ copy/paste mode. */
+    //? if >=1.21.2 {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
+    //?} else {
+    /*// Before 1.21.2 Item.use returns the held stack with the result.
+    @Override
+    public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(Level level,
+            Player player, InteractionHand hand) {
+        net.minecraft.world.item.ItemStack held = player.getItemInHand(hand);
+        return useResult(level, player, hand) == InteractionResult.PASS
+                ? net.minecraft.world.InteractionResultHolder.pass(held)
+                : net.minecraft.world.InteractionResultHolder.sidedSuccess(held, level.isClientSide());
+    }
+
+    private InteractionResult useResult(Level level, Player player, InteractionHand hand) {
+    *///?}
         if (!player.isSecondaryUseActive()) {
             return InteractionResult.PASS;
         }
@@ -325,7 +339,11 @@ public class ConfiguratorItem extends Item {
     /** Gamemaster (permission level 2) check, through the same predicate Core's commands gate on. */
     private static boolean isGamemaster(Player player) {
         return player instanceof ServerPlayer serverPlayer
+                //? if >=1.21.6 {
                 && Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(serverPlayer.createCommandSourceStack());
+                //?} else {
+                /*&& serverPlayer.createCommandSourceStack().hasPermission(Commands.LEVEL_GAMEMASTERS);
+                *///?}
     }
 
     // --- helpers ---------------------------------------------------------------

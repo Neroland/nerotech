@@ -108,9 +108,13 @@ public class AutoCrafterRenderer
                 state.spin = (now * 1.5F) % 360.0F;
                 state.bob = Mth.sin(now * 0.06F) * 0.05F;
             }
+            //? if >=1.21.9 {
             Minecraft.getInstance().getItemModelResolver().updateForTopItem(
                     state.hologram, icon, ItemDisplayContext.GROUND, level, null,
                     (int) crafter.getBlockPos().asLong());
+            //?} else {
+            /*state.hologram.update(icon, ItemDisplayContext.GROUND, level, (int) crafter.getBlockPos().asLong());
+            *///?}
         }
     }
 

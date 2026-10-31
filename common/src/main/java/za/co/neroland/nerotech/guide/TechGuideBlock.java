@@ -65,16 +65,26 @@ public class TechGuideBlock extends BaseEntityBlock {
                 (lvl, pos, st, be) -> be.tick(lvl, pos, st));
     }
 
+    //? if >=1.21.2 {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?}
         // Install a Tech Guide Datapad on the bare pedestal.
         if (stack.is(ModItems.TECH_GUIDE_DATAPAD.get())
                 && level.getBlockEntity(pos) instanceof TechGuideBlockEntity guide && !guide.hasDatapad()) {
             if (!level.isClientSide() && guide.installDatapad(stack)) {
                 level.playSound(null, pos, SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
+            //? if >=1.21.2 {
             return InteractionResult.SUCCESS;
+            //?} else {
+            /*return net.minecraft.world.ItemInteractionResult.SUCCESS;
+            *///?}
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
@@ -88,7 +98,11 @@ public class TechGuideBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
         if (!guide.hasDatapad()) {
+            //? if >=26.1 {
             player.sendSystemMessage(Component.translatable("message.nerotech.tech_guide.empty"));
+            //?} else {
+            /*player.displayClientMessage(Component.translatable("message.nerotech.tech_guide.empty"), false);
+            *///?}
             return InteractionResult.SUCCESS;
         }
         if (player.isShiftKeyDown()) {
@@ -110,13 +124,28 @@ public class TechGuideBlock extends BaseEntityBlock {
         return InteractionResult.SUCCESS;
     }
 
+    //? if <1.21.5 {
+    /*// Before 1.21.5 removal side effects run from the block (block entities get preRemoveSideEffects later).
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof TechGuideBlockEntity be) {
+            be.preRemoveSideEffects(pos, state);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    *///?}
     @Override
     protected boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
     @Override
+    //? if >=1.21.9 {
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+    //?} else {
+    /*protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    *///?}
         return level.getBlockEntity(pos) instanceof TechGuideBlockEntity guide ? guide.comparatorSignal() : 0;
     }
 }

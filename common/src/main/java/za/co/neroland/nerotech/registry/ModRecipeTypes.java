@@ -82,9 +82,16 @@ public final class ModRecipeTypes {
         RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> entry =
                 SERIALIZERS.register(name, key -> {
                     var factory = MachineRecipe.factory(type::get, self::get);
+                    //? if >=26.1 {
                     RecipeSerializer<MachineRecipe> serializer = new RecipeSerializer<>(
                             net.minecraft.world.item.crafting.SingleItemRecipe.simpleMapCodec(factory),
                             net.minecraft.world.item.crafting.SingleItemRecipe.simpleStreamCodec(factory));
+                    //?} else {
+                    /*// Before 26.1 the serializer is vanilla's single-item serializer (the stonecutter's).
+                    RecipeSerializer<MachineRecipe> serializer =
+                            new net.minecraft.world.item.crafting.SingleItemRecipe.Serializer<MachineRecipe>(factory) {
+                            };
+                    *///?}
                     self.set(serializer);
                     return serializer;
                 });
@@ -107,9 +114,27 @@ public final class ModRecipeTypes {
         java.util.concurrent.atomic.AtomicReference<RecipeSerializer<ColliderRecipe>> self =
                 new java.util.concurrent.atomic.AtomicReference<>();
         return SERIALIZERS.register(name, key -> {
+            //? if >=26.1 {
             RecipeSerializer<ColliderRecipe> serializer = new RecipeSerializer<>(
                     ColliderRecipe.mapCodec(type::get, self::get),
                     ColliderRecipe.streamCodec(type::get, self::get));
+            //?} else {
+            /*// Before 26.1 RecipeSerializer is an interface rather than a record of the two codecs.
+            com.mojang.serialization.MapCodec<ColliderRecipe> mapCodec = ColliderRecipe.mapCodec(type::get, self::get);
+            net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, ColliderRecipe> streamCodec =
+                    ColliderRecipe.streamCodec(type::get, self::get);
+            RecipeSerializer<ColliderRecipe> serializer = new RecipeSerializer<>() {
+                @Override
+                public com.mojang.serialization.MapCodec<ColliderRecipe> codec() {
+                    return mapCodec;
+                }
+
+                @Override
+                public net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, ColliderRecipe> streamCodec() {
+                    return streamCodec;
+                }
+            };
+            *///?}
             self.set(serializer);
             return serializer;
         });

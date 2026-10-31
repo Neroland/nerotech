@@ -84,10 +84,15 @@ public class AutoCrafterScreen extends MachineScreen<AutoCrafterMenu> {
         extractor.fill(x, y, x + 16, y + 16, GHOST_TINT);
     }
 
+    //? if >=1.21.9 {
     @Override
     public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
         double mx = mouseButtonEvent.x();
         double my = mouseButtonEvent.y();
+    //?} else {
+    /*@Override
+    public boolean mouseClicked(double mx, double my, int button) {
+    *///?}
         int bx = this.leftPos + BUTTON_X;
         int by = this.topPos + BUTTON_Y;
         if (mx >= bx && mx < bx + BUTTON_W && my >= by && my < by + BUTTON_H) {
@@ -97,6 +102,10 @@ public class AutoCrafterScreen extends MachineScreen<AutoCrafterMenu> {
             }
             return true;
         }
+        //? if >=1.21.9 {
         return super.mouseClicked(mouseButtonEvent, doubleClick);
+        //?} else {
+        /*return super.mouseClicked(mx, my, button);
+        *///?}
     }
 }

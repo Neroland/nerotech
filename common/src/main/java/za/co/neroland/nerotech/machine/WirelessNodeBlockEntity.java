@@ -166,9 +166,16 @@ public class WirelessNodeBlockEntity extends NeroTechMachineBlockEntity {
 
     // --- persistence (world data only: a block position and a dimension id) ----------------------
 
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*@Override
+    protected void saveAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        ValueOutput output = ValueOutput.of(tag, registries);
+    *///?}
         output.putBoolean("Linked", this.partnerPos != null);
         if (this.partnerPos != null) {
             output.putInt("PartnerX", this.partnerPos.getX());
@@ -178,9 +185,16 @@ public class WirelessNodeBlockEntity extends NeroTechMachineBlockEntity {
         }
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*@Override
+    protected void loadAdditional(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        ValueInput input = ValueInput.of(tag, registries);
+    *///?}
         if (input.getBooleanOr("Linked", false)) {
             this.partnerPos = new BlockPos(input.getIntOr("PartnerX", 0), input.getIntOr("PartnerY", 0),
                     input.getIntOr("PartnerZ", 0));

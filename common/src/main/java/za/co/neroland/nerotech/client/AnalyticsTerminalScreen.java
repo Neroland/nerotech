@@ -56,7 +56,13 @@ public class AnalyticsTerminalScreen extends AbstractContainerScreen<AnalyticsTe
     private AnalyticsTerminalPayload latest;
 
     public AnalyticsTerminalScreen(AnalyticsTerminalMenu menu, Inventory playerInventory, Component title) {
+        //? if >=26.1 {
         super(menu, playerInventory, title, 176, 222);
+        //?} else {
+        /*super(menu, playerInventory, title);
+        this.imageWidth = 176;
+        this.imageHeight = 222;
+        *///?}
         this.titleLabelX = 8;
         this.inventoryLabelX = 8;
         this.inventoryLabelY = this.imageHeight - 94;
@@ -76,8 +82,20 @@ public class AnalyticsTerminalScreen extends AbstractContainerScreen<AnalyticsTe
         };
     }
 
+    //? if >=26.1 {
     @Override
     public void extractContents(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+    //?} else {
+    /*@Override
+    public void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        // Before 26.1 AbstractContainerScreen.render does not draw the hovered-slot tooltip itself.
+        super.render(extractor, mouseX, mouseY, partialTick);
+        this.renderTooltip(extractor, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderBg(GuiGraphicsExtractor extractor, float partialTick, int mouseX, int mouseY) {
+    *///?}
         // Drain the mailbox every frame (the AnalyticsWidget poll-and-cache recipe).
         AnalyticsTerminalPayload pending = ClientTerminalStats.poll(this.menu.containerId);
         if (pending != null) {
@@ -115,7 +133,9 @@ public class AnalyticsTerminalScreen extends AbstractContainerScreen<AnalyticsTe
 
         dashboard(extractor, x, y);
 
+        //? if >=26.1 {
         super.extractContents(extractor, mouseX, mouseY, partialTick);
+        //?}
     }
 
     /** The scan overview between the title divider (y17) and the upgrade row (y110). */

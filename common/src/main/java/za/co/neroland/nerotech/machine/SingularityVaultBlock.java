@@ -61,18 +61,36 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
         return ModBlockEntities.SINGULARITY_VAULT.get();
     }
 
+    //? if >=1.21.2 {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?}
         // The Configurator still reaches its own useOn (the machine base's rule).
         if (stack.getItem() instanceof ConfiguratorItem) {
+            //? if >=1.21.2 {
             return InteractionResult.PASS;
+            //?} else {
+            /*return net.minecraft.world.ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+            *///?}
         }
         if (stack.isEmpty()) {
+            //? if >=1.21.2 {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
+            //?} else {
+            /*return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            *///?}
         }
         if (level.isClientSide()) {
+            //? if >=1.21.2 {
             return InteractionResult.SUCCESS;
+            //?} else {
+            /*return net.minecraft.world.ItemInteractionResult.SUCCESS;
+            *///?}
         }
         if (level.getBlockEntity(pos) instanceof SingularityVaultBlockEntity vault) {
             if (player.isSecondaryUseActive()) {
@@ -82,7 +100,11 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
             }
             report(player, vault);
         }
+        //? if >=1.21.2 {
         return InteractionResult.SUCCESS;
+        //?} else {
+        /*return net.minecraft.world.ItemInteractionResult.SUCCESS;
+        *///?}
     }
 
     @Override
@@ -118,13 +140,28 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
         return drops;
     }
 
+    //? if <1.21.5 {
+    /*// Before 1.21.5 removal side effects run from the block (block entities get preRemoveSideEffects later).
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof SingularityVaultBlockEntity be) {
+            be.preRemoveSideEffects(pos, state);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    *///?}
     @Override
     protected boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
     @Override
+    //? if >=1.21.9 {
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+    //?} else {
+    /*protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    *///?}
         return level.getBlockEntity(pos) instanceof SingularityVaultBlockEntity vault
                 ? vault.comparatorSignal() : 0;
     }

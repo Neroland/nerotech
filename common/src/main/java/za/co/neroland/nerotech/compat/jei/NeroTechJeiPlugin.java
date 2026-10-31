@@ -3,7 +3,9 @@ package za.co.neroland.nerotech.compat.jei;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
+//? if >=1.21.2 {
 import mezz.jei.api.recipe.types.IRecipeHolderType;
+//?}
 import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -45,9 +47,7 @@ public final class NeroTechJeiPlugin implements IModPlugin {
     public static final IRecipeType<RecipeHolder<MachineRecipe>> ADVANCED_FABRICATING =
             machineType("advanced_fabricating");
     /** Particle Accelerator pages ({@code nerotech:collider} — two inputs + an energy floor). */
-    public static final IRecipeType<RecipeHolder<ColliderRecipe>> COLLIDER =
-            IRecipeHolderType.<ColliderRecipe>create(
-                    Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "collider"));
+    public static final IRecipeType<RecipeHolder<ColliderRecipe>> COLLIDER = holderType("collider");
     /** Chemical Processor pages ({@code nerotech:chemical_processing} — the oxygen wash). */
     public static final IRecipeType<RecipeHolder<MachineRecipe>> CHEMICAL_PROCESSING =
             machineType("chemical_processing");
@@ -98,17 +98,35 @@ public final class NeroTechJeiPlugin implements IModPlugin {
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         // The Advanced Ore Processor runs the very same ore_processing recipes as the Tier-1 machine
         // (it adds a yield bonus on top), so both are stations for that page.
+        //? if >=1.21.2 {
         registration.addCraftingStation(ORE_PROCESSING,
                 ModBlocks.ORE_PROCESSOR.get(), ModBlocks.ADVANCED_ORE_PROCESSOR.get());
         registration.addCraftingStation(FABRICATING, ModBlocks.FABRICATOR.get());
         registration.addCraftingStation(ADVANCED_FABRICATING, ModBlocks.ADVANCED_FABRICATOR.get());
         registration.addCraftingStation(COLLIDER, ModBlocks.COLLIDER_CORE.get());
         registration.addCraftingStation(CHEMICAL_PROCESSING, ModBlocks.CHEMICAL_PROCESSOR.get());
+        //?} else {
+        /*registration.addRecipeCatalysts(ORE_PROCESSING,
+                ModBlocks.ORE_PROCESSOR.get(), ModBlocks.ADVANCED_ORE_PROCESSOR.get());
+        registration.addRecipeCatalysts(FABRICATING, ModBlocks.FABRICATOR.get());
+        registration.addRecipeCatalysts(ADVANCED_FABRICATING, ModBlocks.ADVANCED_FABRICATOR.get());
+        registration.addRecipeCatalysts(COLLIDER, ModBlocks.COLLIDER_CORE.get());
+        registration.addRecipeCatalysts(CHEMICAL_PROCESSING, ModBlocks.CHEMICAL_PROCESSOR.get());
+        *///?}
     }
 
     /** A JEI recipe type keyed by the same id as the registered vanilla {@code RecipeType}. */
     private static IRecipeType<RecipeHolder<MachineRecipe>> machineType(String path) {
-        return IRecipeHolderType.<MachineRecipe>create(
-                Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, path));
+        return holderType(path);
+    }
+
+    /** A JEI recipe-holder type in NeroTech's namespace. */
+    private static <R extends net.minecraft.world.item.crafting.Recipe<?>> IRecipeType<RecipeHolder<R>> holderType(
+            String path) {
+        //? if >=1.21.2 {
+        return IRecipeHolderType.<R>create(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, path));
+        //?} else {
+        /*return IRecipeType.createRecipeHolderType(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, path));
+        *///?}
     }
 }

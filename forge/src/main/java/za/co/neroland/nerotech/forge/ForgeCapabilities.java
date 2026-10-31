@@ -11,6 +11,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+//? if <1.21.6 {
+/*import net.minecraftforge.common.MinecraftForge;
+*///?}
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -48,10 +51,19 @@ public final class ForgeCapabilities {
     }
 
     public static void register() {
+        //? if >=1.21.6 {
         AttachCapabilitiesEvent.BlockEntities.BUS.addListener(ForgeCapabilities::onAttachBlockEntity);
+        //?} else {
+        /*MinecraftForge.EVENT_BUS.addGenericListener(net.minecraft.world.level.block.entity.BlockEntity.class,
+                ForgeCapabilities::onAttachBlockEntity);
+        *///?}
     }
 
+    //? if >=1.21.6 {
     private static void onAttachBlockEntity(AttachCapabilitiesEvent.BlockEntities event) {
+    //?} else {
+    /*private static void onAttachBlockEntity(AttachCapabilitiesEvent<net.minecraft.world.level.block.entity.BlockEntity> event) {
+    *///?}
         if (event.getObject() instanceof NeroTechMachineBlockEntity machine) {
             MachineProvider provider = new MachineProvider(machine);
             event.addCapability(MACHINE_CAPS, provider);

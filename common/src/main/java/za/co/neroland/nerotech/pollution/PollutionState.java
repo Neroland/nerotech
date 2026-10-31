@@ -17,6 +17,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.data.SavedDataCompat;
 import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 
 import za.co.neroland.nerotech.NeroTechCommon;
@@ -35,7 +36,7 @@ public final class PollutionState extends SavedData {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "pollution");
 
     public static final SavedDataType<PollutionState> TYPE =
-            new SavedDataType<>(ID, PollutionState::new, codec(), null);
+            SavedDataCompat.type(ID, PollutionState::new, codec());
 
     /** regionKey -> aggregate pollution. */
     private final Map<Long, Integer> regions = new HashMap<>();

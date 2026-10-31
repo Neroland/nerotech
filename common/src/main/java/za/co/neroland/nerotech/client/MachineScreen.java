@@ -84,7 +84,13 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     private final AnalyticsWidget analyticsWidget;
 
     public MachineScreen(T menu, Inventory playerInventory, Component title) {
+        //? if >=26.1 {
         super(menu, playerInventory, title, 176, 166);
+        //?} else {
+        /*super(menu, playerInventory, title);
+        this.imageWidth = 176;
+        this.imageHeight = 166;
+        *///?}
         this.titleLabelX = 8;
         this.inventoryLabelX = 8;
         // Anchored just below the Side Config tab button; hidden while that panel is expanded
@@ -99,8 +105,35 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         return new MachineScreen<>(menu, playerInventory, title);
     }
 
+    //? if >=26.1 {
     @Override
     public void extractContents(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        extractPanel(extractor);
+        super.extractContents(extractor, mouseX, mouseY, partialTick);
+        extractTabs(extractor, mouseX, mouseY);
+    }
+    //?} else {
+    /*// Before 26.1 the hull panel is the container background (renderBg) and render() draws the slots.
+    // Everything 26.x draws after the slots goes through extractContents, which subclasses extend.
+    @Override
+    public void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        super.render(extractor, mouseX, mouseY, partialTick);
+        extractContents(extractor, mouseX, mouseY, partialTick);
+        this.renderTooltip(extractor, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderBg(GuiGraphicsExtractor extractor, float partialTick, int mouseX, int mouseY) {
+        extractPanel(extractor);
+    }
+
+    public void extractContents(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        extractTabs(extractor, mouseX, mouseY);
+    }
+    *///?}
+
+    /** The hull panel, slot wells, gauges, preset button and work bar (drawn under the slots). */
+    private void extractPanel(GuiGraphicsExtractor extractor) {
         int x = this.leftPos;
         int y = this.topPos;
         int w = this.imageWidth;
@@ -145,9 +178,10 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
                 extractor.fill(bx, y + 62, bx + fw, y + 67, WORK);
             }
         }
+    }
 
-        super.extractContents(extractor, mouseX, mouseY, partialTick);
-
+    /** The Side Config and Analytics side tabs (drawn over the panel and slots). */
+    private void extractTabs(GuiGraphicsExtractor extractor, int mouseX, int mouseY) {
         // Core's Side Config tab, anchored top-right of the GUI (drawn over the panel + slots).
         SideConfigWidget widget = sideConfig();
         if (widget != null) {
@@ -239,26 +273,36 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         return id == null ? "nerotech:machine" : id.toString();
     }
 
+    //? if >=1.21.9 {
     @Override
     public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+        double mouseX = mouseButtonEvent.x();
+        double mouseY = mouseButtonEvent.y();
+        int button = mouseButtonEvent.button();
+    //?} else {
+    /*@Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    *///?}
         SideConfigWidget widget = sideConfig();
-        if (widget != null && widget.mouseClicked(mouseButtonEvent.x(), mouseButtonEvent.y(),
-                mouseButtonEvent.button(), this.leftPos, this.topPos)) {
+        if (widget != null && widget.mouseClicked(mouseX, mouseY, button, this.leftPos, this.topPos)) {
             return true;
         }
         // The Analytics tab is hidden (and therefore unclickable) while Side Config is expanded.
         if ((widget == null || !widget.isOpen())
-                && this.analyticsWidget.mouseClicked(mouseButtonEvent.x(), mouseButtonEvent.y(),
-                mouseButtonEvent.button(), this.leftPos, this.topPos)) {
+                && this.analyticsWidget.mouseClicked(mouseX, mouseY, button, this.leftPos, this.topPos)) {
             return true;
         }
         // Stage H preset cycle: send the intent; the server validates and syncs the result back.
-        if (overPresetButton(mouseButtonEvent.x(), mouseButtonEvent.y())) {
+        if (overPresetButton(mouseX, mouseY)) {
             MachinePreset next = MachinePreset.byOrdinal(this.menu.presetOrdinal()).next();
             NeroTechNetwork.sendToServer(new MachinePresetPayload(this.menu.containerId, next.ordinal()));
             return true;
         }
+        //? if >=1.21.9 {
         return super.mouseClicked(mouseButtonEvent, doubleClick);
+        //?} else {
+        /*return super.mouseClicked(mouseX, mouseY, button);
+        *///?}
     }
 
     protected static void gauge(GuiGraphicsExtractor g, int x, int y, int w, int h, float frac, int fill) {

@@ -5,7 +5,9 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+//? if >=1.21.6 {
 import net.minecraft.client.renderer.RenderPipelines;
+//?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
@@ -41,7 +43,13 @@ public class TechGuideScreen extends AbstractContainerScreen<TechGuideMenu> {
     private int selectedStep;
 
     public TechGuideScreen(TechGuideMenu menu, Inventory playerInventory, Component title) {
+        //? if >=26.1 {
         super(menu, playerInventory, title, 240, 200);
+        //?} else {
+        /*super(menu, playerInventory, title);
+        this.imageWidth = 240;
+        this.imageHeight = 200;
+        *///?}
         this.titleLabelX = 10;
         this.inventoryLabelY = 10_000; // no player inventory on this panel
     }
@@ -112,6 +120,7 @@ public class TechGuideScreen extends AbstractContainerScreen<TechGuideMenu> {
         }
     }
 
+    //? if >=26.1 {
     @Override
     public void extractContents(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
         // The hull panel (top-left 240x200 of the 256x256 sheet), then widgets, then the foreground.
@@ -120,6 +129,39 @@ public class TechGuideScreen extends AbstractContainerScreen<TechGuideMenu> {
         super.extractContents(extractor, mouseX, mouseY, partialTick);
         extractForeground(extractor);
     }
+    //?} else {
+    /*// Before 26.1 the hull panel is the container background (renderBg); render() then draws the widgets
+    // and slots, and the foreground and hovered-slot tooltip go on top.
+    @Override
+    public void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        super.render(extractor, mouseX, mouseY, partialTick);
+        extractForeground(extractor);
+        this.renderTooltip(extractor, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderBg(GuiGraphicsExtractor extractor, float partialTick, int mouseX, int mouseY) {
+        blitPanel(extractor);
+    }
+    *///?}
+
+    //? if >=1.21.6 && <26.1 {
+    /*private void blitPanel(GuiGraphicsExtractor extractor) {
+        extractor.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, this.leftPos, this.topPos,
+                0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+    }
+    *///?}
+    //? if >=1.21.2 && <1.21.6 {
+    /*private void blitPanel(GuiGraphicsExtractor extractor) {
+        extractor.blit(net.minecraft.client.renderer.RenderType::guiTextured, TEXTURE, this.leftPos, this.topPos,
+                0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+    }
+    *///?}
+    //? if <1.21.2 {
+    /*private void blitPanel(GuiGraphicsExtractor extractor) {
+        extractor.blit(TEXTURE, this.leftPos, this.topPos, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+    }
+    *///?}
 
     private void extractForeground(GuiGraphicsExtractor g) {
         List<TechGuide.Step> steps = TechGuide.CHAPTERS.get(this.selectedChapter).steps();

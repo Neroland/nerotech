@@ -132,11 +132,22 @@ public class AcceleratorGuideBlock extends Block {
     }
 
     /** The Configurator cycles the bend too — the same wrench that tunes machine faces tunes guides. */
+    //? if >=1.21.2 {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?}
         if (stack.getItem() instanceof ConfiguratorItem) {
+            //? if >=1.21.2 {
             return cycle(state, level, pos, player);
+            //?} else {
+            /*cycle(state, level, pos, player); // always SUCCESS
+            return net.minecraft.world.ItemInteractionResult.SUCCESS;
+            *///?}
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }

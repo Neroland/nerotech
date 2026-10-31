@@ -43,6 +43,7 @@ public final class ColliderRecipeCategory extends AbstractRecipeCategory<RecipeH
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<ColliderRecipe> recipe, IFocusGroup focuses) {
         ColliderRecipe collision = recipe.value();
+        //? if >=1.21.2 {
         builder.addInputSlot(INPUT_A_X, INPUT_Y)
                 .setStandardSlotBackground()
                 .add(collision.inputA());
@@ -52,6 +53,17 @@ public final class ColliderRecipeCategory extends AbstractRecipeCategory<RecipeH
         builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
                 .setOutputSlotBackground()
                 .add(collision.result());
+        //?} else {
+        /*builder.addInputSlot(INPUT_A_X, INPUT_Y)
+                .setStandardSlotBackground()
+                .addIngredients(collision.inputA());
+        builder.addInputSlot(INPUT_B_X, INPUT_Y)
+                .setStandardSlotBackground()
+                .addIngredients(collision.inputB());
+        builder.addOutputSlot(OUTPUT_X, OUTPUT_Y)
+                .setOutputSlotBackground()
+                .addItemStack(collision.result());
+        *///?}
     }
 
     @Override

@@ -78,11 +78,21 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
      * returning plain {@code PASS} (not {@code TRY_WITH_EMPTY_HAND}) skips {@link #useWithoutItem}
      * and lets the interaction fall through to the held item.
      */
+    //? if >=1.21.2 {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?}
         if (stack.getItem() instanceof ConfiguratorItem) {
+            //? if >=1.21.2 {
             return InteractionResult.PASS;
+            //?} else {
+            /*return net.minecraft.world.ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+            *///?}
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
@@ -133,9 +143,15 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
      * the next exchange pass. This keeps conduction event-driven — never a per-tick neighbour scan.
      */
     @Override
+    //? if >=1.21.2 {
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
             @Nullable net.minecraft.world.level.redstone.Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
+    //?} else {
+    /*protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
+            BlockPos fromPos, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, block, fromPos, movedByPiston);
+    *///?}
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof NeroTechMachineBlockEntity machine) {
             machine.invalidateThermalLinks();
         }
