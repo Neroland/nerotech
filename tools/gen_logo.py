@@ -202,5 +202,41 @@ def main():
         print("wrote", os.path.relpath(p, ROOT))
 
 
+
+
+def generate_gif(source=None, output=None):
+    source = source or os.path.join(OUT, "nerotech_logo.png")
+    output = output or os.path.join(OUT, "nerotech_logo.gif")
+    with Image.open(source) as image:
+        logo = image.convert("RGB")
+    logo.thumbnail((400, 400), Image.Resampling.LANCZOS)
+    w, h = logo.size
+    color = (232, 150, 44)
+    frames = []
+    for index in range(16):
+        t = index / 16
+        phase = 2 * math.pi * t
+        overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+        for j in range(8):
+            a=j*math.tau/8+phase
+            x,y=0.5+0.205*math.cos(a),0.355+0.205*math.sin(a)
+            draw.line((w*(x-0.007*math.cos(a)),h*(y-0.007*math.sin(a)),w*(x+0.007*math.cos(a)),h*(y+0.007*math.sin(a))),fill=color+(200,),width=2)
+        overlay = overlay.filter(ImageFilter.MaxFilter(3))
+        image = logo.convert("RGBA")
+        image.alpha_composite(overlay.filter(ImageFilter.GaussianBlur(max(1, w * 0.008))))
+        image.alpha_composite(overlay)
+        frames.append(image.convert("RGB"))
+    frames[0].save(output, save_all=True, append_images=frames[1:], duration=180, loop=0, optimize=True)
+    return output
+
+
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate the logo or animate its existing master PNG.")
+    parser.add_argument("--gif", action="store_true", help="generate the animated logo")
+    args = parser.parse_args()
+    if args.gif:
+        print("wrote", os.path.relpath(generate_gif(), ROOT))
+    else:
+        main()
