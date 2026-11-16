@@ -166,7 +166,7 @@ dependencies {
     // optional (ordering AFTER); NeroTech builds and runs fully without it — NO build dependency:
     // compat/NerospacePlanetCompat resolves the api facade by pure reflection at runtime.
 
-    implementation 'io.sentry:sentry:8.60.0'
+    implementation 'io.sentry:sentry:8.64.0'
     jarJar(group: 'io.sentry', name: 'sentry', version: '8.45.0')
 
     // JEI common API only; Forge 26.x loader artifacts are not yet published on the pinned JEI lines.
