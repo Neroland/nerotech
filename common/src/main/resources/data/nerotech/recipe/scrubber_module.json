@@ -4,7 +4,7 @@
   "key": {
     "P": "nerotech:polymer_sheet",
     "F": "nerotech:filter_cartridge",
-    "C": "nerotech:circuit_board"
+    "C": "#nerotech:processors/logic"
   },
   "pattern": [
     " P ",

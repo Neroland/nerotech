@@ -7,7 +7,6 @@
           {
             "items": [
               "nerotech:capacitor",
-              "nerotech:circuit_board",
               "nerotech:cindersteel_plate"
             ]
           }

@@ -5,10 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "nerotech:heat_sink",
-              "nerotech:circuit_board"
-            ]
+            "items": "nerotech:heat_sink"
           }
         ]
       },

@@ -1,0 +1,21 @@
+{
+  "type": "nerotech:cryo_distilling",
+  "items": [
+    {
+      "ingredient": "minecraft:snow_block",
+      "count": 2
+    }
+  ],
+  "gas_in": {
+    "id": "nerotech:nitrogen",
+    "amount": 1
+  },
+  "results": [
+    {
+      "item": "minecraft:packed_ice",
+      "count": 1
+    }
+  ],
+  "energy": 20,
+  "time": 120
+}

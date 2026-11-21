@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "H": "nerotech:heat_sink",
-    "C": "nerotech:circuit_board"
+    "C": "#nerotech:processors/logic"
   },
   "pattern": [
     " H ",

@@ -31,9 +31,10 @@ import za.co.neroland.nerotech.machine.utility.AnnunciatorPanelBlockEntity;
  * <p><b>Delivery.</b> {@code LinkEvent.forPlayer} to each online player in the machine's dimension
  * within {@link NearbyFormat#RADIUS} blocks, plus the machine's recorded owner (only recorded under the
  * existing attribution opt-in), at most one per machine type per recipient per 30 s. The body is the
- * block id and one alarm id: no position, no owner, no player. Only the owner's copy carries the
- * {@code _notify} text the bridge uses for a rich push; nobody else is pushed anything of substance.
- * Never a broadcast.
+ * block id and one alarm id: no position, no owner, no player. Only the recorded owner's copy goes on
+ * the {@code alarm} topic with the {@code _notify} text the bridge uses for a push; every other
+ * recipient gets a {@link NearbyFormat#bystanderNotice bystander notice}, which the bridge never pushes
+ * (decision 007 amendment, review M2). An ownerless machine therefore pushes nobody. Never a broadcast.
  */
 public final class MachineAlarmLink {
 
@@ -65,15 +66,7 @@ public final class MachineAlarmLink {
                 if (!THROTTLE.tryFire(recipient, type)) {
                     continue;
                 }
-                JsonObject payload = NearbyFormat.alarmPayload(type, alarm);
-                if (recipient.equals(owner)) {
-                    JsonObject notify = new JsonObject();
-                    notify.addProperty("title", "NeroTech alarm");
-                    notify.addProperty("body", readable(type) + ": " + alarm);
-                    payload.add("_notify", notify);
-                }
-                NeroLinkRegistry.eventBus().publish(LinkEvent.forPlayer(NeroTechLinkModule.MODULE_ID, "alarm",
-                        recipient, payload));
+                NeroLinkRegistry.eventBus().publish(alarmEvent(recipient, owner, type, alarm));
             }
         } catch (RuntimeException e) {
             NeroTechCommon.LOGGER.debug("[NeroTech] alarm link event skipped", e);
@@ -81,14 +74,42 @@ public final class MachineAlarmLink {
     }
 
     /**
-     * Online players in {@code level} within reach of {@code pos}, then {@code owner} if recorded. Ordered,
-     * de-duplicated. Nobody outside the dimension or the box is included, whoever they are.
+     * The event for one recipient: the recorded owner's copy on {@code alarm} with push text, anyone
+     * else's as a never-pushed bystander notice. Pure; {@code owner} null means nobody is the owner.
+     */
+    static LinkEvent alarmEvent(UUID recipient, @Nullable UUID owner, String type, String alarm) {
+        JsonObject payload = NearbyFormat.alarmPayload(type, alarm);
+        if (!recipient.equals(owner)) {
+            return LinkEvent.forPlayer(NeroTechLinkModule.MODULE_ID, NearbyFormat.BYSTANDER_TOPIC, recipient,
+                    NearbyFormat.bystanderNotice("alarm", payload));
+        }
+        JsonObject notify = new JsonObject();
+        notify.addProperty("title", "NeroTech alarm");
+        notify.addProperty("body", readable(type) + ": " + alarm);
+        payload.add("_notify", notify);
+        return LinkEvent.forPlayer(NeroTechLinkModule.MODULE_ID, "alarm", recipient, payload);
+    }
+
+    /** The {@code meltdown} event for one recipient, routed like {@link #alarmEvent}. Pure. */
+    static LinkEvent meltdownEvent(UUID recipient, @Nullable UUID owner, String kind, int shellSize) {
+        JsonObject payload = NearbyFormat.meltdownPayload(kind, shellSize);
+        if (!recipient.equals(owner)) {
+            return LinkEvent.forPlayer(NeroTechLinkModule.MODULE_ID, NearbyFormat.BYSTANDER_TOPIC, recipient,
+                    NearbyFormat.bystanderNotice("meltdown", payload));
+        }
+        return LinkEvent.forPlayer(NeroTechLinkModule.MODULE_ID, "meltdown", recipient, payload);
+    }
+
+    /**
+     * Online players in {@code level} who could see the machine at {@code pos} in {@code nearby}
+     * ({@link NearbyFormat#visible}, the shared reach rule), then {@code owner} if recorded. Ordered,
+     * de-duplicated. Nobody outside the dimension or that reach is included, whoever they are.
      */
     static Set<UUID> recipients(ServerLevel level, BlockPos pos, @Nullable UUID owner) {
         Set<UUID> out = new LinkedHashSet<>();
         for (ServerPlayer player : level.players()) {
             BlockPos at = player.blockPosition();
-            if (NearbyFormat.inReach(pos.getX(), pos.getY(), pos.getZ(), at.getX(), at.getY(), at.getZ())) {
+            if (NearbyFormat.visible(at.getX(), at.getY(), at.getZ(), pos.getX(), pos.getY(), pos.getZ())) {
                 out.add(player.getUUID());
             }
         }

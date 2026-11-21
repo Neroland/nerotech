@@ -1,0 +1,15 @@
+{
+  "type": "nerotech:cryo_distilling",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/frost_crystal",
+      "count": 1
+    }
+  ],
+  "fluid_out": {
+    "id": "nerotech:cryo_coolant",
+    "amount": 250
+  },
+  "energy": 40,
+  "time": 100
+}

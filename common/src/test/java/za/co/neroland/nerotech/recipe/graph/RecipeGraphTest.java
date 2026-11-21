@@ -59,9 +59,17 @@ import za.co.neroland.nerotech.machine.components.RecipeFixture;
  *   <li>Crafting costs nothing beyond its ingredients; smelting and blasting add an eighth of a leaf of
  *       fuel.</li>
  *   <li>Raw leaves: 100 per vanilla item from {@link #VANILLA_LEAVES} (×9 for the storage
- *       blocks in {@link #NINE_LEAF_BLOCKS}) and per mined Nerospace item or tag;
+ *       blocks in {@link #NINE_LEAF_BLOCKS}, and the weights in {@link #LEAF_WEIGHTS} for what a
+ *       player really pays: packed ice is 9 ice and blue ice 81, all behind Silk Touch; an echo shard
+ *       is non-renewable Ancient City loot) and per mined Nerospace item or tag;
  *       2,000 per Core material tag ({@link #CORE_TAGS}: Core makes these from vanilla
  *       inputs with its own recipes, outside this graph); 0.1 per mB of water or lava.</li>
+ *   <li><b>Core Void Crystal standalone</b> is not a flat leaf. Core's own recipes (read from Core's
+ *       data: crystal from 9 shards and shards from a crystal, so no new crystal; crystal from blasting
+ *       {@code nerolandcore:void_crystal_dust}; dust only from meteor grinding behind Core's
+ *       {@code reached_orbit} gate) leave one standalone source: NeroTech's Collider on an echo shard
+ *       and an amethyst shard, then Core's blasting ({@link #coreVoidCrystalFromDust}). Offworld the
+ *       meteor dust makes it a Core leaf as before.</li>
  *   <li>Mechanics with no recipe JSON: the Electrolyzer (500 mB water and 8,000 FE → 2 hydrogen + 1
  *       oxygen), filling a bucket from a tank, and a Scrubber dirtying a filter.</li>
  *   <li>A recipe's whole cost is charged to <em>each</em> of its outputs (no split for by-products), per
@@ -105,6 +113,16 @@ class RecipeGraphTest {
             "minecraft:raw_gold", "minecraft:raw_gold_block", "minecraft:raw_iron", "minecraft:raw_iron_block",
             "minecraft:redstone", "minecraft:redstone_lamp", "minecraft:snow_block", "minecraft:sugar",
             "minecraft:tinted_glass", "minecraft:water_bucket", "minecraft:dried_kelp_block");
+
+    /**
+     * Vanilla leaves that cost a player more than one item (Stage 3 review M4): Silk-Touch-only ice blocks
+     * at their ice count, and the echo shard, which no farm renews, at a documented 50 leaves.
+     */
+    static final Map<String, Double> LEAF_WEIGHTS = Map.of("minecraft:packed_ice", 9.0D,
+            "minecraft:blue_ice", 81.0D, "minecraft:echo_shard", 50.0D);
+
+    /** Leaves that drop only with Silk Touch: a Silk-free route must exist for every item ({@link Mode#NO_SILK}). */
+    static final Set<String> SILK_TOUCH_LEAVES = Set.of("minecraft:packed_ice", "minecraft:blue_ice");
 
     /** Storage blocks worth nine leaves (nine ingots, raw ores or wheat). */
     static final Set<String> NINE_LEAF_BLOCKS = Set.of("minecraft:raw_iron_block", "minecraft:raw_gold_block",
@@ -163,7 +181,8 @@ class RecipeGraphTest {
     static final Map<String, String> GAS_MACHINE_CONSUMERS = Map.of(
             "nerotech:helium_3", "Fuel Injector", "nerotech:deuterium", "Fuel Injector");
 
-    enum Mode { STANDALONE, OFFWORLD }
+    /** {@code NO_SILK} is standalone without the {@link #SILK_TOUCH_LEAVES} (a player with no Silk Touch). */
+    enum Mode { STANDALONE, OFFWORLD, NO_SILK }
 
     /** One input: any of {@code alternatives}, {@code amount} of it. */
     record Input(Set<String> alternatives, double amount) {
@@ -195,6 +214,42 @@ class RecipeGraphTest {
         for (String id : STANDALONE_EXEMPT.keySet()) {
             assertTrue(solve(Mode.OFFWORLD).cost().containsKey("item:" + id), id + " must be reachable offworld");
         }
+    }
+
+    @Test
+    void everyItemIsReachableStandaloneWithoutSilkTouch() {
+        Solution noSilk = solve(Mode.NO_SILK);
+        List<String> missing = new ArrayList<>();
+        for (String id : itemIds()) {
+            if (!noSilk.cost().containsKey("item:" + id) && !STANDALONE_EXEMPT.containsKey(id)) {
+                missing.add(id);
+            }
+        }
+        assertTrue(missing.isEmpty(), "needs Silk Touch on a Core + NeroTech server: " + missing);
+        assertTrue(noSilk.cost().containsKey("fluid:nerotech:cryo_coolant"), "cryo coolant needs Silk Touch");
+    }
+
+    @Test
+    void everyMachineRecipeTypeHasStandaloneWork() {
+        Solution standalone = solve(Mode.STANDALONE);
+        Map<String, Edge> byName = new HashMap<>();
+        for (Edge edge : standalone.edges()) {
+            byName.put(edge.name(), edge);
+        }
+        Map<String, Boolean> types = new java.util.TreeMap<>();
+        for (Map.Entry<String, JsonObject> recipe : recipes().entrySet()) {
+            String type = recipe.getValue().get("type").getAsString();
+            if (!type.startsWith("nerotech:")) {
+                continue;
+            }
+            Edge edge = byName.get(recipe.getKey());
+            boolean runs = edge != null
+                    && edge.inputs().stream().allMatch(i -> cheapest(i.alternatives(), standalone.cost()) != null)
+                    && edge.catalysts().stream().allMatch(c -> cheapest(c, standalone.cost()) != null);
+            types.merge(type, runs, Boolean::logicalOr);
+        }
+        List<String> idle = types.entrySet().stream().filter(e -> !e.getValue()).map(Map.Entry::getKey).toList();
+        assertTrue(idle.isEmpty(), "machine recipe types with no recipe a Core + NeroTech server can run: " + idle);
     }
 
     @Test
@@ -388,13 +443,16 @@ class RecipeGraphTest {
         switch (kind) {
             case "item":
                 if (VANILLA_LEAVES.contains(id)) {
-                    return Optional.of(NINE_LEAF_BLOCKS.contains(id) ? 9.0D * LEAF : LEAF);
+                    if (mode == Mode.NO_SILK && SILK_TOUCH_LEAVES.contains(id)) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(LEAF * (NINE_LEAF_BLOCKS.contains(id) ? 9.0D : LEAF_WEIGHTS.getOrDefault(id, 1.0D)));
                 }
                 return mode == Mode.OFFWORLD && id.startsWith("nerospace:") ? Optional.of(LEAF) : Optional.empty();
             case "mined":
                 return mode == Mode.OFFWORLD ? Optional.of(LEAF) : Optional.empty();
             case "core":
-                return Optional.of(CORE_LEAF);
+                return mode != Mode.OFFWORLD && VOID_CRYSTAL_NODE.equals(node) ? Optional.empty() : Optional.of(CORE_LEAF);
             case "fluid":
                 return "minecraft:water".equals(id) || "minecraft:lava".equals(id)
                         ? Optional.of(WATER_PER_MB) : Optional.empty();
@@ -420,9 +478,20 @@ class RecipeGraphTest {
                             new Input(Set.of("item:minecraft:bucket"), 1.0D)),
                     List.of(), List.of(new Output("item:nerotech:" + liquid + "_bucket", 1.0D)), 0.0D));
         }
+        out.add(coreVoidCrystalFromDust());
         out.add(new Edge("mechanic:scrubber_filter", List.of(new Input(Set.of("item:nerotech:filter_cartridge"), 1.0D)),
                 List.of(), List.of(new Output("item:nerotech:dirty_filter", 1.0D)), 0.0D));
         return out;
+    }
+
+    /** The Core Void Crystal tag node. */
+    static final String VOID_CRYSTAL_NODE = "core:#c:gems/void_crystal";
+
+    /** Core's {@code void_crystal_from_blasting_void_crystal_dust}: one dust, a blast furnace's fuel share. */
+    static Edge coreVoidCrystalFromDust() {
+        return new Edge("mechanic:core_blasting_void_crystal_dust",
+                List.of(new Input(Set.of("item:nerolandcore:void_crystal_dust"), 1.0D)), List.of(),
+                List.of(new Output(VOID_CRYSTAL_NODE, 1.0D)), LEAF / 8.0D);
     }
 
     private static Edge edge(String name, JsonObject json, Mode mode) {
@@ -484,7 +553,7 @@ class RecipeGraphTest {
         List<Set<String>> catalysts = new ArrayList<>();
         List<Output> outputs = new ArrayList<>();
         String atmosphere = json.has("atmosphere") ? json.get("atmosphere").getAsString() : null;
-        if ("nerotech:condensing".equals(type) && atmosphere != null && mode == Mode.STANDALONE
+        if ("nerotech:condensing".equals(type) && atmosphere != null && mode != Mode.OFFWORLD
                 && !STANDALONE_ATMOSPHERES.contains(atmosphere.toUpperCase(Locale.ROOT))) {
             return null;
         }

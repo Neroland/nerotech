@@ -4,12 +4,13 @@
   "key": {
     "G": "minecraft:glass",
     "P": "nerotech:cindersteel_plate",
-    "Q": "nerotech:logic_processor",
+    "Q": "#nerotech:processors/logic",
+    "C": "#nerotech:coils/tier3",
     "R": "nerotech:cindersteel_rod"
   },
   "pattern": [
     "  G",
-    "PQ ",
+    "PQC",
     "RP "
   ],
   "result": {

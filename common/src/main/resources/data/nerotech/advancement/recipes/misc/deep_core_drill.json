@@ -7,9 +7,9 @@
           {
             "items": [
               "nerotech:cindersteel_plate",
-              "nerotech:circuit_board",
               "nerotech:servo",
-              "nerotech:machine_frame"
+              "nerotech:machine_frame",
+              "nerotech:iron_drill_head"
             ]
           }
         ]

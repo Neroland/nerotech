@@ -1,7 +1,10 @@
 package za.co.neroland.nerotech.item.tools;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -9,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -17,6 +21,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -50,6 +55,13 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
  * ({@link PowerDrillItem#mayBreak}) and then the player's real break path
  * ({@code ServerPlayerGameMode.destroyBlock}, which fires the loader's break event), so a claim or
  * protection mod can veto it. Nothing about the player is stored or logged.
+ *
+ * <p><b>Main hand only.</b> A cut fires only from the main hand ({@link #firesFrom}): the break path takes
+ * drops, enchantments and {@code mineBlock} from the main-hand item, so an off-hand lance would cut with
+ * whatever the main hand holds (a Silk Touch pickaxe doubled Glacite cuts; a Power Drill area-broke
+ * around a far block). Fitting a lens still works from either hand. While a cut runs, the lance is the
+ * correct tool for any pickaxe- or shovel-mineable block below the diamond tier, so a cut drops what a
+ * pickaxe would, once, through the normal break path; outside a cut it is not a mining tool.
  */
 public class CuttingLanceItem extends ChargedToolItem {
 
@@ -57,8 +69,22 @@ public class CuttingLanceItem extends ChargedToolItem {
     public static final TagKey<Block> COLD_PRESERVED = TagKey.create(Registries.BLOCK,
             Identifier.fromNamespaceAndPath("nerotech", "cutting_lance/cold_preserved"));
 
+    /** Set only while this thread runs a lance cut's break path (see {@link #isCorrectToolForDrops}). */
+    private static final ThreadLocal<Boolean> CUTTING = ThreadLocal.withInitial(() -> Boolean.FALSE);
+
     public CuttingLanceItem(Properties properties) {
         super(properties);
+    }
+
+    /** Whether a cut fires from {@code hand}: the main hand only ({@link ToolRules#lanceFiresFrom}). */
+    static boolean firesFrom(InteractionHand hand) {
+        return ToolRules.lanceFiresFrom(hand == InteractionHand.MAIN_HAND);
+    }
+
+    /** Correct for drops only inside a lance cut, for what a diamond pickaxe or shovel could take. */
+    @Override
+    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+        return CUTTING.get() && PowerDrillItem.mineable(state) && !state.is(BlockTags.INCORRECT_FOR_DIAMOND_TOOL);
     }
 
     @Override
@@ -115,7 +141,7 @@ public class CuttingLanceItem extends ChargedToolItem {
             swapLens(player, stack, hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
             return;
         }
-        if (!(player.level() instanceof ServerLevel level)) {
+        if (!firesFrom(hand) || !(player.level() instanceof ServerLevel level)) {
             return;
         }
         LanceLens lens = lens(stack);
@@ -131,13 +157,24 @@ public class CuttingLanceItem extends ChargedToolItem {
         int cost = lens.energy(NeroTechConfig.cuttingLanceEnergyPerShot());
         int cooldown = lens.cooldown(NeroTechConfig.cuttingLanceCooldownTicks());
         BlockState before = level.getBlockState(at);
+        AABB dropBox = new AABB(at).inflate(0.25D);
+        Set<Integer> already = new HashSet<>();
+        for (ItemEntity e : level.getEntitiesOfClass(ItemEntity.class, dropBox)) {
+            already.add(e.getId());
+        }
         // The same pure path as the Power Drill: the target is offered to the permission gate, then to the
         // player's real break path; charge is taken only when the block really broke (a veto costs nothing).
         int broken = BreakPlanner.execute(List.of(PowerDrillItem.cell(at)),
                 c -> PowerDrillItem.mayBreak(level, player, at) && ready(player, stack, cost),
-                c -> player.gameMode.destroyBlock(at), 1);
+                c -> cut(player, at), 1);
         if (broken == 0) {
             return;
+        }
+        List<ItemEntity> drops = new ArrayList<>();
+        for (ItemEntity e : level.getEntitiesOfClass(ItemEntity.class, dropBox)) {
+            if (!already.contains(e.getId()) && !e.isRemoved()) {
+                drops.add(e);
+            }
         }
         setCharge(stack, ToolRules.afterUse(charge(stack), cost, level.getGameTime(), cooldown));
         level.playSound(null, at, za.co.neroland.nerotech.registry.ModSounds.TOOL_CUTTING_LANCE.get(), SoundSource.PLAYERS, 0.6F, 1.0F);
@@ -148,10 +185,26 @@ public class CuttingLanceItem extends ChargedToolItem {
             if (player.isCreative()) {
                 return;
             }
-            Containers.dropItemStack(level, at.getX() + 0.5, at.getY() + 0.5, at.getZ() + 0.5,
-                    new ItemStack(before.getBlock()));
+            List<Item> dropped = new ArrayList<>();
+            for (ItemEntity e : drops) {
+                dropped.add(e.getItem().getItem());
+            }
+            if (ToolRules.needsPreservedDrop(dropped, before.getBlock().asItem())) {
+                Containers.dropItemStack(level, at.getX() + 0.5, at.getY() + 0.5, at.getZ() + 0.5,
+                        new ItemStack(before.getBlock()));
+            }
         } else if (lens == LanceLens.EMBER) {
-            smeltDrops(level, at);
+            smeltDrops(level, drops);
+        }
+    }
+
+    /** The player's real break path, with the lance counted as the correct tool for this one break. */
+    private static boolean cut(ServerPlayer player, BlockPos at) {
+        CUTTING.set(Boolean.TRUE);
+        try {
+            return player.gameMode.destroyBlock(at);
+        } finally {
+            CUTTING.set(Boolean.FALSE);
         }
     }
 
@@ -207,10 +260,8 @@ public class CuttingLanceItem extends ChargedToolItem {
         };
     }
 
-    /** Ember lens: the items the cut just dropped (age 0, inside the block) come out smelted. */
-    private static void smeltDrops(ServerLevel level, BlockPos at) {
-        List<ItemEntity> drops = level.getEntitiesOfClass(ItemEntity.class, new AABB(at).inflate(0.25D),
-                e -> e.tickCount == 0);
+    /** Ember lens: the items this cut dropped (captured around the break, nothing else) come out smelted. */
+    private static void smeltDrops(ServerLevel level, List<ItemEntity> drops) {
         for (ItemEntity drop : drops) {
             ItemStack stack = drop.getItem();
             SingleRecipeInput input = new SingleRecipeInput(stack);

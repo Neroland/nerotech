@@ -40,6 +40,59 @@ final class NearbyFormat {
     }
 
     /**
+     * The one reach rule {@code nearby} and the {@code alarm} / {@code meltdown} events share (review L5):
+     * inside the {@link #RADIUS} box AND inside the {@code (2 * CHUNK_RADIUS + 1)^2} chunk square
+     * {@code nearby} scans, so an event never reaches a player for a machine {@code nearby} would not list.
+     * Walls and claims do not block it: it is what stands within reach, seen or not.
+     */
+    static boolean visible(int ox, int oy, int oz, int x, int y, int z) {
+        return inReach(ox, oy, oz, x, y, z) && Math.abs((x >> 4) - (ox >> 4)) <= CHUNK_RADIUS
+                && Math.abs((z >> 4) - (oz >> 4)) <= CHUNK_RADIUS;
+    }
+
+    /**
+     * Shuffle the whole in-reach set, then cut it to {@code max} (review M1): list order, handle indices and
+     * which entries a truncation keeps then carry no direction or chunk order. Mutates {@code found}.
+     *
+     * @return whether entries were cut
+     */
+    static <T> boolean shuffleAndCap(java.util.List<T> found, java.util.Random random, int max) {
+        java.util.Collections.shuffle(found, random);
+        if (found.size() <= max) {
+            return false;
+        }
+        found.subList(max, found.size()).clear();
+        return true;
+    }
+
+    /** Event topic of a bystander's copy: the bridge's push filter never pushes it (see {@link #bystanderNotice}). */
+    static final String BYSTANDER_TOPIC = "alerts";
+    /** The {@code event} verb of a bystander's copy; anything but {@code raised} is never pushed. */
+    static final String BYSTANDER_VERB = "nearby";
+
+    /**
+     * A bystander's (non-owner's) copy of an {@code alarm} or {@code meltdown} body (review M2, decision 007
+     * amendment). It is published on topic {@link #BYSTANDER_TOPIC} with {@code event} =
+     * {@link #BYSTANDER_VERB}: the bridge pushes an {@code alerts} event only when its {@code event} is absent
+     * or {@code raised}, so this copy reaches only a live socket of that player and is never a phone push.
+     * It carries no {@code _notify}. Only a recorded owner's copy, on the {@code alarm} / {@code meltdown}
+     * topic, is push-eligible.
+     *
+     * @param source {@code alarm} or {@code meltdown}
+     */
+    static JsonObject bystanderNotice(String source, JsonObject body) {
+        JsonObject out = new JsonObject();
+        out.addProperty("event", BYSTANDER_VERB);
+        out.addProperty("source", source);
+        for (java.util.Map.Entry<String, com.google.gson.JsonElement> e : body.entrySet()) {
+            if (!e.getKey().startsWith("_") && !"event".equals(e.getKey()) && !"source".equals(e.getKey())) {
+                out.add(e.getKey(), e.getValue().deepCopy());
+            }
+        }
+        return out;
+    }
+
+    /**
      * The state word: {@code idle|working|starved|overheating|failing|full}. Failing wins, then the
      * readout; a stalled machine whose output is blocked reads {@code full}.
      */

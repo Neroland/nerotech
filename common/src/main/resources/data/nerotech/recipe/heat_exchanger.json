@@ -5,12 +5,13 @@
     "C": "minecraft:copper_ingot",
     "R": "nerotech:radiator",
     "P": "nerotech:heat_pipe",
-    "F": "nerotech:machine_frame"
+    "F": "nerotech:machine_frame",
+    "K": "#nerotech:coils/tier2"
   },
   "pattern": [
     "CPC",
     "RFR",
-    "CPC"
+    "CPK"
   ],
   "result": {
     "id": "nerotech:heat_exchanger",

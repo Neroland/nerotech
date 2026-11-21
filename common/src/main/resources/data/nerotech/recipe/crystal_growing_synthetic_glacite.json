@@ -21,10 +21,10 @@
   "results": [
     {
       "item": "nerotech:synthetic_glacite",
-      "count": 1
+      "count": 4
     }
   ],
   "energy": 20,
-  "time": 500,
+  "time": 3000,
   "min_heat": 0
 }

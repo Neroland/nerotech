@@ -54,4 +54,17 @@ public final class ToolRules {
         }
         return Math.max(0, Math.min(cap, stored / perBlock));
     }
+
+    /** Cutting Lance: whether a cut fires from this hand. The main hand only (review M1: no off-hand cuts). */
+    public static boolean lanceFiresFrom(boolean mainHand) {
+        return mainHand;
+    }
+
+    /**
+     * Cutting Lance, Glacite lens: whether the lance must still drop the preserved block itself — only when
+     * the break path dropped no item of that block, so one cut never yields it twice.
+     */
+    public static <T> boolean needsPreservedDrop(java.util.Collection<T> newDropItems, T blockItem) {
+        return !newDropItems.contains(blockItem);
+    }
 }

@@ -21,9 +21,12 @@ keep their shape, so an app written for schema 1 keeps working.
 
 ### `nearby`
 
-Shows what you could see by standing where you are. You must be **online** in game. The server looks at
+Lists the NeroTech machines that stand near you. **Walls, floors and claims do not hide a machine:** anything in
+range is listed whether or not you could see it. You must be **online** in game. The server looks at
 **already-loaded chunks only** (a 9 x 9 chunk square around you; it never loads a chunk to answer), in your
 **current dimension**, inside a box reaching **128 blocks** from you on every axis, up to **128 machines**.
+The list comes back in a random order every time, and when more than 128 machines are in range, which 128 you get
+is random too, so the order says nothing about where a machine is.
 
 ```json
 {
@@ -63,16 +66,22 @@ Public recipe data, identical for every player and rebuilt once per datapack rel
 
 ## Actions
 
-NeroTech allows **10 actions per player per minute**. The count is kept in memory and cleared when you log out.
-Turning pollution attribution **off** is never refused for rate. The server re-checks every action: the app can do
-no more than you could in game.
+NeroTech allows **10 actions per player per minute**. The count is kept in memory and expires a minute after your
+last action (logging out does not reset it). Turning pollution attribution **off** has its own budget of 30 a
+minute, so it is never refused in normal use. The server re-checks every action: the app can do no more than you
+could standing at the machine in game.
+
+When a well-formed request is refused, the answer is always the same: `NOT_OWNER` with the message `unavailable`.
+It does not say whether the machine is missing, too far, someone else's, or in a chunk that is not loaded.
 
 - **`set_pollution_attribution`** `{ "enabled": bool }`: your own opt-out. Works while offline.
 - **`set_machine_preset`**: sets a machine's [overclock preset](Overclock-Presets.md) (`ECO`, `BALANCED`,
   `OVERDRIVE`). You must be online. Two bodies are accepted:
   - **Schema 2:** `{ "h": "<handle>", "preset": "ECO" }`. The handle must come from your own latest `nearby` response
-    and be under 30 seconds old. The server re-checks that the machine is still in your dimension and within 128
-    blocks of you. A machine whose recorded owner is someone else is refused.
+    and be under 30 seconds old. At the moment of the change you must be able to do it in person: the machine is in
+    your dimension, **within 16 blocks** of you (not the 128 of `nearby`), its chunk is loaded, you may interact with
+    that block (spawn protection, world border, adventure mode and the game's own build checks), and it has no
+    recorded owner or you are its owner.
   - **Schema 1:** `{ "dim", "x", "y", "z", "preset" }`, unchanged. Only for machines you own. Ownership is recorded
     only when per-player attribution was on at placement.
 
@@ -81,21 +90,26 @@ no more than you could in game.
 | Event | Sent to | Body |
 |---|---|---|
 | `pollution` | You, when your own attributed total first crosses the server's alert threshold (attribution on only). Also raises a WARN alert. | `attributed`, `threshold` |
-| `alarm` | Each online player within 128 blocks in the same dimension when a machine raises a new alarm, plus the machine's recorded owner. At most one per machine type per player every 30 seconds. | `type`, `alarm` |
-| `meltdown` | Each online player within 128 blocks of the reactor in its dimension, plus the reactor's recorded owner. The owner also gets a CRITICAL alert. | `kind` (`meltdown` or `containment_breach`), `shell` |
+| `alarm` | The machine's recorded owner, when a machine raises a new alarm. At most one per machine type per player every 30 seconds. | `type`, `alarm` |
+| `meltdown` | The reactor's recorded owner. The owner also gets a CRITICAL alert. | `kind` (`meltdown` or `containment_breach`), `shell` |
+| `alerts` with `"event": "nearby"` | Every other online player who would see that machine in `nearby` (same dimension and reach), for the same alarms and meltdowns. | `event`, `source` (`alarm` or `meltdown`), then the same body as the event it stands for |
 
 Every event goes to named players. None is broadcast to every client.
 
 - **Changed in schema 2 (privacy fix):** `meltdown` used to be broadcast to every linked client with the reactor's
   x/y/z. It now carries no coordinates and goes only to players in range and the owner.
-- **Push notifications** are off by default for the `nerotech` category in the app. Only the owner's `alarm` event
-  carries notification text (the machine type and the alarm, no place and no numbers). An owner is recorded only
-  under the server's existing per-player attribution setting.
+- **Push notifications** are off by default for the `nerotech` category in the app. Only a recorded owner's
+  `alarm` and `meltdown` events can become a push; the owner's `alarm` carries notification text (the machine type
+  and the alarm, no place and no numbers). Everyone else gets the `nearby` notice, which NeroLink never sends as a
+  push: it only refreshes an app that is open. An owner is recorded only under the server's existing per-player
+  attribution setting, so a machine without one pushes nobody.
+- A notice tells you that a machine of that type near you changed state, and when. That is the same thing you would
+  notice standing there, and the 30-second limit per machine type keeps it coarse.
 
 ## Privacy
 
 - Nothing in `nearby`, `catalogue`, `alarm` or `meltdown` names a player or a place.
-- Handles, rate-limit counters and alarm throttles live in memory only and are dropped when you log out. NeroTech
-  writes none of them to disk.
+- Handles, rate-limit counters and alarm throttles live in memory only. Handles and alarm throttles are dropped
+  when you log out; rate-limit counters expire a minute after your last action. NeroTech writes none of them to disk.
 - Your own pollution total and Tech Guide progress are erasable with every other NeroTech player record through
   Neroland Core's data-erasure hook.

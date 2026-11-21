@@ -3,13 +3,14 @@
   "category": "misc",
   "key": {
     "P": "nerotech:cindersteel_plate",
-    "B": "nerotech:circuit_board",
+    "Q": "#nerotech:processors/quantum",
+    "C": "#nerotech:coils/tier2",
     "S": "nerotech:servo",
     "F": "nerotech:machine_frame",
-    "H": "#nerotech:drill_heads"
+    "H": "nerotech:iron_drill_head"
   },
   "pattern": [
-    "PBP",
+    "CQC",
     "SFS",
     "PHP"
   ],

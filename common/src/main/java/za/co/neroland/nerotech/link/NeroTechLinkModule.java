@@ -1,10 +1,12 @@
 package za.co.neroland.nerotech.link;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,6 +14,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -19,6 +22,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -38,7 +42,6 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.guide.TechGuide;
 import za.co.neroland.nerotech.guide.TechGuideSeenState;
 import za.co.neroland.nerotech.machine.MachinePreset;
-import za.co.neroland.nerotech.machine.FusionReactorBlockEntity;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.machine.utility.AnnunciatorPanelBlockEntity;
 import za.co.neroland.nerotech.pollution.PollutionAttributionPrefs;
@@ -66,8 +69,10 @@ import za.co.neroland.nerotech.pollution.PollutionState;
  * </ul>
  *
  * <p><b>Actions</b>: {@code set_pollution_attribution} (a player's own privacy opt-out) and
- * {@code set_machine_preset} (remote overclock preset: owner-gated by position, or proximity-gated by a
- * {@code nearby} handle). Ten actions per player per minute, in memory. The bridge validates token,
+ * {@code set_machine_preset} (remote overclock preset: owner-gated by position, or by a {@code nearby}
+ * handle within in-person reach — see {@link PresetAccess}). Ten actions per player per minute, in
+ * memory; opt-outs have their own budget of thirty. Every refusal after validation is the one answer
+ * {@code unavailable}. The bridge validates token,
  * module presence, action-enabled config, rate limit and offline policy; this handler still
  * re-checks ownership and rules — a compromised app can do no more than the player could.
  *
@@ -83,7 +88,7 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     /** Display version reported in discovery (matches NeroTech's mod version). */
     // TODO: hand-maintained duplicate — bump this in step with `mod_version` in gradle.properties,
     // or the companion app reports a stale NeroTech version.
-    public static final String MOD_VERSION = "0.1.0-beta.1";
+    public static final String MOD_VERSION = "0.8.0-beta.1";
 
     private static final List<String> SECTIONS = List.of("pollution", "guide", "wiki", "nearby", "catalogue");
     private static final List<String> ACTIONS = List.of("set_pollution_attribution", "set_machine_preset");
@@ -103,6 +108,13 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
 
     /** Ten actions per player per minute, in memory (decision 007). */
     static final LinkRateLimiter LIMITER = new LinkRateLimiter(System::currentTimeMillis);
+
+    /** Privacy opt-outs: their own generous budget, so they are never refused in normal use (review L1). */
+    static final LinkRateLimiter OPT_OUTS = new LinkRateLimiter(System::currentTimeMillis,
+            LinkRateLimiter.MAX_OPT_OUTS);
+
+    /** Shuffles each {@code nearby} answer so order and truncation say nothing about direction (review M1). */
+    private static final SecureRandom SHUFFLE = new SecureRandom();
 
     /** Ticks between sweeps that drop in-memory link state of players who have logged out. */
     private static final int PRUNE_INTERVAL_TICKS = 100;
@@ -131,12 +143,14 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     public static void forgetPlayer(UUID player) {
         HANDLES.forget(player);
         LIMITER.forget(player);
+        OPT_OUTS.forget(player);
         MachineAlarmLink.forget(player);
     }
 
     /** Whether any in-memory link state still refers to {@code player} (erasure probe; never persisted). */
     public static boolean holdsPlayer(UUID player) {
-        return HANDLES.holds(player) || LIMITER.holds(player) || MachineAlarmLink.holds(player);
+        return HANDLES.holds(player) || LIMITER.holds(player) || OPT_OUTS.holds(player)
+                || MachineAlarmLink.holds(player);
     }
 
     /** Register the module (snapshot + action) with Core's link registry. Idempotent per process. */
@@ -150,8 +164,9 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     /** Capture the running server so provider/action calls can resolve players + SavedData. */
     public static void rememberServer(MinecraftServer runningServer) {
         server = runningServer;
-        // Same per-tick hook: every few seconds, drop handles, rate-limit windows and alarm throttles of
-        // players who are no longer online ("cleared on logout"). Nothing of it is ever persisted.
+        // Same per-tick hook: every few seconds, drop handles and alarm throttles of players who are no
+        // longer online ("cleared on logout"), and rate-limit windows once they have expired (not on
+        // logout, so a relog does not refill the budget). Nothing of it is ever persisted.
         if (--pruneCountdown <= 0) {
             pruneCountdown = PRUNE_INTERVAL_TICKS;
             Set<UUID> online = new HashSet<>();
@@ -159,7 +174,8 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
                 online.add(player.getUUID());
             }
             HANDLES.retainOnly(online);
-            LIMITER.retainOnly(online);
+            LIMITER.pruneExpired();
+            OPT_OUTS.pruneExpired();
             MachineAlarmLink.retainOnly(online);
         }
     }
@@ -251,9 +267,12 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     /**
      * PROXIMITY-scoped machines around the ONLINE requester (decision 007): their current dimension,
      * the loaded chunks of a 9 x 9 square around them (nothing is loaded to answer), a 128-block box,
-     * at most 128 entries. Each entry carries a handle valid for 30 s for {@code set_machine_preset};
-     * the handle table replaces the requester's previous one. Offline (or before the server is up) the
-     * list is empty, indistinguishable from "nothing in range".
+     * at most 128 entries. Walls and claims do not hide a machine: this is what stands within reach.
+     * The whole in-reach set is shuffled before it is cut to 128 and before handles are minted, so the
+     * order, the handle indices and which entries a truncation keeps say nothing about direction.
+     * Each entry carries a handle valid for 30 s for {@code set_machine_preset}; the handle table
+     * replaces the requester's previous one. Offline (or before the server is up) the list is empty,
+     * indistinguishable from "nothing in range".
      */
     private JsonObject nearby(UUID playerId) {
         JsonObject out = new JsonObject();
@@ -268,7 +287,6 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
             List<NeroTechMachineBlockEntity> found = new ArrayList<>();
             int ocx = origin.getX() >> 4;
             int ocz = origin.getZ() >> 4;
-            scan:
             for (int dx = -NearbyFormat.CHUNK_RADIUS; dx <= NearbyFormat.CHUNK_RADIUS; dx++) {
                 for (int dz = -NearbyFormat.CHUNK_RADIUS; dz <= NearbyFormat.CHUNK_RADIUS; dz++) {
                     LevelChunk chunk = level.getChunkSource().getChunkNow(ocx + dx, ocz + dz);
@@ -280,18 +298,15 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
                             continue;
                         }
                         BlockPos at = be.getBlockPos();
-                        if (!NearbyFormat.inReach(origin.getX(), origin.getY(), origin.getZ(),
+                        if (!NearbyFormat.visible(origin.getX(), origin.getY(), origin.getZ(),
                                 at.getX(), at.getY(), at.getZ())) {
                             continue;
-                        }
-                        if (found.size() >= NearbyFormat.MAX_ENTRIES) {
-                            truncated = true;
-                            break scan;
                         }
                         found.add(machine);
                     }
                 }
             }
+            truncated = NearbyFormat.shuffleAndCap(found, SHUFFLE, NearbyFormat.MAX_ENTRIES);
             List<Target> targets = new ArrayList<>(found.size());
             for (NeroTechMachineBlockEntity machine : found) {
                 targets.add(new Target(level.dimension(), machine.getBlockPos().immutable()));
@@ -408,9 +423,12 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
 
     @Override
     public LinkActionResult execute(UUID playerId, String actionId, JsonObject params) {
-        if (ACTIONS.contains(actionId) && !isOptOut(actionId, params) && !LIMITER.tryAcquire(playerId)) {
-            return LinkActionResult.error(LinkActionResult.Error.VALIDATION,
-                    "rate limited: at most " + LinkRateLimiter.MAX_ACTIONS + " nerotech actions a minute");
+        if (ACTIONS.contains(actionId)) {
+            LinkRateLimiter budget = isOptOut(actionId, params) ? OPT_OUTS : LIMITER;
+            if (!budget.tryAcquire(playerId)) {
+                return LinkActionResult.error(LinkActionResult.Error.VALIDATION,
+                        "rate limited: at most " + budget.max() + " nerotech actions of this kind a minute");
+            }
         }
         return switch (actionId) {
             case "set_pollution_attribution" -> setPollutionAttribution(playerId, params);
@@ -420,17 +438,10 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
         };
     }
 
-    /** Turning attribution OFF is a privacy control and is never refused for rate. */
+    /** Turning attribution OFF is a privacy control: it spends the separate, generous opt-out budget. */
     private static boolean isOptOut(String actionId, @Nullable JsonObject params) {
-        if (!"set_pollution_attribution".equals(actionId) || params == null || !params.has("enabled")
-                || !params.get("enabled").isJsonPrimitive()) {
-            return false;
-        }
-        try {
-            return !params.get("enabled").getAsBoolean();
-        } catch (RuntimeException e) {
-            return false;
-        }
+        return "set_pollution_attribution".equals(actionId)
+                && PresetAccess.bool(params, "enabled").map(enabled -> !enabled).orElse(false);
     }
 
     /**
@@ -440,14 +451,15 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
      * {@code PollutionManager.record}). Own data only; always compliant.
      */
     private LinkActionResult setPollutionAttribution(UUID playerId, JsonObject params) {
-        if (params == null || !params.has("enabled") || !params.get("enabled").isJsonPrimitive()) {
+        Optional<Boolean> flag = PresetAccess.bool(params, "enabled");
+        if (flag.isEmpty()) {
             return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "boolean 'enabled' is required");
         }
         MinecraftServer srv = server;
         if (srv == null) {
             return LinkActionResult.error(LinkActionResult.Error.INTERNAL, "server not available");
         }
-        boolean enabled = params.get("enabled").getAsBoolean();
+        boolean enabled = flag.get();
         boolean optedOut = PollutionAttributionPrefs.get(srv).setEnabled(playerId, enabled);
         JsonObject state = new JsonObject();
         state.addProperty("enabled", !optedOut);
@@ -462,6 +474,10 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
      * machine's own owner field — only recorded when attribution was on at placement; a null/mismatched
      * owner is refused). Reuses the machine's own server-side {@code setPreset} path — the same one the
      * in-game preset payload drives.
+     *
+     * <p>Once the body is well formed, every refusal is the one {@link PresetAccess#UNAVAILABLE} answer:
+     * an unknown dimension, an unloaded chunk, no machine and someone else's machine look the same, so
+     * the action is no oracle for loaded chunks or machine positions (review H2).
      */
     private LinkActionResult setMachinePreset(UUID playerId, JsonObject params) {
         MinecraftServer srv = server;
@@ -474,96 +490,114 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
                     "you must be online to change a machine preset");
         }
         if (params != null && params.has("h")) {
-            return setMachinePresetByHandle(srv, player, params);
+            return setMachinePresetByHandle(player, params);
         }
-        if (params == null || !params.has("dim") || !params.has("x") || !params.has("y")
-                || !params.has("z") || !params.has("preset")) {
+        if (params == null) {
             return LinkActionResult.error(LinkActionResult.Error.VALIDATION,
                     "dim, x, y, z and preset are required");
         }
-        MachinePreset preset;
-        try {
-            preset = MachinePreset.valueOf(params.get("preset").getAsString());
-        } catch (IllegalArgumentException e) {
+        Optional<String> dimName = PresetAccess.string(params.get("dim"));
+        OptionalInt x = PresetAccess.integer(params.get("x"));
+        OptionalInt y = PresetAccess.integer(params.get("y"));
+        OptionalInt z = PresetAccess.integer(params.get("z"));
+        if (dimName.isEmpty() || x.isEmpty() || y.isEmpty() || z.isEmpty() || !params.has("preset")) {
+            return LinkActionResult.error(LinkActionResult.Error.VALIDATION,
+                    "dim (string), x, y, z (integers) and preset are required");
+        }
+        Optional<MachinePreset> preset = PresetAccess.preset(params.get("preset"));
+        if (preset.isEmpty()) {
             return LinkActionResult.error(LinkActionResult.Error.VALIDATION,
                     "preset must be ECO, BALANCED or OVERDRIVE");
         }
-        Identifier dimId;
-        try {
-            dimId = Identifier.parse(params.get("dim").getAsString());
-        } catch (RuntimeException e) {
+        Identifier dimId = Identifier.tryParse(dimName.get());
+        if (dimId == null) {
             return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "invalid dimension id");
         }
         ServerLevel level = srv.getLevel(ResourceKey.create(Registries.DIMENSION, dimId));
         if (level == null) {
-            return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "unknown dimension");
+            return PresetAccess.refuse(PresetAccess.Refusal.UNKNOWN_DIMENSION);
         }
-        BlockPos pos = new BlockPos(params.get("x").getAsInt(), params.get("y").getAsInt(),
-                params.get("z").getAsInt());
+        BlockPos pos = new BlockPos(x.getAsInt(), y.getAsInt(), z.getAsInt());
         if (!level.hasChunkAt(pos)) {
-            return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "target chunk is not loaded");
+            return PresetAccess.refuse(PresetAccess.Refusal.NOT_LOADED);
         }
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof NeroTechMachineBlockEntity machine)) {
-            return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "no NeroTech machine there");
+        if (!(be instanceof NeroTechMachineBlockEntity machine) || be.isRemoved()) {
+            return PresetAccess.refuse(PresetAccess.Refusal.NO_MACHINE);
         }
         UUID owner = machine.ownerId();
         if (owner == null || !owner.equals(playerId)) {
             // Ownership cannot be established (attribution off at placement, or someone else's machine).
-            return LinkActionResult.error(LinkActionResult.Error.NOT_OWNER, "you do not own this machine");
+            return PresetAccess.refuse(PresetAccess.Refusal.NOT_OWNER);
         }
-        machine.setPreset(preset);
+        machine.setPreset(preset.get());
         JsonObject state = new JsonObject();
         state.addProperty("dim", dimId.toString());
         state.addProperty("x", pos.getX());
         state.addProperty("y", pos.getY());
         state.addProperty("z", pos.getZ());
-        state.addProperty("preset", preset.name());
+        state.addProperty("preset", preset.get().name());
         return LinkActionResult.ok(state);
     }
 
     /**
-     * Schema-2 body {@code {h, preset}}: the handle must come from the requester's OWN latest
-     * {@code nearby} response and be under 30 s old; proximity is re-checked now (same dimension,
-     * 128-block box, chunk already loaded). A machine with a recorded owner other than the requester
-     * is refused, as on the schema-1 path; an ownerless machine is open to whoever stands in reach.
+     * Schema-2 body {@code {h, preset}} (decision 007, amendment 2026-11-21): the handle must come from
+     * the requester's OWN latest {@code nearby} response and be under 30 s old, and the requester must be
+     * able to make the change in person, now: same dimension, within {@link PresetAccess#ACTION_REACH}
+     * blocks (not the 128 of {@code nearby}), the chunk already loaded, the interaction checks a
+     * right-click passes at that block (spawn protection, world border, adventure rules, build
+     * restrictions), and no recorded owner or the requester as owner. Every refusal is the same
+     * {@code unavailable} answer.
      */
-    private LinkActionResult setMachinePresetByHandle(MinecraftServer srv, ServerPlayer player, JsonObject params) {
-        if (!params.get("h").isJsonPrimitive() || !params.has("preset")) {
+    private LinkActionResult setMachinePresetByHandle(ServerPlayer player, JsonObject params) {
+        Optional<String> handle = PresetAccess.string(params.get("h"));
+        if (handle.isEmpty() || !params.has("preset")) {
             return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "h and preset are required");
         }
-        MachinePreset preset;
-        try {
-            preset = MachinePreset.valueOf(params.get("preset").getAsString());
-        } catch (RuntimeException e) {
+        Optional<MachinePreset> preset = PresetAccess.preset(params.get("preset"));
+        if (preset.isEmpty()) {
             return LinkActionResult.error(LinkActionResult.Error.VALIDATION,
                     "preset must be ECO, BALANCED or OVERDRIVE");
         }
-        Optional<Target> target = HANDLES.resolve(player.getUUID(), params.get("h").getAsString());
+        Optional<Target> target = HANDLES.resolve(player.getUUID(), handle.get());
         if (target.isEmpty()) {
-            return LinkActionResult.error(LinkActionResult.Error.VALIDATION,
-                    "unknown or expired handle; refresh nearby");
+            return PresetAccess.refuse(PresetAccess.Refusal.UNKNOWN_HANDLE);
         }
         Target t = target.get();
-        BlockPos here = player.blockPosition();
-        if (!(player.level() instanceof ServerLevel level) || !level.dimension().equals(t.dimension())
-                || !NearbyFormat.inReach(here.getX(), here.getY(), here.getZ(),
-                        t.pos().getX(), t.pos().getY(), t.pos().getZ())) {
-            return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "that machine is out of reach");
+        if (!(player.level() instanceof ServerLevel level) || !level.dimension().equals(t.dimension())) {
+            return PresetAccess.refuse(PresetAccess.Refusal.WRONG_DIMENSION);
         }
-        if (!level.hasChunkAt(t.pos())
-                || !(level.getBlockEntity(t.pos()) instanceof NeroTechMachineBlockEntity machine)) {
-            return LinkActionResult.error(LinkActionResult.Error.VALIDATION, "that machine is gone; refresh nearby");
+        BlockPos pos = t.pos();
+        if (!PresetAccess.inActionReach(player.getX(), player.getY(), player.getZ(),
+                pos.getX(), pos.getY(), pos.getZ())) {
+            return PresetAccess.refuse(PresetAccess.Refusal.OUT_OF_REACH);
         }
-        UUID owner = machine.ownerId();
-        if (owner != null && !owner.equals(player.getUUID())) {
-            return LinkActionResult.error(LinkActionResult.Error.NOT_OWNER, "you do not own this machine");
+        if (!level.hasChunkAt(pos)
+                || !(level.getBlockEntity(pos) instanceof NeroTechMachineBlockEntity machine)
+                || machine.isRemoved()) {
+            return PresetAccess.refuse(PresetAccess.Refusal.NO_MACHINE);
         }
-        machine.setPreset(preset);
+        if (!mayInteractInPerson(player, level, pos)) {
+            return PresetAccess.refuse(PresetAccess.Refusal.NOT_PERMITTED);
+        }
+        if (!PresetAccess.ownerAllows(machine.ownerId(), player.getUUID())) {
+            return PresetAccess.refuse(PresetAccess.Refusal.NOT_OWNER);
+        }
+        machine.setPreset(preset.get());
         JsonObject state = new JsonObject();
-        state.addProperty("h", params.get("h").getAsString());
-        state.addProperty("preset", preset.name());
+        state.addProperty("h", handle.get());
+        state.addProperty("preset", preset.get().name());
         return LinkActionResult.ok(state);
+    }
+
+    /**
+     * The interaction checks a right-click on that block passes, as the Arc Wrench applies them:
+     * {@code mayInteract} (spawn protection, world border), {@code mayUseItemAt} and the adventure /
+     * spectator build restriction.
+     */
+    private static boolean mayInteractInPerson(ServerPlayer player, ServerLevel level, BlockPos pos) {
+        return level.mayInteract(player, pos) && player.mayUseItemAt(pos, Direction.UP, ItemStack.EMPTY)
+                && !player.blockActionRestricted(level, pos, player.gameMode.getGameModeForPlayer());
     }
 
     // --- live events (published from the gameplay code paths) -------------------------
@@ -587,48 +621,22 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     }
 
     /**
-     * A reactor meltdown or containment breach, for callers that know only the server: the reactor's
-     * level is found from its block entity at {@code pos}. Prefer
-     * {@link #onReactorCritical(ServerLevel, UUID, BlockPos, String, int)}.
-     */
-    public static void onReactorCritical(MinecraftServer srv, @Nullable UUID owner, BlockPos pos,
-            String kind, int shellSize) {
-        if (srv == null) {
-            return;
-        }
-        ServerLevel found = null;
-        for (ServerLevel level : srv.getAllLevels()) {
-            if (level.hasChunkAt(pos) && level.getBlockEntity(pos) instanceof FusionReactorBlockEntity) {
-                found = level;
-                break;
-            }
-        }
-        deliverCritical(srv, found, owner, pos, kind, shellSize);
-    }
-
-    /**
      * A reactor meltdown or containment breach (schema 2): a {@code meltdown} event with the kind and
      * shell size only, delivered {@code forPlayer} to each online player in the reactor's dimension
-     * within 128 blocks and to the recorded owner, if any. Never broadcast and never with coordinates
-     * (schema 1 broadcast x/y/z to every client; changed as a privacy fix). The owner also gets the
-     * CRITICAL alert, as before.
+     * within reach ({@link NearbyFormat#visible}) and to the recorded owner, if any. Only the owner's copy
+     * is on the {@code meltdown} topic and push-eligible; bystanders get a never-pushed notice. Never
+     * broadcast and never with coordinates (schema 1 broadcast x/y/z to every client; changed as a
+     * privacy fix). The owner also gets the CRITICAL alert, as before. (The server-only overload that
+     * guessed the reactor's dimension was removed: every caller passes the level.)
      */
     public static void onReactorCritical(ServerLevel level, @Nullable UUID owner, BlockPos pos, String kind,
             int shellSize) {
         if (level == null) {
             return;
         }
-        deliverCritical(level.getServer(), level, owner, pos, kind, shellSize);
-    }
-
-    private static void deliverCritical(MinecraftServer srv, @Nullable ServerLevel level, @Nullable UUID owner,
-            BlockPos pos, String kind, int shellSize) {
-        Set<UUID> recipients = level != null
-                ? MachineAlarmLink.recipients(level, pos, owner)
-                : (owner != null ? Set.of(owner) : Set.of());
-        for (UUID recipient : recipients) {
-            NeroLinkRegistry.eventBus().publish(LinkEvent.forPlayer(MODULE_ID, "meltdown", recipient,
-                    NearbyFormat.meltdownPayload(kind, shellSize)));
+        MinecraftServer srv = level.getServer();
+        for (UUID recipient : MachineAlarmLink.recipients(level, pos, owner)) {
+            NeroLinkRegistry.eventBus().publish(MachineAlarmLink.meltdownEvent(recipient, owner, kind, shellSize));
         }
         if (owner != null) {
             String text = "meltdown".equals(kind)

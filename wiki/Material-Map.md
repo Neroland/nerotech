@@ -28,8 +28,9 @@ same tag works too. A recipe viewer (JEI or EMI) shows the exact numbers.
 
 - **Offworld:** cindrite and iron dust in the Plasma Crucible, or cindrite with iron dust or raw
   hematite in the Blast Foundry (bulk).
-- **Standalone:** two iron dust, one coal and one blaze powder in the Plasma Crucible. Slower, so
-  tier-2 machines are not locked behind the Particle Collider.
+- **Standalone:** two iron dust, one coal and one blaze powder in the Plasma Crucible, or the same in a
+  heated Blast Foundry. Slower, so tier-2 machines are not locked behind the Particle Collider. Every
+  ingot takes one blaze powder, so a standalone server wants a blaze farm.
 - **Makes:** Cindersteel Plate and Rod (Plate Press), Cindersteel Wire (Filament Spooler), the Europium
   Flux Lattice, the Fuel Injector.
 - **For other mods:** a tier-2 structural metal for hulls, frames and tool bodies. NeroPower reactor and
@@ -49,7 +50,7 @@ same tag works too. A recipe viewer (JEI or EMI) shows the exact numbers.
   Die.
 - **Standalone:** none. Titanium is an optional material: everything that takes it has a cindersteel
   version.
-- **Makes:** a Heat Sink.
+- **Makes:** two Heat Sinks, where cindersteel plate makes one.
 - **For other mods:** a light alternative plate for NeroCompanion drones and NeroLogistics drones.
 
 ### Acid ore leaching
@@ -63,7 +64,11 @@ acid and returns **four** dusts: one more than the Chemical Processor or the Adv
 
 - **Offworld:** not needed. Glacite is mined on Glacira and carries the same tag.
 - **Standalone:** one Void Crystal, four snow blocks and two packed ice, grown in the Crystal Grower in
-  100 mB of cryo coolant. It works anywhere a Crystal Grower does, and faster in the cold.
+  100 mB of cryo coolant, **four** Synthetic Glacite out. It works anywhere a Crystal Grower does, and
+  faster in the cold. No Silk Touch is needed: the Cryo Distiller makes packed ice from two snow blocks
+  and one nitrogen. On a server without Nerospace the Void Crystal comes from the Particle Collider
+  (an echo shard and an amethyst shard make Void Crystal dust, which smelts into the crystal), so echo
+  shards from Ancient Cities are the real limit.
 - **Makes:** everything glacite makes: Superconductor Wire, the Glacite Focus Lens, the Glacite Drill
   Head.
 - **For other mods:** any recipe that takes `c:gems/glacite` accepts it.
@@ -82,16 +87,17 @@ acid and returns **four** dusts: one more than the Chemical Processor or the Adv
 - **Tier 1:** Nero Coil and Copper Coil. **Tier 2:** Cindersteel Coil (four Cindersteel Wire around a
   Cindersteel Rod). **Tier 3:** Superconductor Coil (four Superconductor Wire around a tier-2 coil,
   with a Heat Sink, cooled with 250 mB of cryo coolant in the Component Forge).
-- **Makes:** the Copper Coil goes into the Servo; the Cindersteel Coil into the Superconductor Coil;
-  the Superconductor Coil into the Fuel Injector.
+- **Makes:** the Copper Coil goes into the Servo; the Cindersteel Coil into the Superconductor Coil,
+  the Deep Core Drill and the Heat Exchanger; the Superconductor Coil into the Fuel Injector and the
+  Cutting Lance.
 - **For other mods:** coil tiers for NeroPower generators and chargers, NeroCompanion charging bays.
 
 ### Cryo coolant (fluid, `nerotech:cryo_coolant`)
 
-- **Offworld:** packed cryo ice or dry ice in the Cryo Distiller (with a little nitrogen), or a brine
-  bucket with blue ice and nitrogen in the Reaction Vat.
-- **Standalone:** blue ice and water with nitrogen (from the Atmospheric Condenser) or carbon dioxide
-  in the Reaction Vat.
+- **Offworld:** packed cryo ice or dry ice in the Cryo Distiller (with a little nitrogen), frost shards
+  in the Cryo Distiller, or a brine bucket with blue ice and nitrogen in the Reaction Vat.
+- **Standalone:** four snow blocks and water with nitrogen (from the Atmospheric Condenser) or carbon
+  dioxide in the Reaction Vat. Snow comes off with any shovel, so no Silk Touch is needed.
 - **Makes:** the Superconductor Coil, Synthetic Glacite, the Europium Flux Lattice (Component Forge
   route); it is also a machine coolant.
 - **For other mods:** NeroPower reactor coolant loops.
@@ -116,10 +122,11 @@ acid and returns **four** dusts: one more than the Chemical Processor or the Adv
 
 - **Logic:** a Wafer and two copper wire with the Quartz Focus Lens, or a Wafer and two cindersteel
   wire with the Ember Focus Lens (Laser Etcher).
-- **Quantum:** a Wafer, a Logic Processor and two Superconductor Wire with the Void Focus Lens, or four
-  Superconductor Wire with the Glacite Focus Lens.
-- **Makes:** Logic goes into Quantum; Quantum goes into the Europium Flux Lattice (Component Forge
-  route).
+- **Logic** with the Ember Focus Lens is the fast one: half the time of the Quartz Focus Lens.
+- **Quantum:** a Wafer, a Logic Processor and two Superconductor Wire with the Void Focus Lens, or two
+  Wafers and two Superconductor Wire with the Glacite Focus Lens (no Logic Processor, slower).
+- **Makes:** Logic goes into Quantum, the Survey Scanner, the Cutting Lance and the Heat Sink and Scrubber modules; Quantum goes into the Deep Core Drill, the Fuel Injector
+  and the Europium Flux Lattice (Component Forge route).
 - **For other mods:** controller parts. NeroPower reactor control, NeroLogistics routing,
   NeroCompanion chips, NeroColonies automation.
 
@@ -157,15 +164,16 @@ and NeroCompanion sensors.
 ### Polymer resin (fluid, `c:polymer_resin`) and Polymer Sheet (`nerotech:polymer_sheets`)
 
 - **Offworld:** amber sap and methane in the Reaction Vat.
-- **Standalone:** a log and methane in the Reaction Vat.
-- **Makes:** resin presses into Polymer Sheet (Plate Press, Plate Die); sheets go into the Capacitor.
+- **Standalone:** two logs and methane in the Reaction Vat.
+- **Makes:** resin presses into Polymer Sheet (Plate Press, Plate Die); sheets go into the Capacitor
+  and the Scrubber Module.
 - **For other mods:** insulation and casings. NeroLogistics cable jackets, NeroCompanion shells.
 
 ### Gases
 
 | Gas | Offworld | Standalone | Used in |
 |---|---|---|---|
-| Nitrogen | Atmospheric Condenser on Glacira, Greenxertz or Nyxara; Cryo Distiller on cryo ice | Atmospheric Condenser in the Overworld, slowly | Cryo coolant |
+| Nitrogen | Atmospheric Condenser on Glacira, Greenxertz or Nyxara; Cryo Distiller on cryo ice | Atmospheric Condenser in the Overworld, slowly | Cryo coolant, packed ice |
 | Carbon dioxide | dry ice in the Cryo Distiller; the Condenser on Mars or Cindara | coal burned with oxygen in the Cryo Distiller; the Condenser in the Nether | Cryo coolant |
 | Methane | methane crystal in the Cryo Distiller | coal with hydrogen in the Cryo Distiller | Polymer resin |
 
@@ -177,7 +185,8 @@ and NeroCompanion sensors.
   Cryo Distiller (two units).
 - **Standalone:** deuterium from Electrolyzer hydrogen and a little water in the Centrifuge, one unit per
   unit of hydrogen. Helium-3 from a **cascade** of three Centrifuges side by side, facing the same way:
-  eight deuterium in the first, six into the second, four into the third, one helium-3 out.
+  three deuterium into the first gives two, those two into the second give two, and those two into the
+  third give one helium-3.
 - **Makes:** the gas-fed fuel tier through the Fuel Injector.
 - **For other mods:** NeroPower fuel for its own reactors.
 
@@ -185,7 +194,7 @@ and NeroCompanion sensors.
 
 - **Offworld:** raw europium from Europa's vent fields in the Centrifuge (sometimes gold dust too).
 - **Standalone:** eight glowstone dust in the Centrifuge, slowly. Europium is the red glow in phosphors.
-- **Makes:** the Europium Flux Lattice, by crafting (two) or in the Component Forge with a Quantum
+- **Makes:** the Europium Flux Lattice, by crafting (one) or in the Component Forge with a Quantum
   Processor, superconductor wire and cryo coolant (four).
 - **For other mods:** NeroPower reactor control rods.
 
@@ -193,9 +202,9 @@ and NeroCompanion sensors.
 
 | Component | Tag | Made in | Goes into |
 |---|---|---|---|
-| Servo | `nerotech:components/servos` | Component Forge | Deep Core Drill |
-| Capacitor | `nerotech:components/capacitors` | Component Forge, with sulfuric acid | Survey Scanner |
-| Heat Sink | `nerotech:components/heat_sinks` | Component Forge, from cindersteel or titanium plate | Superconductor Coil |
+| Servo | `nerotech:components/servos` | Component Forge | Deep Core Drill, Power Drill |
+| Capacitor | `nerotech:components/capacitors` | Component Forge, with sulfuric acid | Survey Scanner, Power Drill, Filter Mask, Thermal Goggles |
+| Heat Sink | `nerotech:components/heat_sinks` | Component Forge, from cindersteel plate, or titanium plate (two out) | Superconductor Coil, Heat Sink Module |
 
 **For other mods:** NeroPower, NeroLogistics, NeroColonies and NeroCompanion can take any of these by
 tag for their own machines.

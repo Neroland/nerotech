@@ -4,10 +4,11 @@
   "key": {
     "F": "nerotech:fusion_casing",
     "S": "nerotech:superconductor_coil",
+    "Q": "#nerotech:processors/quantum",
     "I": "#c:ingots/cindersteel"
   },
   "pattern": [
-    "I I",
+    "IQI",
     "SFS",
     "I I"
   ],

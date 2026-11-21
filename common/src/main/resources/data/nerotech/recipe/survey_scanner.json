@@ -4,7 +4,7 @@
   "key": {
     "G": "minecraft:glass_pane",
     "C": "nerotech:capacitor",
-    "B": "nerotech:circuit_board",
+    "B": "#nerotech:processors/logic",
     "P": "nerotech:cindersteel_plate"
   },
   "pattern": [

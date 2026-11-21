@@ -2,8 +2,8 @@
   "type": "nerotech:reacting",
   "items": [
     {
-      "ingredient": "minecraft:blue_ice",
-      "count": 1
+      "ingredient": "minecraft:snow_block",
+      "count": 4
     }
   ],
   "fluid_in": {
