@@ -39,12 +39,62 @@ public final class MilestoneGates {
     public static final Identifier REMEDIATED = gate("remediated");
     /** A Grid Controller's summed machine capacity reached {@code gridScaleMilestoneCapacity}. */
     public static final Identifier GRID_SCALE = gate("grid_scale");
+    /** A Blast Foundry finished its first batch. Credited to the online operator in the moment. */
+    public static final Identifier FIRST_FOUNDRY_POUR = gate("first_foundry_pour");
+    /** A Laser Etcher etched a Quantum Processor. Credited to the online operator in the moment. */
+    public static final Identifier FIRST_QUANTUM_PROCESSOR = gate("first_quantum_processor");
+    /** A Deep Core Drill pulled ore from a deposit. Credited to the online operator in the moment. */
+    public static final Identifier FIRST_DEPOSIT_TAPPED = gate("first_deposit_tapped");
+    /** A Fusion Reactor started a gas-fed burn. Credited to the online operator in the moment. */
+    public static final Identifier GAS_FED_IGNITION = gate("gas_fed_ignition");
+    /**
+     * A machine was brought back from failure stage 3 or worse ({@code MachineFailureEvents}): credited to the
+     * online operator in the moment who restored it. Hidden trophy hook.
+     */
+    public static final Identifier MELTDOWN_AVERTED = gate("meltdown_averted");
+    /** A Singularity Vault stored its first items. Credited to the online operator in the moment. */
+    public static final Identifier VAULT_OPERATED = gate("vault_operated");
+
+    private static boolean initialised;
 
     private MilestoneGates() {
     }
 
     private static Identifier gate(String path) {
         return Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, path);
+    }
+
+    /** Subscribe the event-driven milestones (from {@code NeroTechCommon.init()}). Idempotent. */
+    public static synchronized void init() {
+        if (initialised) {
+            return;
+        }
+        initialised = true;
+        za.co.neroland.nerotech.machine.fusion.FusionEvents.onGasIgnition(event ->
+                credit(event.level(), event.operator().orElse(null), GAS_FED_IGNITION));
+    }
+
+    /**
+     * Open {@code gate} for the player operating a machine in the moment ({@code lastOperator}, transient,
+     * never saved), only while that player is online. Nothing is stored about the player here and no
+     * owner is needed: the gate row lives in Core's progression store (erased through Core's hook). An
+     * operator who has opted out of attribution is skipped. Idempotent.
+     *
+     * @return {@code true} if the gate was newly opened
+     */
+    public static boolean credit(ServerLevel level, @Nullable UUID operator, Identifier gate) {
+        if (operator == null) {
+            return false;
+        }
+        MinecraftServer server = level.getServer();
+        if (server == null || server.getPlayerList().getPlayer(operator) == null) {
+            return false;
+        }
+        if (PollutionAttributionPrefs.get(server).isOptedOut(operator)
+                || ProgressionGates.isOpen(server, operator, gate)) {
+            return false;
+        }
+        return ProgressionGates.open(server, operator, gate);
     }
 
     /**

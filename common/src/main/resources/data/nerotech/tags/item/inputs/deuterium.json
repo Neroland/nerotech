@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "#c:gems/deuterium",
+      "required": false
+    },
+    {
+      "id": "nerospace:deuterium_cell",
+      "required": false
+    },
+    {
+      "id": "nerospace:gas_canisters/deuterium",
+      "required": false
+    }
+  ]
+}

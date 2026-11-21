@@ -40,6 +40,8 @@ of sci-fi mods. Built on **Neroland Core**.
   ships as inert data, the milestone record gates behind it, and the Tech Guide quest hook.
 - [Overclock Presets](Overclock-Presets.md) — Eco / Balanced / Overdrive on every machine.
 - [Side Config & the Configurator](Side-Config-and-Configurator.md) — per-face I/O and the wrench.
+- [Tools](Tools.md) — Power Drill, Cutting Lance, Arc Wrench, Multimeter, Survey Scanner, Thermal
+  Goggles and Filter Mask.
 - [Recipe Viewers (JEI & EMI)](Recipe-Viewers.md) — the machine recipe pages, and EMI support on 26.x.
 
 ## Advanced & automation
@@ -62,11 +64,13 @@ of sci-fi mods. Built on **Neroland Core**.
 - [NeroLink Companion App](Companion-App.md) — what NeroTech exposes to the NeroLink phone/desktop
   app through Neroland Core's link API: your own pollution/guide data, remote overclock
   presets, live meltdown alerts, the in-app wiki, and the opt-in privacy posture.
+- [Privacy](Privacy.md) — what NeroTech stores about players (very little), what it never stores,
+  and how erasure and opt-out work.
 
 ## Project
 
-- [Power & the NeroPower Split](Power-and-NeroPower-Split.md) — why NeroPower will not ship as a
-  separate mod, and the archived criteria that once governed the split.
+- [Power and NeroPower](Power-and-NeroPower-Split.md) — what NeroTech's power tier covers, and what
+  the optional NeroPower add-on builds on top of it.
 
 Add one page per block, item, machine, or system as it is built, and link it here. Keep this
 page as the index.

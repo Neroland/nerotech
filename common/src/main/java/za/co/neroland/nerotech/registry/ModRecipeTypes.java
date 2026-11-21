@@ -7,6 +7,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.recipe.ColliderRecipe;
 import za.co.neroland.nerotech.recipe.MachineRecipe;
+import za.co.neroland.nerotech.recipe.ProcessRecipe;
 
 /**
  * NeroTech's datapack recipe types + serializers (Stage C, 2026-07-10): one per processing
@@ -57,7 +58,128 @@ public final class ModRecipeTypes {
     public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> CHEMICAL_PROCESSING_SERIALIZER =
             serializer("chemical_processing", CHEMICAL_PROCESSING);
 
+    // --- 0.8.0 process recipe types: one ProcessRecipe class, one type per machine (decision 010) ---
+    /** Plasma Crucible. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> ALLOYING = processType("alloying");
+    /** Plate Press. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> PRESSING = processType("pressing");
+    /** Filament Drawer. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> DRAWING = processType("drawing");
+    /** Blast Foundry. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> FOUNDRY_CASTING =
+            processType("foundry_casting");
+    /** Centrifuge. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> CENTRIFUGING =
+            processType("centrifuging");
+    /** Cryo Distiller. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> CRYO_DISTILLING =
+            processType("cryo_distilling");
+    /** Atmospheric Condenser (one recipe per atmosphere). */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> CONDENSING = processType("condensing");
+    /** Reaction Vat. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> REACTING = processType("reacting");
+    /** Component Forge. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> COMPONENT_FORGING =
+            processType("component_forging");
+    /** Laser Etcher (the focus lens is the catalyst). */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> ETCHING = processType("etching");
+    /** Crystal Grower. */
+    public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> CRYSTAL_GROWING =
+            processType("crystal_growing");
+
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> ALLOYING_SERIALIZER =
+            processSerializer("alloying", ALLOYING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> PRESSING_SERIALIZER =
+            processSerializer("pressing", PRESSING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> DRAWING_SERIALIZER =
+            processSerializer("drawing", DRAWING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> FOUNDRY_CASTING_SERIALIZER =
+            processSerializer("foundry_casting", FOUNDRY_CASTING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> CENTRIFUGING_SERIALIZER =
+            processSerializer("centrifuging", CENTRIFUGING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> CRYO_DISTILLING_SERIALIZER =
+            processSerializer("cryo_distilling", CRYO_DISTILLING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> CONDENSING_SERIALIZER =
+            processSerializer("condensing", CONDENSING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> REACTING_SERIALIZER =
+            processSerializer("reacting", REACTING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> COMPONENT_FORGING_SERIALIZER =
+            processSerializer("component_forging", COMPONENT_FORGING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> ETCHING_SERIALIZER =
+            processSerializer("etching", ETCHING);
+    public static final RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> CRYSTAL_GROWING_SERIALIZER =
+            processSerializer("crystal_growing", CRYSTAL_GROWING);
+
+    /** The eleven process types, in display order. */
+    public static java.util.List<RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>>> processTypes() {
+        return java.util.List.of(ALLOYING, PRESSING, DRAWING, FOUNDRY_CASTING, CENTRIFUGING, CRYO_DISTILLING,
+                CONDENSING, REACTING, COMPONENT_FORGING, ETCHING, CRYSTAL_GROWING);
+    }
+
+    /** Every NeroTech recipe type the server syncs to clients for recipe viewers (all sixteen). */
+    public static java.util.List<RecipeType<?>> syncedTypes() {
+        java.util.List<RecipeType<?>> out = new java.util.ArrayList<>();
+        out.add(ORE_PROCESSING.get());
+        out.add(FABRICATING.get());
+        out.add(ADVANCED_FABRICATING.get());
+        out.add(COLLIDER.get());
+        out.add(CHEMICAL_PROCESSING.get());
+        processTypes().forEach(entry -> out.add(entry.get()));
+        return java.util.List.copyOf(out);
+    }
+
+    /** Every NeroTech recipe serializer (all sixteen), for loaders that sync by serializer (Fabric). */
+    public static java.util.List<RecipeSerializer<?>> syncedSerializers() {
+        return java.util.List.of(
+                ORE_PROCESSING_SERIALIZER.get(), FABRICATING_SERIALIZER.get(), ADVANCED_FABRICATING_SERIALIZER.get(),
+                COLLIDER_SERIALIZER.get(), CHEMICAL_PROCESSING_SERIALIZER.get(),
+                ALLOYING_SERIALIZER.get(), PRESSING_SERIALIZER.get(), DRAWING_SERIALIZER.get(),
+                FOUNDRY_CASTING_SERIALIZER.get(), CENTRIFUGING_SERIALIZER.get(), CRYO_DISTILLING_SERIALIZER.get(),
+                CONDENSING_SERIALIZER.get(), REACTING_SERIALIZER.get(), COMPONENT_FORGING_SERIALIZER.get(),
+                ETCHING_SERIALIZER.get(), CRYSTAL_GROWING_SERIALIZER.get());
+    }
+
     private ModRecipeTypes() {
+    }
+
+    private static RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> processType(String name) {
+        return TYPES.register(name, key -> new RecipeType<ProcessRecipe>() {
+            @Override
+            public String toString() {
+                return key.identifier().toString();
+            }
+        });
+    }
+
+    /** A process serializer from {@link ProcessRecipe}'s codec pair, bound to its own type. */
+    private static RegistrationProvider.RegistryEntry<RecipeSerializer<ProcessRecipe>> processSerializer(
+            String name, RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> type) {
+        java.util.concurrent.atomic.AtomicReference<RecipeSerializer<ProcessRecipe>> self =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        return SERIALIZERS.register(name, key -> {
+            //? if >=26.1 {
+            RecipeSerializer<ProcessRecipe> serializer = new RecipeSerializer<>(
+                    ProcessRecipe.mapCodec(type::get, self::get),
+                    ProcessRecipe.streamCodec(type::get, self::get));
+            //?} else {
+            /*com.mojang.serialization.MapCodec<ProcessRecipe> mapCodec = ProcessRecipe.mapCodec(type::get, self::get);
+            net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, ProcessRecipe> streamCodec =
+                    ProcessRecipe.streamCodec(type::get, self::get);
+            RecipeSerializer<ProcessRecipe> serializer = new RecipeSerializer<>() {
+                @Override
+                public com.mojang.serialization.MapCodec<ProcessRecipe> codec() {
+                    return mapCodec;
+                }
+
+                @Override
+                public net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, ProcessRecipe> streamCodec() {
+                    return streamCodec;
+                }
+            };
+            *///?}
+            self.set(serializer);
+            return serializer;
+        });
     }
 
     private static RegistrationProvider.RegistryEntry<RecipeType<MachineRecipe>> type(String name) {

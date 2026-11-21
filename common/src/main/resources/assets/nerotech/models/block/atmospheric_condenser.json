@@ -1,0 +1,408 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "front": "nerotech:block/atmospheric_condenser_front",
+    "side": "nerotech:block/atmospheric_condenser",
+    "west": "nerotech:block/atmospheric_condenser_west",
+    "back": "nerotech:block/atmospheric_condenser_back",
+    "top": "nerotech:block/atmospheric_condenser_top",
+    "particle": "nerotech:block/atmospheric_condenser"
+  },
+  "elements": [
+    {
+      "name": "foot",
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        2,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "name": "bulb",
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        7,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "bulb_shoulder",
+      "from": [
+        4,
+        7,
+        4
+      ],
+      "to": [
+        12,
+        8,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "neck",
+      "from": [
+        6,
+        8,
+        6
+      ],
+      "to": [
+        10,
+        10,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "bell_floor",
+      "from": [
+        3,
+        10,
+        3
+      ],
+      "to": [
+        13,
+        11,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "bell_north",
+      "from": [
+        2,
+        10,
+        2
+      ],
+      "to": [
+        14,
+        16,
+        3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "bell_south",
+      "from": [
+        2,
+        10,
+        13
+      ],
+      "to": [
+        14,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "bell_west",
+      "from": [
+        2,
+        10,
+        3
+      ],
+      "to": [
+        3,
+        16,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "bell_east",
+      "from": [
+        13,
+        10,
+        3
+      ],
+      "to": [
+        14,
+        16,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "lamp_plate",
+      "from": [
+        0.5,
+        11.5,
+        1.5
+      ],
+      "to": [
+        3.5,
+        14.5,
+        2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "status_socket",
+      "from": [
+        1.0,
+        12.0,
+        1.0
+      ],
+      "to": [
+        3.0,
+        14.0,
+        1.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "east": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "west": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "up": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "down": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        }
+      }
+    }
+  ]
+}

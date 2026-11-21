@@ -1,0 +1,26 @@
+{
+  "type": "nerotech:component_forging",
+  "items": [
+    {
+      "ingredient": "minecraft:copper_ingot",
+      "count": 4
+    },
+    {
+      "ingredient": "#c:plates/cindersteel",
+      "count": 2
+    }
+  ],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 250
+  },
+  "results": [
+    {
+      "item": "nerotech:heat_sink",
+      "count": 1
+    }
+  ],
+  "energy": 30,
+  "time": 160,
+  "min_heat": 0
+}

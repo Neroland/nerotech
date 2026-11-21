@@ -1,0 +1,296 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "heat": "0"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_core_0"
+      }
+    },
+    {
+      "when": {
+        "heat": "1"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_core_1"
+      }
+    },
+    {
+      "when": {
+        "heat": "2"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_core_2"
+      }
+    },
+    {
+      "when": {
+        "heat": "3"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_core_3"
+      }
+    },
+    {
+      "when": {
+        "heat": "0",
+        "north": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_0",
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "heat": "0",
+        "east": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_0",
+        "uvlock": false,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "heat": "0",
+        "south": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_0",
+        "uvlock": false,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "heat": "0",
+        "west": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_0",
+        "uvlock": false,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "heat": "0",
+        "up": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_0",
+        "uvlock": false,
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "heat": "0",
+        "down": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_0",
+        "uvlock": false,
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "heat": "1",
+        "north": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_1",
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "heat": "1",
+        "east": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_1",
+        "uvlock": false,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "heat": "1",
+        "south": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_1",
+        "uvlock": false,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "heat": "1",
+        "west": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_1",
+        "uvlock": false,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "heat": "1",
+        "up": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_1",
+        "uvlock": false,
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "heat": "1",
+        "down": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_1",
+        "uvlock": false,
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "heat": "2",
+        "north": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_2",
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "heat": "2",
+        "east": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_2",
+        "uvlock": false,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "heat": "2",
+        "south": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_2",
+        "uvlock": false,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "heat": "2",
+        "west": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_2",
+        "uvlock": false,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "heat": "2",
+        "up": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_2",
+        "uvlock": false,
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "heat": "2",
+        "down": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_2",
+        "uvlock": false,
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "heat": "3",
+        "north": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_3",
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "heat": "3",
+        "east": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_3",
+        "uvlock": false,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "heat": "3",
+        "south": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_3",
+        "uvlock": false,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "heat": "3",
+        "west": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_3",
+        "uvlock": false,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "heat": "3",
+        "up": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_3",
+        "uvlock": false,
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "heat": "3",
+        "down": "true"
+      },
+      "apply": {
+        "model": "nerotech:block/heat_pipe_arm_3",
+        "uvlock": false,
+        "x": 90
+      }
+    }
+  ]
+}

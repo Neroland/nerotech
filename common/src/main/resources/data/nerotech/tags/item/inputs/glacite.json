@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:gems/glacite",
+      "required": false
+    },
+    {
+      "id": "nerotech:synthetic_glacite",
+      "required": false
+    }
+  ]
+}

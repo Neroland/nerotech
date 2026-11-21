@@ -154,4 +154,116 @@ public final class MachineRenderHelper {
                 .setLight(light)
                 .setNormal(pose, nx, ny, nz);
     }
+
+    // ---- 0.8.0 shared kit: status lamp, heat shimmer, fluid and gas columns --------------------
+
+    /** Lamp colours (the teal ramp; heat comes from {@link #heatColor}). Packed 0xRRGGBB. */
+    public static final int TEAL_RGB = (16 << 16) | (118 << 8) | 130;
+    public static final int CYAN_RGB = (36 << 16) | (208 << 8) | 222;
+    public static final int PLASMA_RGB = (130 << 16) | (248 << 8) | 255;
+
+    /** Kit sprites painted by {@code tools/art/common.py paint_kit()} (white, tinted here). */
+    public static final Identifier LAMP_TEX = texture("status_lamp");
+    public static final Identifier LAMP_HALF_TEX = texture("status_lamp_half");
+    public static final Identifier SHIMMER_TEX = texture("heat_shimmer");
+    public static final Identifier FLUID_TEX = texture("fluid_column");
+
+    /** {@code gas_fill_0..2}: dithered fills at rising coverage (cutout has no blending). */
+    public static Identifier gasTexture(float fill) {
+        int level = fill < 0.34F ? 0 : fill < 0.67F ? 1 : 2;
+        return texture("gas_fill_" + level);
+    }
+
+    /** Linear blend of two packed colours ({@code t} clamped to 0..1). */
+    public static int lerpColor(float t, int from, int to) {
+        float f = Mth.clamp(t, 0.0F, 1.0F);
+        int r = (int) Mth.lerp(f, red(from), red(to));
+        int g = (int) Mth.lerp(f, green(from), green(to));
+        int b = (int) Mth.lerp(f, blue(from), blue(to));
+        return (r << 16) | (g << 8) | b;
+    }
+
+    /**
+     * The status lamp quad: a full-bright, front-facing (model north) quad carrying the whole lamp
+     * sprite, in block units. Call inside {@link #rotateToFacing}; {@link StatusLampRenderer} owns
+     * the socket position, the colours and the blink rhythm.
+     */
+    public static void lampQuad(VertexConsumer c, PoseStack.Pose pose, int rgb,
+            float x0, float y0, float x1, float y1, float z) {
+        face(c, pose, FULL_BRIGHT, rgb, 0, 0, -1,
+                x0, y0, z, 1, 1, x0, y1, z, 1, 0, x1, y1, z, 0, 0, x1, y0, z, 0, 1);
+    }
+
+    /**
+     * The heat-shimmer quads: two crossed, full-bright vertical quads standing on a top face
+     * (footprint {@code x0,z0 → x1,z1}, from {@code yBase} up by {@code height}), their dithered
+     * wave sprite scrolling upward by {@code scroll} (any value; only its fraction is used).
+     * Draw only in the HOT readout. Stays inside the block +1, so the usual one-block
+     * {@code getRenderBoundingBox} pad covers it.
+     */
+    public static void shimmerQuads(VertexConsumer c, PoseStack.Pose pose, int rgb,
+            float x0, float z0, float x1, float z1, float yBase, float height, float scroll) {
+        float xm = (x0 + x1) / 2.0F;
+        float zm = (z0 + z1) / 2.0F;
+        float v = scroll - Mth.floor(scroll);
+        scrolledSide(c, pose, FULL_BRIGHT, rgb, 0, -1, x0, zm, x1, zm, yBase, yBase + height, v, 1.0F);
+        scrolledSide(c, pose, FULL_BRIGHT, rgb, -1, 0, xm, z0, xm, z1, yBase, yBase + height, v, 1.0F);
+    }
+
+    /**
+     * A fluid or gas column: four tinted sides plus top and bottom caps, the sprite tiled once per
+     * block of height (so one call can span a stack of tanks) and scrolled vertically by
+     * {@code scroll} (0 = still; rising values drift the sprite upward — gases). Use
+     * {@link #FLUID_TEX} for liquids and {@link #gasTexture} for gases; pass the state's light for
+     * an ordinary medium or {@link #FULL_BRIGHT} for a glowing one. Draws nothing when
+     * {@code y1 <= y0}, so an empty tank costs no geometry.
+     */
+    public static void fluidColumn(VertexConsumer c, PoseStack.Pose pose, int light, int rgb,
+            float x0, float y0, float z0, float x1, float y1, float z1, float scroll) {
+        if (y1 <= y0) {
+            return;
+        }
+        float v = scroll - Mth.floor(scroll);
+        float bottom = y0;
+        while (bottom < y1 - 1.0E-4F) {
+            float top = Math.min(y1, bottom + 1.0F);
+            float span = top - bottom;
+            scrolledSide(c, pose, light, rgb, 0, -1, x0, z0, x1, z0, bottom, top, v, span);
+            scrolledSide(c, pose, light, rgb, 0, 1, x1, z1, x0, z1, bottom, top, v, span);
+            scrolledSide(c, pose, light, rgb, -1, 0, x0, z1, x0, z0, bottom, top, v, span);
+            scrolledSide(c, pose, light, rgb, 1, 0, x1, z0, x1, z1, bottom, top, v, span);
+            bottom = top;
+        }
+        face(c, pose, light, rgb, 0, 1, 0,
+                x0, y1, z0, 0, 0, x0, y1, z1, 0, 1, x1, y1, z1, 1, 1, x1, y1, z0, 1, 0);
+        face(c, pose, light, rgb, 0, -1, 0,
+                x0, y0, z0, 0, 0, x1, y0, z0, 1, 0, x1, y0, z1, 1, 1, x0, y0, z1, 0, 1);
+    }
+
+    /**
+     * One vertical quad from {@code (xa,za)} to {@code (xb,zb)} whose sprite window starts
+     * {@code vStart} (0..1) down the texture at the top edge and covers {@code vSpan} (≤ 1) of it.
+     * Where the window runs past the bottom of the sprite the quad is split in two, so the result
+     * never depends on the texture's wrap mode.
+     */
+    private static void scrolledSide(VertexConsumer c, PoseStack.Pose pose, int light, int rgb,
+            float nx, float nz, float xa, float za, float xb, float zb,
+            float yBottom, float yTop, float vStart, float vSpan) {
+        float vEnd = vStart + vSpan;
+        if (vEnd <= 1.0F) {
+            side(c, pose, light, rgb, nx, nz, xa, za, xb, zb, yBottom, yTop, vStart, vEnd);
+            return;
+        }
+        float yMid = yTop - (yTop - yBottom) * ((1.0F - vStart) / vSpan);
+        side(c, pose, light, rgb, nx, nz, xa, za, xb, zb, yMid, yTop, vStart, 1.0F);
+        side(c, pose, light, rgb, nx, nz, xa, za, xb, zb, yBottom, yMid, 0.0F, vEnd - 1.0F);
+    }
+
+    private static void side(VertexConsumer c, PoseStack.Pose pose, int light, int rgb,
+            float nx, float nz, float xa, float za, float xb, float zb,
+            float yBottom, float yTop, float vTop, float vBottom) {
+        face(c, pose, light, rgb, nx, 0, nz,
+                xa, yBottom, za, 0, vBottom, xa, yTop, za, 0, vTop,
+                xb, yTop, zb, 1, vTop, xb, yBottom, zb, 1, vBottom);
+    }
 }

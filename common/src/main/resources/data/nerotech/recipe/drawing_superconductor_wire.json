@@ -1,0 +1,22 @@
+{
+  "type": "nerotech:drawing",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/glacite",
+      "count": 2
+    },
+    {
+      "ingredient": "#c:wires/cindersteel",
+      "count": 2
+    }
+  ],
+  "results": [
+    {
+      "item": "nerotech:superconductor_wire",
+      "count": 2
+    }
+  ],
+  "energy": 60,
+  "time": 200,
+  "min_heat": 0
+}

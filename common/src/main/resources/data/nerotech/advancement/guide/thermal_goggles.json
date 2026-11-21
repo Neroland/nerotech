@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_thermal_goggles": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:thermal_goggles"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_thermal_goggles"
+    ]
+  ]
+}

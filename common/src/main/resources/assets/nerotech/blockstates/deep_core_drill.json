@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/deep_core_drill"
+    },
+    "facing=east": {
+      "model": "nerotech:block/deep_core_drill",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/deep_core_drill",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/deep_core_drill",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": "minecraft:nether_brick",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "BBB",
+    "BIB",
+    "BBB"
+  ],
+  "result": {
+    "id": "nerotech:foundry_brick",
+    "count": 4
+  }
+}

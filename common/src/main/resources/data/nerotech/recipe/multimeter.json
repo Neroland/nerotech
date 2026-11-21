@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "W": "nerotech:copper_wire",
+    "B": "nerotech:circuit_board",
+    "I": "#c:ingots/iron"
+  },
+  "pattern": [
+    " G ",
+    "WBW",
+    " I "
+  ],
+  "result": {
+    "id": "nerotech:multimeter"
+  }
+}

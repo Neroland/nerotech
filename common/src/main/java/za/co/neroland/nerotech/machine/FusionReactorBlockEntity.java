@@ -1,5 +1,12 @@
 package za.co.neroland.nerotech.machine;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -23,9 +30,18 @@ import za.co.neroland.nerolandcore.upgrade.UpgradeModifiers;
 import za.co.neroland.nerotech.api.MachineFailureEvents;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.link.NeroTechLinkModule;
+import za.co.neroland.nerotech.machine.fusion.EuropiumFluxLatticeBlock;
+import za.co.neroland.nerotech.machine.fusion.FuelInjectorBlockEntity;
+import za.co.neroland.nerotech.machine.fusion.FusionEvents;
+import za.co.neroland.nerotech.machine.fusion.FusionMath;
+import za.co.neroland.nerotech.machine.fusion.FusionSettings;
+import za.co.neroland.nerotech.machine.multiblock.FusionShape;
+import za.co.neroland.nerotech.machine.multiblock.MultiblockController;
+import za.co.neroland.nerotech.machine.multiblock.MultiblockValidator;
 import za.co.neroland.nerotech.menu.NeroGeneratorMenu;
 import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.progression.MilestoneGates;
+import za.co.neroland.nerotech.progression.OperatorCredit;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.tag.NeroTechTags;
 
@@ -53,18 +69,25 @@ import za.co.neroland.nerotech.tag.NeroTechTags;
  * <p><b>Failure events:</b> the reactor publishes its failure stages on
  * {@link MachineFailureEvents} — stage 1 once per overheat episode (too hot to ignite / stalled),
  * stage 3 on meltdown, stage 4 on a containment breach — keyed by machine + place, never the owner.
+ *
+ * <p><b>Shell ports (0.8.0):</b> a Fuel Injector in the shell adds the gas-fed top fuel tier
+ * ({@link FusionMath#GAS_TIER}): with deuterium and helium-3 in the configured ratio across its injectors,
+ * a maximal shell burns gas charges with no cell to craft. Each Europium Flux Lattice in the shell takes a
+ * share off the heat of every burning tick, up to a cap. Both are re-derived from the shell scan and
+ * never saved; with neither present the reactor behaves exactly as before (pinned by a unit test), and the
+ * save keys {@code Formed}, {@code ShellSize}, {@code BurningTier} are unchanged.
  */
 public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
 
     public static final int FUEL_SLOT = 0;
 
-    /** Structure re-validation cadence (ticks): eager while unformed, demolition-check while formed. */
-    private static final int RECHECK_UNFORMED = 20;
-    private static final int RECHECK_FORMED = 100;
+    /**
+     * Structure re-validation on the shared multiblock cadence (20 t unformed, 100 t formed, hash phase)
+     * plus an immediate rescan when a shell block reports a change.
+     */
+    private final MultiblockController structure = new MultiblockController(FusionShape.INSTANCE);
     /** Containment breach: pollution burst = this many normal per-operation contributions at once. */
     private static final int BREACH_POLLUTION_OPS = 25;
-    /** Extra multiples of the base heat rate while a tier-4 (antimatter) charge burns. */
-    private static final int ANTIMATTER_HEAT_SURCHARGE = 2;
     /** Shell edge size that alone can contain a fuel one tier above its own shell tier. */
     private static final int MAX_SHELL_SIZE = 7;
 
@@ -82,6 +105,20 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
      * transient, so the episode reads as one event per rising edge rather than one per tick.
      */
     private boolean overheatWarned;
+
+    /** Fuel Injector positions in the formed shell (re-derived by every scan; transient). */
+    private List<BlockPos> injectors = List.of();
+    /** Europium Flux Lattice positions in the formed shell (re-derived by every scan; transient). */
+    private List<BlockPos> lattices = List.of();
+    /** Whether the ports have been scanned since load (one forced scan re-derives them; transient). */
+    private boolean portsKnown;
+    /**
+     * Worst failure stage of the current episode (a breach sets {@link MachineFailureEvents#STAGE_BREACH});
+     * cleared when the shell re-forms. Transient, for the meltdown-averted credit only.
+     */
+    private int worstFailureStage;
+    /** Whether the current run of charges is gas-fed (for the first-ignition event; transient). */
+    private boolean gasEpisode;
 
     public FusionReactorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.FUSION_REACTOR.get(), pos, state, 1);
@@ -142,14 +179,18 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
             long output = Math.round(NeroTechConfig.fusionReactorNePerTick()
                     * mods.speedMultiplier() * presetSpeedFactor()
                     * FusionStructure.outputPermille(this.shellSize) / 1000.0D);
+            output = FusionMath.gasScaledOutput(output, this.burningTier, FusionSettings.gasOutputPermille());
             energyBuffer().generate((int) Math.min(Integer.MAX_VALUE, output));
             // Bigger shells run hotter: ×4 (3³) / ×5 (5³) / ×6 (7³) the base heat rate — and burning
             // ANTIMATTER (tier 4) adds a flat +2 on top. That is the whole trade: the longest burn in
             // the mod, bought by running the reactor close enough to the meltdown line to feel it.
-            addHeat(NeroTechConfig.heatPerOperation()
-                    * (3 + shellTier() + (this.burningTier >= 4 ? ANTIMATTER_HEAT_SURCHARGE : 0)));
+            // A gas-fed charge (tier 5) pays the same surcharge; each Europium Flux Lattice takes a share
+            // off, up to the cap. With no lattice this is exactly the pre-0.8.0 formula (FusionMathTest).
+            addHeat(FusionMath.heatPerTick(NeroTechConfig.heatPerOperation(), shellTier(), this.burningTier,
+                    this.lattices.size(), FusionSettings.latticeMaxCount(),
+                    FusionSettings.latticeHeatReductionPermille()));
             emitPollution(level, pos);
-        } else {
+        } else if (!tryIgniteGas(level, pos, roomToStore)) {
             ItemStack fuel = this.items.get(FUEL_SLOT);
             int tier = fuelTier(fuel);
             if (canContain(tier) && roomToStore && !overheated()) {
@@ -157,9 +198,11 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 this.progress = burn;
                 this.maxProgress = burn;
                 this.burningTier = tier;
+                this.gasEpisode = false;
                 fuel.shrink(1);
                 setChanged();
             } else {
+                this.gasEpisode = false;
                 // Analytics: too hot to ignite reads THROTTLED; no fuel or a tier the shell can't
                 // contain, STARVED; a full buffer just idles (the default covers it).
                 if (overheated()) {
@@ -184,12 +227,14 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
 
     /** Bounded structure re-validation on a phase-spread cadence; handles form + demolition. */
     private void revalidateOnCadence(Level level, BlockPos pos, BlockState state) {
-        int cadence = this.formed ? RECHECK_FORMED : RECHECK_UNFORMED;
-        if ((level.getGameTime() + Math.floorMod(pos.hashCode(), cadence)) % cadence != 0) {
+        Direction facing = state.getValue(NeroTechMachineBlock.FACING);
+        boolean due = this.structure.due(level, pos, facing, this.formed);
+        if (!due && this.portsKnown) {
             return;
         }
-        Direction facing = state.getValue(NeroTechMachineBlock.FACING);
-        FusionStructure.Shell shell = FusionStructure.validate(level, pos, facing);
+        Optional<MultiblockValidator.Formed> scan = this.structure.validate(level, pos, facing);
+        updatePorts(level, scan.map(MultiblockValidator.Formed::ports).orElse(List.of()));
+        FusionStructure.Shell shell = FusionStructure.toShell(scan);
         // Direct null checks (not via a flag) so ecj's null-flow analysis can track them.
         int nowSize = shell != null ? shell.size() : 0;
         boolean nowFormed = shell != null;
@@ -204,18 +249,141 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
             PollutionManager.record(serverLevel, pos,
                     NeroTechConfig.pollutionPerOperation() * BREACH_POLLUTION_OPS, this.ownerId);
             // World-event broadcast + a CRITICAL alert to the owner (no personal data in the broadcast).
-            NeroTechLinkModule.onReactorCritical(serverLevel.getServer(), this.ownerId, pos,
+            NeroTechLinkModule.onReactorCritical(serverLevel, this.ownerId, pos,
                     "containment_breach", this.shellSize);
             fireFailure(serverLevel, MachineFailureEvents.STAGE_BREACH, true);
+            this.worstFailureStage = MachineFailureEvents.STAGE_BREACH;
         }
         // First light: the shell just formed — record the owner's "Fusion Online" milestone (idempotent).
         if (nowFormed && !this.formed && level instanceof ServerLevel serverLevel) {
             MilestoneGates.record(serverLevel, this.ownerId, MilestoneGates.FUSION_ONLINE);
+            UUID operator = lastOperator().orElse(null);
+            MilestoneGates.credit(serverLevel, operator, MilestoneGates.FUSION_ONLINE);
+            // Restored after a breach: the operator in the moment brought the reactor back (hidden trophy).
+            if (OperatorCredit.meltdownAverted(this.worstFailureStage, true, operator)) {
+                MilestoneGates.credit(serverLevel, operator, MilestoneGates.MELTDOWN_AVERTED);
+            }
+            this.worstFailureStage = 0;
         }
         this.formed = nowFormed;
         this.shellSize = nowSize;
         setChanged();
         level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+    }
+
+    @Override
+    public void setRemoved() {
+        Level current = this.level;
+        if (current != null) {
+            this.structure.release(current, this.worldPosition);
+        }
+        super.setRemoved();
+    }
+
+    /**
+     * Sort the shell's ports into injectors and lattices, and keep each lattice's {@code stable} look in
+     * step: lit while in this formed shell, dark once it leaves. Blockstates change only on a real change
+     * and with client updates only, so no neighbour is notified and no rescan is triggered.
+     */
+    private void updatePorts(Level level, List<BlockPos> ports) {
+        List<BlockPos> nowInjectors = new ArrayList<>();
+        List<BlockPos> nowLattices = new ArrayList<>();
+        for (BlockPos port : ports) {
+            BlockState portState = level.getBlockState(port);
+            if (portState.getBlock() instanceof EuropiumFluxLatticeBlock) {
+                nowLattices.add(port);
+            } else {
+                nowInjectors.add(port);
+            }
+        }
+        Set<BlockPos> kept = new HashSet<>(nowLattices);
+        for (BlockPos old : this.lattices) {
+            if (!kept.contains(old)) {
+                setLatticeStable(level, old, false);
+            }
+        }
+        for (BlockPos lattice : nowLattices) {
+            setLatticeStable(level, lattice, true);
+        }
+        this.injectors = List.copyOf(nowInjectors);
+        this.lattices = List.copyOf(nowLattices);
+        this.portsKnown = true;
+    }
+
+    private static void setLatticeStable(Level level, BlockPos pos, boolean stable) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof EuropiumFluxLatticeBlock
+                && state.getValue(EuropiumFluxLatticeBlock.STABLE).booleanValue() != stable) {
+            level.setBlock(pos, state.setValue(EuropiumFluxLatticeBlock.STABLE, Boolean.valueOf(stable)),
+                    Block.UPDATE_CLIENTS);
+        }
+    }
+
+    /**
+     * Start a gas-fed charge if the shell can contain it and its injectors together hold one charge of
+     * both gases in the configured ratio. With no injector this returns {@code false} at once and changes
+     * nothing, so the fuel-cell path runs exactly as before.
+     */
+    private boolean tryIgniteGas(Level level, BlockPos pos, boolean roomToStore) {
+        if (this.injectors.isEmpty() || !roomToStore || overheated()
+                || !FusionMath.shellTakesGas(this.shellSize, FusionSettings.gasMinShellSize())) {
+            return false;
+        }
+        List<FuelInjectorBlockEntity> live = new ArrayList<>(this.injectors.size());
+        for (BlockPos at : this.injectors) {
+            if (level.getBlockEntity(at) instanceof FuelInjectorBlockEntity injector) {
+                live.add(injector);
+            }
+        }
+        int ticks = FusionSettings.gasChargeTicks();
+        long[] deuterium = new long[live.size()];
+        long[] helium3 = new long[live.size()];
+        long totalD = 0L;
+        long totalHe = 0L;
+        for (int i = 0; i < live.size(); i++) {
+            deuterium[i] = live.get(i).deuteriumAmount();
+            helium3[i] = live.get(i).helium3Amount();
+            totalD += deuterium[i];
+            totalHe += helium3[i];
+        }
+        if (!FusionMath.canIgniteGas(totalD, totalHe, ticks, FusionSettings.deuteriumPerTick(),
+                FusionSettings.helium3PerTick())) {
+            return false;
+        }
+        long[] drawD = FusionMath.drawPlan(deuterium,
+                FusionMath.deuteriumPerCharge(ticks, FusionSettings.deuteriumPerTick()));
+        long[] drawHe = FusionMath.drawPlan(helium3,
+                FusionMath.helium3PerCharge(ticks, FusionSettings.helium3PerTick()));
+        Optional<UUID> operator = lastOperator();
+        for (int i = 0; i < live.size(); i++) {
+            if (drawD[i] > 0 || drawHe[i] > 0) {
+                FuelInjectorBlockEntity injector = live.get(i);
+                injector.draw(drawD[i], drawHe[i]);
+                if (operator.isEmpty()) {
+                    operator = injector.lastOperator();
+                }
+            }
+        }
+        this.progress = ticks;
+        this.maxProgress = ticks;
+        this.burningTier = FusionMath.GAS_TIER;
+        setChanged();
+        // Milestone hook: the first charge of a gas episode credits the operator in the moment.
+        if (!this.gasEpisode && level instanceof ServerLevel serverLevel) {
+            FusionEvents.fireGasIgnition(serverLevel, pos, operator);
+        }
+        this.gasEpisode = true;
+        return true;
+    }
+
+    /** Europium Flux Lattices in the formed shell (uncapped count; the heat math applies the cap). */
+    public int latticeCount() {
+        return this.lattices.size();
+    }
+
+    /** Fuel Injectors in the formed shell. */
+    public int injectorCount() {
+        return this.injectors.size();
     }
 
     /** 1-based shell tier (3³→1, 5³→2, 7³→3); 0 when unformed. */
@@ -287,7 +455,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
         // heat check in tickMachine.)
         boolean terrainDamage = true;
         if (level instanceof ServerLevel serverLevel) {
-            NeroTechLinkModule.onReactorCritical(serverLevel.getServer(), this.ownerId, this.worldPosition,
+            NeroTechLinkModule.onReactorCritical(serverLevel, this.ownerId, this.worldPosition,
                     "meltdown", this.shellSize);
             fireFailure(serverLevel, MachineFailureEvents.STAGE_FAILURE, true);
             // auto → no terrain damage on a dedicated server (a shared world), full damage otherwise.

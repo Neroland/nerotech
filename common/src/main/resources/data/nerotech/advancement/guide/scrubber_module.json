@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_scrubber_module": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:scrubber_module"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_scrubber_module"
+    ]
+  ]
+}

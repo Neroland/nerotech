@@ -165,6 +165,10 @@ public final class NeroTechConfig {
             2, 0, 100_000, true, "pollution a machine emits per contribution (0 disables; solar emits none)");
     private static final ConfigValue<Integer> POLLUTION_CONTRIB_INTERVAL = SCHEMA.intRange("pollutionContributionIntervalTicks",
             40, 1, 72_000, true, "how often (ticks) a running machine adds to its region (batched, not per-tick)");
+    private static final ConfigValue<Integer> ANNUNCIATOR_POLLUTION_THRESHOLD = SCHEMA.intRange(
+            "annunciatorPollutionThreshold", 8, 0, 100_000, true, "pollution a machine may emit in 5 s before "
+            + "its 'polluting' alarm lights (Annunciator Panel, link alarm event); a Balanced processor "
+            + "emits about 5, Overdrive about 10");
     private static final ConfigValue<Integer> POLLUTION_DECAY_INTERVAL = SCHEMA.intRange("pollutionDecayIntervalTicks",
             200, 1, 72_000, true, "how often (ticks) regional pollution decays server-wide");
     private static final ConfigValue<Integer> POLLUTION_DECAY_AMOUNT = SCHEMA.intRange("pollutionDecayAmount",
@@ -266,6 +270,202 @@ public final class NeroTechConfig {
             "", true, "per-dimension solar multiplier FALLBACK (since Stage H, nerospace.api planet traits take "
             + "precedence for known planets when Nerospace is installed): comma-list of dimensionId=multiplier, "
             + "e.g. nerospace:greenxertz=1.5,nerospace:glacira=0.6 (Earth defaults to 1.0)");
+
+    // --- virtual deposits (Deep Core Drill / Survey Scanner) -------------------------------
+    private static final ConfigValue<Integer> DEPOSIT_YIELD_PERMILLE = SCHEMA.intRange("depositYieldPermille",
+            1_000, 0, 100_000, true, "permille scale on what a drilled deposit unit yields (1000 = the table's "
+            + "richness as written; 0 = drills extract nothing)");
+    private static final ConfigValue<Boolean> DEPOSIT_DEPLETION_ENABLED = SCHEMA.bool("depositDepletionEnabled",
+            true, true, "whether drilling depletes a chunk's deposit (false = deposits never run out and no "
+            + "depletion record is ever stored)");
+    private static final ConfigValue<Integer> DEPOSIT_RECOVERY_PER_DAY = SCHEMA.intRange("depositRecoveryPerDay",
+            200, 0, 1_000_000, true, "units a depleted deposit recovers per in-game day (24000 ticks), up to "
+            + "its capacity; 0 = deposits never recover");
+    private static final ConfigValue<String> DEPOSIT_DISABLED_DIMENSIONS = SCHEMA.string("depositDisabledDimensions",
+            "", true, "comma-list of dimension ids with no deposits at all (surveys read empty, drills idle), "
+            + "e.g. minecraft:the_end");
+
+    // --- 0.8.0 machine families (Stage 2) ------------------------------------------------
+    // metallurgy
+    private static final ConfigValue<Integer> PLASMA_CRUCIBLE_FIRING_ENERGY = SCHEMA.intRange("plasmaCrucibleFiringEnergy",
+            60, 1, 100_000, true, "NE per tick the Plasma Crucible spends firing its arc while it is below a recipe's "
+            + "min_heat (scaled by Efficiency modules and the overclock preset)");
+    private static final ConfigValue<Integer> PLASMA_CRUCIBLE_FIRING_HEAT = SCHEMA.intRange("plasmaCrucibleFiringHeat",
+            12, 1, 100_000, true, "heat one firing tick adds (firing never reaches heatThrottleThreshold)");
+    private static final ConfigValue<Integer> PLASMA_CRUCIBLE_HOLD_INTERVAL_TICKS = SCHEMA.intRange("plasmaCrucibleHoldIntervalTicks",
+            20, 1, 72_000, true, "an idle Plasma Crucible exchanges heat with its surroundings only once every this many "
+            + "ticks, so it holds its temperature between jobs (1 = no insulation)");
+    // foundry
+    private static final ConfigValue<Integer> FOUNDRY_BATCH_UNITS = SCHEMA.intRange("foundryBatchUnits",
+            4, 1, 64, true, "recipe units a 3x3x3 Blast Foundry runs per cycle (energy per tick scales with the "
+            + "units)");
+    private static final ConfigValue<Integer> FOUNDRY_LARGE_BATCH_MULTIPLIER = SCHEMA.intRange("foundryLargeBatchMultiplier",
+            4, 1, 16, true, "how many times the 3x3x3 batch a 5x5x5 Blast Foundry runs per cycle");
+    private static final ConfigValue<Integer> FOUNDRY_HEAT_PORT_CAPACITY = SCHEMA.intRange("foundryHeatPortCapacity",
+            500, 1, 100_000, true, "heat a Foundry Heat Port buffers for its controller to drain");
+    private static final ConfigValue<Integer> FOUNDRY_HEAT_LOSS_PERMILLE = SCHEMA.intRange("foundryHeatLossPermille",
+            5, 0, 1_000, true, "permille of the furnace's heat above ambient lost per tick (hot dimensions lose less; "
+            + "the furnace never warms toward ambient)");
+    private static final ConfigValue<Integer> FOUNDRY_HEAT_DRAW_PER_TICK = SCHEMA.intRange("foundryHeatDrawPerTick",
+            2, 0, 100_000, true, "furnace heat a running batch uses each tick");
+    private static final ConfigValue<Integer> FOUNDRY_HEAT_INTAKE_INTERVAL_TICKS = SCHEMA.intRange("foundryHeatIntakeIntervalTicks",
+            5, 1, 200, true, "how often (ticks) the controller drains its heat ports");
+    private static final ConfigValue<Integer> FOUNDRY_LIT_HOLD_TICKS = SCHEMA.intRange("foundryLitHoldTicks",
+            40, 0, 1_200, true, "ticks the shell stays lit after the foundry stops working (avoids flicker on short "
+            + "stalls)");
+    // chemistry
+    private static final ConfigValue<String> CONDENSER_ATMOSPHERES = SCHEMA.string("condenserAtmospheres",
+            "minecraft:the_nether=SULFUROUS,minecraft:the_end=VACUUM", true, "Atmospheric Condenser air per dimension when Nerospace has no say (absent, api drift, or "
+            + "not a Nerospace planet): comma-list of dimensionId=ATMOSPHERE with ATMOSPHERE one of "
+            + "VACUUM, THIN_CO2, SULFUROUS, NITROGEN_METHANE, NITROGEN_OXYGEN, EARTHLIKE. Unlisted "
+            + "dimensions are EARTHLIKE");
+    private static final ConfigValue<Integer> CRYO_COLD_BONUS_PER_HEAT_PERMILLE = SCHEMA.intRange("cryoColdBonusPerHeatPermille",
+            5, 0, 1_000, true, "Cryo Distiller speed change per point of ambient heat, permille: factor = 1 - ambient x "
+            + "this / 1000 (Glacira -80 gives 1.4)");
+    private static final ConfigValue<Integer> CRYO_SPEED_MIN_PERMILLE = SCHEMA.intRange("cryoSpeedMinPermille",
+            500, 1, 1_000, true, "Cryo Distiller speed floor in hot places, permille of the recipe rate");
+    private static final ConfigValue<Integer> CRYO_SPEED_MAX_PERMILLE = SCHEMA.intRange("cryoSpeedMaxPermille",
+            2_000, 1_000, 10_000, true, "Cryo Distiller speed cap in cold places, permille of the recipe rate");
+    private static final ConfigValue<Integer> CENTRIFUGE_CASCADE_PUSH_PER_TICK = SCHEMA.intRange("centrifugeCascadePushPerTick",
+            200, 1, 100_000, true, "gas (mB) a Centrifuge passes to the next one in its cascade each tick");
+    // components
+    private static final ConfigValue<Integer> CRYSTAL_GROWER_UNPOWERED_PERMILLE = SCHEMA.intRange("crystalGrowerUnpoweredPermille",
+            250, 0, 1_000, true, "growth speed of the Crystal Grower with no power, as permille of its powered speed (0 = "
+            + "it stalls unpowered like any other machine)");
+    private static final ConfigValue<Integer> CRYSTAL_GROWER_COLD_THRESHOLD = SCHEMA.intRange("crystalGrowerColdThreshold",
+            0, -100_000, 100_000, true, "ambient heat at or above which the Crystal Grower gets no cold bonus");
+    private static final ConfigValue<Integer> CRYSTAL_GROWER_COLD_BONUS_PER_HEAT_PERMILLE = SCHEMA.intRange("crystalGrowerColdBonusPerHeatPermille",
+            10, 0, 1_000, true, "extra Crystal Grower speed, in permille, per point of ambient heat below the threshold");
+    private static final ConfigValue<Integer> CRYSTAL_GROWER_COLD_BONUS_CAP_PERMILLE = SCHEMA.intRange("crystalGrowerColdBonusCapPermille",
+            1_000, 0, 4_000, true, "the most the cold bonus can add, in permille (1000 = twice as fast)");
+    // heat
+    private static final ConfigValue<Integer> HEAT_PIPE_MAX_RUN = SCHEMA.intRange("heatPipeMaxRun",
+            64, 1, 256, true, "most Heat Pipes one run resolves (flood-fill cap; pipes beyond it form their own run)");
+    private static final ConfigValue<Integer> HEAT_PIPE_CONDUCTIVITY_PERMILLE = SCHEMA.intRange("heatPipeConductivityPermille",
+            250, 0, 1_000, true, "permille of each endpoint-vs-run temperature difference a Heat Pipe run moves per "
+            + "exchange (0 disables pipes)");
+    private static final ConfigValue<Integer> HEAT_PIPE_LOSS_PERMILLE = SCHEMA.intRange("heatPipeLossPermille",
+            1, 0, 1_000, true, "permille of each pipe's heat above ambient lost per exchange, so long runs carry less");
+    private static final ConfigValue<Integer> HEAT_PIPE_EXCHANGE_INTERVAL_TICKS = SCHEMA.intRange("heatPipeExchangeIntervalTicks",
+            10, 1, 72_000, true, "ticks between a run's exchanges (only the run's anchor pipe ticks)");
+    private static final ConfigValue<Boolean> HEAT_PIPE_CONTACT_DAMAGE = SCHEMA.bool("heatPipeContactDamage",
+            true, true, "whether a Heat Pipe at heat level 2 or more hurts entities standing on it (sneaking "
+            + "avoids it)");
+    private static final ConfigValue<Double> HEAT_PIPE_CONTACT_DAMAGE_AMOUNT = SCHEMA.doubleRange("heatPipeContactDamageAmount",
+            1.0D, 0.0D, 20.0D, true, "damage per contact hit at level 2 (doubled at level 3)");
+    private static final ConfigValue<Integer> HEAT_EXCHANGER_MAX_PER_OP = SCHEMA.intRange("heatExchangerMaxPerOp",
+            60, 1, 100_000, true, "most heat one Heat Exchanger exchange moves, before Speed modules and the overclock "
+            + "preset");
+    private static final ConfigValue<Integer> HEAT_EXCHANGER_CONDUCTIVITY_PERMILLE = SCHEMA.intRange("heatExchangerConductivityPermille",
+            300, 0, 1_000, true, "permille of the machine-vs-tank difference moved per exchange for a storing medium "
+            + "(water and anything not listed as a coolant or hot medium)");
+    private static final ConfigValue<String> HEAT_EXCHANGER_COOLANTS = SCHEMA.string("heatExchangerCoolants",
+            "nerotech:cryo_coolant=4,nerotech:nitrogen=2", true, "coolant media as id=heatPerMb: absorb machine heat above ambient and are used up");
+    private static final ConfigValue<String> HEAT_EXCHANGER_HOT_MEDIA = SCHEMA.string("heatExchangerHotMedia",
+            "minecraft:lava=2", true, "hot media as id=heatPerMb: heat the machine and are used up");
+    private static final ConfigValue<Integer> HEAT_EXCHANGER_HOT_TEMPERATURE = SCHEMA.intRange("heatExchangerHotTemperature",
+            700, 0, 1_000_000, true, "heat a hot medium raises a machine to, at most");
+    // extraction
+    private static final ConfigValue<Integer> DRILL_OPERATION_TICKS = SCHEMA.intRange("drillOperationTicks",
+            200, 20, 12_000, true, "ticks one Deep Core Drill operation takes at 1x speed; the deposit is read once per "
+            + "operation");
+    private static final ConfigValue<Integer> DRILL_ENERGY_PER_TICK = SCHEMA.intRange("drillEnergyPerTick",
+            64, 0, 100_000, true, "NE per tick the drill draws while it works, before modules and preset");
+    private static final ConfigValue<Integer> DRILL_DEPLETED_RETRY_TICKS = SCHEMA.intRange("drillDepletedRetryTicks",
+            1_200, 20, 72_000, true, "ticks a drill waits before it retries a depleted or missing deposit");
+    private static final ConfigValue<Integer> SURVEY_SCANNER_CAPACITY = SCHEMA.intRange("surveyScannerCapacity",
+            10_000, 100, 1_000_000, true, "NE the Survey Scanner holds");
+    private static final ConfigValue<Integer> SURVEY_SCANNER_SCAN_COST = SCHEMA.intRange("surveyScannerScanCost",
+            500, 0, 1_000_000, true, "NE one survey costs");
+    private static final ConfigValue<Integer> SURVEY_SCANNER_COOLDOWN_TICKS = SCHEMA.intRange("surveyScannerCooldownTicks",
+            40, 0, 1_200, true, "ticks between two surveys with the same scanner");
+    // fusion
+    private static final ConfigValue<Integer> FUSION_GAS_MIN_SHELL_SIZE = SCHEMA.intRange("fusionGasMinShellSize",
+            7, 3, 7, true, "smallest fusion shell edge that can contain the gas-fed burn (gas is the top fuel tier, "
+            + "so by default only the 7x7x7 shell takes it)");
+    private static final ConfigValue<Integer> FUSION_GAS_CHARGE_TICKS = SCHEMA.intRange("fusionGasChargeTicks",
+            20, 1, 1_200, true, "ticks of burn bought by one gas draw; gas is drawn per charge across the shell's Fuel "
+            + "Injectors, never per tick");
+    private static final ConfigValue<Integer> FUSION_GAS_DEUTERIUM_PER_TICK = SCHEMA.intRange("fusionGasDeuteriumPerTick",
+            2, 1, 1_000, true, "mB of deuterium burned per tick of gas-fed burn");
+    private static final ConfigValue<Integer> FUSION_GAS_HELIUM3_PER_TICK = SCHEMA.intRange("fusionGasHelium3PerTick",
+            1, 1, 1_000, true, "mB of helium-3 burned per tick of gas-fed burn; a charge needs both gases and a surplus "
+            + "of one never covers the other");
+    private static final ConfigValue<Integer> FUSION_GAS_OUTPUT_PERMILLE = SCHEMA.intRange("fusionGasOutputPermille",
+            1_500, 0, 10_000, true, "output of a gas-fed burn against a fuel-cell burn of the same shell (1500 = x1.5), on "
+            + "top of fusionSizeOutputPermille");
+    private static final ConfigValue<Integer> FUEL_INJECTOR_GAS_CAPACITY = SCHEMA.intRange("fuelInjectorGasCapacity",
+            8_000, 100, 1_000_000, true, "mB of each gas one Fuel Injector holds (two tanks: deuterium, helium-3)");
+    private static final ConfigValue<Integer> FUSION_LATTICE_HEAT_REDUCTION_PERMILLE = SCHEMA.intRange("fusionLatticeHeatReductionPermille",
+            60, 0, 1_000, true, "share of the reactor's heat per burning tick that each counted Europium Flux Lattice "
+            + "removes");
+    private static final ConfigValue<Integer> FUSION_LATTICE_MAX_COUNT = SCHEMA.intRange("fusionLatticeMaxCount",
+            8, 0, 98, true, "lattices beyond this many in one shell add nothing (default cap: 8 x 60 = 48% less heat)");
+    // utility
+    private static final ConfigValue<Boolean> INDUCTION_CHARGE_PLAYERS = SCHEMA.bool("inductionChargePlayers",
+            true, true, "Induction Chargers charge energy items held or worn by players standing in range. "
+            + "Proximity only; nothing about the player is stored. Off leaves the entity charging API "
+            + "working");
+    private static final ConfigValue<Integer> INDUCTION_CHARGER_RADIUS = SCHEMA.intRange("inductionChargerRadius",
+            4, 0, 16, true, "reach of an Induction Charger in blocks on every axis (a bounded box)");
+    private static final ConfigValue<Integer> INDUCTION_CHARGER_TRANSFER_PER_TICK = SCHEMA.intRange("inductionChargerTransferPerTick",
+            256, 0, 100_000, true, "NE one charger may hand out per tick (scaled by Speed modules and the overclock preset); "
+            + "player charging and the entity API share it");
+    private static final ConfigValue<Boolean> ANNUNCIATOR_ALARM_SOUND = SCHEMA.bool("annunciatorAlarmSound",
+            true, true, "an Annunciator Panel beeps once when a new alarm lights");
+    private static final ConfigValue<Integer> ANNUNCIATOR_REFRESH_TICKS = SCHEMA.intRange("annunciatorRefreshTicks",
+            10, 1, 200, true, "how often an Annunciator Panel re-reads the machines touching it");
+    // upgrade modules (NeroTech-classified; Core's UpgradeType is closed)
+    private static final ConfigValue<Integer> HEAT_SINK_MODULE_HEADROOM_PERMILLE = SCHEMA.intRange("heatSinkModuleHeadroomPermille",
+            125, 0, 250, true, "share of the headroom between heatThrottleThreshold and heatCapacity each Heat Sink Module "
+            + "opens (at most 4 count, and at most half the headroom opens in total)");
+    private static final ConfigValue<Integer> SCRUBBER_MODULE_POLLUTION_PERMILLE = SCHEMA.intRange("scrubberModulePollutionPermille",
+            200, 0, 1_000, true, "pollution per operation each Scrubber Module removes, permille of normal (at most 4 count)");
+    private static final ConfigValue<Integer> SCRUBBER_MODULE_FLOOR_PERMILLE = SCHEMA.intRange("scrubberModuleFloorPermille",
+            250, 0, 1_000, true, "Scrubber Modules never cut pollution below this permille of normal");
+    // tools (all charge through Core energy; the Induction Charger fills them)
+    private static final ConfigValue<Integer> POWER_DRILL_CAPACITY = SCHEMA.intRange("powerDrillCapacity",
+            40_000, 100, 10_000_000, true, "NE the Power Drill holds");
+    private static final ConfigValue<Integer> POWER_DRILL_ENERGY_PER_BLOCK = SCHEMA.intRange("powerDrillEnergyPerBlock",
+            80, 0, 100_000, true, "NE the Power Drill spends per block it breaks (each extra block of an area or vein too)");
+    private static final ConfigValue<Integer> POWER_DRILL_VEIN_MAX = SCHEMA.intRange("powerDrillVeinMaxBlocks",
+            32, 1, 64, true, "most blocks one vein-mode break may take, the first included (hard cap 64)");
+    private static final ConfigValue<Integer> CUTTING_LANCE_CAPACITY = SCHEMA.intRange("cuttingLanceCapacity",
+            40_000, 100, 10_000_000, true, "NE the Cutting Lance holds");
+    private static final ConfigValue<Integer> CUTTING_LANCE_ENERGY_PER_SHOT = SCHEMA.intRange("cuttingLanceEnergyPerShot",
+            300, 0, 100_000, true, "NE one Cutting Lance cut costs before the lens factor");
+    private static final ConfigValue<Integer> CUTTING_LANCE_COOLDOWN_TICKS = SCHEMA.intRange("cuttingLanceCooldownTicks",
+            12, 0, 200, true, "ticks between two cuts before the lens factor");
+    private static final ConfigValue<Integer> CUTTING_LANCE_RANGE = SCHEMA.intRange("cuttingLanceRange",
+            16, 1, 32, true, "reach of the Cutting Lance in blocks (the Void lens doubles it; never past 32)");
+    private static final ConfigValue<Integer> ARC_WRENCH_CAPACITY = SCHEMA.intRange("arcWrenchCapacity",
+            10_000, 100, 10_000_000, true, "NE the Arc Wrench holds");
+    private static final ConfigValue<Integer> ARC_WRENCH_ENERGY_PER_USE = SCHEMA.intRange("arcWrenchEnergyPerUse",
+            200, 0, 100_000, true, "NE one Arc Wrench rotation, pick-up or placement costs");
+    private static final ConfigValue<Integer> ARC_WRENCH_COOLDOWN_TICKS = SCHEMA.intRange("arcWrenchCooldownTicks",
+            10, 0, 200, true, "ticks between two Arc Wrench actions");
+    private static final ConfigValue<Integer> MULTIMETER_CAPACITY = SCHEMA.intRange("multimeterCapacity",
+            5_000, 100, 10_000_000, true, "NE the Multimeter holds");
+    private static final ConfigValue<Integer> MULTIMETER_ENERGY_PER_READING = SCHEMA.intRange("multimeterEnergyPerReading",
+            25, 0, 100_000, true, "NE one Multimeter reading costs");
+    private static final ConfigValue<Integer> MULTIMETER_COOLDOWN_TICKS = SCHEMA.intRange("multimeterCooldownTicks",
+            10, 0, 200, true, "ticks between two Multimeter readings");
+    private static final ConfigValue<Integer> THERMAL_GOGGLES_CAPACITY = SCHEMA.intRange("thermalGogglesCapacity",
+            20_000, 100, 10_000_000, true, "NE the Thermal Goggles hold");
+    private static final ConfigValue<Integer> THERMAL_GOGGLES_DRAIN = SCHEMA.intRange("thermalGogglesDrainPerSecond",
+            5, 0, 100_000, true, "NE worn Thermal Goggles drain per second; the overlay shows only while charged");
+    private static final ConfigValue<Integer> FILTER_MASK_CAPACITY = SCHEMA.intRange("filterMaskCapacity",
+            10_000, 100, 10_000_000, true, "NE the Filter Mask holds");
+    private static final ConfigValue<Integer> FILTER_MASK_ENERGY_PER_PULSE = SCHEMA.intRange("filterMaskEnergyPerPulse",
+            20, 0, 100_000, true, "NE a worn Filter Mask spends each time it blocks a pollution exposure pulse");
+    private static final ConfigValue<Integer> FILTER_MASK_PULSES_PER_CARTRIDGE = SCHEMA.intRange("filterMaskPulsesPerCartridge",
+            36, 1, 10_000, true, "exposure pulses one fitted Filter Cartridge blocks before it fouls into a Dirty Filter");
+    // pollution exposure (what the Filter Mask blocks)
+    private static final ConfigValue<Boolean> POLLUTION_EXPOSURE_EFFECTS = SCHEMA.bool("pollutionExposureEffects",
+            true, true, "players standing in a region at the severe pollution band (twice pollutionEventThreshold) get "
+            + "brief Weakness and Hunger each pulse unless a charged Filter Mask with a cartridge blocks it; nothing is stored");
+    private static final ConfigValue<Integer> POLLUTION_EXPOSURE_INTERVAL_TICKS = SCHEMA.intRange("pollutionExposureIntervalTicks",
+            100, 20, 6_000, true, "ticks between two pollution exposure pulses (also the worn-tool drain tick)");
 
     // --- telemetry (anonymous crash reporting; CLIENT-LOCAL opt-out, not server-synced) -----
     private static final ConfigValue<Boolean> TELEMETRY_ENABLED = SCHEMA.bool("telemetryEnabled",
@@ -456,6 +656,11 @@ public final class NeroTechConfig {
         return COOLANT_PUMP_HEAT_PER_OP.get();
     }
 
+    /** Pollution a machine may emit in 5 s before its {@code polluting} alarm bit lights. */
+    public static int annunciatorPollutionThreshold() {
+        return ANNUNCIATOR_POLLUTION_THRESHOLD.get();
+    }
+
     public static int pollutionPerOperation() {
         return POLLUTION_PER_OP.get();
     }
@@ -637,6 +842,315 @@ public final class NeroTechConfig {
         return SOLAR_DIM_MULTIPLIERS.get();
     }
 
+    /** Permille scale on drilled deposit yield. */
+    public static int depositYieldPermille() {
+        return DEPOSIT_YIELD_PERMILLE.get();
+    }
+
+    /** Whether drilling depletes deposits. */
+    public static boolean depositDepletionEnabled() {
+        return DEPOSIT_DEPLETION_ENABLED.get();
+    }
+
+    /** Units a depleted deposit recovers per in-game day. */
+    public static int depositRecoveryPerDay() {
+        return DEPOSIT_RECOVERY_PER_DAY.get();
+    }
+
+    /** Comma-list of dimension ids with no deposits. */
+    public static String depositDisabledDimensions() {
+        return DEPOSIT_DISABLED_DIMENSIONS.get();
+    }
+
+    // --- 0.8.0 machine families (Stage 2) ------------------------------------------------
+
+    public static int plasmaCrucibleFiringEnergy() {
+        return PLASMA_CRUCIBLE_FIRING_ENERGY.get();
+    }
+
+    public static int plasmaCrucibleFiringHeat() {
+        return PLASMA_CRUCIBLE_FIRING_HEAT.get();
+    }
+
+    public static int plasmaCrucibleHoldIntervalTicks() {
+        return PLASMA_CRUCIBLE_HOLD_INTERVAL_TICKS.get();
+    }
+
+    public static int foundryBatchUnits() {
+        return FOUNDRY_BATCH_UNITS.get();
+    }
+
+    public static int foundryLargeBatchMultiplier() {
+        return FOUNDRY_LARGE_BATCH_MULTIPLIER.get();
+    }
+
+    public static int foundryHeatPortCapacity() {
+        return FOUNDRY_HEAT_PORT_CAPACITY.get();
+    }
+
+    public static int foundryHeatLossPermille() {
+        return FOUNDRY_HEAT_LOSS_PERMILLE.get();
+    }
+
+    public static int foundryHeatDrawPerTick() {
+        return FOUNDRY_HEAT_DRAW_PER_TICK.get();
+    }
+
+    public static int foundryHeatIntakeIntervalTicks() {
+        return FOUNDRY_HEAT_INTAKE_INTERVAL_TICKS.get();
+    }
+
+    public static int foundryLitHoldTicks() {
+        return FOUNDRY_LIT_HOLD_TICKS.get();
+    }
+
+    public static String condenserAtmospheres() {
+        return CONDENSER_ATMOSPHERES.get();
+    }
+
+    public static int cryoColdBonusPerHeatPermille() {
+        return CRYO_COLD_BONUS_PER_HEAT_PERMILLE.get();
+    }
+
+    public static int cryoSpeedMinPermille() {
+        return CRYO_SPEED_MIN_PERMILLE.get();
+    }
+
+    public static int cryoSpeedMaxPermille() {
+        return CRYO_SPEED_MAX_PERMILLE.get();
+    }
+
+    public static int centrifugeCascadePushPerTick() {
+        return CENTRIFUGE_CASCADE_PUSH_PER_TICK.get();
+    }
+
+    public static int crystalGrowerUnpoweredPermille() {
+        return CRYSTAL_GROWER_UNPOWERED_PERMILLE.get();
+    }
+
+    public static int crystalGrowerColdThreshold() {
+        return CRYSTAL_GROWER_COLD_THRESHOLD.get();
+    }
+
+    public static int crystalGrowerColdBonusPerHeatPermille() {
+        return CRYSTAL_GROWER_COLD_BONUS_PER_HEAT_PERMILLE.get();
+    }
+
+    public static int crystalGrowerColdBonusCapPermille() {
+        return CRYSTAL_GROWER_COLD_BONUS_CAP_PERMILLE.get();
+    }
+
+    public static int heatPipeMaxRun() {
+        return HEAT_PIPE_MAX_RUN.get();
+    }
+
+    public static int heatPipeConductivityPermille() {
+        return HEAT_PIPE_CONDUCTIVITY_PERMILLE.get();
+    }
+
+    public static int heatPipeLossPermille() {
+        return HEAT_PIPE_LOSS_PERMILLE.get();
+    }
+
+    public static int heatPipeExchangeIntervalTicks() {
+        return HEAT_PIPE_EXCHANGE_INTERVAL_TICKS.get();
+    }
+
+    public static boolean heatPipeContactDamage() {
+        return HEAT_PIPE_CONTACT_DAMAGE.get();
+    }
+
+    public static double heatPipeContactDamageAmount() {
+        return HEAT_PIPE_CONTACT_DAMAGE_AMOUNT.get();
+    }
+
+    public static int heatExchangerMaxPerOp() {
+        return HEAT_EXCHANGER_MAX_PER_OP.get();
+    }
+
+    public static int heatExchangerConductivityPermille() {
+        return HEAT_EXCHANGER_CONDUCTIVITY_PERMILLE.get();
+    }
+
+    public static String heatExchangerCoolants() {
+        return HEAT_EXCHANGER_COOLANTS.get();
+    }
+
+    public static String heatExchangerHotMedia() {
+        return HEAT_EXCHANGER_HOT_MEDIA.get();
+    }
+
+    public static int heatExchangerHotTemperature() {
+        return HEAT_EXCHANGER_HOT_TEMPERATURE.get();
+    }
+
+    public static int drillOperationTicks() {
+        return DRILL_OPERATION_TICKS.get();
+    }
+
+    public static int drillEnergyPerTick() {
+        return DRILL_ENERGY_PER_TICK.get();
+    }
+
+    public static int drillDepletedRetryTicks() {
+        return DRILL_DEPLETED_RETRY_TICKS.get();
+    }
+
+    public static int surveyScannerCapacity() {
+        return SURVEY_SCANNER_CAPACITY.get();
+    }
+
+    public static int surveyScannerScanCost() {
+        return SURVEY_SCANNER_SCAN_COST.get();
+    }
+
+    public static int surveyScannerCooldownTicks() {
+        return SURVEY_SCANNER_COOLDOWN_TICKS.get();
+    }
+
+    public static int fusionGasMinShellSize() {
+        return FUSION_GAS_MIN_SHELL_SIZE.get();
+    }
+
+    public static int fusionGasChargeTicks() {
+        return FUSION_GAS_CHARGE_TICKS.get();
+    }
+
+    public static int fusionGasDeuteriumPerTick() {
+        return FUSION_GAS_DEUTERIUM_PER_TICK.get();
+    }
+
+    public static int fusionGasHelium3PerTick() {
+        return FUSION_GAS_HELIUM3_PER_TICK.get();
+    }
+
+    public static int fusionGasOutputPermille() {
+        return FUSION_GAS_OUTPUT_PERMILLE.get();
+    }
+
+    public static long fuelInjectorGasCapacity() {
+        return FUEL_INJECTOR_GAS_CAPACITY.get();
+    }
+
+    public static int fusionLatticeHeatReductionPermille() {
+        return FUSION_LATTICE_HEAT_REDUCTION_PERMILLE.get();
+    }
+
+    public static int fusionLatticeMaxCount() {
+        return FUSION_LATTICE_MAX_COUNT.get();
+    }
+
+    public static boolean inductionChargePlayers() {
+        return INDUCTION_CHARGE_PLAYERS.get();
+    }
+
+    public static int inductionChargerRadius() {
+        return INDUCTION_CHARGER_RADIUS.get();
+    }
+
+    public static int inductionChargerTransferPerTick() {
+        return INDUCTION_CHARGER_TRANSFER_PER_TICK.get();
+    }
+
+    public static boolean annunciatorAlarmSound() {
+        return ANNUNCIATOR_ALARM_SOUND.get();
+    }
+
+    public static int annunciatorRefreshTicks() {
+        return ANNUNCIATOR_REFRESH_TICKS.get();
+    }
+
+    public static int heatSinkModuleHeadroomPermille() {
+        return HEAT_SINK_MODULE_HEADROOM_PERMILLE.get();
+    }
+
+    public static int scrubberModulePollutionPermille() {
+        return SCRUBBER_MODULE_POLLUTION_PERMILLE.get();
+    }
+
+    public static int scrubberModuleFloorPermille() {
+        return SCRUBBER_MODULE_FLOOR_PERMILLE.get();
+    }
+
+    public static int powerDrillCapacity() {
+        return POWER_DRILL_CAPACITY.get();
+    }
+
+    public static int powerDrillEnergyPerBlock() {
+        return POWER_DRILL_ENERGY_PER_BLOCK.get();
+    }
+
+    public static int powerDrillVeinMaxBlocks() {
+        return POWER_DRILL_VEIN_MAX.get();
+    }
+
+    public static int cuttingLanceCapacity() {
+        return CUTTING_LANCE_CAPACITY.get();
+    }
+
+    public static int cuttingLanceEnergyPerShot() {
+        return CUTTING_LANCE_ENERGY_PER_SHOT.get();
+    }
+
+    public static int cuttingLanceCooldownTicks() {
+        return CUTTING_LANCE_COOLDOWN_TICKS.get();
+    }
+
+    public static int cuttingLanceRange() {
+        return CUTTING_LANCE_RANGE.get();
+    }
+
+    public static int arcWrenchCapacity() {
+        return ARC_WRENCH_CAPACITY.get();
+    }
+
+    public static int arcWrenchEnergyPerUse() {
+        return ARC_WRENCH_ENERGY_PER_USE.get();
+    }
+
+    public static int arcWrenchCooldownTicks() {
+        return ARC_WRENCH_COOLDOWN_TICKS.get();
+    }
+
+    public static int multimeterCapacity() {
+        return MULTIMETER_CAPACITY.get();
+    }
+
+    public static int multimeterEnergyPerReading() {
+        return MULTIMETER_ENERGY_PER_READING.get();
+    }
+
+    public static int multimeterCooldownTicks() {
+        return MULTIMETER_COOLDOWN_TICKS.get();
+    }
+
+    public static int thermalGogglesCapacity() {
+        return THERMAL_GOGGLES_CAPACITY.get();
+    }
+
+    public static int thermalGogglesDrainPerSecond() {
+        return THERMAL_GOGGLES_DRAIN.get();
+    }
+
+    public static int filterMaskCapacity() {
+        return FILTER_MASK_CAPACITY.get();
+    }
+
+    public static int filterMaskEnergyPerPulse() {
+        return FILTER_MASK_ENERGY_PER_PULSE.get();
+    }
+
+    public static int filterMaskPulsesPerCartridge() {
+        return FILTER_MASK_PULSES_PER_CARTRIDGE.get();
+    }
+
+    public static boolean pollutionExposureEffects() {
+        return POLLUTION_EXPOSURE_EFFECTS.get();
+    }
+
+    public static int pollutionExposureIntervalTicks() {
+        return POLLUTION_EXPOSURE_INTERVAL_TICKS.get();
+    }
     public static boolean telemetryEnabled() {
         return TELEMETRY_ENABLED.get();
     }

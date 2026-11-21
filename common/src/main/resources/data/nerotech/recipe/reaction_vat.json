@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass",
+    "C": "minecraft:cauldron",
+    "B": "nerotech:circuit_board",
+    "F": "nerotech:machine_frame",
+    "I": "#c:ingots/iron"
+  },
+  "pattern": [
+    "GBG",
+    "GCG",
+    "IFI"
+  ],
+  "result": {
+    "id": "nerotech:reaction_vat"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:has_component",
+    "component": "nerotech:fitted_filter",
+    "on_true": {
+      "type": "minecraft:select",
+      "property": "minecraft:display_context",
+      "cases": [
+        {
+          "when": "head",
+          "model": {
+            "type": "minecraft:model",
+            "model": "nerotech:item/filter_mask"
+          }
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "nerotech:item/filter_mask_icon"
+      }
+    },
+    "on_false": {
+      "type": "minecraft:select",
+      "property": "minecraft:display_context",
+      "cases": [
+        {
+          "when": "head",
+          "model": {
+            "type": "minecraft:model",
+            "model": "nerotech:item/filter_mask_empty"
+          }
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "nerotech:item/filter_mask_empty_icon"
+      }
+    }
+  }
+}

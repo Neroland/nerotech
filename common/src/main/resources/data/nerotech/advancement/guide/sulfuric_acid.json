@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_sulfuric_acid_bucket": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:sulfuric_acid_bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_sulfuric_acid_bucket"
+    ]
+  ]
+}

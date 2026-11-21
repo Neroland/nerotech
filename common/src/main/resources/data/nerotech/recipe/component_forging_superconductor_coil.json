@@ -1,0 +1,30 @@
+{
+  "type": "nerotech:component_forging",
+  "items": [
+    {
+      "ingredient": "#c:wires/superconductor",
+      "count": 4
+    },
+    {
+      "ingredient": "#nerotech:coils/tier2",
+      "count": 1
+    },
+    {
+      "ingredient": "nerotech:heat_sink",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "nerotech:cryo_coolant",
+    "amount": 250
+  },
+  "results": [
+    {
+      "item": "nerotech:superconductor_coil",
+      "count": 1
+    }
+  ],
+  "energy": 60,
+  "time": 200,
+  "min_heat": 0
+}

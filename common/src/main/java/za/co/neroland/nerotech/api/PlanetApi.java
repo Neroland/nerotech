@@ -5,6 +5,8 @@ import net.minecraft.world.level.Level;
 
 import za.co.neroland.nerotech.heat.ThermalEnvironment;
 import za.co.neroland.nerotech.machine.PlanetModifiers;
+import za.co.neroland.nerotech.machine.chemistry.AtmosphereLookup;
+import za.co.neroland.nerotech.machine.chemistry.AtmosphereMapping;
 
 /**
  * The per-planet environment NeroTech's own generators and thermal model run on, re-exported for
@@ -43,5 +45,24 @@ public final class PlanetApi {
      */
     public static int ambientAt(Level level, BlockPos pos) {
         return ThermalEnvironment.ambientAt(level, pos);
+    }
+
+    /**
+     * The air an Atmospheric Condenser draws at {@code pos} in {@code level} (since 0.8.0): Nerospace
+     * planet archetype / temperature band when Nerospace is installed (Europa is {@link Atmosphere#VACUUM}
+     * by dimension id) → the {@code condenserAtmospheres} config table → {@link Atmosphere#EARTHLIKE}.
+     * Dimension-wide today; the position is part of the signature so a later release can vary it.
+     */
+    public static Atmosphere atmosphereAt(Level level, BlockPos pos) {
+        return AtmosphereLookup.readingAt(level).atmosphere();
+    }
+
+    /**
+     * How fast the condenser draws {@link #atmosphereAt} here, as a multiplier of its recipe rate
+     * (1.0 normally, 0.5 on a twilight world, 0 in vacuum). Since 0.8.0.
+     */
+    public static double atmosphereRateAt(Level level, BlockPos pos) {
+        AtmosphereMapping.Reading reading = AtmosphereLookup.readingAt(level);
+        return reading.atmosphere().condensable() ? reading.rate() : 0.0D;
     }
 }

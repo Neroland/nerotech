@@ -1,0 +1,18 @@
+{
+  "type": "nerotech:pressing",
+  "items": [],
+  "fluid_in": {
+    "id": "#c:polymer_resin",
+    "amount": 250
+  },
+  "catalyst": "nerotech:plate_die",
+  "results": [
+    {
+      "item": "nerotech:polymer_sheet",
+      "count": 1
+    }
+  ],
+  "energy": 20,
+  "time": 80,
+  "min_heat": 0
+}

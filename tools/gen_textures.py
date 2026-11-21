@@ -2629,6 +2629,299 @@ def gen_antimatter_cell():
 
 # ---------------- main ----------------
 
+# ---------------- 0.8.0 materials (stub art — the art pass replaces these) ----------------
+
+CINDERSTEEL = [(112, 70, 64, 255), (78, 46, 44, 255), (168, 112, 96, 255)]
+TITANIUM = [(168, 178, 190, 255), (124, 134, 148, 255), (214, 222, 230, 255)]
+GLACITE = [(120, 210, 232, 255), (70, 150, 184, 255), (200, 244, 252, 255)]
+SULFUR = [(222, 204, 64, 255), (176, 156, 36, 255), (248, 236, 140, 255)]
+EUROPIUM = [(176, 150, 214, 255), (128, 104, 170, 255), (220, 204, 246, 255)]
+POLYMER = [(214, 150, 78, 255), (168, 104, 48, 255), (240, 196, 132, 255)]
+QUARTZ = [(226, 222, 214, 255), (184, 178, 170, 255), (250, 248, 244, 255)]
+EMBER = [(236, 112, 48, 255), (180, 62, 28, 255), (255, 186, 110, 255)]
+VOID = [(84, 52, 120, 255), (44, 26, 70, 255), (150, 112, 200, 255)]
+SILICON = [(92, 104, 124, 255), (60, 70, 88, 255), (150, 166, 190, 255)]
+SUPERCOND = [(96, 220, 214, 255), (40, 150, 150, 255), (190, 255, 250, 255)]
+
+
+def _shade(px, x, y, ramp, x0, x1, y0, y1):
+    """Pick a ramp colour from position: highlight top-left, shadow bottom-right."""
+    if y == y0 or x == x0:
+        return ramp[2]
+    if y == y1 or x == x1:
+        return ramp[1]
+    return ramp[0]
+
+
+def gen_ingot(name, ramp):
+    rng = rng_for(name)
+    img = new_img()
+    px = img.load()
+    for y in range(11, 22):
+        inset = max(0, 13 - y) + max(0, y - 19)
+        x0, x1 = 6 + inset, 25 - inset
+        for x in range(x0, x1 + 1):
+            col = _shade(px, x, y, ramp, x0, x1, 11, 21)
+            if col == ramp[0] and rng.random() < 0.15:
+                col = _mix(ramp[0], ramp[2], 0.3)
+            px[x, y] = col
+    px[10, 13] = T_CYAN
+    save(img, "item", name)
+
+
+def gen_plate(name, ramp):
+    rng = rng_for(name)
+    img = new_img()
+    px = img.load()
+    for y in range(7, 25):
+        for x in range(5, 27):
+            col = _shade(px, x, y, ramp, 5, 26, 7, 24)
+            if col == ramp[0] and rng.random() < 0.12:
+                col = _mix(ramp[0], ramp[1], 0.4)
+            px[x, y] = col
+    for (rx, ry) in ((8, 10), (23, 10), (8, 21), (23, 21)):
+        px[rx, ry] = A_DARK
+    save(img, "item", name)
+
+
+def gen_rod(name, ramp):
+    img = new_img()
+    px = img.load()
+    for i in range(6, 26):
+        for w in range(-1, 2):
+            x, y = i + w, 31 - i
+            if 0 <= x < S and 0 <= y < S:
+                px[x, y] = ramp[2] if w < 0 else (ramp[1] if w > 0 else ramp[0])
+    save(img, "item", name)
+
+
+def gen_wire(name, ramp):
+    """A spool: alloy flanges with the wire wound between them."""
+    img = new_img()
+    px = img.load()
+    for y in range(6, 26):
+        for x in (8, 9, 22, 23):
+            px[x, y] = A_LIGHT if x in (8, 22) else A_DARK
+    for y in range(8, 24):
+        for x in range(10, 22):
+            px[x, y] = ramp[2] if y % 3 == 0 else (ramp[0] if y % 3 == 1 else ramp[1])
+    for x in range(14, 18):
+        px[x, 15] = A_DARK
+    save(img, "item", name)
+
+
+def gen_coil(name, ramp):
+    """Bobbin like the Nero Coil, wound in the material's colour."""
+    img = new_img()
+    px = img.load()
+    rng = rng_for(name)
+    for (cy0, cy1) in ((5, 8), (23, 26)):
+        for y in range(cy0, cy1 + 1):
+            for x in range(10, 22):
+                px[x, y] = rng.choice(ALLOY)
+        for x in range(10, 22):
+            px[x, cy0] = A_LIGHT
+            px[x, cy1] = A_DARK
+    for y in range(9, 23):
+        for x in range(11, 21):
+            col = ramp[0] if y % 2 == 0 else ramp[1]
+            if x == 13:
+                col = ramp[2]
+            elif x >= 19:
+                col = _mix(col, A_DARK, 0.45)
+            px[x, y] = col
+    save(img, "item", name)
+
+
+def gen_gem(name, ramp, size=8):
+    img = new_img()
+    px = img.load()
+    cx, cy = 16, 16
+    for y in range(cy - size, cy + size + 1):
+        half = size - abs(y - cy)
+        for x in range(cx - half, cx + half + 1):
+            if x <= cx and y <= cy:
+                col = ramp[2]
+            elif x > cx and y > cy:
+                col = ramp[1]
+            else:
+                col = ramp[0]
+            px[x, y] = col
+    px[cx - 2, cy - 3] = (255, 255, 255, 255)
+    save(img, "item", name)
+
+
+def gen_boule(name, ramp):
+    img = new_img()
+    px = img.load()
+    for y in range(5, 28):
+        half = 5 if 8 <= y <= 24 else 3
+        for x in range(16 - half, 16 + half):
+            px[x, y] = ramp[2] if x < 14 else (ramp[1] if x > 18 else ramp[0])
+    save(img, "item", name)
+
+
+def gen_wafer(name, ramp):
+    img = new_img()
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 11:
+                col = ramp[0]
+                if d > 10:
+                    col = ramp[1]
+                elif (x // 4 + y // 4) % 2 == 0:
+                    col = _mix(ramp[0], T_TEAL, 0.35)
+                px[x, y] = col
+    save(img, "item", name)
+
+
+def gen_sheet(name, ramp):
+    img = new_img()
+    px = img.load()
+    for y in range(8, 24):
+        for x in range(4 + (y - 8) // 3, 28 - (23 - y) // 3):
+            px[x, y] = ramp[2] if y == 8 else (ramp[1] if y == 23 else ramp[0])
+    save(img, "item", name)
+
+
+def gen_processor(name, accent):
+    img = new_img()
+    px = img.load()
+    for y in range(8, 24):
+        for x in range(8, 24):
+            px[x, y] = A_DARK
+    for i in range(10, 23, 3):
+        for (x, y) in ((i, 6), (i, 7), (i, 24), (i, 25), (6, i), (7, i), (24, i), (25, i)):
+            px[x, y] = A_LIGHT
+    for y in range(12, 20):
+        for x in range(12, 20):
+            px[x, y] = accent if (x + y) % 2 == 0 else _mix(accent, A_DARK, 0.5)
+    px[10, 10] = T_PLASMA
+    save(img, "item", name)
+
+
+def gen_servo(name):
+    img = new_img()
+    px = img.load()
+    rng = rng_for(name)
+    for y in range(10, 26):
+        for x in range(6, 22):
+            px[x, y] = rng.choice(ALLOY)
+    for y in range(13, 23):
+        for x in range(22, 27):
+            px[x, y] = A_LIGHT if y in (13, 22) else GRAY
+    for (x, y) in ((14, 18), (15, 18), (14, 17), (15, 17)):
+        px[x, y] = T_CYAN
+    save(img, "item", name)
+
+
+def gen_capacitor(name):
+    img = new_img()
+    px = img.load()
+    for y in range(6, 24):
+        for x in range(11, 21):
+            px[x, y] = T_TEAL if x < 19 else T_DEEP
+    for x in range(11, 21):
+        px[x, 6] = A_LIGHT
+    for y in range(24, 29):
+        px[13, y] = A_LIGHT
+        px[18, y] = A_LIGHT
+    save(img, "item", name)
+
+
+def gen_heat_sink(name):
+    img = new_img()
+    px = img.load()
+    for y in range(20, 26):
+        for x in range(5, 27):
+            px[x, y] = GRAY_L if y == 20 else GRAY
+    for fx in range(6, 27, 4):
+        for y in range(7, 20):
+            px[fx, y] = GRAY_L
+            px[fx + 1, y] = GRAY_D
+    save(img, "item", name)
+
+
+def gen_lens(name, ramp):
+    img = new_img()
+    px = img.load()
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - 15.5, y - 15.5)
+            if d <= 11:
+                px[x, y] = A_LIGHT if d > 9.5 else (ramp[2] if (x + y) < 26 else ramp[0])
+    save(img, "item", name)
+
+
+def gen_drill_head(name, ramp):
+    img = new_img()
+    px = img.load()
+    for y in range(4, 28):
+        half = max(1, (y - 4) // 2) if y < 20 else 8
+        for x in range(16 - half, 16 + half):
+            col = ramp[2] if x < 16 else ramp[1]
+            if y < 20 and (y + x) % 5 == 0:
+                col = ramp[0]
+            px[x, y] = col
+    save(img, "item", name)
+
+
+def gen_bucket(name, liquid):
+    img = new_img()
+    px = img.load()
+    for y in range(9, 28):
+        inset = (y - 9) // 6
+        for x in range(7 + inset, 25 - inset):
+            edge = x in (7 + inset, 24 - inset) or y == 27
+            px[x, y] = GRAY_D if edge else GRAY_L
+    for x in range(8, 24):
+        for y in range(10, 13):
+            px[x, y] = liquid
+    for x in range(9, 23):
+        px[x, 6] = GRAY
+    px[8, 7] = GRAY
+    px[23, 7] = GRAY
+    save(img, "item", name)
+
+
+def gen_080_materials():
+    gen_ingot("cindersteel_ingot", CINDERSTEEL)
+    gen_plate("cindersteel_plate", CINDERSTEEL)
+    gen_rod("cindersteel_rod", CINDERSTEEL)
+    gen_plate("titanium_plate", TITANIUM)
+    gen_gem("synthetic_glacite", GLACITE)
+    gen_gem("crystal_seed", SILICON, size=4)
+    gen_boule("crystal_boule", SILICON)
+    gen_wafer("wafer", SILICON)
+    gen_dust("sulfur_dust", SULFUR)
+    gen_sheet("polymer_sheet", POLYMER)
+    gen_dust("europium_dust", EUROPIUM)
+    gen_processor("logic_processor", T_CYAN)
+    gen_processor("quantum_processor", EUROPIUM[0])
+    gen_wire("copper_wire", COPPER)
+    gen_wire("cindersteel_wire", CINDERSTEEL)
+    gen_wire("superconductor_wire", SUPERCOND)
+    gen_coil("copper_coil", COPPER)
+    gen_coil("cindersteel_coil", CINDERSTEEL)
+    gen_coil("superconductor_coil", SUPERCOND)
+    gen_servo("servo")
+    gen_capacitor("capacitor")
+    gen_heat_sink("heat_sink")
+    gen_lens("quartz_focus_lens", QUARTZ)
+    gen_lens("glacite_focus_lens", GLACITE)
+    gen_lens("ember_focus_lens", EMBER)
+    gen_lens("void_focus_lens", VOID)
+    gen_drill_head("iron_drill_head", IRON)
+    gen_drill_head("cindersteel_drill_head", CINDERSTEEL)
+    gen_drill_head("glacite_drill_head", GLACITE)
+    gen_bucket("cryo_coolant_bucket", (92, 196, 236, 255))
+    gen_bucket("sulfuric_acid_bucket", (214, 206, 64, 255))
+    gen_bucket("polymer_resin_bucket", (196, 120, 52, 255))
+    # The Process Tank is painted by the chemistry art package (tools/art/chemistry.py).
+
+
 def check_coverage():
     """Flag any pre-existing PNG no painter owns — after a --force run NOTHING may be left on
     the old 16x art, and every model-referenced name must resolve."""
@@ -2642,6 +2935,15 @@ def check_coverage():
                   % (folder, ", ".join(orphans)))
     if clean:
         print("coverage: every existing block/item PNG has a painter.")
+
+
+def paint_art_packages():
+    """Run tools/art: one painter module per work package, each exposing paint() and PULSE."""
+    # Run as a script this module is "__main__"; alias it so art.common imports THIS instance
+    # (one PAINTED ledger, one FORCE flag) instead of executing the file a second time.
+    sys.modules.setdefault("gen_textures", sys.modules[__name__])
+    import art
+    art.paint_all()
 
 
 def main():
@@ -2703,6 +3005,11 @@ def main():
     gen_tech_guide_datapad()
     # GUI sheets (the Tech Guide is the one textured screen — Star Guide recipe)
     gen_gui_tech_guide()
+    # 0.8.0 materials and buckets (the Process Tank comes from the chemistry art package)
+    gen_080_materials()
+    # 0.8.0 art packages: the shared kit sprites, then every tools/art/<pkg>.py paint().
+    # Packages not written yet are skipped; none of them edits this file.
+    paint_art_packages()
     check_coverage()
 
 

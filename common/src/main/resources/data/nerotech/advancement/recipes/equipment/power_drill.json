@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "nerotech:iron_drill_head",
+              "nerotech:servo",
+              "nerotech:capacitor",
+              "nerotech:cindersteel_plate",
+              "nerotech:cindersteel_rod"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "nerotech:power_drill"
+    ]
+  }
+}

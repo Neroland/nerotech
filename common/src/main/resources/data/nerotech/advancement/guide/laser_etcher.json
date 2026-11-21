@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_laser_etcher": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:laser_etcher"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_laser_etcher"
+    ]
+  ]
+}

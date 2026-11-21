@@ -5,6 +5,7 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.fluid.NeroTechLiquid;
 import za.co.neroland.nerotech.gas.NeroTechGases;
 import za.co.neroland.nerotech.registry.RegistrationProvider;
 
@@ -27,6 +28,26 @@ public final class NeoForgeFluidTypes {
     public static final RegistrationProvider.RegistryEntry<FluidType> OXYGEN =
             TYPES.register("oxygen", key -> gasType());
 
+    /** 0.8.0 gases, keyed by canonical gas id (hydrogen and oxygen keep their own fields above). */
+    private static final java.util.Map<Identifier, RegistrationProvider.RegistryEntry<FluidType>> GAS_TYPES =
+            new java.util.HashMap<>();
+    /** 0.8.0 liquids. */
+    private static final java.util.Map<NeroTechLiquid, RegistrationProvider.RegistryEntry<FluidType>> LIQUID_TYPES =
+            new java.util.EnumMap<>(NeroTechLiquid.class);
+
+    static {
+        GAS_TYPES.put(NeroTechGases.HYDROGEN, HYDROGEN);
+        GAS_TYPES.put(NeroTechGases.OXYGEN, OXYGEN);
+        for (Identifier gas : NeroTechGases.ALL) {
+            if (!GAS_TYPES.containsKey(gas)) {
+                GAS_TYPES.put(gas, TYPES.register(gas.getPath(), key -> gasType()));
+            }
+        }
+        for (NeroTechLiquid liquid : NeroTechLiquid.values()) {
+            LIQUID_TYPES.put(liquid, TYPES.register(liquid.id(), key -> liquidType(liquid)));
+        }
+    }
+
     private NeoForgeFluidTypes() {
     }
 
@@ -36,7 +57,26 @@ public final class NeoForgeFluidTypes {
 
     /** The type for one of NeroTech's gases; hydrogen is the fallback for anything unknown. */
     public static FluidType forGas(Identifier gas) {
-        return NeroTechGases.OXYGEN.equals(NeroTechGases.canonical(gas)) ? OXYGEN.get() : HYDROGEN.get();
+        RegistrationProvider.RegistryEntry<FluidType> entry = GAS_TYPES.get(NeroTechGases.canonical(gas));
+        return entry == null ? HYDROGEN.get() : entry.get();
+    }
+
+    /** The type of one of NeroTech's liquids. */
+    public static FluidType forLiquid(NeroTechLiquid liquid) {
+        return LIQUID_TYPES.get(liquid).get();
+    }
+
+    /** Every gas type entry (for the client's pre-26.1 render extensions). */
+    public static java.util.Map<Identifier, RegistrationProvider.RegistryEntry<FluidType>> gasTypes() {
+        return java.util.Collections.unmodifiableMap(GAS_TYPES);
+    }
+
+    private static FluidType liquidType(NeroTechLiquid liquid) {
+        return new FluidType(FluidType.Properties.create()
+                .density(liquid.density())
+                .viscosity(liquid.viscosity())
+                .temperature(liquid.temperature())
+                .canConvertToSource(false));
     }
 
     private static FluidType gasType() {

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "B": "minecraft:copper_block"
+  },
+  "pattern": [
+    "CCC",
+    "BBB",
+    "CCC"
+  ],
+  "result": {
+    "id": "nerotech:heat_pipe",
+    "count": 4
+  }
+}

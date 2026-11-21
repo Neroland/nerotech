@@ -1,0 +1,497 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "pipe": "nerotech:block/heat_pipe_0",
+    "particle": "nerotech:block/heat_pipe_0"
+  },
+  "elements": [
+    {
+      "name": "node",
+      "from": [
+        5,
+        5,
+        5
+      ],
+      "to": [
+        11,
+        11,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        }
+      }
+    },
+    {
+      "name": "barrel",
+      "from": [
+        0,
+        6,
+        6
+      ],
+      "to": [
+        5,
+        10,
+        10
+      ],
+      "faces": {
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            6,
+            0,
+            10,
+            4
+          ]
+        },
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "name": "sleeve",
+      "from": [
+        1,
+        5.5,
+        5.5
+      ],
+      "to": [
+        4,
+        10.5,
+        10.5
+      ],
+      "faces": {
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            4,
+            4,
+            9,
+            9
+          ]
+        },
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            4,
+            4,
+            9,
+            9
+          ]
+        },
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            4,
+            3,
+            9
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            4,
+            3,
+            9
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            4,
+            3,
+            9
+          ]
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            4,
+            3,
+            9
+          ]
+        }
+      }
+    },
+    {
+      "name": "heat_band",
+      "from": [
+        1.75,
+        5.25,
+        5.25
+      ],
+      "to": [
+        3.25,
+        10.75,
+        10.75
+      ],
+      "faces": {
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            4,
+            4,
+            9,
+            9
+          ]
+        },
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            4,
+            4,
+            9,
+            9
+          ]
+        },
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            10,
+            4,
+            11.5,
+            9.5
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            10,
+            4,
+            11.5,
+            9.5
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            10,
+            4,
+            11.5,
+            9.5
+          ],
+          "rotation": 90
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            10,
+            4,
+            11.5,
+            9.5
+          ],
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "name": "barrel",
+      "from": [
+        11,
+        6,
+        6
+      ],
+      "to": [
+        16,
+        10,
+        10
+      ],
+      "faces": {
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            6,
+            0,
+            10,
+            4
+          ]
+        },
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ]
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            0,
+            5,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "name": "sleeve",
+      "from": [
+        12,
+        5.5,
+        5.5
+      ],
+      "to": [
+        15,
+        10.5,
+        10.5
+      ],
+      "faces": {
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            4,
+            4,
+            9,
+            9
+          ]
+        },
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            4,
+            4,
+            9,
+            9
+          ]
+        },
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            4,
+            3,
+            9
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            4,
+            3,
+            9
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            4,
+            3,
+            9
+          ]
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            4,
+            3,
+            9
+          ]
+        }
+      }
+    },
+    {
+      "name": "heat_band",
+      "from": [
+        12.75,
+        5.25,
+        5.25
+      ],
+      "to": [
+        14.25,
+        10.75,
+        10.75
+      ],
+      "faces": {
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            4,
+            4,
+            9,
+            9
+          ]
+        },
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            4,
+            4,
+            9,
+            9
+          ]
+        },
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            10,
+            4,
+            11.5,
+            9.5
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            10,
+            4,
+            11.5,
+            9.5
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            10,
+            4,
+            11.5,
+            9.5
+          ],
+          "rotation": 90
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            10,
+            4,
+            11.5,
+            9.5
+          ],
+          "rotation": 90
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_foundry_brick": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:foundry_brick"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_foundry_brick"
+    ]
+  ]
+}

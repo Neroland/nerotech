@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "part=lower": {
+      "model": "nerotech:block/drill_derrick_lower"
+    },
+    "part=upper": {
+      "model": "nerotech:block/drill_derrick_upper"
+    }
+  }
+}

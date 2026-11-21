@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "nerospace:methane_crystal",
+      "required": false
+    },
+    {
+      "id": "#c:ores/methane",
+      "required": false
+    },
+    {
+      "id": "#c:gems/methane",
+      "required": false
+    }
+  ]
+}

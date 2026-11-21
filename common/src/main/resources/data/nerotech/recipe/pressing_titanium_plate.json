@@ -1,0 +1,19 @@
+{
+  "type": "nerotech:pressing",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/titanium_ingot",
+      "count": 1
+    }
+  ],
+  "catalyst": "nerotech:plate_die",
+  "results": [
+    {
+      "item": "nerotech:titanium_plate",
+      "count": 1
+    }
+  ],
+  "energy": 30,
+  "time": 100,
+  "min_heat": 0
+}

@@ -1,0 +1,23 @@
+{
+  "type": "nerotech:etching",
+  "items": [
+    {
+      "ingredient": "nerotech:wafer",
+      "count": 1
+    },
+    {
+      "ingredient": "#c:wires/cindersteel",
+      "count": 2
+    }
+  ],
+  "catalyst": "nerotech:ember_focus_lens",
+  "results": [
+    {
+      "item": "nerotech:logic_processor",
+      "count": 1
+    }
+  ],
+  "energy": 50,
+  "time": 200,
+  "min_heat": 0
+}

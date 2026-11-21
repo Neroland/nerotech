@@ -1,0 +1,14 @@
+{
+  "type": "nerotech:centrifuging",
+  "gas_in": {
+    "id": "nerotech:deuterium",
+    "amount": 2
+  },
+  "gas_out": {
+    "id": "nerotech:deuterium",
+    "amount": 2
+  },
+  "energy": 20,
+  "time": 80,
+  "atmosphere": "cascade_2"
+}

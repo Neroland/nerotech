@@ -1,0 +1,22 @@
+{
+  "type": "nerotech:drawing",
+  "items": [
+    {
+      "ingredient": "#c:wires/cindersteel",
+      "count": 4
+    },
+    {
+      "ingredient": "#c:rods/cindersteel",
+      "count": 1
+    }
+  ],
+  "results": [
+    {
+      "item": "nerotech:cindersteel_coil",
+      "count": 1
+    }
+  ],
+  "energy": 50,
+  "time": 200,
+  "min_heat": 0
+}

@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:component",
+    "component": "nerotech:drill_mode",
+    "cases": [
+      {
+        "when": "area",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nerotech:item/power_drill_area"
+        }
+      },
+      {
+        "when": "vein",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nerotech:item/power_drill_vein"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "nerotech:item/power_drill"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/induction_charger"
+    },
+    "facing=east": {
+      "model": "nerotech:block/induction_charger",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/induction_charger",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/induction_charger",
+      "y": 270
+    }
+  }
+}

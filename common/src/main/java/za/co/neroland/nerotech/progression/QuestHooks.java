@@ -61,6 +61,7 @@ public final class QuestHooks {
 
     /** Register the progression listener; call once from common init. */
     public static void init() {
+        CoreEvents.onProgression(change -> onMilestone(change.open(), change.scope(), change.gate(), change.target()));
         CoreEvents.onProgression(change -> {
             if (!change.open() || change.scope() != GateScope.PLAYER || !TECH_GUIDE_UNLOCK.equals(change.gate())) {
                 return;
@@ -107,8 +108,49 @@ public final class QuestHooks {
         ONLINE.retainAll(now);
     }
 
-    /** On login: deliver a hook that opened while the player was offline. */
+    /**
+     * A milestone gate ({@link TechGuide#MILESTONE_STEPS}) opened for a player: light its Tech Guide step by
+     * awarding the hidden {@code guide/<gate>} advancement. The gate already names the player (it is their
+     * own record); nothing else is read or stored.
+     */
+    private static void onMilestone(boolean open, GateScope scope, Identifier gate, String target) {
+        if (!open || scope != GateScope.PLAYER) {
+            return;
+        }
+        Identifier step = guideStepFor(gate);
+        MinecraftServer running = server;
+        if (step == null || running == null) {
+            return; // not a guide milestone, or no server yet (onJoin back-fills)
+        }
+        UUID id;
+        try {
+            id = UUID.fromString(target);
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        ServerPlayer player = running.getPlayerList().getPlayer(id);
+        if (player != null) {
+            awardAdvancement(player, step);
+        }
+    }
+
+    /** The guide advancement a milestone gate completes, or null when the gate is not a guide milestone. */
+    static @Nullable Identifier guideStepFor(Identifier gate) {
+        if (!NeroTechCommon.MOD_ID.equals(gate.getNamespace()) || !TechGuide.MILESTONE_STEPS.contains(gate.getPath())) {
+            return null;
+        }
+        return Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "guide/" + gate.getPath());
+    }
+
+    /** On login: deliver a hook that opened while the player was offline, and back-fill milestone steps. */
     public static void onJoin(ServerPlayer player) {
+        for (String milestone : TechGuide.MILESTONE_STEPS) {
+            Identifier gate = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, milestone);
+            Identifier step = guideStepFor(gate);
+            if (step != null && ProgressionGates.isOpen(player, gate)) {
+                awardAdvancement(player, step);
+            }
+        }
         if (ProgressionGates.isOpen(player, TECH_GUIDE_UNLOCK)) {
             unlockNextGuideEntry(player);
             ProgressionGates.close(player, TECH_GUIDE_UNLOCK);
@@ -138,7 +180,12 @@ public final class QuestHooks {
 
     /** Award every remaining criterion of the step's advancement; false when it cannot be resolved. */
     private static boolean award(ServerPlayer player, TechGuide.Step step) {
-        AdvancementHolder holder = player.level().getServer().getAdvancements().get(step.advancement());
+        return awardAdvancement(player, step.advancement());
+    }
+
+    /** Award every remaining criterion of an advancement; false when it cannot be resolved. Idempotent. */
+    private static boolean awardAdvancement(ServerPlayer player, Identifier advancement) {
+        AdvancementHolder holder = player.level().getServer().getAdvancements().get(advancement);
         if (holder == null) {
             return false;
         }

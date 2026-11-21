@@ -1,0 +1,26 @@
+{
+  "type": "nerotech:crystal_growing",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/optical_crystal",
+      "count": 2
+    },
+    {
+      "ingredient": "minecraft:glass_pane",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 500
+  },
+  "results": [
+    {
+      "item": "nerotech:void_focus_lens",
+      "count": 1
+    }
+  ],
+  "energy": 40,
+  "time": 800,
+  "min_heat": 0
+}

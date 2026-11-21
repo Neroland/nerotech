@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "nerotech:cindersteel_plate",
+    "H": "nerotech:iron_drill_head",
+    "R": "nerotech:cindersteel_rod"
+  },
+  "pattern": [
+    " P ",
+    "PHP",
+    " R "
+  ],
+  "result": {
+    "id": "nerotech:cindersteel_drill_head"
+  }
+}

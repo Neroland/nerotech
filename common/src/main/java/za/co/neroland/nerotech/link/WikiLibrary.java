@@ -48,7 +48,7 @@ public final class WikiLibrary {
             "Consequence-Systems", "Pollution-and-Mitigation", "Analytics", "Overclock-Presets",
             "Side-Config-and-Configurator", "Advanced-Tier", "Fusion-Reactor", "Automation",
             "Fluids-and-Gases", "Particle-Collider", "Power-Generation", "Exotic-Endgame",
-            "Planets", "Power-and-NeroPower-Split", "Companion-App");
+            "Planets", "Power-and-NeroPower-Split", "Companion-App", "Link-Module");
 
     private static volatile List<Page> cachedIndex;
 

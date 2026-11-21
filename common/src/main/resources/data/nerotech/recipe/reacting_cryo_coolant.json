@@ -1,0 +1,23 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    {
+      "ingredient": "minecraft:blue_ice",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 1000
+  },
+  "gas_in": {
+    "id": "nerotech:nitrogen",
+    "amount": 4
+  },
+  "fluid_out": {
+    "id": "nerotech:cryo_coolant",
+    "amount": 1000
+  },
+  "energy": 60,
+  "time": 600
+}

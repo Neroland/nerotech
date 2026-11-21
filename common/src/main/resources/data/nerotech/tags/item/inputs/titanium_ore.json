@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:ores/titanium",
+      "required": false
+    },
+    {
+      "id": "#c:ores/ilmenite",
+      "required": false
+    }
+  ]
+}

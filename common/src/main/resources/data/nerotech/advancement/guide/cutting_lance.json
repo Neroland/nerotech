@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_cutting_lance": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:cutting_lance"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_cutting_lance"
+    ]
+  ]
+}

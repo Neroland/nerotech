@@ -1,0 +1,41 @@
+{
+  "title": "quest.nerotech.industrial_record.chemistry_set.title",
+  "description": "quest.nerotech.industrial_record.chemistry_set.desc",
+  "icon": "nerotech:reaction_vat",
+  "prerequisites": [
+    "nerotech:industrial_record/heat_and_gas"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:centrifuge",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:cryo_distiller",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:reaction_vat",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:process_tank",
+      "count": 2
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 250
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 200
+    }
+  ],
+  "scope": "player"
+}

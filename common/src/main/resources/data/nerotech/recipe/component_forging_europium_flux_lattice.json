@@ -1,0 +1,38 @@
+{
+  "type": "nerotech:component_forging",
+  "items": [
+    {
+      "ingredient": "nerotech:fusion_casing",
+      "count": 1
+    },
+    {
+      "ingredient": "#c:dusts/europium",
+      "count": 4
+    },
+    {
+      "ingredient": "#c:ingots/cindersteel",
+      "count": 2
+    },
+    {
+      "ingredient": "nerotech:quantum_processor",
+      "count": 1
+    },
+    {
+      "ingredient": "#c:wires/superconductor",
+      "count": 2
+    }
+  ],
+  "fluid_in": {
+    "id": "nerotech:cryo_coolant",
+    "amount": 500
+  },
+  "results": [
+    {
+      "item": "nerotech:europium_flux_lattice",
+      "count": 4
+    }
+  ],
+  "energy": 80,
+  "time": 400,
+  "min_heat": 0
+}

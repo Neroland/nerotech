@@ -152,6 +152,12 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("tech_guide",
                     key -> BlockEntityTypeCompat.create(TechGuideBlockEntity::new, ModBlocks.TECH_GUIDE.get()));
 
+    /** 0.8.0 Process Tank: one medium (fluid or gas), stackable into a shared-level column. */
+    public static final RegistryEntry<BlockEntityType<za.co.neroland.nerotech.machine.tank.ProcessTankBlockEntity>> PROCESS_TANK =
+            BLOCK_ENTITIES.register("process_tank",
+                    key -> BlockEntityTypeCompat.create(za.co.neroland.nerotech.machine.tank.ProcessTankBlockEntity::new,
+                            ModBlocks.PROCESS_TANK.get()));
+
     /** Whether {@link #seed()} has run — it must contribute NeroTech's machines exactly once. */
     private static boolean seeded;
 
@@ -209,7 +215,7 @@ public final class ModBlockEntities {
      * Controller joins them for the same reason: it is a passive supervisor that consumes no NE.
      */
     private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> ownEnergyMachineTypes() {
-        return List.of(
+        return withFamilies(MachineTypeRegistry.Surface.ENERGY, List.of(
                 NERO_GENERATOR::get,
                 SOLAR_ARRAY::get,
                 // Stage-D power tech: three generators, a buffer and a wireless relay — all five
@@ -240,7 +246,7 @@ public final class ModBlockEntities {
                 // Stage-F pollution machines are pure NE sinks: without these registrations generators
                 // can never push power to them on Fabric/NeoForge.
                 SCRUBBER::get,
-                REMEDIATOR::get);
+                REMEDIATOR::get));
     }
 
     /**
@@ -253,7 +259,7 @@ public final class ModBlockEntities {
      * be added here</b> — they are then wired on every loader automatically.
      */
     private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> ownItemMachineTypes() {
-        return List.of(
+        return withFamilies(MachineTypeRegistry.Surface.ITEM, List.of(
                 NERO_GENERATOR::get,
                 SOLAR_ARRAY::get,
                 // Stage-D: only the Bio Generator has a slot (its feedstock) — the Wind Turbine,
@@ -276,7 +282,7 @@ public final class ModBlockEntities {
                 CHEMICAL_PROCESSOR::get,
                 // Scrubber cartridge/dirty-filter slots must be hopper/pipe-automatable like every
                 // other machine.
-                SCRUBBER::get);
+                SCRUBBER::get));
     }
 
     /**
@@ -288,10 +294,12 @@ public final class ModBlockEntities {
      * <p><b>Adding a gas machine?</b> Override {@code gasStorage} and add it here.
      */
     private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> ownGasMachineTypes() {
-        return List.of(
+        return withFamilies(MachineTypeRegistry.Surface.GAS, List.of(
                 ELECTROLYZER::get,
                 GAS_TURBINE::get,
-                CHEMICAL_PROCESSOR::get);
+                CHEMICAL_PROCESSOR::get,
+                // 0.8.0 Process Tank: a gas column on every face (its fluid twin is on the fluid list).
+                PROCESS_TANK::get));
     }
 
     /**
@@ -300,7 +308,19 @@ public final class ModBlockEntities {
      * Fluid Tank or a future fluid pipe can fill it without the bucket.
      */
     private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> ownFluidMachineTypes() {
-        return List.of(ELECTROLYZER::get);
+        return withFamilies(MachineTypeRegistry.Surface.FLUID, List.of(ELECTROLYZER::get, PROCESS_TANK::get));
+    }
+
+    /**
+     * {@code own} followed by every 0.8.0 machine family's types on {@code surface} (see
+     * {@link FamilyRegistry}): the families are part of NeroTech's own contribution, seeded with it.
+     */
+    private static List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> withFamilies(
+            MachineTypeRegistry.Surface surface,
+            List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> own) {
+        List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> out = new java.util.ArrayList<>(own);
+        out.addAll(FamilyRegistry.machineTypes(surface));
+        return List.copyOf(out);
     }
 
     private ModBlockEntities() {

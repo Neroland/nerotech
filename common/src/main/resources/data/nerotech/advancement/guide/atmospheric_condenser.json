@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_atmospheric_condenser": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:atmospheric_condenser"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_atmospheric_condenser"
+    ]
+  ]
+}

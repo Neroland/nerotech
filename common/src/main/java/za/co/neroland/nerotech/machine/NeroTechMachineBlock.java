@@ -87,6 +87,7 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     *///?}
+        noteOperator(level, pos, player);
         if (stack.getItem() instanceof ConfiguratorItem) {
             //? if >=1.21.2 {
             return InteractionResult.PASS;
@@ -103,6 +104,7 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
         // No progression gate ever blocks machine use: NeroTech plays fully standalone, and pacing is
         // via recipes/materials (same posture as NeroLogistics — "removed by design"). Cross-mod
         // progression only ENHANCES (e.g. Nerospace materials accelerate the advanced tier).
+        noteOperator(level, pos, player);
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
                 && level.getBlockEntity(pos) instanceof MenuProvider provider) {
             serverPlayer.openMenu(provider).ifPresent(containerId -> {
@@ -124,6 +126,7 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
         super.setPlacedBy(level, pos, state, placer, stack);
         // NeroTech is the canonical opener of INDUSTRIAL_POWER: building your first machine is the milestone.
         if (!level.isClientSide() && placer instanceof ServerPlayer serverPlayer) {
+            noteOperator(level, pos, serverPlayer);
             ProgressionGates.tryOpen(serverPlayer, CoreGates.INDUSTRIAL_POWER);
             // Record machine ownership ONLY when per-player pollution attribution is opted in, or when the
             // server has configured per-operation charges and an economy can take them (POPIA/GDPR: both
@@ -134,6 +137,16 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
                     && level.getBlockEntity(pos) instanceof NeroTechMachineBlockEntity machine) {
                 machine.setOwner(serverPlayer.getUUID());
             }
+        }
+    }
+
+    /**
+     * Record the operator in the moment on the machine (machine contract, Credit): transient, never
+     * saved, used only to credit gates and trophies to the player who caused an event. Server side only.
+     */
+    protected static void noteOperator(Level level, BlockPos pos, Player player) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof NeroTechMachineBlockEntity machine) {
+            machine.setLastOperator(player.getUUID());
         }
     }
 
@@ -162,7 +175,16 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
             BlockEntityType<T> type) {
         if (level.isClientSide()) {
-            return null;
+            // Client: sounds and particles driven by the synced readout (MachineClientHook), if installed.
+            MachineClientHook.Handler effects = MachineClientHook.handler();
+            if (effects == null || !effects.handles(machineType())) {
+                return null;
+            }
+            return createTickerHelper(type, machineType(), (lvl, pos, st, be) -> {
+                if (be instanceof NeroTechMachineBlockEntity machine) {
+                    effects.tick(machine);
+                }
+            });
         }
         return createTickerHelper(type, machineType(),
                 (lvl, pos, st, be) -> AbstractMachineBlockEntity.tick(lvl, pos, st, be));

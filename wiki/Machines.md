@@ -14,8 +14,8 @@ Machines store **NE** in a Core `EnergyBuffer`. Generators produce NE and **push
 machines/storage through Core's loader-neutral energy lookup; consumers pull from their own buffer as
 they work. Generation talks only to Core's energy surface, never to NeroTech-internal classes, so it
 interoperates across the ecosystem by default; NE bridges to Forge Energy (FE) at I/O boundaries via
-Core's conversion ratio. Power lives in NeroTech permanently — the once-planned NeroPower split was
-[retired on 2026-07-31](Power-and-NeroPower-Split.md).
+Core's conversion ratio. The optional NeroPower add-on builds deeper power engineering on top of
+NeroTech — see [Power and NeroPower](Power-and-NeroPower-Split.md).
 
 All throughput, capacities and rates are **server-config** (`config/nerotech.properties`, managed by
 Core; server-authoritative and synced to clients).
@@ -88,6 +88,21 @@ and **Range** — read as aggregate modifiers each tick. NeroTech invents no bes
 modules are interchangeable with any machine built on Core's framework. Modules stack with the
 machine's [overclock preset](Overclock-Presets.md), and every machine GUI also carries an
 [Analytics tab](Analytics.md) and a [Side Config tab](Side-Config-and-Configurator.md).
+
+Two more modules go in the same slots:
+
+- **Heat Sink Module** — widens the safe heat band: each one moves the point where the machine
+  throttles (`heatThrottleThreshold`) an eighth of the way toward the heat ceiling
+  (`heatSinkModuleHeadroomPermille`). At most four count, and together they never open more than half
+  of that headroom, so a module never brings a machine to its ceiling or a reactor to meltdown.
+- **Scrubber Module** — each one cuts the pollution a machine emits per operation by a fifth
+  (`scrubberModulePollutionPermille`), down to a quarter of normal at most (`scrubberModuleFloorPermille`).
+
+These two are NeroTech's own modules: Core's upgrade framework holds them like any other card, and
+NeroTech's machines read them.
+
+Tools you carry — the Power Drill, Cutting Lance, Arc Wrench, Multimeter, Thermal Goggles and Filter
+Mask — are on the [Tools](Tools.md) page.
 
 ## Progression
 

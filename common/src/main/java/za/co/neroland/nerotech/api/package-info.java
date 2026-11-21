@@ -21,6 +21,11 @@
  *       stages (warning, unstable, failure, breach) on Core's threshold-event bus.</li>
  *   <li>{@link za.co.neroland.nerotech.api.PlanetApi} — the per-dimension solar/wind multipliers
  *       and the ambient heat model, so add-on generators scale exactly like NeroTech's own.</li>
+ *   <li>{@link za.co.neroland.nerotech.api.Atmosphere} — the air an Atmospheric Condenser can draw at a
+ *       place, as {@link za.co.neroland.nerotech.api.PlanetApi} reports it (no Nerospace class needed).</li>
+ *   <li>{@link za.co.neroland.nerotech.api.WirelessCharging} — draw charge from Induction Chargers in
+ *       reach for an entity's own energy, and register item-energy adapters for players' held or worn
+ *       items. Takes a level, a position and an amount only.</li>
  * </ul>
  *
  * <p>Privacy (POPIA/GDPR): nothing in this package carries player data across mod boundaries —

@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "nerospace:amber_sap",
+      "required": false
+    },
+    {
+      "id": "#c:gems/amber",
+      "required": false
+    }
+  ]
+}

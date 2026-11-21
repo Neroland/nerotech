@@ -157,11 +157,8 @@ public final class NeroTechFabric implements ModInitializer {
     private static void registerRecipeSync() {
         // Fabric API has no recipe-sync module before 1.21.9 (1.21.1 still syncs every recipe itself).
         //? if >=1.21.9 {
-        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeTypes.ORE_PROCESSING_SERIALIZER.get());
-        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeTypes.FABRICATING_SERIALIZER.get());
-        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeTypes.ADVANCED_FABRICATING_SERIALIZER.get());
-        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeTypes.COLLIDER_SERIALIZER.get());
-        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeTypes.CHEMICAL_PROCESSING_SERIALIZER.get());
+        // All sixteen machine recipe serializers (the five originals plus 0.8.0's eleven process types).
+        ModRecipeTypes.syncedSerializers().forEach(RecipeSynchronization::synchronizeRecipeSerializer);
         //?}
     }
 

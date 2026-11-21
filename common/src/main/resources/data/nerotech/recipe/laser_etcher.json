@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:tinted_glass",
+    "A": "minecraft:amethyst_shard",
+    "B": "nerotech:circuit_board",
+    "F": "nerotech:machine_frame",
+    "C": "nerotech:nero_coil",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "GAG",
+    "BFB",
+    "ICI"
+  ],
+  "result": {
+    "id": "nerotech:laser_etcher"
+  }
+}

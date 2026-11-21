@@ -2,16 +2,17 @@ package za.co.neroland.nerotech.machine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
-import za.co.neroland.nerotech.registry.ModBlocks;
+import za.co.neroland.nerotech.machine.multiblock.FusionShape;
+import za.co.neroland.nerotech.machine.multiblock.MultiblockValidator;
 
 /**
  * Fusion Reactor multiblock validation (Stage E, 2026-07-10). The reactor is a hollow cubic
@@ -24,11 +25,12 @@ import za.co.neroland.nerotech.registry.ModBlocks;
  * every second while unformed, every five while formed (cheap demolition detection that also
  * catches shell blocks broken out of the controller's neighbour reach). Chunks are never loaded
  * by validation: an unloaded corner simply reports "unformed" until the area is back.
+ *
+ * <p>Since 0.8.0 the scan lives in the shared {@code machine.multiblock} base ({@link FusionShape} +
+ * {@link MultiblockValidator}); the statics here are thin delegates kept for existing callers.
  */
 public final class FusionStructure {
 
-    /** Candidate shell sizes, largest first so a big shell is never mis-detected as its core. */
-    private static final int[] SIZES = {7, 5, 3};
 
     private static volatile String parsedFrom;
     private static volatile Map<Integer, Integer> multipliers = Map.of();
@@ -48,42 +50,13 @@ public final class FusionStructure {
     /** Validate the largest formed shell for a controller, or {@code null} when unformed. */
     @Nullable
     public static Shell validate(Level level, BlockPos controller, Direction facing) {
-        for (int size : SIZES) {
-            Shell shell = check(level, controller, facing, size);
-            if (shell != null) {
-                return shell;
-            }
-        }
-        return null;
+        return toShell(MultiblockValidator.validate(level, controller, facing, FusionShape.INSTANCE));
     }
 
+    /** Adapt the shared base's result to this class's {@link Shell}; empty becomes {@code null}. */
     @Nullable
-    private static Shell check(Level level, BlockPos controller, Direction facing, int size) {
-        int half = (size - 1) / 2;
-        BlockPos center = controller.relative(facing.getOpposite(), half);
-        BlockPos min = center.offset(-half, -half, -half);
-        BlockPos max = center.offset(half, half, half);
-        if (!level.hasChunksAt(min, max)) {
-            return null; // never force-load chunks for validation
-        }
-        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
-            boolean surface = pos.getX() == min.getX() || pos.getX() == max.getX()
-                    || pos.getY() == min.getY() || pos.getY() == max.getY()
-                    || pos.getZ() == min.getZ() || pos.getZ() == max.getZ();
-            if (pos.equals(controller)) {
-                continue; // the controller occupies its wall-centre slot
-            }
-            BlockState state = level.getBlockState(pos);
-            if (surface) {
-                if (!state.is(ModBlocks.FUSION_CASING.get())
-                        && !state.is(ModBlocks.FUSION_CONTAINMENT_GLASS.get())) {
-                    return null;
-                }
-            } else if (!state.isAir()) {
-                return null;
-            }
-        }
-        return new Shell(size, center.immutable());
+    public static Shell toShell(Optional<MultiblockValidator.Formed> formed) {
+        return formed.map(f -> new Shell(f.size(), f.centre())).orElse(null);
     }
 
     /** Output multiplier (permille) for a shell size, from {@code fusionSizeOutputPermille}. */

@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_cindersteel_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:cindersteel_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_cindersteel_ingot"
+    ]
+  ]
+}

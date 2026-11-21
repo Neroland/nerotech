@@ -1,0 +1,40 @@
+{
+  "title": "quest.nerotech.industrial_record.gas_fed_star.title",
+  "description": "quest.nerotech.industrial_record.gas_fed_star.desc",
+  "icon": "nerotech:fuel_injector",
+  "prerequisites": [
+    "nerotech:industrial_record/fusion_online",
+    "nerotech:industrial_record/chemistry_set"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:fuel_injector",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:europium_flux_lattice",
+      "count": 1
+    },
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerotech:gas_fed_ignition"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 500
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 400
+    },
+    {
+      "type": "neroquests:mod_hook",
+      "gate": "nerotech:hook/tech_guide_unlock"
+    }
+  ],
+  "scope": "player"
+}

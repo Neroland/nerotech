@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_blast_foundry": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:blast_foundry"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_blast_foundry"
+    ]
+  ]
+}

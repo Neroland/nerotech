@@ -1,0 +1,21 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/hematite",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "#c:sulfuric_acid",
+    "amount": 250
+  },
+  "results": [
+    {
+      "item": "nerotech:iron_dust",
+      "count": 4
+    }
+  ],
+  "energy": 40,
+  "time": 160
+}

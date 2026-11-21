@@ -93,6 +93,7 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
             *///?}
         }
         if (level.getBlockEntity(pos) instanceof SingularityVaultBlockEntity vault) {
+            noteOperator(level, pos, player); // operator in the moment, for vault_operated credit (transient)
             if (player.isSecondaryUseActive()) {
                 give(player, vault.extractStack());
             } else if (vault.deposit(stack) <= 0) {

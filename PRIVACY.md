@@ -84,6 +84,46 @@ and the UUID is never logged, broadcast or put in a threshold event (world event
 machine type and dimension — since 0.6.0 no longer a block position). The rows are covered by Neroland
 Core's privacy notice and erased through the same shared data-erasure hook.
 
+## 0.8.0 "Offworld Industry": what the new content stores
+
+0.8.0 adds **no store keyed by a player**. Everything new is world data, item data or short-lived memory:
+
+- **Induction Charger** — charges energy items held or worn by players standing on or near the pad. It
+  works by proximity only: players found in a charging pass are used in that moment and forgotten. The
+  charger never records an owner (even when operating charges or attribution are on), saves no player
+  data, and logs nothing about who it charged. Companions are charged through the same pad without any
+  record of whose they are.
+- **Deposits** — the Deep Core Drill's virtual deposits are **world data**, keyed by dimension and chunk.
+  A record holds only how much is left, the capacity and when it was last drilled, and is removed once the
+  deposit has recovered. No player, owner or name.
+- **Milestones credited to the operator** — four new milestone records (first foundry pour, first quantum
+  processor, first deposit tapped, gas-fed fusion ignition) go to the player operating the machine **at that
+  moment**, and only while they are online and have not opted out of attribution. NeroTech keeps that
+  player only in memory on the machine (never saved, cleared when the chunk unloads, dropped on erasure).
+  The record itself is a player-scope progression gate in **Neroland Core's** progression store: a row of
+  gate ids under the player's UUID, no names, positions or times. Core erases those rows on the same
+  shared erase request that runs NeroTech's eraser, so one request clears both.
+- **Machines, multiblocks and tanks** — the new machine families, Blast Foundry, Deep Core Drill, Process
+  Tank, Heat Exchanger, Annunciator Panel and the fusion fuel tier save only machine state (progress,
+  heat, tank contents, formed/size, channel). The placing player's UUID is recorded only under the two
+  opt-in sections above, exactly as before; the Annunciator Panel and Induction Charger never record one.
+- **Tools** — item data on the new tools holds only tool state: charge, mode, a fitted lens or filter, a
+  scanner cooldown. A machine carried by the Arc Wrench keeps its contents and settings, but its owner
+  UUID is removed before it is put on the item.
+- **Pollution exposure** — severe regions give players standing in them brief Weakness and Hunger unless
+  they wear a charged Filter Mask. This is computed on the spot from the regional (aggregate) pollution
+  value; nothing about the exposed player is recorded. The pollution store is keyed by dimension and
+  region, never by a player (unless per-player attribution is switched on, above).
+- **NeroLink (link schema 2)** — the `nearby` section lists machines within 128 blocks of the asking
+  player, in their dimension, only while they are online: type, state, alarms and levels, with **no
+  coordinates and no owner**; machines are addressed by short-lived opaque handles. The `catalogue`
+  section is public recipe data, identical for every player. `alarm` and `meltdown` events go only to
+  online players in range (and a machine's recorded owner) and carry **no coordinates**. Handles, the
+  action rate limit (10 per minute) and the alarm throttle are kept in memory only, cleared within a few
+  seconds of logout and at once on an erase request.
+- **Logs** — nothing NeroTech logs at INFO or above contains a UUID, a player name, coordinates or text
+  written by players.
+
 ## Legal basis and your rights (GDPR / POPIA)
 
 Error reports are processed on the basis of **legitimate interest** (GDPR Art. 6(1)(f); POPIA

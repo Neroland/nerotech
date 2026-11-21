@@ -1,0 +1,409 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "brick": "nerotech:block/foundry_heat_port",
+    "collar": "nerotech:block/foundry_heat_port_collar",
+    "particle": "nerotech:block/foundry_heat_port"
+  },
+  "elements": [
+    {
+      "name": "body",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#brick",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#brick",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#brick",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#brick",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#brick",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#brick",
+          "cullface": "east"
+        }
+      }
+    },
+    {
+      "name": "collar_north",
+      "from": [
+        4,
+        4,
+        -1
+      ],
+      "to": [
+        12,
+        12,
+        0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#collar",
+          "uv": [
+            0,
+            0,
+            8,
+            8
+          ]
+        },
+        "west": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "east": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "up": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "collar_south",
+      "from": [
+        4,
+        4,
+        16
+      ],
+      "to": [
+        12,
+        12,
+        17
+      ],
+      "faces": {
+        "south": {
+          "texture": "#collar",
+          "uv": [
+            0,
+            0,
+            8,
+            8
+          ]
+        },
+        "west": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "east": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "up": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "collar_west",
+      "from": [
+        -1,
+        4,
+        4
+      ],
+      "to": [
+        0,
+        12,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "south": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "west": {
+          "texture": "#collar",
+          "uv": [
+            0,
+            0,
+            8,
+            8
+          ]
+        },
+        "up": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "collar_east",
+      "from": [
+        16,
+        4,
+        4
+      ],
+      "to": [
+        17,
+        12,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "south": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "east": {
+          "texture": "#collar",
+          "uv": [
+            0,
+            0,
+            8,
+            8
+          ]
+        },
+        "up": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "collar_down",
+      "from": [
+        4,
+        -1,
+        4
+      ],
+      "to": [
+        12,
+        0,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "south": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "west": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "east": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#collar",
+          "uv": [
+            0,
+            0,
+            8,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "name": "collar_up",
+      "from": [
+        4,
+        16,
+        4
+      ],
+      "to": [
+        12,
+        17,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "south": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "west": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "east": {
+          "texture": "#collar",
+          "uv": [
+            8,
+            0,
+            16,
+            1
+          ]
+        },
+        "up": {
+          "texture": "#collar",
+          "uv": [
+            0,
+            0,
+            8,
+            8
+          ]
+        }
+      }
+    }
+  ]
+}

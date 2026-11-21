@@ -1,0 +1,19 @@
+{
+  "type": "nerotech:pressing",
+  "items": [
+    {
+      "ingredient": "#c:ingots/cindersteel",
+      "count": 1
+    }
+  ],
+  "catalyst": "nerotech:rod_die",
+  "results": [
+    {
+      "item": "nerotech:cindersteel_rod",
+      "count": 2
+    }
+  ],
+  "energy": 30,
+  "time": 100,
+  "min_heat": 0
+}

@@ -114,10 +114,11 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
      */
     private void purgeNonWater() {
         if (this.water.getAmount() > 0 && this.water.getFluid() != Fluids.WATER) {
+            // No position in the log (POPIA/GDPR log rule: no coordinates at INFO or above).
             NeroTechCommon.LOGGER.info(
-                    "Electrolyzer at {} held {} mB of a non-water fluid from an older build; emptying it "
+                    "[NeroTech] An Electrolyzer held {} mB of a non-water fluid from an older build; emptying it "
                             + "so the machine can run again.",
-                    getBlockPos(), this.water.getAmount());
+                    this.water.getAmount());
             this.water.drain(this.water.getAmount(), false);
         }
     }

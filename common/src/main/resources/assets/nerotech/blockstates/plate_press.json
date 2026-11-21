@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/plate_press"
+    },
+    "facing=east": {
+      "model": "nerotech:block/plate_press",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/plate_press",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/plate_press",
+      "y": 270
+    }
+  }
+}

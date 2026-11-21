@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -27,6 +28,11 @@ import za.co.neroland.nerotech.NeroTechCommon;
  * 64×64-block grid keyed by a packed long), never per-block, and updated periodically — so the global
  * decay sweep iterates a small map, never a block scan.
  *
+ * <p>Since 0.8.0 (store schema 2) regions are kept per <b>dimension</b>: a reading recorded on Mars never
+ * appears at the same x/z in the overworld. A schema-1 save (one flat {@code regions} list) loads into
+ * {@code minecraft:overworld}, where every reading of that era was assumed to belong; the next save
+ * writes schema 2.
+ *
  * <p>Privacy (POPIA/GDPR): the per-player attribution map is populated <b>only</b> when the server
  * opts in ({@code pollutionPerPlayerAttribution}); it is keyed by UUID (no names), retention-pruned,
  * and cleared per-player through the shared data-erasure hook ({@link #forgetPlayer(UUID)}).
@@ -38,8 +44,14 @@ public final class PollutionState extends SavedData {
     public static final SavedDataType<PollutionState> TYPE =
             SavedDataCompat.type(ID, PollutionState::new, codec());
 
-    /** regionKey -> aggregate pollution. */
-    private final Map<Long, Integer> regions = new HashMap<>();
+    /** Store format: 1 = flat {@code regions} list (pre-0.8.0), 2 = per-dimension {@code dimensions}. */
+    public static final int SCHEMA = 2;
+
+    /** Dimension a schema-1 save's flat region list (and the legacy dimensionless overloads) land in. */
+    public static final String OVERWORLD = "minecraft:overworld";
+
+    /** dimension id -> (regionKey -> aggregate pollution). */
+    private final Map<String, Map<Long, Integer>> regions = new HashMap<>();
     /** player UUID -> attributed total + last-updated epoch day (only used when attribution is on). */
     private final Map<UUID, Attrib> attribution = new HashMap<>();
 
@@ -55,68 +67,117 @@ public final class PollutionState extends SavedData {
         return SavedDataRecovery.get(server.overworld(), TYPE, PollutionState::new, ID.toString());
     }
 
-    // --- regional aggregate -------------------------------------------------
+    // --- regional aggregate (per dimension) ---------------------------------
 
-    public void addRegion(long regionKey, int amount) {
+    public void addRegion(String dimension, long regionKey, int amount) {
         if (amount <= 0) {
             return;
         }
-        regions.merge(regionKey, amount, Integer::sum);
+        regions.computeIfAbsent(dimension, k -> new HashMap<>()).merge(regionKey, amount, Integer::sum);
         setDirty();
     }
 
-    public int region(long regionKey) {
-        return regions.getOrDefault(regionKey, 0);
+    public int region(String dimension, long regionKey) {
+        Map<Long, Integer> dim = regions.get(dimension);
+        return dim == null ? 0 : dim.getOrDefault(regionKey, 0);
     }
 
     /** Remove up to {@code amount} pollution from one region; returns what was actually removed. */
-    public int takeRegion(long regionKey, int amount) {
+    public int takeRegion(String dimension, long regionKey, int amount) {
         if (amount <= 0) {
             return 0;
         }
-        int current = regions.getOrDefault(regionKey, 0);
+        Map<Long, Integer> dim = regions.get(dimension);
+        if (dim == null) {
+            return 0;
+        }
+        int current = dim.getOrDefault(regionKey, 0);
         if (current <= 0) {
             return 0;
         }
         int removed = Math.min(current, amount);
         int next = current - removed;
         if (next <= 0) {
-            regions.remove(regionKey);
+            dim.remove(regionKey);
+            if (dim.isEmpty()) {
+                regions.remove(dimension);
+            }
         } else {
-            regions.put(regionKey, next);
+            dim.put(regionKey, next);
         }
         setDirty();
         return removed;
     }
 
+    /** Read-only copy of one dimension's regions (regionKey -> amount); empty when it has none. */
+    public Map<Long, Integer> regionsIn(String dimension) {
+        Map<Long, Integer> dim = regions.get(dimension);
+        return dim == null ? Map.of() : Map.copyOf(dim);
+    }
+
+    /** Dimensions that currently hold any pollution. */
+    public java.util.Set<String> dimensions() {
+        return java.util.Set.copyOf(regions.keySet());
+    }
+
+    /** Overworld shorthand kept for existing callers: {@link #addRegion(String, long, int)} in the overworld. */
+    public void addRegion(long regionKey, int amount) {
+        addRegion(OVERWORLD, regionKey, amount);
+    }
+
+    /** Overworld shorthand kept for existing callers. */
+    public int region(long regionKey) {
+        return region(OVERWORLD, regionKey);
+    }
+
+    /** Overworld shorthand kept for existing callers. */
+    public int takeRegion(long regionKey, int amount) {
+        return takeRegion(OVERWORLD, regionKey, amount);
+    }
+
     /**
-     * Decay every region by {@code amount}, dropping emptied regions. When {@code threshold > 0},
-     * every region that fell from at-or-above to below it is reported to {@code recovered}
-     * (the Stage F threshold-event hook — the "region recovered" crossing).
+     * Decay every region of every dimension by {@code amount}, dropping emptied regions. When
+     * {@code threshold > 0}, every region that fell from at-or-above to below it is reported to
+     * {@code recovered} with its dimension (the "region recovered" crossing).
      */
-    public void decay(int amount, int threshold, @Nullable java.util.function.LongConsumer recovered) {
+    public void decayAll(int amount, int threshold, @Nullable BiConsumer<String, Long> recovered) {
         if (amount <= 0 || regions.isEmpty()) {
             return;
         }
-        Iterator<Map.Entry<Long, Integer>> it = regions.entrySet().iterator();
         boolean changed = false;
-        while (it.hasNext()) {
-            Map.Entry<Long, Integer> e = it.next();
-            int before = e.getValue();
-            int next = before - amount;
-            if (threshold > 0 && recovered != null && before >= threshold && next < threshold) {
-                recovered.accept(e.getKey());
+        Iterator<Map.Entry<String, Map<Long, Integer>>> dims = regions.entrySet().iterator();
+        while (dims.hasNext()) {
+            Map.Entry<String, Map<Long, Integer>> dim = dims.next();
+            Iterator<Map.Entry<Long, Integer>> it = dim.getValue().entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<Long, Integer> e = it.next();
+                int before = e.getValue();
+                int next = before - amount;
+                if (threshold > 0 && recovered != null && before >= threshold && next < threshold) {
+                    recovered.accept(dim.getKey(), e.getKey());
+                }
+                if (next <= 0) {
+                    it.remove();
+                } else {
+                    e.setValue(next);
+                }
+                changed = true;
             }
-            if (next <= 0) {
-                it.remove();
-            } else {
-                e.setValue(next);
+            if (dim.getValue().isEmpty()) {
+                dims.remove();
             }
-            changed = true;
         }
         if (changed) {
             setDirty();
         }
+    }
+
+    /**
+     * Decay every region in every dimension, reporting recoveries by region key only. Kept for existing
+     * callers; prefer {@link #decayAll}, which also names the dimension.
+     */
+    public void decay(int amount, int threshold, @Nullable java.util.function.LongConsumer recovered) {
+        decayAll(amount, threshold, recovered == null ? null : (dim, key) -> recovered.accept(key));
     }
 
     // --- per-player attribution (opt-in only) -------------------------------
@@ -181,16 +242,31 @@ public final class PollutionState extends SavedData {
         ).apply(inst, AttribEntry::new));
     }
 
-    private static Codec<PollutionState> codec() {
+    private record DimensionEntry(String dimension, List<RegionEntry> regions) {
+        static final Codec<DimensionEntry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                Codec.STRING.fieldOf("dimension").forGetter(DimensionEntry::dimension),
+                RegionEntry.CODEC.listOf().optionalFieldOf("regions", List.of()).forGetter(DimensionEntry::regions)
+        ).apply(inst, DimensionEntry::new));
+    }
+
+    /** The store's codec (package-visible so the schema migration can be tested without a server). */
+    static Codec<PollutionState> codec() {
         return RecordCodecBuilder.create(inst -> inst.group(
-                RegionEntry.CODEC.listOf().optionalFieldOf("regions", List.of()).forGetter(PollutionState::regionEntries),
+                Codec.INT.optionalFieldOf("schema", 1).forGetter(s -> SCHEMA),
+                // Schema 1 only: the flat, dimensionless list. Never written again (empty is omitted).
+                RegionEntry.CODEC.listOf().optionalFieldOf("regions", List.of()).forGetter(s -> List.of()),
+                DimensionEntry.CODEC.listOf().optionalFieldOf("dimensions", List.of()).forGetter(PollutionState::dimensionEntries),
                 AttribEntry.CODEC.listOf().optionalFieldOf("attribution", List.of()).forGetter(PollutionState::attribEntries)
         ).apply(inst, PollutionState::fromData));
     }
 
-    private List<RegionEntry> regionEntries() {
-        List<RegionEntry> out = new ArrayList<>();
-        regions.forEach((k, v) -> out.add(new RegionEntry(k, v)));
+    private List<DimensionEntry> dimensionEntries() {
+        List<DimensionEntry> out = new ArrayList<>();
+        regions.forEach((dim, map) -> {
+            List<RegionEntry> list = new ArrayList<>();
+            map.forEach((k, v) -> list.add(new RegionEntry(k, v)));
+            out.add(new DimensionEntry(dim, list));
+        });
         return out;
     }
 
@@ -200,10 +276,25 @@ public final class PollutionState extends SavedData {
         return out;
     }
 
-    private static PollutionState fromData(List<RegionEntry> regions, List<AttribEntry> attribution) {
+    private static PollutionState fromData(int schema, List<RegionEntry> legacyRegions, List<DimensionEntry> dimensions,
+            List<AttribEntry> attribution) {
         PollutionState state = new PollutionState();
-        for (RegionEntry e : regions) {
-            state.regions.put(e.key(), e.amount());
+        // Migration: a schema-1 store had no dimension, so its readings land in the overworld.
+        for (RegionEntry e : legacyRegions) {
+            if (e.amount() > 0) {
+                state.regions.computeIfAbsent(OVERWORLD, k -> new HashMap<>()).merge(e.key(), e.amount(), Integer::sum);
+            }
+        }
+        for (DimensionEntry d : dimensions) {
+            for (RegionEntry e : d.regions()) {
+                if (e.amount() > 0) {
+                    state.regions.computeIfAbsent(d.dimension(), k -> new HashMap<>())
+                            .merge(e.key(), e.amount(), Integer::sum);
+                }
+            }
+        }
+        if (schema < SCHEMA && !legacyRegions.isEmpty()) {
+            state.setDirty(); // rewrite in the new format at the next save
         }
         for (AttribEntry e : attribution) {
             try {

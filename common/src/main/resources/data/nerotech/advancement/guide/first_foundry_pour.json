@@ -1,0 +1,12 @@
+{
+  "criteria": {
+    "milestone": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "milestone"
+    ]
+  ]
+}

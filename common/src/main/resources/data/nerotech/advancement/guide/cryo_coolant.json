@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_cryo_coolant_bucket": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:cryo_coolant_bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_cryo_coolant_bucket"
+    ]
+  ]
+}

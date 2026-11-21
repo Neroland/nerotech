@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "P": "#c:plates/cindersteel"
+  },
+  "pattern": [
+    "CCC",
+    "PPP",
+    "CCC"
+  ],
+  "result": {
+    "id": "nerotech:heat_pipe",
+    "count": 8
+  }
+}

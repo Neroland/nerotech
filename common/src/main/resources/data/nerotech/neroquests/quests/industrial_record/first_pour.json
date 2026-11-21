@@ -1,0 +1,29 @@
+{
+  "title": "quest.nerotech.industrial_record.first_pour.title",
+  "description": "quest.nerotech.industrial_record.first_pour.desc",
+  "icon": "nerotech:blast_foundry",
+  "prerequisites": [
+    "nerotech:industrial_record/foundry_line"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerotech:first_foundry_pour"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 300
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 200
+    },
+    {
+      "type": "neroquests:mod_hook",
+      "gate": "nerotech:hook/tech_guide_unlock"
+    }
+  ],
+  "scope": "player"
+}

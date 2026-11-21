@@ -84,12 +84,21 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     private final AnalyticsWidget analyticsWidget;
 
     public MachineScreen(T menu, Inventory playerInventory, Component title) {
+        this(menu, playerInventory, title, 176, 166);
+    }
+
+    /**
+     * A machine screen with a custom panel size (0.8.0: tall processing screens are 176×186; never
+     * wider than 176). The hull dividers, inventory label and side tabs follow the size.
+     */
+    protected MachineScreen(T menu, Inventory playerInventory, Component title, int imageWidth, int imageHeight) {
         //? if >=26.1 {
-        super(menu, playerInventory, title, 176, 166);
+        super(menu, playerInventory, title, imageWidth, imageHeight);
         //?} else {
         /*super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        this.inventoryLabelY = imageHeight - 94;
         *///?}
         this.titleLabelX = 8;
         this.inventoryLabelX = 8;
@@ -144,8 +153,8 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         extractor.fill(x, y, x + w, y + h, PANEL);
         extractor.fill(x, y, x + w, y + 18, PANEL_HI);
         // Dividers under the title and above the player inventory.
-        extractor.fill(x + 7, y + 16, x + w - 7, y + 17, DIVIDER);
-        extractor.fill(x + 7, y + 70, x + w - 7, y + 71, DIVIDER);
+        extractor.fill(x + 7, y + headerDividerY(), x + w - 7, y + headerDividerY() + 1, DIVIDER);
+        extractor.fill(x + 7, y + h - 96, x + w - 7, y + h - 95, DIVIDER);
 
         // Slot wells (follow the menu's slot positions automatically). Slots parked at negative
         // coordinates are sync-only (ghost templates / previews) and get no well.
@@ -160,14 +169,16 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         }
 
         // Energy + heat gauges (left), each with an always-on colour cap.
-        gauge(extractor, x + 8, y + 20, 10, 46, this.menu.energyFraction(), ENERGY);
-        gauge(extractor, x + 20, y + 20, 10, 46, this.menu.heatFraction(), HEAT);
+        if (drawsDefaultGauges()) {
+            gauge(extractor, x + 8, y + 20, 10, 46, this.menu.energyFraction(), ENERGY);
+            gauge(extractor, x + 20, y + 20, 10, 46, this.menu.heatFraction(), HEAT);
+        }
 
         // Stage H preset cycle button (Eco/Balanced/Overdrive; click sends the serverbound intent).
         presetButton(extractor, x, y);
 
         // Work-progress bar along the bottom of the machine area, lit while working.
-        if (this.menu.working()) {
+        if (drawsDefaultWorkBar() && this.menu.working()) {
             float f = Math.max(0f, Math.min(1f, this.menu.workFraction()));
             int bx = x + 40;
             int bw = 96;
@@ -249,8 +260,8 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     private void presetButton(GuiGraphicsExtractor extractor, int x, int y) {
         MachinePreset preset = MachinePreset.byOrdinal(this.menu.presetOrdinal());
         int color = PRESET_COLORS[preset.ordinal()];
-        int bx = x + PRESET_X;
-        int by = y + PRESET_Y;
+        int bx = x + presetX();
+        int by = y + presetY();
         extractor.fill(bx - 1, by - 1, bx + PRESET_W + 1, by + PRESET_H + 1, EDGE);
         extractor.fill(bx, by, bx + PRESET_W, by + PRESET_H, TROUGH);
         // Always-on colour cap (the gauges' identification recipe) + the short label in the colour.
@@ -262,9 +273,36 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
 
     /** Mouse-over test for the preset button (screen coordinates). */
     private boolean overPresetButton(double mouseX, double mouseY) {
-        int bx = this.leftPos + PRESET_X;
-        int by = this.topPos + PRESET_Y;
+        int bx = this.leftPos + presetX();
+        int by = this.topPos + presetY();
         return mouseX >= bx && mouseX < bx + PRESET_W && mouseY >= by && mouseY < by + PRESET_H;
+    }
+
+    // --- layout hooks (0.8.0, additive): ProcessingScreen moves the shared widgets per its layout ---
+
+    /** Whether the hull draws the default energy/heat gauge pair at x 8 / x 20. */
+    protected boolean drawsDefaultGauges() {
+        return true;
+    }
+
+    /** Whether the hull draws the default work bar along the bottom of the machine area. */
+    protected boolean drawsDefaultWorkBar() {
+        return true;
+    }
+
+    /** Panel-relative x of the preset button. */
+    protected int presetX() {
+        return PRESET_X;
+    }
+
+    /** Panel-relative y of the preset button. */
+    protected int presetY() {
+        return PRESET_Y;
+    }
+
+    /** Panel-relative y of the divider under the title row. */
+    protected int headerDividerY() {
+        return 16;
     }
 
     /** Block-entity-type registry id as the copy/paste compatibility key (same-type machines only). */

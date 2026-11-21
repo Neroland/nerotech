@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "nerospace:frost_shard",
+      "required": false
+    },
+    {
+      "id": "#c:gems/frost",
+      "required": false
+    }
+  ]
+}

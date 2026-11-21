@@ -69,12 +69,9 @@ public final class NeroTechNeoForge {
         // definitions only; no player data crosses the wire.
         // Before 1.21.2 vanilla still syncs every recipe, and the event has no sendRecipes.
         //? if >=1.21.2 {
+        // All sixteen machine recipe types (the five originals plus 0.8.0's eleven process types).
         NeoForge.EVENT_BUS.addListener((OnDatapackSyncEvent event) -> event.sendRecipes(
-                ModRecipeTypes.ORE_PROCESSING.get(),
-                ModRecipeTypes.FABRICATING.get(),
-                ModRecipeTypes.ADVANCED_FABRICATING.get(),
-                ModRecipeTypes.COLLIDER.get(),
-                ModRecipeTypes.CHEMICAL_PROCESSING.get()));
+                ModRecipeTypes.syncedTypes().toArray(new net.minecraft.world.item.crafting.RecipeType<?>[0])));
         //?}
         //? if >=1.21.9 {
         if (FMLEnvironment.getDist() == Dist.CLIENT) {

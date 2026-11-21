@@ -1,0 +1,405 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "front": "nerotech:block/cryo_distiller_front",
+    "side": "nerotech:block/cryo_distiller",
+    "west": "nerotech:block/cryo_distiller_west",
+    "back": "nerotech:block/cryo_distiller_back",
+    "top": "nerotech:block/cryo_distiller_top",
+    "particle": "nerotech:block/cryo_distiller"
+  },
+  "elements": [
+    {
+      "name": "foot",
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        3,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "name": "column",
+      "from": [
+        5,
+        3,
+        5
+      ],
+      "to": [
+        11,
+        16,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "tray_low",
+      "from": [
+        4,
+        5,
+        4
+      ],
+      "to": [
+        12,
+        6,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "tray_mid",
+      "from": [
+        4,
+        9,
+        4
+      ],
+      "to": [
+        12,
+        10,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "tray_high",
+      "from": [
+        4,
+        13,
+        4
+      ],
+      "to": [
+        12,
+        14,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "coil_low",
+      "from": [
+        11,
+        4,
+        7
+      ],
+      "to": [
+        14,
+        5,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "coil_rise",
+      "from": [
+        13,
+        5,
+        7
+      ],
+      "to": [
+        14,
+        11,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "coil_high",
+      "from": [
+        11,
+        11,
+        7
+      ],
+      "to": [
+        14,
+        12,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "coil_mid",
+      "from": [
+        11,
+        7,
+        7
+      ],
+      "to": [
+        13,
+        8,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "gauge_mast",
+      "from": [
+        1,
+        3,
+        1
+      ],
+      "to": [
+        3,
+        15,
+        3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#west"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "status_socket",
+      "from": [
+        1.0,
+        12.0,
+        0.5
+      ],
+      "to": [
+        3.0,
+        14.0,
+        1.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "east": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "west": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "up": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "down": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        }
+      }
+    }
+  ]
+}

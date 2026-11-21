@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "nerospace:helium3_canister",
+      "required": false
+    },
+    {
+      "id": "nerospace:gas_canisters/helium3",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "nerospace:dry_ice",
+      "required": false
+    },
+    {
+      "id": "#c:dry_ice",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "side": "nerotech:block/crystal_grower",
+    "front": "nerotech:block/crystal_grower_front",
+    "top": "nerotech:block/crystal_grower_top",
+    "lamp": "nerotech:block/crystal_grower_front",
+    "particle": "nerotech:block/crystal_grower"
+  },
+  "elements": [
+    {
+      "name": "base",
+      "from": [1, 0, 1],
+      "to": [15, 4, 15],
+      "faces": {
+        "down": {"texture": "#top"},
+        "up": {"texture": "#top"},
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "coolant_ring",
+      "from": [2, 4, 2],
+      "to": [14, 5, 14],
+      "faces": {
+        "down": {"texture": "#top"},
+        "up": {"texture": "#top"},
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "jar_rib_nw",
+      "from": [4, 5, 4],
+      "to": [5, 14, 5],
+      "faces": {
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "jar_rib_ne",
+      "from": [11, 5, 4],
+      "to": [12, 14, 5],
+      "faces": {
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "jar_rib_sw",
+      "from": [4, 5, 11],
+      "to": [5, 14, 12],
+      "faces": {
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "jar_rib_se",
+      "from": [11, 5, 11],
+      "to": [12, 14, 12],
+      "faces": {
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "jar_cap",
+      "from": [4, 14, 4],
+      "to": [12, 16, 12],
+      "faces": {
+        "down": {"texture": "#top"},
+        "up": {"texture": "#top"},
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "seed_clamp",
+      "from": [7.5, 11.5, 7.5],
+      "to": [8.5, 14, 8.5],
+      "faces": {
+        "down": {"texture": "#top"},
+        "north": {"texture": "#side"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "instrument_post",
+      "from": [0.5, 4, 1],
+      "to": [3.5, 14.5, 3],
+      "faces": {
+        "down": {"texture": "#top"},
+        "up": {"texture": "#top"},
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "status_lamp_socket",
+      "from": [1, 12, 0.5],
+      "to": [3, 14, 1],
+      "faces": {
+        "north": {"uv": [13, 2, 15, 4], "texture": "#lamp"},
+        "east": {"uv": [13, 2, 15, 4], "texture": "#lamp"},
+        "west": {"uv": [13, 2, 15, 4], "texture": "#lamp"},
+        "up": {"uv": [13, 2, 15, 4], "texture": "#lamp"},
+        "down": {"uv": [13, 2, 15, 4], "texture": "#lamp"}
+      }
+    }
+  ]
+}

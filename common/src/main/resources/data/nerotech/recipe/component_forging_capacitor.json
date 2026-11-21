@@ -1,0 +1,42 @@
+{
+  "type": "nerotech:component_forging",
+  "items": [
+    {
+      "ingredient": "nerotech:polymer_sheet",
+      "count": 2
+    },
+    {
+      "ingredient": "#c:wires/copper",
+      "count": 2
+    },
+    {
+      "ingredient": "minecraft:redstone",
+      "count": 2
+    },
+    {
+      "ingredient": "minecraft:gold_nugget",
+      "count": 2
+    },
+    {
+      "ingredient": "minecraft:iron_ingot",
+      "count": 1
+    },
+    {
+      "ingredient": "#c:plates/cindersteel",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "#c:sulfuric_acid",
+    "amount": 250
+  },
+  "results": [
+    {
+      "item": "nerotech:capacitor",
+      "count": 2
+    }
+  ],
+  "energy": 40,
+  "time": 200,
+  "min_heat": 0
+}

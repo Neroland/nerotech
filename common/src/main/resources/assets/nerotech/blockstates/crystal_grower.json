@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/crystal_grower"
+    },
+    "facing=east": {
+      "model": "nerotech:block/crystal_grower",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/crystal_grower",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/crystal_grower",
+      "y": 270
+    }
+  }
+}

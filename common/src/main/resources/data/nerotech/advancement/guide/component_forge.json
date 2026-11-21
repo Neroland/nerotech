@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_component_forge": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:component_forge"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_component_forge"
+    ]
+  ]
+}

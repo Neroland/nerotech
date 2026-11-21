@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:amethyst_shard",
+    "#c:gems/quartz"
+  ],
+  "result": {
+    "id": "nerotech:crystal_seed",
+    "count": 2
+  }
+}

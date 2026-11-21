@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "nerotech:cryo_distiller"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "nerotech:blocks/cryo_distiller"
+}

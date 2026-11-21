@@ -1,0 +1,594 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "front": "nerotech:block/fuel_injector_front",
+    "back": "nerotech:block/fuel_injector_back",
+    "side": "nerotech:block/fuel_injector",
+    "top": "nerotech:block/fuel_injector_top",
+    "parts": "nerotech:block/fuel_injector_parts",
+    "casing": "nerotech:block/fuel_injector",
+    "lamp": "nerotech:block/status_lamp",
+    "particle": "nerotech:block/fuel_injector"
+  },
+  "elements": [
+    {
+      "name": "body",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#back",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#top",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "name": "manifold",
+      "from": [
+        2,
+        3.5,
+        -0.5
+      ],
+      "to": [
+        14,
+        8.5,
+        0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            4,
+            12,
+            9
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            0,
+            4,
+            0.5,
+            9
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            11.5,
+            4,
+            12,
+            9
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            0,
+            4,
+            12,
+            4.5
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            0,
+            8.5,
+            12,
+            9
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "coupling_deuterium",
+      "from": [
+        9.5,
+        4,
+        -1.5
+      ],
+      "to": [
+        13.5,
+        8,
+        -0.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            8,
+            0,
+            12,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            8,
+            0,
+            12,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            12,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            8,
+            0,
+            12,
+            1
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "stub_deuterium",
+      "from": [
+        10.5,
+        5,
+        -2.5
+      ],
+      "to": [
+        12.5,
+        7,
+        -1.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12,
+            2,
+            14,
+            4
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            12,
+            0,
+            14,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            12,
+            0,
+            14,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            12,
+            0,
+            14,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            12,
+            0,
+            14,
+            1
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "coupling_helium_3",
+      "from": [
+        2.5,
+        4,
+        -1.5
+      ],
+      "to": [
+        6.5,
+        8,
+        -0.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            8,
+            4
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            8,
+            1,
+            12,
+            2
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            8,
+            1,
+            12,
+            2
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            8,
+            1,
+            12,
+            2
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            8,
+            1,
+            12,
+            2
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "stub_helium_3",
+      "from": [
+        3.5,
+        5,
+        -2.5
+      ],
+      "to": [
+        5.5,
+        7,
+        -1.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12,
+            2,
+            14,
+            4
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            12,
+            0,
+            14,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            12,
+            0,
+            14,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            12,
+            0,
+            14,
+            1
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            12,
+            0,
+            14,
+            1
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "nozzle_0",
+      "from": [
+        4,
+        4,
+        16
+      ],
+      "to": [
+        12,
+        12,
+        17
+      ],
+      "faces": {
+        "south": {
+          "uv": [
+            4,
+            4,
+            12,
+            12
+          ],
+          "texture": "#back"
+        },
+        "west": {
+          "uv": [
+            0,
+            9,
+            8,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            0,
+            9,
+            8,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            0,
+            9,
+            8,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            0,
+            9,
+            8,
+            10
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "nozzle_1",
+      "from": [
+        5.5,
+        5.5,
+        17
+      ],
+      "to": [
+        10.5,
+        10.5,
+        18
+      ],
+      "faces": {
+        "south": {
+          "uv": [
+            5.5,
+            5.5,
+            10.5,
+            10.5
+          ],
+          "texture": "#back"
+        },
+        "west": {
+          "uv": [
+            0,
+            9,
+            5.0,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            0,
+            9,
+            5.0,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            0,
+            9,
+            5.0,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            0,
+            9,
+            5.0,
+            10
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "nozzle_2",
+      "from": [
+        7,
+        7,
+        18
+      ],
+      "to": [
+        9,
+        9,
+        19
+      ],
+      "faces": {
+        "south": {
+          "uv": [
+            7,
+            7,
+            9,
+            9
+          ],
+          "texture": "#back"
+        },
+        "west": {
+          "uv": [
+            0,
+            9,
+            2,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            0,
+            9,
+            2,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            0,
+            9,
+            2,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            0,
+            9,
+            2,
+            10
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "status_socket",
+      "from": [
+        1.0,
+        12.0,
+        -0.5
+      ],
+      "to": [
+        3.0,
+        14.0,
+        0.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "east": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "west": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "up": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "down": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        }
+      }
+    }
+  ]
+}

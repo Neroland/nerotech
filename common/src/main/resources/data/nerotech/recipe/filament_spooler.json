@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "N": "nerotech:nero_coil",
+    "B": "nerotech:circuit_board",
+    "F": "nerotech:machine_frame",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "CNC",
+    "BFB",
+    "III"
+  ],
+  "result": {
+    "id": "nerotech:filament_spooler"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_crystal_boule": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:crystal_boule"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_crystal_boule"
+    ]
+  ]
+}

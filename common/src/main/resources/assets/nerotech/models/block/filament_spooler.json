@@ -1,0 +1,465 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "front": "nerotech:block/filament_spooler_front",
+    "side": "nerotech:block/filament_spooler",
+    "top": "nerotech:block/filament_spooler_top",
+    "parts": "nerotech:block/filament_spooler_parts",
+    "lamp": "nerotech:block/status_lamp",
+    "particle": "nerotech:block/filament_spooler"
+  },
+  "elements": [
+    {
+      "name": "base",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        4,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#side",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "name": "tower",
+      "from": [
+        11,
+        4,
+        5
+      ],
+      "to": [
+        15,
+        14,
+        11
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            4,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            4,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            10,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            10,
+            10
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            10,
+            0,
+            14,
+            6
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "feed_slot",
+      "from": [
+        12,
+        14,
+        6
+      ],
+      "to": [
+        14,
+        15,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            8,
+            12,
+            9
+          ],
+          "texture": "#parts"
+        },
+        "south": {
+          "uv": [
+            10,
+            8,
+            12,
+            9
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            10,
+            8,
+            12,
+            9
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            10,
+            8,
+            12,
+            9
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            10,
+            8,
+            12,
+            12
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "nozzle",
+      "from": [
+        10,
+        11,
+        7
+      ],
+      "to": [
+        11,
+        13,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            12,
+            8,
+            14
+          ],
+          "texture": "#parts"
+        },
+        "south": {
+          "uv": [
+            6,
+            12,
+            8,
+            14
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            6,
+            12,
+            8,
+            14
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            6,
+            12,
+            8,
+            14
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            6,
+            12,
+            8,
+            14
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "lamp_post",
+      "from": [
+        1,
+        4,
+        1
+      ],
+      "to": [
+        3,
+        15,
+        3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "uv": [
+            14,
+            0,
+            16,
+            11
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            14,
+            0,
+            16,
+            11
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            14,
+            0,
+            16,
+            11
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            14,
+            0,
+            16,
+            1
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "bearing_front",
+      "from": [
+        3,
+        8,
+        1
+      ],
+      "to": [
+        7,
+        10,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            12,
+            4,
+            14
+          ],
+          "texture": "#parts"
+        },
+        "south": {
+          "uv": [
+            0,
+            12,
+            4,
+            14
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            0,
+            12,
+            4,
+            14
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            0,
+            12,
+            4,
+            14
+          ],
+          "texture": "#parts"
+        },
+        "down": {
+          "uv": [
+            0,
+            12,
+            4,
+            14
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "post_back",
+      "from": [
+        4,
+        4,
+        13
+      ],
+      "to": [
+        6,
+        10,
+        15
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            14,
+            0,
+            16,
+            6
+          ],
+          "texture": "#parts"
+        },
+        "south": {
+          "uv": [
+            14,
+            0,
+            16,
+            6
+          ],
+          "texture": "#parts"
+        },
+        "west": {
+          "uv": [
+            14,
+            0,
+            16,
+            6
+          ],
+          "texture": "#parts"
+        },
+        "east": {
+          "uv": [
+            14,
+            0,
+            16,
+            6
+          ],
+          "texture": "#parts"
+        },
+        "up": {
+          "uv": [
+            14,
+            0,
+            16,
+            1
+          ],
+          "texture": "#parts"
+        }
+      }
+    },
+    {
+      "name": "status_socket",
+      "from": [
+        1.0,
+        12.0,
+        0.5
+      ],
+      "to": [
+        3.0,
+        14.0,
+        1.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "east": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "west": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "up": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "down": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        }
+      }
+    }
+  ]
+}

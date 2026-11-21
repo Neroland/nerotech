@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_drill_derrick": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:drill_derrick"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_drill_derrick"
+    ]
+  ]
+}

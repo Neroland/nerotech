@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "C": "nerotech:capacitor",
+    "B": "nerotech:circuit_board",
+    "P": "nerotech:cindersteel_plate"
+  },
+  "pattern": [
+    " G ",
+    "CBC",
+    " P "
+  ],
+  "result": {
+    "id": "nerotech:survey_scanner"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "title": "quest.nerotech.industrial_record.silicon_age.title",
+  "description": "quest.nerotech.industrial_record.silicon_age.desc",
+  "icon": "nerotech:laser_etcher",
+  "prerequisites": [
+    "nerotech:industrial_record/fabrication"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:crystal_grower",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:laser_etcher",
+      "count": 1
+    },
+    {
+      "type": "neroquests:collect_item",
+      "item": "nerotech:logic_processor",
+      "count": 2
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 250
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 200
+    }
+  ],
+  "scope": "player"
+}

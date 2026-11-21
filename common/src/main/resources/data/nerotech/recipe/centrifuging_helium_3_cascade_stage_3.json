@@ -1,0 +1,21 @@
+{
+  "type": "nerotech:centrifuging",
+  "gas_in": {
+    "id": "nerotech:deuterium",
+    "amount": 2
+  },
+  "gas_out": {
+    "id": "nerotech:helium_3",
+    "amount": 1
+  },
+  "results": [
+    {
+      "item": "nerotech:iron_dust",
+      "count": 1,
+      "chance_permille": 50
+    }
+  ],
+  "energy": 30,
+  "time": 80,
+  "atmosphere": "cascade_3"
+}

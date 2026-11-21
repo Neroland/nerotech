@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "R": "nerotech:cindersteel_rod",
+    "P": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "R R",
+    " P ",
+    "R R"
+  ],
+  "result": {
+    "id": "nerotech:drill_derrick",
+    "count": 2
+  }
+}

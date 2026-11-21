@@ -45,10 +45,10 @@ class NeroTechLinkModuleTest {
     void registersDiscoveryMetadataWithExpectedSectionsAndActions() {
         LinkModuleInfo info = NeroLinkRegistry.module("nerotech").orElseThrow();
         assertEquals("nerotech", info.moduleId());
-        assertEquals(1, info.schemaVersion());
+        assertEquals(2, info.schemaVersion());
         assertTrue(info.dataSections().containsAll(
-                java.util.List.of("pollution", "guide", "wiki")),
-                "all three data sections must be advertised");
+                java.util.List.of("pollution", "guide", "wiki", "nearby", "catalogue")),
+                "the three schema-1 sections and the two schema-2 sections must be advertised");
         assertFalse(info.dataSections().contains("gates"),
                 "the gates section was removed with the progression gates (standalone-first design)");
         assertTrue(info.actionIds().containsAll(

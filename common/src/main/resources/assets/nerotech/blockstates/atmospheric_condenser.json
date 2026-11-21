@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/atmospheric_condenser"
+    },
+    "facing=east": {
+      "model": "nerotech:block/atmospheric_condenser",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/atmospheric_condenser",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/atmospheric_condenser",
+      "y": 270
+    }
+  }
+}

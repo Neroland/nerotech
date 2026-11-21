@@ -361,8 +361,14 @@ subprojects {
                         if (json.ingredients instanceof List) {
                             json.ingredients = json.ingredients.collect { conv(it) }
                         }
+                        // 0.8.0 process recipes: items[].ingredient (the catalyst is handled below).
+                        if (json.items instanceof List) {
+                            json.items = json.items.collect { e ->
+                                (e instanceof Map && e.ingredient != null) ? (e + [ingredient: conv(e.ingredient)]) : e
+                            }
+                        }
                         // input_a / input_b: NeroTech's collider recipes (nerotech:collider).
-                        ['ingredient', 'template', 'base', 'addition', 'input_a', 'input_b'].each { k ->
+                        ['ingredient', 'template', 'base', 'addition', 'input_a', 'input_b', 'catalyst'].each { k ->
                             if (json[k] != null) {
                                 json[k] = conv(json[k])
                             }

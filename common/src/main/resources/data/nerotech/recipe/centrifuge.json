@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "#c:ingots/iron",
+    "B": "nerotech:circuit_board",
+    "C": "nerotech:nero_coil",
+    "F": "nerotech:machine_frame"
+  },
+  "pattern": [
+    "IBI",
+    "CFC",
+    "III"
+  ],
+  "result": {
+    "id": "nerotech:centrifuge"
+  }
+}

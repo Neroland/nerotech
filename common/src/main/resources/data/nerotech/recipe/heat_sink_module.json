@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": "nerotech:heat_sink",
+    "C": "nerotech:circuit_board"
+  },
+  "pattern": [
+    " H ",
+    "HCH",
+    " H "
+  ],
+  "result": {
+    "id": "nerotech:heat_sink_module"
+  }
+}

@@ -92,6 +92,7 @@ public class RemediatorBlockEntity extends NeroTechMachineBlockEntity {
             if (PollutionManager.scrub(serverLevel, pos, rate, 0) > 0) {
                 // Pollution actually left the region: record the owner's "Remediated" milestone (idempotent).
                 MilestoneGates.record(serverLevel, this.ownerId, MilestoneGates.REMEDIATED);
+                MilestoneGates.credit(serverLevel, lastOperator().orElse(null), MilestoneGates.REMEDIATED);
             }
             // Remediation runs hot — a full operation's heat per op (the cooling half of the lever).
             addHeat(NeroTechConfig.heatPerOperation());

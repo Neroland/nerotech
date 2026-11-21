@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "nerotech:block/foundry_heat_port"
+    }
+  }
+}

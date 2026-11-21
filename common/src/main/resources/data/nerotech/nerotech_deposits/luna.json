@@ -1,0 +1,44 @@
+{
+  "dimension": "nerospace:luna",
+  "entries": [
+    {
+      "ore": "#c:ores/ilmenite",
+      "output": "nerospace:raw_ilmenite",
+      "weight": 8,
+      "capacity": [
+        1500,
+        5000
+      ],
+      "richness": [
+        600,
+        1200
+      ]
+    },
+    {
+      "ore": "#c:ores/nerosium",
+      "output": "nerospace:raw_nerosium",
+      "weight": 6,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        500,
+        1000
+      ]
+    },
+    {
+      "ore": "#c:ores/nerosteel",
+      "output": "nerospace:raw_nerosteel",
+      "weight": 5,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        500,
+        1000
+      ]
+    }
+  ]
+}

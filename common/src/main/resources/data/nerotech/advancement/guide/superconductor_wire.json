@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_superconductor_wire": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:superconductor_wire"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_superconductor_wire"
+    ]
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/annunciator_panel"
+    },
+    "facing=east": {
+      "model": "nerotech:block/annunciator_panel",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/annunciator_panel",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/annunciator_panel",
+      "y": 270
+    }
+  }
+}

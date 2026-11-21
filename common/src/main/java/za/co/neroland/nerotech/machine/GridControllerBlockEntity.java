@@ -116,6 +116,7 @@ public class GridControllerBlockEntity extends NeroTechMachineBlockEntity {
         int scale = NeroTechConfig.gridScaleMilestoneCapacity();
         if (scale > 0 && capacity >= scale && level instanceof ServerLevel serverLevel) {
             MilestoneGates.record(serverLevel, this.ownerId, MilestoneGates.GRID_SCALE);
+            MilestoneGates.credit(serverLevel, lastOperator().orElse(null), MilestoneGates.GRID_SCALE);
         }
     }
 

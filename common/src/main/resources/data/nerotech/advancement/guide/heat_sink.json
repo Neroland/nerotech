@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_heat_sink": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:heat_sink"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_heat_sink"
+    ]
+  ]
+}

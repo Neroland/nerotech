@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "F": "nerotech:foundry_brick"
+  },
+  "pattern": [
+    " C ",
+    "CFC",
+    " C "
+  ],
+  "result": {
+    "id": "nerotech:foundry_heat_port"
+  }
+}

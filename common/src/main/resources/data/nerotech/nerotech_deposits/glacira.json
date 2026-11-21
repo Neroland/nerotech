@@ -1,0 +1,31 @@
+{
+  "dimension": "nerospace:glacira",
+  "entries": [
+    {
+      "ore": "#c:ores/glacite",
+      "output": "nerospace:glacite",
+      "weight": 8,
+      "capacity": [
+        1500,
+        5000
+      ],
+      "richness": [
+        600,
+        1200
+      ]
+    },
+    {
+      "ore": "#c:ores/methane",
+      "output": "nerospace:methane_crystal",
+      "weight": 5,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        600,
+        1200
+      ]
+    }
+  ]
+}

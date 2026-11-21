@@ -1,0 +1,19 @@
+{
+  "type": "nerotech:cryo_distilling",
+  "items": [
+    {
+      "ingredient": "#minecraft:coals",
+      "count": 1
+    }
+  ],
+  "gas_in": {
+    "id": "nerotech:hydrogen",
+    "amount": 1
+  },
+  "gas_out": {
+    "id": "nerotech:methane",
+    "amount": 2
+  },
+  "energy": 40,
+  "time": 140
+}

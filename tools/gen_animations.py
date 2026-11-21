@@ -58,6 +58,20 @@ PULSE = [
 ]
 
 
+def all_pulse():
+    """The built-in rows plus every art package's PULSE (tools/art/<pkg>.py), built-ins first."""
+    import art
+    rows = list(PULSE)
+    seen = {row[0] for row in rows}
+    for row in art.all_pulse():
+        if row[0] in seen:
+            print("  duplicate PULSE row ignored:", row[0])
+            continue
+        seen.add(row[0])
+        rows.append(row)
+    return rows
+
+
 def write_mcmeta(path, frametime, interpolate=False):
     anim = {"frametime": frametime}
     if interpolate:
@@ -112,7 +126,7 @@ def pulse_strip(base, frames, amp, hue):
 def main():
     B = BLOCK()
     made = []
-    for name, frames, ft, amp, hue in PULSE:
+    for name, frames, ft, amp, hue in all_pulse():
         p = os.path.join(B, name + ".png")
         if not os.path.exists(p):
             print("  miss", name)

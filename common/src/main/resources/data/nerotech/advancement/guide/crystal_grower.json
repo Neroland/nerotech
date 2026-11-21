@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_crystal_grower": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:crystal_grower"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_crystal_grower"
+    ]
+  ]
+}

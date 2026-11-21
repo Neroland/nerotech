@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "nerotech:foundry_brick",
+    "B": "nerotech:circuit_board",
+    "M": "nerotech:machine_frame",
+    "P": "nerotech:cindersteel_plate"
+  },
+  "pattern": [
+    "FBF",
+    "FMF",
+    "FPF"
+  ],
+  "result": {
+    "id": "nerotech:blast_foundry"
+  }
+}

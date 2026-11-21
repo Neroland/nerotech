@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/centrifuge"
+    },
+    "facing=east": {
+      "model": "nerotech:block/centrifuge",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/centrifuge",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/centrifuge",
+      "y": 270
+    }
+  }
+}

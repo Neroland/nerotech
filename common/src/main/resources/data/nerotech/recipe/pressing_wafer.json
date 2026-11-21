@@ -1,0 +1,19 @@
+{
+  "type": "nerotech:pressing",
+  "items": [
+    {
+      "ingredient": "nerotech:crystal_boule",
+      "count": 1
+    }
+  ],
+  "catalyst": "nerotech:wafer_die",
+  "results": [
+    {
+      "item": "nerotech:wafer",
+      "count": 4
+    }
+  ],
+  "energy": 40,
+  "time": 160,
+  "min_heat": 0
+}

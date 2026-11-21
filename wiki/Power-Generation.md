@@ -4,9 +4,9 @@ The Nero Generator and the Solar Array get a factory started; they do not keep o
 page covers NeroTech's **wider power tier** — three more generators, a grid buffer, a grid manager
 and a wireless link — plus the Analytics Terminal's new power-history strip.
 
-These blocks are the feature set once planned for a separate **NeroPower** mod. That split was
-retired on 2026-07-31 and the features live here instead; see
-[Power & the NeroPower Split](Power-and-NeroPower-Split.md) for the decision. Everything below sits
+These blocks are NeroTech's own power tier and need no other mod. The optional **NeroPower** add-on
+builds on them with fission, beamed power and more; see
+[Power and NeroPower](Power-and-NeroPower-Split.md). Everything below sits
 on Neroland Core's shared energy surface, so it interoperates with Core storage, with the rest of
 the ecosystem, and with Forge Energy at the I/O boundary — with no cross-mod dependency.
 

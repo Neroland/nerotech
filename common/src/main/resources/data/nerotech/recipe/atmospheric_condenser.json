@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "#c:ingots/iron",
+    "H": "minecraft:hopper",
+    "B": "nerotech:circuit_board",
+    "F": "nerotech:machine_frame",
+    "G": "minecraft:glass"
+  },
+  "pattern": [
+    "IHI",
+    "BFB",
+    "IGI"
+  ],
+  "result": {
+    "id": "nerotech:atmospheric_condenser"
+  }
+}

@@ -21,6 +21,18 @@
     { "quest": "nerotech:industrial_record/hands_on_cleanup", "x": 8, "y": 3 },
     { "quest": "nerotech:industrial_record/world_skies_recovered", "x": 6, "y": 5 },
     { "quest": "nerotech:industrial_record/world_remediation", "x": 8, "y": 5 },
-    { "quest": "nerotech:industrial_record/world_reactor_cooled", "x": 10, "y": 5 }
+    { "quest": "nerotech:industrial_record/world_reactor_cooled", "x": 10, "y": 5 },
+    { "quest": "nerotech:industrial_record/foundry_line", "x": 2, "y": 7 },
+    { "quest": "nerotech:industrial_record/first_pour", "x": 4, "y": 7 },
+    { "quest": "nerotech:industrial_record/heat_as_a_resource", "x": 10, "y": -4 },
+    { "quest": "nerotech:industrial_record/chemistry_set", "x": 10, "y": -6 },
+    { "quest": "nerotech:industrial_record/superconductors", "x": 6, "y": 7 },
+    { "quest": "nerotech:industrial_record/silicon_age", "x": 6, "y": 9 },
+    { "quest": "nerotech:industrial_record/quantum_leap", "x": 8, "y": 9 },
+    { "quest": "nerotech:industrial_record/prospector", "x": 4, "y": 9 },
+    { "quest": "nerotech:industrial_record/deposit_tapped", "x": 4, "y": 11 },
+    { "quest": "nerotech:industrial_record/gas_fed_star", "x": 12, "y": -4 },
+    { "quest": "nerotech:industrial_record/tools_of_the_trade", "x": 8, "y": 11 },
+    { "quest": "nerotech:industrial_record/vault_online", "x": 16, "y": 0 }
   ]
 }

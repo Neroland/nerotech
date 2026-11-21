@@ -1,0 +1,10 @@
+{
+  "type": "nerotech:condensing",
+  "gas_out": {
+    "id": "nerotech:nitrogen",
+    "amount": 3
+  },
+  "energy": 20,
+  "time": 400,
+  "atmosphere": "NITROGEN_METHANE"
+}

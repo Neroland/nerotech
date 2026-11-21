@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:raw_materials/hematite",
+      "required": false
+    },
+    {
+      "id": "#c:ores/hematite",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "type": "nerotech:drawing",
+  "items": [
+    {
+      "ingredient": "minecraft:copper_ingot",
+      "count": 1
+    }
+  ],
+  "results": [
+    {
+      "item": "nerotech:copper_wire",
+      "count": 3
+    }
+  ],
+  "energy": 20,
+  "time": 100,
+  "min_heat": 0
+}

@@ -1,0 +1,36 @@
+{
+  "title": "quest.nerotech.industrial_record.prospector.title",
+  "description": "quest.nerotech.industrial_record.prospector.desc",
+  "icon": "nerotech:survey_scanner",
+  "prerequisites": [
+    "nerotech:industrial_record/foundry_line"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:survey_scanner",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:drill_derrick",
+      "count": 3
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:deep_core_drill",
+      "count": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 250
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 200
+    }
+  ],
+  "scope": "player"
+}

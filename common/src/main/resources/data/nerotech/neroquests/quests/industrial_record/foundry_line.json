@@ -1,0 +1,36 @@
+{
+  "title": "quest.nerotech.industrial_record.foundry_line.title",
+  "description": "quest.nerotech.industrial_record.foundry_line.desc",
+  "icon": "nerotech:plasma_crucible",
+  "prerequisites": [
+    "nerotech:industrial_record/first_components"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:plasma_crucible",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:plate_press",
+      "count": 1
+    },
+    {
+      "type": "neroquests:collect_item",
+      "item": "nerotech:cindersteel_plate",
+      "count": 4
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 200
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 150
+    }
+  ],
+  "scope": "player"
+}

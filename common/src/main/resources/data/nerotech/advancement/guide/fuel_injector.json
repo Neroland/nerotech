@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_fuel_injector": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:fuel_injector"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_fuel_injector"
+    ]
+  ]
+}

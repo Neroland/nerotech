@@ -8,6 +8,7 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.fluid.NeroTechLiquid;
 import za.co.neroland.nerotech.gas.NeroTechGases;
 import za.co.neroland.nerotech.registry.RegistrationProvider;
 
@@ -27,6 +28,26 @@ public final class ForgeFluidTypes {
     public static final RegistrationProvider.RegistryEntry<FluidType> OXYGEN =
             TYPES.register("oxygen", key -> gasType("oxygen"));
 
+    /** 0.8.0 gases, keyed by canonical gas id (hydrogen and oxygen keep their own fields above). */
+    private static final java.util.Map<Identifier, RegistrationProvider.RegistryEntry<FluidType>> GAS_TYPES =
+            new java.util.HashMap<>();
+    /** 0.8.0 liquids. */
+    private static final java.util.Map<NeroTechLiquid, RegistrationProvider.RegistryEntry<FluidType>> LIQUID_TYPES =
+            new java.util.EnumMap<>(NeroTechLiquid.class);
+
+    static {
+        GAS_TYPES.put(NeroTechGases.HYDROGEN, HYDROGEN);
+        GAS_TYPES.put(NeroTechGases.OXYGEN, OXYGEN);
+        for (Identifier gas : NeroTechGases.ALL) {
+            if (!GAS_TYPES.containsKey(gas)) {
+                GAS_TYPES.put(gas, TYPES.register(gas.getPath(), key -> gasType(gas.getPath())));
+            }
+        }
+        for (NeroTechLiquid liquid : NeroTechLiquid.values()) {
+            LIQUID_TYPES.put(liquid, TYPES.register(liquid.id(), key -> liquidType(liquid)));
+        }
+    }
+
     private ForgeFluidTypes() {
     }
 
@@ -36,11 +57,25 @@ public final class ForgeFluidTypes {
 
     /** The type for one of NeroTech's gases; hydrogen is the fallback for anything unknown. */
     public static FluidType forGas(Identifier gas) {
-        return NeroTechGases.OXYGEN.equals(NeroTechGases.canonical(gas)) ? OXYGEN.get() : HYDROGEN.get();
+        RegistrationProvider.RegistryEntry<FluidType> entry = GAS_TYPES.get(NeroTechGases.canonical(gas));
+        return entry == null ? HYDROGEN.get() : entry.get();
+    }
+
+    /** The type of one of NeroTech's liquids. */
+    public static FluidType forLiquid(NeroTechLiquid liquid) {
+        return LIQUID_TYPES.get(liquid).get();
+    }
+
+    private static FluidType liquidType(NeroTechLiquid liquid) {
+        return new TexturedFluidType(FluidType.Properties.create()
+                .density(liquid.density())
+                .viscosity(liquid.viscosity())
+                .temperature(liquid.temperature())
+                .canConvertToSource(false), liquid.id());
     }
 
     private static FluidType gasType(String gas) {
-        return new GasFluidType(FluidType.Properties.create()
+        return new TexturedFluidType(FluidType.Properties.create()
                 .density(-10)
                 .viscosity(100)
                 .canDrown(false)
@@ -54,12 +89,12 @@ public final class ForgeFluidTypes {
      * its own constructor, dist-guarded, so the textures live here rather than in the client setup.
      * The consumer must be given an anonymous implementation — Forge rejects {@code this}.
      */
-    private static final class GasFluidType extends FluidType {
+    private static final class TexturedFluidType extends FluidType {
 
         private final Identifier still;
         private final Identifier flowing;
 
-        private GasFluidType(Properties properties, String gas) {
+        private TexturedFluidType(Properties properties, String gas) {
             super(properties);
             this.still = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_still");
             this.flowing = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_flow");
@@ -70,12 +105,12 @@ public final class ForgeFluidTypes {
             consumer.accept(new IClientFluidTypeExtensions() {
                 @Override
                 public Identifier getStillTexture() {
-                    return GasFluidType.this.still;
+                    return TexturedFluidType.this.still;
                 }
 
                 @Override
                 public Identifier getFlowingTexture() {
-                    return GasFluidType.this.flowing;
+                    return TexturedFluidType.this.flowing;
                 }
             });
         }

@@ -1,0 +1,70 @@
+{
+  "dimension": "nerospace:europa",
+  "entries": [
+    {
+      "ore": "#c:ores/deuterium",
+      "output": "nerospace:deuterium_shard",
+      "weight": 6,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        500,
+        1000
+      ]
+    },
+    {
+      "ore": "#c:ores/oxidant",
+      "output": "nerospace:oxidant_crystal",
+      "weight": 5,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        500,
+        1000
+      ]
+    },
+    {
+      "ore": "#c:ores/salt",
+      "output": "nerospace:brine_salt",
+      "weight": 6,
+      "capacity": [
+        2000,
+        6000
+      ],
+      "richness": [
+        800,
+        1600
+      ]
+    },
+    {
+      "ore": "#c:ores/sulfide",
+      "output": "nerospace:raw_vent_sulfide",
+      "weight": 4,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        500,
+        1000
+      ]
+    },
+    {
+      "ore": "#c:ores/europium",
+      "output": "nerospace:raw_europium",
+      "weight": 2,
+      "capacity": [
+        500,
+        1500
+      ],
+      "richness": [
+        300,
+        700
+      ]
+    }
+  ]
+}

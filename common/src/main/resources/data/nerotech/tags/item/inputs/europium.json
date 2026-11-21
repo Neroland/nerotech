@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "nerospace:raw_europium",
+      "required": false
+    },
+    {
+      "id": "#c:raw_materials/europium",
+      "required": false
+    }
+  ]
+}

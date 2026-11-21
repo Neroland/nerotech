@@ -37,6 +37,10 @@ public final class ForgeNetwork implements INetworkHelper {
         for (NeroTechNetwork.Serverbound<?> sb : NeroTechNetwork.serverbound()) {
             registerServerbound(play, sb);
         }
+        // Forge has no recipe-sync API: NeroTech's machine recipes ride this channel (see ForgeRecipeSync).
+        //? if >=1.21.2 {
+        ForgeRecipeSync.registerPayload(play);
+        //?}
         channel = play.build();
     }
 

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "P": "nerotech:cindersteel_plate",
+    "C": "nerotech:capacitor",
+    "G": "minecraft:tinted_glass"
+  },
+  "pattern": [
+    "PCP",
+    "G G"
+  ],
+  "result": {
+    "id": "nerotech:thermal_goggles"
+  }
+}

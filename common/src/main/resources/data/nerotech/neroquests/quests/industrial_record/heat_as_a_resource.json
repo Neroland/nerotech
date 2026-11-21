@@ -1,0 +1,36 @@
+{
+  "title": "quest.nerotech.industrial_record.heat_as_a_resource.title",
+  "description": "quest.nerotech.industrial_record.heat_as_a_resource.desc",
+  "icon": "nerotech:heat_pipe",
+  "prerequisites": [
+    "nerotech:industrial_record/heat_and_gas"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:heat_pipe",
+      "count": 4
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:heat_exchanger",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:foundry_heat_port",
+      "count": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 200
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 150
+    }
+  ],
+  "scope": "player"
+}

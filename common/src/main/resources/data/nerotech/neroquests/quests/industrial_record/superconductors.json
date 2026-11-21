@@ -1,0 +1,37 @@
+{
+  "title": "quest.nerotech.industrial_record.superconductors.title",
+  "description": "quest.nerotech.industrial_record.superconductors.desc",
+  "icon": "nerotech:superconductor_coil",
+  "prerequisites": [
+    "nerotech:industrial_record/foundry_line",
+    "nerotech:industrial_record/chemistry_set"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:filament_spooler",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:component_forge",
+      "count": 1
+    },
+    {
+      "type": "neroquests:collect_item",
+      "item": "nerotech:superconductor_coil",
+      "count": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 350
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 250
+    }
+  ],
+  "scope": "player"
+}

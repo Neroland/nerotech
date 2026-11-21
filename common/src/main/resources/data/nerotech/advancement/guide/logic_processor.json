@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_logic_processor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:logic_processor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_logic_processor"
+    ]
+  ]
+}

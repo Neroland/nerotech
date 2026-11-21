@@ -1,0 +1,22 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/sulfide",
+      "count": 1
+    }
+  ],
+  "results": [
+    {
+      "item": "nerotech:sulfur_dust",
+      "count": 2
+    },
+    {
+      "item": "nerotech:iron_dust",
+      "count": 1,
+      "chance_permille": 250
+    }
+  ],
+  "energy": 30,
+  "time": 160
+}

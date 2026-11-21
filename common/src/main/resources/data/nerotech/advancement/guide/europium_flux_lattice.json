@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_europium_flux_lattice": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:europium_flux_lattice"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_europium_flux_lattice"
+    ]
+  ]
+}

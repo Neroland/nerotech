@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "nerotech:block/foundry_brick"
+    },
+    "lit=true": {
+      "model": "nerotech:block/foundry_brick_lit"
+    }
+  }
+}

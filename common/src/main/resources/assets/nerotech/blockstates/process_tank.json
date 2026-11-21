@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "column=single,facing=north": {
+      "model": "nerotech:block/process_tank"
+    },
+    "column=single,facing=east": {
+      "model": "nerotech:block/process_tank",
+      "y": 90
+    },
+    "column=single,facing=south": {
+      "model": "nerotech:block/process_tank",
+      "y": 180
+    },
+    "column=single,facing=west": {
+      "model": "nerotech:block/process_tank",
+      "y": 270
+    },
+    "column=bottom,facing=north": {
+      "model": "nerotech:block/process_tank_bottom"
+    },
+    "column=bottom,facing=east": {
+      "model": "nerotech:block/process_tank_bottom",
+      "y": 90
+    },
+    "column=bottom,facing=south": {
+      "model": "nerotech:block/process_tank_bottom",
+      "y": 180
+    },
+    "column=bottom,facing=west": {
+      "model": "nerotech:block/process_tank_bottom",
+      "y": 270
+    },
+    "column=middle,facing=north": {
+      "model": "nerotech:block/process_tank_middle"
+    },
+    "column=middle,facing=east": {
+      "model": "nerotech:block/process_tank_middle",
+      "y": 90
+    },
+    "column=middle,facing=south": {
+      "model": "nerotech:block/process_tank_middle",
+      "y": 180
+    },
+    "column=middle,facing=west": {
+      "model": "nerotech:block/process_tank_middle",
+      "y": 270
+    },
+    "column=top,facing=north": {
+      "model": "nerotech:block/process_tank_top"
+    },
+    "column=top,facing=east": {
+      "model": "nerotech:block/process_tank_top",
+      "y": 90
+    },
+    "column=top,facing=south": {
+      "model": "nerotech:block/process_tank_top",
+      "y": 180
+    },
+    "column=top,facing=west": {
+      "model": "nerotech:block/process_tank_top",
+      "y": 270
+    }
+  }
+}

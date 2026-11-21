@@ -1,0 +1,110 @@
+package za.co.neroland.nerotech.machine.utility;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+/** Induction Charger rules: bounded reach, offer() bounds and simulate, the per-tick budget. Pure JVM. */
+class ChargeMathTest {
+
+    /** A charger stand-in holding {@code stored} units. */
+    private static final class Pool implements ChargeMath.Source {
+        long stored;
+
+        Pool(long stored) {
+            this.stored = stored;
+        }
+
+        @Override
+        public long available() {
+            return this.stored;
+        }
+
+        @Override
+        public void take(long amount) {
+            this.stored -= amount;
+        }
+    }
+
+    @Test
+    void reachIsABoundedBoxOnEveryAxis() {
+        assertTrue(ChargeMath.inBox(0, 64, 0, 4, 60, -4, 4));
+        assertFalse(ChargeMath.inBox(0, 64, 0, 5, 64, 0, 4));
+        assertFalse(ChargeMath.inBox(0, 64, 0, 0, 69, 0, 4));
+        assertFalse(ChargeMath.inBox(0, 64, 0, 0, 64, 0, -1));
+        assertTrue(ChargeMath.inBox(7, 7, 7, 7, 7, 7, 0));
+    }
+
+    @Test
+    void offerNeverExceedsTheRequestOrTheSources() {
+        Pool a = new Pool(300);
+        Pool b = new Pool(500);
+        assertEquals(1000, ChargeMath.offer(1000, false, List.of(a, b)) + 200);
+        assertEquals(0, a.stored);
+        assertEquals(0, b.stored);
+
+        Pool c = new Pool(300);
+        Pool d = new Pool(500);
+        assertEquals(400, ChargeMath.offer(400, false, List.of(c, d)));
+        assertEquals(0, c.stored);
+        assertEquals(400, d.stored);
+    }
+
+    @Test
+    void offerOfNothingGivesNothing() {
+        Pool a = new Pool(300);
+        assertEquals(0, ChargeMath.offer(0, false, List.of(a)));
+        assertEquals(0, ChargeMath.offer(-5, false, List.of(a)));
+        assertEquals(0, ChargeMath.offer(100, false, List.of()));
+        assertEquals(300, a.stored);
+    }
+
+    @Test
+    void simulateTakesNothing() {
+        Pool a = new Pool(300);
+        Pool b = new Pool(500);
+        assertEquals(700, ChargeMath.offer(700, true, List.of(a, b)));
+        assertEquals(300, a.stored);
+        assertEquals(500, b.stored);
+        assertEquals(ChargeMath.offer(700, true, List.of(a, b)), ChargeMath.offer(700, false, List.of(a, b)));
+        assertEquals(100, b.stored);
+    }
+
+    @Test
+    void negativeAvailabilityIsIgnored() {
+        Pool broken = new Pool(-50);
+        Pool ok = new Pool(20);
+        assertEquals(20, ChargeMath.offer(100, false, List.of(broken, ok)));
+        assertEquals(-50, broken.stored);
+    }
+
+    @Test
+    void budgetCapsOutputPerTickAndBanksOnePass() {
+        ChargeBudget budget = new ChargeBudget();
+        long perTick = 10;
+        long burst = perTick * ChargeMath.PASS_TICKS;
+        assertEquals(burst, budget.available(100, perTick, burst));
+        budget.spend(burst);
+        assertEquals(0, budget.available(100, perTick, burst));
+        assertEquals(30, budget.available(103, perTick, burst));
+        budget.spend(1000);
+        assertEquals(0, budget.available(103, perTick, burst));
+        assertEquals(burst, budget.available(1_000_000, perTick, burst));
+        // A clock set back starts a fresh bucket rather than going negative.
+        budget.spend(burst);
+        assertEquals(burst, budget.available(5, perTick, burst));
+    }
+
+    @Test
+    void speedFactorScalesThePerTickCap() {
+        assertEquals(256, ChargeMath.scaledPerTick(256, 1.0));
+        assertEquals(512, ChargeMath.scaledPerTick(256, 2.0));
+        assertEquals(0, ChargeMath.scaledPerTick(256, 0.0));
+        assertEquals(0, ChargeMath.scaledPerTick(-1, 3.0));
+        assertEquals(Long.MAX_VALUE / ChargeMath.PASS_TICKS, ChargeMath.scaledPerTick(Long.MAX_VALUE, 10.0));
+    }
+}

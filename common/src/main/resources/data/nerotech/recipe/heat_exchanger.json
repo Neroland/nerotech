@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "R": "nerotech:radiator",
+    "P": "nerotech:heat_pipe",
+    "F": "nerotech:machine_frame"
+  },
+  "pattern": [
+    "CPC",
+    "RFR",
+    "CPC"
+  ],
+  "result": {
+    "id": "nerotech:heat_exchanger",
+    "count": 1
+  }
+}

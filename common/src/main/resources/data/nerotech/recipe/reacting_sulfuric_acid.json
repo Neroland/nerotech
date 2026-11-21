@@ -1,0 +1,23 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    {
+      "ingredient": "#c:dusts/sulfur",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 1000
+  },
+  "gas_in": {
+    "id": "nerospace:oxygen",
+    "amount": 2
+  },
+  "fluid_out": {
+    "id": "nerotech:sulfuric_acid",
+    "amount": 1000
+  },
+  "energy": 40,
+  "time": 200
+}

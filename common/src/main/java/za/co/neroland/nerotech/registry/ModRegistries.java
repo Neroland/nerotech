@@ -21,6 +21,14 @@ public final class ModRegistries {
         ModItems.init();
         ModBlockEntities.init();
         ModMenuTypes.init();
+        ModSounds.init();
+        ModParticles.init();
+        // 0.8.0 machine families: each registers its blocks, items, block entities and menus into the
+        // four providers above (same order inside every family), so Fabric's eager registration and the
+        // NeoForge/Forge DeferredRegister flush treat them exactly like the entries above.
+        FamilyRegistry.init();
+        // 0.8.0 tools: their data components and items, and the Induction Charger item adapter.
+        za.co.neroland.nerotech.item.tools.ToolsContent.init();
         ModRecipeTypes.init();
         ModCreativeTab.init();
     }

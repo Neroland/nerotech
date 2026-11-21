@@ -1,0 +1,19 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    {
+      "ingredient": "#minecraft:logs",
+      "count": 2
+    }
+  ],
+  "gas_in": {
+    "id": "nerotech:methane",
+    "amount": 2
+  },
+  "fluid_out": {
+    "id": "nerotech:polymer_resin",
+    "amount": 250
+  },
+  "energy": 40,
+  "time": 900
+}

@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_process_tank": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:process_tank"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_process_tank"
+    ]
+  ]
+}

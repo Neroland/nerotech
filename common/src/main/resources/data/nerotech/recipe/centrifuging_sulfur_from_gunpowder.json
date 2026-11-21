@@ -1,0 +1,22 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "minecraft:gunpowder",
+      "count": 2
+    }
+  ],
+  "results": [
+    {
+      "item": "nerotech:sulfur_dust",
+      "count": 1
+    },
+    {
+      "item": "minecraft:charcoal",
+      "count": 1,
+      "chance_permille": 100
+    }
+  ],
+  "energy": 40,
+  "time": 280
+}

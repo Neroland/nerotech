@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "P": "nerotech:cindersteel_plate",
+    "C": "nerotech:copper_coil",
+    "R": "nerotech:cindersteel_rod"
+  },
+  "pattern": [
+    " P ",
+    " CP",
+    "R  "
+  ],
+  "result": {
+    "id": "nerotech:arc_wrench"
+  }
+}

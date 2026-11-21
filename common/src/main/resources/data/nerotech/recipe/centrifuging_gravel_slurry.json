@@ -1,0 +1,31 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "minecraft:gravel",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 250
+  },
+  "results": [
+    {
+      "item": "minecraft:flint",
+      "count": 1
+    },
+    {
+      "item": "minecraft:clay_ball",
+      "count": 1,
+      "chance_permille": 500
+    },
+    {
+      "item": "nerotech:iron_dust",
+      "count": 1,
+      "chance_permille": 100
+    }
+  ],
+  "energy": 20,
+  "time": 120
+}

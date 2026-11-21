@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass",
+    "B": "nerotech:circuit_board",
+    "P": "minecraft:packed_ice",
+    "F": "nerotech:machine_frame"
+  },
+  "pattern": [
+    "GPG",
+    "BFB",
+    "GPG"
+  ],
+  "result": {
+    "id": "nerotech:cryo_distiller"
+  }
+}

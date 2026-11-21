@@ -15,4 +15,9 @@ public final class FabricFluidHelper implements IFluidHelper {
     public Fluid createGasFluid(Identifier gas) {
         return new GasFluid(gas);
     }
+
+    @Override
+    public Fluid createLiquid(za.co.neroland.nerotech.fluid.NeroTechLiquid liquid, boolean source) {
+        return source ? new FabricLiquidFluid.Source(liquid) : new FabricLiquidFluid.Flowing(liquid);
+    }
 }

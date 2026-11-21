@@ -21,6 +21,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
+import za.co.neroland.nerotech.progression.MilestoneGates;
+import za.co.neroland.nerotech.progression.OperatorCredit;
 import za.co.neroland.nerotech.registry.ModBlockEntities;
 import za.co.neroland.nerotech.registry.ModDataComponents;
 
@@ -69,6 +71,12 @@ public class SingularityVaultBlockEntity extends NeroTechMachineBlockEntity {
      */
     private boolean carrierDropped;
 
+    /**
+     * Transient: the last operator this vault tried to credit with {@code vault_operated}, so automation
+     * feeding it every tick does not repeat the gate lookup. Never saved; cleared on unload.
+     */
+    private java.util.@Nullable UUID vaultCreditTried;
+
     public SingularityVaultBlockEntity(BlockPos pos, BlockState state) {
         // Zero NE buffer, zero transfer: the vault neither stores nor moves power.
         super(ModBlockEntities.SINGULARITY_VAULT.get(), pos, state, 2, 0, 0);
@@ -79,7 +87,9 @@ public class SingularityVaultBlockEntity extends NeroTechMachineBlockEntity {
         if (!(level instanceof ServerLevel)) {
             return;
         }
+        long before = this.storedCount;
         boolean changed = absorbInput();
+        creditOperation(level, this.storedCount - before);
         changed |= restockOutput();
         changed |= clearWhenEmpty();
         if (changed) {
@@ -132,7 +142,26 @@ public class SingularityVaultBlockEntity extends NeroTechMachineBlockEntity {
         this.storedCount += accepted;
         held.shrink(accepted);
         setChanged();
+        creditOperation(this.level, accepted);
         return accepted;
+    }
+
+    /**
+     * First successful store: credit {@code nerotech:vault_operated} to the operator in the moment (the
+     * placer or the player who last used the vault), only while they are online. Nothing is stored.
+     */
+    private void creditOperation(@Nullable Level level, long moved) {
+        java.util.UUID operator = lastOperator().orElse(null);
+        if (operator == null || !(level instanceof ServerLevel serverLevel)
+                || !OperatorCredit.vaultOperated(moved, operator, this.vaultCreditTried)) {
+            return;
+        }
+        MilestoneGates.credit(serverLevel, operator, MilestoneGates.VAULT_OPERATED);
+        // An offline operator is retried on the next store; an online one was credited (or already was).
+        net.minecraft.server.MinecraftServer server = serverLevel.getServer();
+        if (server != null && server.getPlayerList().getPlayer(operator) != null) {
+            this.vaultCreditTried = operator;
+        }
     }
 
     /** Take one stack back by hand — from the virtual store first, then the output slot. */

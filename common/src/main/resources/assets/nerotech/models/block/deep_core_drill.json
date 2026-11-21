@@ -1,0 +1,587 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "front": "nerotech:block/deep_core_drill_front",
+    "side": "nerotech:block/deep_core_drill",
+    "top": "nerotech:block/deep_core_drill_top",
+    "motor": "nerotech:block/deep_core_drill_motor",
+    "bore": "nerotech:block/deep_core_drill_bore",
+    "frame": "nerotech:block/drill_derrick",
+    "particle": "nerotech:block/deep_core_drill"
+  },
+  "elements": [
+    {
+      "name": "deck_north",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        5,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front",
+          "cullface": "north"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top",
+          "cullface": "down"
+        },
+        "south": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ]
+        }
+      }
+    },
+    {
+      "name": "deck_south",
+      "from": [
+        0,
+        0,
+        10
+      ],
+      "to": [
+        16,
+        5,
+        16
+      ],
+      "faces": {
+        "south": {
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top",
+          "cullface": "down"
+        },
+        "north": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ]
+        }
+      }
+    },
+    {
+      "name": "deck_west",
+      "from": [
+        0,
+        0,
+        6
+      ],
+      "to": [
+        6,
+        5,
+        10
+      ],
+      "faces": {
+        "west": {
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top",
+          "cullface": "down"
+        },
+        "east": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            4,
+            5
+          ]
+        }
+      }
+    },
+    {
+      "name": "deck_east",
+      "from": [
+        10,
+        0,
+        6
+      ],
+      "to": [
+        16,
+        5,
+        10
+      ],
+      "faces": {
+        "east": {
+          "texture": "#side",
+          "cullface": "east"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#top",
+          "cullface": "down"
+        },
+        "west": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            4,
+            5
+          ]
+        }
+      }
+    },
+    {
+      "name": "table_seat_north",
+      "from": [
+        4,
+        5,
+        4
+      ],
+      "to": [
+        12,
+        6,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "south": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            4,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "table_seat_south",
+      "from": [
+        4,
+        5,
+        10
+      ],
+      "to": [
+        12,
+        6,
+        12
+      ],
+      "faces": {
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "north": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            4,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "table_seat_west",
+      "from": [
+        4,
+        5,
+        6
+      ],
+      "to": [
+        6,
+        6,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "east": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            4,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "table_seat_east",
+      "from": [
+        10,
+        5,
+        6
+      ],
+      "to": [
+        12,
+        6,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "west": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            4,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "motor_housing",
+      "from": [
+        3,
+        5,
+        11
+      ],
+      "to": [
+        13,
+        12,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#motor"
+        },
+        "south": {
+          "texture": "#motor"
+        },
+        "east": {
+          "texture": "#motor"
+        },
+        "west": {
+          "texture": "#motor"
+        },
+        "up": {
+          "texture": "#motor"
+        }
+      }
+    },
+    {
+      "name": "exhaust_stub",
+      "from": [
+        10,
+        12,
+        12.5
+      ],
+      "to": [
+        12.5,
+        16,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#motor"
+        },
+        "south": {
+          "texture": "#motor"
+        },
+        "east": {
+          "texture": "#motor"
+        },
+        "west": {
+          "texture": "#motor"
+        },
+        "up": {
+          "texture": "#bore",
+          "uv": [
+            0,
+            0,
+            2.5,
+            2.5
+          ]
+        }
+      }
+    },
+    {
+      "name": "cheek_west",
+      "from": [
+        1,
+        5,
+        6.5
+      ],
+      "to": [
+        3,
+        14,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#frame"
+        },
+        "south": {
+          "texture": "#frame"
+        },
+        "east": {
+          "texture": "#frame"
+        },
+        "west": {
+          "texture": "#frame"
+        }
+      }
+    },
+    {
+      "name": "cheek_east",
+      "from": [
+        13,
+        5,
+        6.5
+      ],
+      "to": [
+        15,
+        14,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#frame"
+        },
+        "south": {
+          "texture": "#frame"
+        },
+        "east": {
+          "texture": "#frame"
+        },
+        "west": {
+          "texture": "#frame"
+        }
+      }
+    },
+    {
+      "name": "crosshead",
+      "from": [
+        1,
+        14,
+        6
+      ],
+      "to": [
+        15,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#frame"
+        },
+        "south": {
+          "texture": "#frame"
+        },
+        "east": {
+          "texture": "#frame"
+        },
+        "west": {
+          "texture": "#frame"
+        },
+        "up": {
+          "texture": "#frame"
+        },
+        "down": {
+          "texture": "#frame"
+        }
+      }
+    },
+    {
+      "name": "swivel",
+      "from": [
+        6.5,
+        12,
+        6.5
+      ],
+      "to": [
+        9.5,
+        14,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#motor"
+        },
+        "south": {
+          "texture": "#motor"
+        },
+        "east": {
+          "texture": "#motor"
+        },
+        "west": {
+          "texture": "#motor"
+        },
+        "down": {
+          "texture": "#motor"
+        }
+      }
+    },
+    {
+      "name": "lamp_post",
+      "from": [
+        0.5,
+        5,
+        0
+      ],
+      "to": [
+        3.5,
+        15,
+        1.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        }
+      }
+    },
+    {
+      "name": "status_socket",
+      "from": [
+        1.0,
+        12.0,
+        -0.5
+      ],
+      "to": [
+        3.0,
+        14.0,
+        0.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "east": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "west": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "up": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        },
+        "down": {
+          "uv": [
+            13,
+            2,
+            15,
+            4
+          ],
+          "texture": "#front"
+        }
+      }
+    }
+  ]
+}

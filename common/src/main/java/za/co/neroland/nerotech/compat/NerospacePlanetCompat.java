@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.machine.chemistry.AtmosphereMapping;
 
 /**
  * Optional bridge to Nerospace's semver-stable {@code za.co.neroland.nerospace.api} planet-trait
@@ -65,6 +66,14 @@ public final class NerospacePlanetCompat {
 
     /** True when the Nerospace api facade resolved reflectively (probed without initialising it). */
     public static final boolean AVAILABLE = API != null;
+
+    /**
+     * {@code PlanetTraits.archetype()} and {@code temperatureBand()} (Nerospace 2.0+), resolved apart from
+     * {@link Api} so an older Nerospace without them keeps the solar/wind/thermal bridge; {@code null}
+     * when either accessor is missing (then the condenser's config table decides).
+     */
+    @Nullable
+    private static final Method[] ATMOSPHERE_TRAITS = resolveAtmosphereTraits();
 
     private NerospacePlanetCompat() {
     }
@@ -131,6 +140,51 @@ public final class NerospacePlanetCompat {
             case "COLD" -> AMBIENT_COLD;
             default -> 0; // temperate baseline; biome flavour still applies on top
         });
+    }
+
+    /**
+     * The Atmospheric Condenser's atmosphere for {@code level}'s dimension from the planet's archetype
+     * and temperature band (mapping in {@link AtmosphereMapping#fromTraits}, Europa overridden to
+     * vacuum), or empty when Nerospace is absent, the accessors drifted, or the dimension is not a
+     * Nerospace planet (Earth included) — the {@code condenserAtmospheres} table then decides.
+     */
+    public static Optional<AtmosphereMapping.Reading> atmosphere(Level level) {
+        Api api = API;
+        Method[] accessors = ATMOSPHERE_TRAITS;
+        if (api == null || accessors == null) {
+            return Optional.empty();
+        }
+        Object traits = api.traitsFor(level.dimension());
+        if (traits == null) {
+            return Optional.empty();
+        }
+        return AtmosphereMapping.fromTraits(level.dimension().identifier().toString(),
+                enumName(accessors[0], traits), enumName(accessors[1], traits));
+    }
+
+    /** An enum-valued accessor's constant name, or {@code ""} when unreadable (→ no opinion). */
+    private static String enumName(Method accessor, Object target) {
+        try {
+            Object value = accessor.invoke(target);
+            return value instanceof Enum<?> constant ? constant.name() : "";
+        } catch (ReflectiveOperationException | RuntimeException unexpected) {
+            return "";
+        }
+    }
+
+    @Nullable
+    private static Method[] resolveAtmosphereTraits() {
+        try {
+            Class<?> planetTraits = Class.forName("za.co.neroland.nerospace.api.PlanetTraits", false,
+                    NerospacePlanetCompat.class.getClassLoader());
+            return new Method[] {planetTraits.getMethod("archetype"), planetTraits.getMethod("temperatureBand")};
+        } catch (ClassNotFoundException absent) {
+            return null; // Nerospace not installed
+        } catch (ReflectiveOperationException | RuntimeException drift) {
+            NeroTechCommon.LOGGER.debug("[NeroTech] Nerospace planet traits lack archetype/temperatureBand"
+                    + " — condenser uses condenserAtmospheres", drift);
+            return null;
+        }
     }
 
     /**

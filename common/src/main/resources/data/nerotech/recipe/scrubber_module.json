@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "nerotech:polymer_sheet",
+    "F": "nerotech:filter_cartridge",
+    "C": "nerotech:circuit_board"
+  },
+  "pattern": [
+    " P ",
+    "FCF",
+    " P "
+  ],
+  "result": {
+    "id": "nerotech:scrubber_module"
+  }
+}

@@ -2,6 +2,8 @@
   "values": [
     "#c:dusts/iron",
     "#c:dusts/copper",
-    "#c:dusts/gold"
+    "#c:dusts/gold",
+    "#c:dusts/sulfur",
+    "#c:dusts/europium"
   ]
 }

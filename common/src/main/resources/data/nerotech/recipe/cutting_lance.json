@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "G": "minecraft:glass",
+    "P": "nerotech:cindersteel_plate",
+    "Q": "nerotech:logic_processor",
+    "R": "nerotech:cindersteel_rod"
+  },
+  "pattern": [
+    "  G",
+    "PQ ",
+    "RP "
+  ],
+  "result": {
+    "id": "nerotech:cutting_lance"
+  }
+}

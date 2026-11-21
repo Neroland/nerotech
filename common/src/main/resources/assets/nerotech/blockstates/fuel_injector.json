@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/fuel_injector"
+    },
+    "facing=east": {
+      "model": "nerotech:block/fuel_injector",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/fuel_injector",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/fuel_injector",
+      "y": 270
+    }
+  }
+}

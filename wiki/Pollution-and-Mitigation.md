@@ -58,6 +58,14 @@ packs and event mods listen (the shipped quest chapter's world-log quests, for i
 [NeroQuests Integration](NeroQuests-Integration.md)). A Remediator that actually removes pollution also
 records the **Remediated** milestone for its owner.
 
+## Exposure and the Filter Mask
+
+A region at the **severe** band (twice `pollutionEventThreshold`) gives players standing in it brief
+Weakness and Hunger every `pollutionExposureIntervalTicks` (`pollutionExposureEffects`, on by default).
+A worn, charged [Filter Mask](Tools.md#filter-mask-and-pollution-exposure) with a Filter Cartridge
+blocks it, and the cartridge fouls into a Dirty Filter after `filterMaskPulsesPerCartridge` exposures.
+The **Scrubber Module** cuts a machine's own emissions (see [Machines](Machines.md#upgrade-modules)).
+
 ## Config keys
 
 `scrubberNePerOp`, `scrubberPollutionPerOp`, `scrubberAdjacentPermille`, `scrubberFilterCapacity`,

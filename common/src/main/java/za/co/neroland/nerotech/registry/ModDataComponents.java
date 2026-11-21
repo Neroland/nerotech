@@ -33,6 +33,13 @@ public final class ModDataComponents {
                     .persistent(VaultContents.CODEC)
                     .build());
 
+    /** A broken Process Tank's share that did not fit back into its column; medium id + amount only. */
+    public static final RegistryEntry<DataComponentType<za.co.neroland.nerotech.machine.tank.TankContents>> TANK_CONTENTS =
+            COMPONENTS.register("tank_contents",
+                    key -> DataComponentType.<za.co.neroland.nerotech.machine.tank.TankContents>builder()
+                            .persistent(za.co.neroland.nerotech.machine.tank.TankContents.CODEC)
+                            .build());
+
     private ModDataComponents() {
     }
 

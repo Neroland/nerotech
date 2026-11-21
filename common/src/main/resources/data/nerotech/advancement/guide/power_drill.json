@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_power_drill": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:power_drill"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_power_drill"
+    ]
+  ]
+}

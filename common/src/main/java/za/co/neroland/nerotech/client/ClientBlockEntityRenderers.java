@@ -58,6 +58,8 @@ public final class ClientBlockEntityRenderers {
     }
 
     public static void registerAll(Sink sink) {
+        // 0.8.0 machine sounds and particles, driven client-side by the synced readout (no packets).
+        za.co.neroland.nerotech.machine.MachineClientHook.install(new MachineEffects());
         // Nero Generator: turbine ring behind the intake grille + heat-lerped glow.
         add(sink, ModBlockEntities.NERO_GENERATOR.get(), NeroGeneratorRenderer::new);
         // Solar Array: the sun-tracking deck above the pedestal, folded flat at night.
@@ -82,5 +84,15 @@ public final class ClientBlockEntityRenderers {
         add(sink, ModBlockEntities.ANALYTICS_TERMINAL.get(), AnalyticsTerminalRenderer::new);
         // Tech Guide: the spinning next-step hologram above a loaded pedestal (Star Guide recipe).
         add(sink, ModBlockEntities.TECH_GUIDE.get(), TechGuideHologramRenderer::new);
+        // Process Tank: the fill level and medium tint seen through the column's sight glass.
+        add(sink, ModBlockEntities.PROCESS_TANK.get(), za.co.neroland.nerotech.client.render.ProcessTankRenderer::new);
+        // 0.8.0 machine families: each family's Content.renderers(...) adds its own BERs.
+        za.co.neroland.nerotech.registry.FamilyRegistry.renderers(new RendererSink() {
+            @Override
+            public <T extends BlockEntity, S extends BlockEntityRenderState> void add(
+                    BlockEntityType<? extends T> type, Supplier<? extends BlockEntityRenderer<T, S>> renderer) {
+                ClientBlockEntityRenderers.add(sink, type, renderer);
+            }
+        });
     }
 }

@@ -153,21 +153,33 @@ public abstract class MachineMenu extends AbstractContainerMenu {
 
     /** Add the upgrade-module slots (right column) then the player inventory + hotbar. */
     protected void addUpgradeAndPlayerSlots(Inventory playerInventory) {
+        // Upgrade modules: a tidy 2×2 block in the top-right of the machine area (clear of the gauges).
+        addUpgradeAndPlayerSlots(playerInventory, 138, 18, 2, 84);
+    }
+
+    /**
+     * {@link #addUpgradeAndPlayerSlots(Inventory)} with the layout spelled out (0.8.0 processing screens,
+     * tall 176×186 panels): upgrade slots in a grid of {@code upgradeColumns} from
+     * ({@code upgradeX}, {@code upgradeY}), player inventory from {@code playerY} with the hotbar 58 below.
+     */
+    protected void addUpgradeAndPlayerSlots(Inventory playerInventory, int upgradeX, int upgradeY,
+            int upgradeColumns, int playerY) {
         captureStatsTarget(playerInventory);
         int upgrades = this.totalNonPlayer - this.machineSlots;
-        // Upgrade modules: a tidy 2×2 block in the top-right of the machine area (clear of the gauges).
+        int columns = Math.max(1, upgradeColumns);
         for (int i = 0; i < upgrades; i++) {
-            int col = i % 2;
-            int row = i / 2;
-            this.addSlot(new PredicateSlot(this.container, this.machineSlots + i, 138 + col * 18, 18 + row * 18));
+            int col = i % columns;
+            int row = i / columns;
+            this.addSlot(new PredicateSlot(this.container, this.machineSlots + i, upgradeX + col * 18,
+                    upgradeY + row * 18));
         }
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, playerY + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
+            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, playerY + 58));
         }
     }
 

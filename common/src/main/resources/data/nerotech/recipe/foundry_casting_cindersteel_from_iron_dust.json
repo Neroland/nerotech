@@ -1,0 +1,22 @@
+{
+  "type": "nerotech:foundry_casting",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/cindrite",
+      "count": 1
+    },
+    {
+      "ingredient": "#c:dusts/iron",
+      "count": 1
+    }
+  ],
+  "results": [
+    {
+      "item": "nerotech:cindersteel_ingot",
+      "count": 1
+    }
+  ],
+  "energy": 24,
+  "time": 200,
+  "min_heat": 400
+}

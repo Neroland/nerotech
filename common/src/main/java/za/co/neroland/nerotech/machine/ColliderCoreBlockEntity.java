@@ -387,6 +387,7 @@ public class ColliderCoreBlockEntity extends NeroTechMachineBlockEntity {
         mergeOutput(result);
         // The product is in the output slot: record the owner's "First Collision" milestone (idempotent).
         MilestoneGates.record(serverLevel, this.ownerId, MilestoneGates.FIRST_COLLISION);
+        MilestoneGates.credit(serverLevel, lastOperator().orElse(null), MilestoneGates.FIRST_COLLISION);
         addHeat(NeroTechConfig.heatPerOperation() * HEAT_MULTIPLIER);
         emitPollution(level, pos);
         burst(serverLevel, pos);

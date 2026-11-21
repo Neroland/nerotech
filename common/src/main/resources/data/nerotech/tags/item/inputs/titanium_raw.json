@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:raw_materials/titanium",
+      "required": false
+    },
+    {
+      "id": "#c:raw_materials/ilmenite",
+      "required": false
+    }
+  ]
+}

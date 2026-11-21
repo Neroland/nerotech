@@ -1,0 +1,22 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/europium",
+      "count": 1
+    }
+  ],
+  "results": [
+    {
+      "item": "nerotech:europium_dust",
+      "count": 1
+    },
+    {
+      "item": "nerotech:gold_dust",
+      "count": 1,
+      "chance_permille": 150
+    }
+  ],
+  "energy": 60,
+  "time": 240
+}

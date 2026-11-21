@@ -1,0 +1,29 @@
+{
+  "title": "quest.nerotech.industrial_record.quantum_leap.title",
+  "description": "quest.nerotech.industrial_record.quantum_leap.desc",
+  "icon": "nerotech:quantum_processor",
+  "prerequisites": [
+    "nerotech:industrial_record/silicon_age"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerotech:first_quantum_processor"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 400
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 300
+    },
+    {
+      "type": "neroquests:mod_hook",
+      "gate": "nerotech:hook/tech_guide_unlock"
+    }
+  ],
+  "scope": "player"
+}

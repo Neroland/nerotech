@@ -1,0 +1,30 @@
+{
+  "type": "nerotech:crystal_growing",
+  "items": [
+    {
+      "ingredient": "#c:gems/void_crystal",
+      "count": 1
+    },
+    {
+      "ingredient": "minecraft:snow_block",
+      "count": 4
+    },
+    {
+      "ingredient": "minecraft:packed_ice",
+      "count": 2
+    }
+  ],
+  "fluid_in": {
+    "id": "nerotech:cryo_coolant",
+    "amount": 100
+  },
+  "results": [
+    {
+      "item": "nerotech:synthetic_glacite",
+      "count": 1
+    }
+  ],
+  "energy": 20,
+  "time": 500,
+  "min_heat": 0
+}

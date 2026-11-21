@@ -18,6 +18,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.recipe.ColliderRecipe;
 import za.co.neroland.nerotech.recipe.MachineRecipe;
+import za.co.neroland.nerotech.recipe.ProcessRecipe;
 import za.co.neroland.nerotech.registry.ModBlocks;
 import za.co.neroland.nerotech.registry.ModRecipeTypes;
 
@@ -52,6 +53,17 @@ public final class NeroTechJeiPlugin implements IModPlugin {
     public static final IRecipeType<RecipeHolder<MachineRecipe>> CHEMICAL_PROCESSING =
             machineType("chemical_processing");
 
+    /**
+     * The eleven 0.8.0 process pages, keyed like the registered recipe types, in
+     * {@link ModRecipeTypes#processTypes()} order. Each page's icon and crafting station is the machine
+     * that runs it ({@link za.co.neroland.nerotech.compat.ProcessStations}).
+     */
+    public static final java.util.List<IRecipeType<RecipeHolder<ProcessRecipe>>> PROCESS_TYPES =
+            java.util.List.of(holderType("alloying"), holderType("pressing"), holderType("drawing"),
+                    holderType("foundry_casting"), holderType("centrifuging"), holderType("cryo_distilling"),
+                    holderType("condensing"), holderType("reacting"), holderType("component_forging"),
+                    holderType("etching"), holderType("crystal_growing"));
+
     @Override
     public Identifier getPluginUid() {
         return PLUGIN_UID;
@@ -78,6 +90,11 @@ public final class NeroTechJeiPlugin implements IModPlugin {
                 new MachineRecipeCategory(guiHelper, CHEMICAL_PROCESSING,
                         Component.translatable("gui.nerotech.jei.chemical_processing"),
                         ModBlocks.CHEMICAL_PROCESSOR.get()));
+        for (IRecipeType<RecipeHolder<ProcessRecipe>> type : PROCESS_TYPES) {
+            registration.addRecipeCategories(new ProcessRecipeCategory(guiHelper, type,
+                    Component.translatable("gui.nerotech.jei." + type.getUid().getPath()),
+                    za.co.neroland.nerotech.compat.ProcessStations.station(type.getUid().getPath())));
+        }
     }
 
     @Override
@@ -92,6 +109,10 @@ public final class NeroTechJeiPlugin implements IModPlugin {
                 JeiSyncedRecipes.byType(ModRecipeTypes.COLLIDER.get()));
         registration.addRecipes(CHEMICAL_PROCESSING,
                 JeiSyncedRecipes.byType(ModRecipeTypes.CHEMICAL_PROCESSING.get()));
+        for (int i = 0; i < PROCESS_TYPES.size(); i++) {
+            registration.addRecipes(PROCESS_TYPES.get(i),
+                    JeiSyncedRecipes.byType(ModRecipeTypes.processTypes().get(i).get()));
+        }
     }
 
     @Override
@@ -105,6 +126,10 @@ public final class NeroTechJeiPlugin implements IModPlugin {
         registration.addCraftingStation(ADVANCED_FABRICATING, ModBlocks.ADVANCED_FABRICATOR.get());
         registration.addCraftingStation(COLLIDER, ModBlocks.COLLIDER_CORE.get());
         registration.addCraftingStation(CHEMICAL_PROCESSING, ModBlocks.CHEMICAL_PROCESSOR.get());
+        for (IRecipeType<RecipeHolder<ProcessRecipe>> type : PROCESS_TYPES) {
+            registration.addCraftingStation(type,
+                    za.co.neroland.nerotech.compat.ProcessStations.station(type.getUid().getPath()));
+        }
         //?} else {
         /*registration.addRecipeCatalysts(ORE_PROCESSING,
                 ModBlocks.ORE_PROCESSOR.get(), ModBlocks.ADVANCED_ORE_PROCESSOR.get());
@@ -112,6 +137,10 @@ public final class NeroTechJeiPlugin implements IModPlugin {
         registration.addRecipeCatalysts(ADVANCED_FABRICATING, ModBlocks.ADVANCED_FABRICATOR.get());
         registration.addRecipeCatalysts(COLLIDER, ModBlocks.COLLIDER_CORE.get());
         registration.addRecipeCatalysts(CHEMICAL_PROCESSING, ModBlocks.CHEMICAL_PROCESSOR.get());
+        for (IRecipeType<RecipeHolder<ProcessRecipe>> type : PROCESS_TYPES) {
+            registration.addRecipeCatalysts(type,
+                    za.co.neroland.nerotech.compat.ProcessStations.station(type.getUid().getPath()));
+        }
         *///?}
     }
 

@@ -1,0 +1,25 @@
+{
+  "title": "quest.nerotech.industrial_record.vault_online.title",
+  "description": "quest.nerotech.industrial_record.vault_online.desc",
+  "icon": "nerotech:singularity_vault",
+  "prerequisites": [
+    "nerotech:industrial_record/antimatter"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerotech:vault_operated"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 300
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 200
+    }
+  ],
+  "scope": "player"
+}

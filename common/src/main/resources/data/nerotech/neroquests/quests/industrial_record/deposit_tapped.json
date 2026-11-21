@@ -1,0 +1,29 @@
+{
+  "title": "quest.nerotech.industrial_record.deposit_tapped.title",
+  "description": "quest.nerotech.industrial_record.deposit_tapped.desc",
+  "icon": "nerotech:deep_core_drill",
+  "prerequisites": [
+    "nerotech:industrial_record/prospector"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerotech:first_deposit_tapped"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 300
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 200
+    },
+    {
+      "type": "neroquests:mod_hook",
+      "gate": "nerotech:hook/tech_guide_unlock"
+    }
+  ],
+  "scope": "player"
+}

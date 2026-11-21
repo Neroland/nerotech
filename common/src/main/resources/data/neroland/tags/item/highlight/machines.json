@@ -35,6 +35,27 @@
     "nerotech:singularity_vault",
     "nerotech:solar_array",
     "nerotech:wind_turbine",
-    "nerotech:wireless_node"
+    "nerotech:wireless_node",
+    "nerotech:process_tank",
+    "nerotech:centrifuge",
+    "nerotech:cryo_distiller",
+    "nerotech:atmospheric_condenser",
+    "nerotech:reaction_vat",
+    "nerotech:component_forge",
+    "nerotech:laser_etcher",
+    "nerotech:crystal_grower",
+    "nerotech:deep_core_drill",
+    "nerotech:blast_foundry",
+    "nerotech:foundry_brick",
+    "nerotech:foundry_heat_port",
+    "nerotech:fuel_injector",
+    "nerotech:europium_flux_lattice",
+    "nerotech:heat_pipe",
+    "nerotech:heat_exchanger",
+    "nerotech:plasma_crucible",
+    "nerotech:plate_press",
+    "nerotech:filament_spooler",
+    "nerotech:induction_charger",
+    "nerotech:annunciator_panel"
   ]
 }

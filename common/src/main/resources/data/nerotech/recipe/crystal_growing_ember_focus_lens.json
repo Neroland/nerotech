@@ -1,0 +1,26 @@
+{
+  "type": "nerotech:crystal_growing",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/cindrite",
+      "count": 4
+    },
+    {
+      "ingredient": "minecraft:glass_pane",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 500
+  },
+  "results": [
+    {
+      "item": "nerotech:ember_focus_lens",
+      "count": 1
+    }
+  ],
+  "energy": 30,
+  "time": 600,
+  "min_heat": 0
+}

@@ -1,0 +1,19 @@
+{
+  "type": "nerotech:cryo_distilling",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/cryo_ice",
+      "count": 1
+    }
+  ],
+  "fluid_out": {
+    "id": "nerotech:cryo_coolant",
+    "amount": 500
+  },
+  "gas_out": {
+    "id": "nerotech:nitrogen",
+    "amount": 2
+  },
+  "energy": 40,
+  "time": 200
+}

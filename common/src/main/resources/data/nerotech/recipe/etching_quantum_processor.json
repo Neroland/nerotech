@@ -1,0 +1,27 @@
+{
+  "type": "nerotech:etching",
+  "items": [
+    {
+      "ingredient": "nerotech:wafer",
+      "count": 1
+    },
+    {
+      "ingredient": "#c:wires/superconductor",
+      "count": 2
+    },
+    {
+      "ingredient": "nerotech:logic_processor",
+      "count": 1
+    }
+  ],
+  "catalyst": "nerotech:void_focus_lens",
+  "results": [
+    {
+      "item": "nerotech:quantum_processor",
+      "count": 1
+    }
+  ],
+  "energy": 160,
+  "time": 400,
+  "min_heat": 0
+}

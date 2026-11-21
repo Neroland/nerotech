@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "nerotech:block/component_forge"
+    },
+    "facing=east": {
+      "model": "nerotech:block/component_forge",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "nerotech:block/component_forge",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "nerotech:block/component_forge",
+      "y": 270
+    }
+  }
+}

@@ -15,6 +15,7 @@ import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.compat.jei.JeiSyncedRecipes;
 import za.co.neroland.nerotech.recipe.ColliderRecipe;
 import za.co.neroland.nerotech.recipe.MachineRecipe;
+import za.co.neroland.nerotech.recipe.ProcessRecipe;
 import za.co.neroland.nerotech.registry.ModBlocks;
 import za.co.neroland.nerotech.registry.ModRecipeTypes;
 
@@ -68,6 +69,17 @@ public final class NeroTechEmiPlugin implements EmiPlugin {
         addMachine(registry, CHEMICAL_PROCESSING, ModRecipeTypes.CHEMICAL_PROCESSING.get());
         for (RecipeHolder<ColliderRecipe> holder : JeiSyncedRecipes.byType(ModRecipeTypes.COLLIDER.get())) {
             registry.addRecipe(new ColliderEmiRecipe(holder));
+        }
+
+        // 0.8.0 process pages: each page's icon and workstation is the machine that runs it.
+        for (var entry : ModRecipeTypes.processTypes()) {
+            ItemLike station = za.co.neroland.nerotech.compat.ProcessStations.station(entry.id().getPath());
+            EmiRecipeCategory category = category(entry.id().getPath(), station);
+            registry.addCategory(category);
+            registry.addWorkstation(category, EmiStack.of(station));
+            for (RecipeHolder<ProcessRecipe> holder : JeiSyncedRecipes.byType(entry.get())) {
+                registry.addRecipe(new ProcessEmiRecipe(category, holder));
+            }
         }
     }
 

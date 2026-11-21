@@ -1,0 +1,36 @@
+{
+  "title": "quest.nerotech.industrial_record.tools_of_the_trade.title",
+  "description": "quest.nerotech.industrial_record.tools_of_the_trade.desc",
+  "icon": "nerotech:power_drill",
+  "prerequisites": [
+    "nerotech:industrial_record/silicon_age"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:induction_charger",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:power_drill",
+      "count": 1
+    },
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerotech:multimeter",
+      "count": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 200
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 150
+    }
+  ],
+  "scope": "player"
+}

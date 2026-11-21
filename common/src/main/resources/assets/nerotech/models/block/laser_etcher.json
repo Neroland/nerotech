@@ -1,0 +1,131 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "side": "nerotech:block/laser_etcher",
+    "front": "nerotech:block/laser_etcher_front",
+    "top": "nerotech:block/laser_etcher_top",
+    "lamp": "nerotech:block/laser_etcher_front",
+    "particle": "nerotech:block/laser_etcher",
+    "inner": "nerotech:block/laser_etcher_inner"
+  },
+  "elements": [
+    {
+      "name": "floor",
+      "from": [0, 0, 0],
+      "to": [16, 3, 16],
+      "faces": {
+        "down": {"texture": "#top"},
+        "up": {"uv": [0, 8, 16, 16], "texture": "#inner"},
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "back_wall",
+      "from": [0, 3, 14],
+      "to": [16, 9, 16],
+      "faces": {
+        "north": {"uv": [0, 8, 16, 16], "texture": "#inner"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "west_wall",
+      "from": [0, 3, 0],
+      "to": [2, 9, 14],
+      "faces": {
+        "north": {"texture": "#front"},
+        "west": {"texture": "#side"},
+        "east": {"uv": [0, 8, 16, 16], "texture": "#inner"}
+      }
+    },
+    {
+      "name": "east_wall",
+      "from": [14, 3, 0],
+      "to": [16, 9, 14],
+      "faces": {
+        "north": {"texture": "#front"},
+        "west": {"uv": [0, 8, 16, 16], "texture": "#inner"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "roof",
+      "from": [0, 9, 0],
+      "to": [16, 11, 16],
+      "faces": {
+        "down": {"uv": [0, 8, 16, 16], "texture": "#inner"},
+        "up": {"texture": "#top"},
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "turret_collar",
+      "from": [4, 11, 4],
+      "to": [12, 13, 12],
+      "faces": {
+        "up": {"texture": "#top"},
+        "north": {"texture": "#side"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "turret_barrel",
+      "from": [5, 13, 5],
+      "to": [11, 16, 11],
+      "faces": {
+        "up": {"texture": "#top"},
+        "north": {"texture": "#side"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "wafer_stage",
+      "from": [5, 3, 5],
+      "to": [11, 4, 11],
+      "faces": {
+        "up": {"uv": [0, 0, 6, 6], "texture": "#inner"},
+        "north": {"uv": [0, 0, 6, 0.5], "texture": "#inner"},
+        "south": {"uv": [0, 0, 6, 0.5], "texture": "#inner"},
+        "west": {"uv": [0, 0, 6, 0.5], "texture": "#inner"},
+        "east": {"uv": [0, 0, 6, 0.5], "texture": "#inner"}
+      }
+    },
+    {
+      "name": "instrument_post",
+      "from": [0.5, 11, 0],
+      "to": [3.5, 14.5, 2],
+      "faces": {
+        "down": {"texture": "#top"},
+        "up": {"texture": "#top"},
+        "north": {"texture": "#front"},
+        "south": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "east": {"texture": "#side"}
+      }
+    },
+    {
+      "name": "status_lamp_socket",
+      "from": [1, 12, -0.5],
+      "to": [3, 14, 0],
+      "faces": {
+        "north": {"uv": [13, 2, 15, 4], "texture": "#lamp"},
+        "east": {"uv": [13, 2, 15, 4], "texture": "#lamp"},
+        "west": {"uv": [13, 2, 15, 4], "texture": "#lamp"},
+        "up": {"uv": [13, 2, 15, 4], "texture": "#lamp"},
+        "down": {"uv": [13, 2, 15, 4], "texture": "#lamp"}
+      }
+    }
+  ]
+}

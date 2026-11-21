@@ -58,6 +58,16 @@ public final class NeroTechFabricClient implements ClientModInitializer {
     public void onInitializeClient() {
         NeroTechCommon.LOGGER.info("[NeroTech] Fabric client bootstrap");
         registerGasFluidRendering();
+        // Machine particles (Fabric's ParticleProviderRegistry on 26.1+, ParticleFactoryRegistry before).
+        //? if >=26.1 {
+        za.co.neroland.nerotech.client.particle.NeroTechParticles.registerAll((type, factory) ->
+                net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry.getInstance()
+                        .register(type, sprites -> factory.apply(sprites)));
+        //?} else {
+        /*za.co.neroland.nerotech.client.particle.NeroTechParticles.registerAll((type, factory) ->
+                net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry.getInstance()
+                        .register(type, sprites -> factory.apply(sprites)));
+        *///?}
         // Clientbound receivers for NeroTech's own payloads (client-only API, so wired here).
         FabricNetwork.registerClient();
         // Keep the client's copy of the server's synced recipes so recipe viewers (compat.jei) can
@@ -89,6 +99,17 @@ public final class NeroTechFabricClient implements ClientModInitializer {
         MenuScreens.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
         MenuScreens.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
         MenuScreens.register(ModMenuTypes.TECH_GUIDE.get(), TechGuideScreen::new);
+        // 0.8.0 machine families: each family's Content.screens(...) registers its own screens.
+        za.co.neroland.nerotech.registry.FamilyRegistry.screens(new za.co.neroland.nerotech.client.ScreenSink() {
+            @Override
+            public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
+                    U extends net.minecraft.client.gui.screens.Screen
+                            & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
+                    net.minecraft.world.inventory.MenuType<? extends M> type,
+                    net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
+                MenuScreens.register(type, constructor);
+            }
+        });
 
         // Machine BERs through the shared cross-loader seam (Nerospace pattern).
         ClientBlockEntityRenderers.registerAll(new ClientBlockEntityRenderers.Sink() {
@@ -121,6 +142,29 @@ public final class NeroTechFabricClient implements ClientModInitializer {
         /*FluidRenderHandlerRegistry.INSTANCE.register(NeroTechFluids.HYDROGEN.get(), gasRenderHandler("hydrogen"));
         FluidRenderHandlerRegistry.INSTANCE.register(NeroTechFluids.OXYGEN.get(), gasRenderHandler("oxygen"));
         *///?}
+        // 0.8.0 gases (transport identities, sprites only).
+        for (Identifier gas : za.co.neroland.nerotech.gas.NeroTechGases.ALL) {
+            if (gas.equals(za.co.neroland.nerotech.gas.NeroTechGases.HYDROGEN)
+                    || gas.equals(za.co.neroland.nerotech.gas.NeroTechGases.OXYGEN)) {
+                continue;
+            }
+            //? if >=26.1 {
+            FluidRenderingRegistry.register(NeroTechFluids.fluidFor(gas), gasFluidModel(gas.getPath()));
+            //?} else {
+            /*FluidRenderHandlerRegistry.INSTANCE.register(NeroTechFluids.fluidFor(gas), gasRenderHandler(gas.getPath()));
+            *///?}
+        }
+        // 0.8.0 placeable liquids: one model for the source and the flowing fluid, untinted.
+        for (za.co.neroland.nerotech.fluid.NeroTechLiquid liquid : za.co.neroland.nerotech.fluid.NeroTechLiquid.values()) {
+            //? if >=26.1 {
+            Material still = new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, liquid.stillTexture()));
+            Material flow = new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, liquid.flowTexture()));
+            FluidRenderingRegistry.register(liquid.source(), liquid.flowing(), new FluidModel.Unbaked(still, flow, still,
+                    net.minecraft.client.color.block.BlockTintSources.constant(0xFFFFFFFF)));
+            //?} else {
+            /*FluidRenderHandlerRegistry.INSTANCE.register(liquid.source(), liquid.flowing(), gasRenderHandler(liquid.id()));
+            *///?}
+        }
     }
 
     // Sprites live in textures/block/ so the vanilla block atlas stitches them; a separate

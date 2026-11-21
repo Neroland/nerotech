@@ -46,7 +46,44 @@ public final class NeroTechFluids {
     public static final RegistrationProvider.RegistryEntry<Fluid> OXYGEN =
             FLUIDS.register("oxygen", key -> Services.FLUIDS.createGasFluid(NeroTechGases.OXYGEN));
 
+    // --- 0.8.0 process gases (transport identities, same model as hydrogen) ---------------------
+    public static final RegistrationProvider.RegistryEntry<Fluid> DEUTERIUM = gas(NeroTechGases.DEUTERIUM);
+    public static final RegistrationProvider.RegistryEntry<Fluid> HELIUM_3 = gas(NeroTechGases.HELIUM_3);
+    public static final RegistrationProvider.RegistryEntry<Fluid> METHANE = gas(NeroTechGases.METHANE);
+    public static final RegistrationProvider.RegistryEntry<Fluid> NITROGEN = gas(NeroTechGases.NITROGEN);
+    public static final RegistrationProvider.RegistryEntry<Fluid> CARBON_DIOXIDE = gas(NeroTechGases.CARBON_DIOXIDE);
+
+    // --- 0.8.0 placeable liquids (source + flowing; block in ModBlocks, bucket in ModItems) -------
+    public static final RegistrationProvider.RegistryEntry<Fluid> CRYO_COOLANT = liquid(NeroTechLiquid.CRYO_COOLANT, true);
+    public static final RegistrationProvider.RegistryEntry<Fluid> FLOWING_CRYO_COOLANT =
+            liquid(NeroTechLiquid.CRYO_COOLANT, false);
+    public static final RegistrationProvider.RegistryEntry<Fluid> SULFURIC_ACID = liquid(NeroTechLiquid.SULFURIC_ACID, true);
+    public static final RegistrationProvider.RegistryEntry<Fluid> FLOWING_SULFURIC_ACID =
+            liquid(NeroTechLiquid.SULFURIC_ACID, false);
+    public static final RegistrationProvider.RegistryEntry<Fluid> POLYMER_RESIN = liquid(NeroTechLiquid.POLYMER_RESIN, true);
+    public static final RegistrationProvider.RegistryEntry<Fluid> FLOWING_POLYMER_RESIN =
+            liquid(NeroTechLiquid.POLYMER_RESIN, false);
+
+    /** Gas id → transport fluid, for every gas NeroTech declares (canonical ids). */
+    private static final java.util.Map<Identifier, RegistrationProvider.RegistryEntry<Fluid>> GAS_FLUIDS = java.util.Map.of(
+            NeroTechGases.HYDROGEN, HYDROGEN,
+            NeroTechGases.OXYGEN, OXYGEN,
+            NeroTechGases.DEUTERIUM, DEUTERIUM,
+            NeroTechGases.HELIUM_3, HELIUM_3,
+            NeroTechGases.METHANE, METHANE,
+            NeroTechGases.NITROGEN, NITROGEN,
+            NeroTechGases.CARBON_DIOXIDE, CARBON_DIOXIDE);
+
     private NeroTechFluids() {
+    }
+
+    private static RegistrationProvider.RegistryEntry<Fluid> gas(Identifier gas) {
+        return FLUIDS.register(gas.getPath(), key -> Services.FLUIDS.createGasFluid(gas));
+    }
+
+    private static RegistrationProvider.RegistryEntry<Fluid> liquid(NeroTechLiquid liquid, boolean source) {
+        return FLUIDS.register(source ? liquid.id() : liquid.flowingId(),
+                key -> Services.FLUIDS.createLiquid(liquid, source));
     }
 
     /** Force class-load so the entries register (called from {@code ModRegistries.init()}). */
@@ -56,13 +93,8 @@ public final class NeroTechFluids {
     /** The fluid a gas travels as, or {@code Fluids.EMPTY} for a gas NeroTech does not declare. */
     public static Fluid fluidFor(@Nullable Identifier gas) {
         Identifier canonical = NeroTechGases.canonical(gas);
-        if (NeroTechGases.HYDROGEN.equals(canonical)) {
-            return HYDROGEN.get();
-        }
-        if (NeroTechGases.OXYGEN.equals(canonical)) {
-            return OXYGEN.get();
-        }
-        return Fluids.EMPTY;
+        RegistrationProvider.RegistryEntry<Fluid> entry = canonical == null ? null : GAS_FLUIDS.get(canonical);
+        return entry == null ? Fluids.EMPTY : entry.get();
     }
 
     /** The gas a fluid stands for, or {@code null} if it is an ordinary fluid. */

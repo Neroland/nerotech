@@ -1,0 +1,266 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "brick": "nerotech:block/foundry_brick",
+    "top": "nerotech:block/foundry_brick_top",
+    "mortar": "nerotech:block/foundry_brick_mortar",
+    "particle": "nerotech:block/foundry_brick"
+  },
+  "elements": [
+    {
+      "name": "mortar_core",
+      "from": [
+        0.5,
+        0,
+        0.5
+      ],
+      "to": [
+        15.5,
+        15.5,
+        15.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#mortar"
+        },
+        "south": {
+          "texture": "#mortar"
+        },
+        "west": {
+          "texture": "#mortar"
+        },
+        "east": {
+          "texture": "#mortar"
+        },
+        "down": {
+          "texture": "#mortar",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "name": "course_0",
+      "from": [
+        0,
+        0.5,
+        0
+      ],
+      "to": [
+        16,
+        4.0,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            12.0,
+            16,
+            15.5
+          ],
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            12.0,
+            16,
+            15.5
+          ],
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            12.0,
+            16,
+            15.5
+          ],
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            12.0,
+            16,
+            15.5
+          ],
+          "cullface": "east"
+        }
+      }
+    },
+    {
+      "name": "course_1",
+      "from": [
+        0,
+        4.5,
+        0
+      ],
+      "to": [
+        16,
+        8.0,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            8.0,
+            16,
+            11.5
+          ],
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            8.0,
+            16,
+            11.5
+          ],
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            8.0,
+            16,
+            11.5
+          ],
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            8.0,
+            16,
+            11.5
+          ],
+          "cullface": "east"
+        }
+      }
+    },
+    {
+      "name": "course_2",
+      "from": [
+        0,
+        8.5,
+        0
+      ],
+      "to": [
+        16,
+        12.0,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            4.0,
+            16,
+            7.5
+          ],
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            4.0,
+            16,
+            7.5
+          ],
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            4.0,
+            16,
+            7.5
+          ],
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            4.0,
+            16,
+            7.5
+          ],
+          "cullface": "east"
+        }
+      }
+    },
+    {
+      "name": "course_3",
+      "from": [
+        0,
+        12.5,
+        0
+      ],
+      "to": [
+        16,
+        16.0,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            0.0,
+            16,
+            3.5
+          ],
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            0.0,
+            16,
+            3.5
+          ],
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            0.0,
+            16,
+            3.5
+          ],
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#brick",
+          "uv": [
+            0,
+            0.0,
+            16,
+            3.5
+          ],
+          "cullface": "east"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        }
+      }
+    }
+  ]
+}

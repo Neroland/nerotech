@@ -95,17 +95,40 @@ public final class NeroTechCommands {
      * {@code RegisterCommandsEvent}, Fabric {@code CommandRegistrationCallback}) with the dispatcher.
      */
     public static void register(com.mojang.brigadier.CommandDispatcher<CommandSourceStack> dispatcher) {
-        // Player-only; the executor further restricts to creative. (Commands themselves require the
-        // world to have cheats/commands enabled, so this is effectively creative + commands gated.)
+        // gallery: player-only, op level 2, and the executor further restricts to creative.
+        // budget: op level 2, also from the console; reports machine types only (no players, no positions).
         dispatcher.register(
                 Commands.literal("nerotech")
-                        .requires(src -> src.getPlayer() != null)
+                        .then(Commands.literal("budget")
+                                .requires(NeroTechCommands::isOperator)
+                                .executes(ctx -> runSafely(ctx.getSource(), "budget",
+                                        () -> startBudget(ctx.getSource()))))
                         .then(Commands.literal("gallery")
+                                .requires(src -> src.getPlayer() != null && isOperator(src))
                                 .executes(ctx -> runSafely(ctx.getSource(), "gallery",
                                         () -> buildGallery(ctx.getSource())))
                                 .then(Commands.literal("clear")
                                         .executes(ctx -> runSafely(ctx.getSource(), "gallery clear",
                                                 () -> clearGallery(ctx.getSource()))))));
+    }
+
+    /** Op level 2 (game masters), on every Minecraft line. */
+    static boolean isOperator(CommandSourceStack source) {
+        //? if >=1.21.11 {
+        return Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source);
+        //?} else {
+        /*return source.hasPermission(Commands.LEVEL_GAMEMASTERS);
+        *///?}
+    }
+
+    private static int startBudget(CommandSourceStack source) {
+        if (!TickBudget.start(source.getServer(), source)) {
+            source.sendFailure(Component.translatable("command.nerotech.budget.busy"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("command.nerotech.budget.started", TickBudget.WINDOW_TICKS),
+                false);
+        return Command.SINGLE_SUCCESS;
     }
 
     private static int runSafely(CommandSourceStack source, String commandName, CommandBody body) {

@@ -1,0 +1,22 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [
+    {
+      "ingredient": "minecraft:glowstone_dust",
+      "count": 8
+    }
+  ],
+  "results": [
+    {
+      "item": "nerotech:europium_dust",
+      "count": 1
+    },
+    {
+      "item": "nerotech:gold_dust",
+      "count": 1,
+      "chance_permille": 100
+    }
+  ],
+  "energy": 60,
+  "time": 900
+}

@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_wafer": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:wafer"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_wafer"
+    ]
+  ]
+}

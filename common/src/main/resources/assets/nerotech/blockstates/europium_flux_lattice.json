@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "stable=false": {
+      "model": "nerotech:block/europium_flux_lattice"
+    },
+    "stable=true": {
+      "model": "nerotech:block/europium_flux_lattice_stable"
+    }
+  }
+}

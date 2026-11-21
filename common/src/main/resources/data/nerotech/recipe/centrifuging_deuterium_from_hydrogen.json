@@ -1,0 +1,18 @@
+{
+  "type": "nerotech:centrifuging",
+  "items": [],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 250
+  },
+  "gas_in": {
+    "id": "nerotech:hydrogen",
+    "amount": 1
+  },
+  "gas_out": {
+    "id": "nerotech:deuterium",
+    "amount": 1
+  },
+  "energy": 40,
+  "time": 150
+}

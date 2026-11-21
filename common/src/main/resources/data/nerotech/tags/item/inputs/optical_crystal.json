@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "#c:gems/voidglass",
+      "required": false
+    },
+    {
+      "id": "#c:gems/crystal_shard",
+      "required": false
+    },
+    {
+      "id": "nerospace:voidglass_lens",
+      "required": false
+    }
+  ]
+}

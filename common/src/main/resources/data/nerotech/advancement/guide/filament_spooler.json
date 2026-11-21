@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_filament_spooler": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:filament_spooler"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_filament_spooler"
+    ]
+  ]
+}

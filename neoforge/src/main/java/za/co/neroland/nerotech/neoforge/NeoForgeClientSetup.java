@@ -67,6 +67,9 @@ public final class NeoForgeClientSetup {
     public static void init(IEventBus modEventBus) {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterScreens);
         modEventBus.addListener(NeoForgeClientSetup::onRegisterEntityRenderers);
+        modEventBus.addListener((net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) ->
+                za.co.neroland.nerotech.client.particle.NeroTechParticles.registerAll(
+                        (type, factory) -> event.registerSpriteSet(type, factory::apply)));
         //? if >=26.1 {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterFluidModels);
         //?} else {
@@ -123,6 +126,17 @@ public final class NeoForgeClientSetup {
         event.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
         event.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
         event.register(ModMenuTypes.TECH_GUIDE.get(), TechGuideScreen::new);
+        // 0.8.0 machine families: each family's Content.screens(...) registers its own screens.
+        za.co.neroland.nerotech.registry.FamilyRegistry.screens(new za.co.neroland.nerotech.client.ScreenSink() {
+            @Override
+            public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
+                    U extends net.minecraft.client.gui.screens.Screen
+                            & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
+                    net.minecraft.world.inventory.MenuType<? extends M> type,
+                    net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
+                event.register(type, constructor);
+            }
+        });
     }
 
     /**
@@ -135,6 +149,22 @@ public final class NeoForgeClientSetup {
     private static void onRegisterFluidModels(RegisterFluidModelsEvent event) {
         event.register(gasFluidModel("hydrogen"), NeroTechFluids.HYDROGEN.get());
         event.register(gasFluidModel("oxygen"), NeroTechFluids.OXYGEN.get());
+        // 0.8.0 gases: transport identities, sprites only.
+        for (Identifier gas : za.co.neroland.nerotech.gas.NeroTechGases.ALL) {
+            if (!gas.equals(za.co.neroland.nerotech.gas.NeroTechGases.HYDROGEN)
+                    && !gas.equals(za.co.neroland.nerotech.gas.NeroTechGases.OXYGEN)) {
+                event.register(gasFluidModel(gas.getPath()), NeroTechFluids.fluidFor(gas));
+            }
+        }
+        // 0.8.0 liquids: placeable, so the model covers both the source and the flowing fluid. Block
+        // state JSON does nothing for fluids on 26.x; this registration is what renders them.
+        for (za.co.neroland.nerotech.fluid.NeroTechLiquid liquid : za.co.neroland.nerotech.fluid.NeroTechLiquid.values()) {
+            Material still = new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, liquid.stillTexture()));
+            Material flow = new Material(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, liquid.flowTexture()));
+            event.register(new FluidModel.Unbaked(still, flow, still,
+                            net.neoforged.neoforge.client.fluid.FluidTintSources.constant(0xFFFFFFFF)),
+                    liquid.source(), liquid.flowing());
+        }
     }
 
     // Sprites live in textures/block/ so the vanilla block atlas stitches them; a separate
@@ -150,6 +180,14 @@ public final class NeoForgeClientSetup {
     /*private static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerFluidType(gasExtensions("hydrogen"), NeoForgeFluidTypes.HYDROGEN.get());
         event.registerFluidType(gasExtensions("oxygen"), NeoForgeFluidTypes.OXYGEN.get());
+        NeoForgeFluidTypes.gasTypes().forEach((gas, type) -> {
+            if (type != NeoForgeFluidTypes.HYDROGEN && type != NeoForgeFluidTypes.OXYGEN) {
+                event.registerFluidType(gasExtensions(gas.getPath()), type.get());
+            }
+        });
+        for (za.co.neroland.nerotech.fluid.NeroTechLiquid liquid : za.co.neroland.nerotech.fluid.NeroTechLiquid.values()) {
+            event.registerFluidType(gasExtensions(liquid.id()), NeoForgeFluidTypes.forLiquid(liquid));
+        }
     }
 
     private static IClientFluidTypeExtensions gasExtensions(String gas) {

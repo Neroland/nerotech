@@ -4,6 +4,8 @@
     "nerotech:speed_module",
     "nerotech:efficiency_module",
     "nerotech:capacity_module",
-    "nerotech:range_module"
+    "nerotech:range_module",
+    "nerotech:heat_sink_module",
+    "nerotech:scrubber_module"
   ]
 }

@@ -1,0 +1,26 @@
+{
+  "type": "nerotech:crystal_growing",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/semiconductor_crystal",
+      "count": 4
+    },
+    {
+      "ingredient": "minecraft:glass_pane",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 500
+  },
+  "results": [
+    {
+      "item": "nerotech:quartz_focus_lens",
+      "count": 1
+    }
+  ],
+  "energy": 20,
+  "time": 600,
+  "min_heat": 0
+}

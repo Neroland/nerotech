@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": "nerotech:iron_drill_head",
+    "S": "nerotech:servo",
+    "C": "nerotech:capacitor",
+    "P": "nerotech:cindersteel_plate",
+    "R": "nerotech:cindersteel_rod"
+  },
+  "pattern": [
+    "  H",
+    "SCP",
+    "RS "
+  ],
+  "result": {
+    "id": "nerotech:power_drill"
+  }
+}

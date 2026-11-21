@@ -1,0 +1,135 @@
+{
+  "dimension": "minecraft:overworld",
+  "entries": [
+    {
+      "ore": "#c:ores/coal",
+      "output": "minecraft:coal",
+      "weight": 14,
+      "capacity": [
+        3000,
+        8000
+      ],
+      "richness": [
+        800,
+        1400
+      ]
+    },
+    {
+      "ore": "#c:ores/iron",
+      "output": "minecraft:raw_iron",
+      "weight": 12,
+      "capacity": [
+        2000,
+        6000
+      ],
+      "richness": [
+        600,
+        1200
+      ]
+    },
+    {
+      "ore": "#c:ores/copper",
+      "output": "minecraft:raw_copper",
+      "weight": 10,
+      "capacity": [
+        2500,
+        7000
+      ],
+      "richness": [
+        800,
+        1600
+      ]
+    },
+    {
+      "ore": "#c:ores/gold",
+      "output": "minecraft:raw_gold",
+      "weight": 4,
+      "capacity": [
+        1000,
+        3000
+      ],
+      "richness": [
+        500,
+        1000
+      ]
+    },
+    {
+      "ore": "#c:ores/redstone",
+      "output": "minecraft:redstone",
+      "weight": 5,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        1000,
+        2000
+      ]
+    },
+    {
+      "ore": "#c:ores/lapis",
+      "output": "minecraft:lapis_lazuli",
+      "weight": 3,
+      "capacity": [
+        1000,
+        3000
+      ],
+      "richness": [
+        1000,
+        2000
+      ]
+    },
+    {
+      "ore": "#c:ores/diamond",
+      "output": "minecraft:diamond",
+      "weight": 1,
+      "capacity": [
+        200,
+        600
+      ],
+      "richness": [
+        300,
+        600
+      ]
+    },
+    {
+      "ore": "#c:ores/emerald",
+      "output": "minecraft:emerald",
+      "weight": 1,
+      "capacity": [
+        200,
+        600
+      ],
+      "richness": [
+        300,
+        600
+      ]
+    },
+    {
+      "ore": "#c:ores/nerosium",
+      "output": "nerospace:raw_nerosium",
+      "weight": 4,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        500,
+        1000
+      ]
+    },
+    {
+      "ore": "#c:ores/nerosteel",
+      "output": "nerospace:raw_nerosteel",
+      "weight": 4,
+      "capacity": [
+        1500,
+        4000
+      ],
+      "richness": [
+        500,
+        1000
+      ]
+    }
+  ]
+}

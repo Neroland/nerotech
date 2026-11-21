@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": "nerotech:nero_coil",
+    "B": "nerotech:circuit_board",
+    "F": "nerotech:machine_frame",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "NBN",
+    "IFI",
+    "III"
+  ],
+  "result": {
+    "id": "nerotech:plasma_crucible"
+  }
+}

@@ -3,6 +3,13 @@
   "values": [
     "nerotech:configurator",
     "nerotech:tech_guide",
-    "nerotech:tech_guide_datapad"
+    "nerotech:tech_guide_datapad",
+    "nerotech:survey_scanner",
+    "nerotech:power_drill",
+    "nerotech:cutting_lance",
+    "nerotech:arc_wrench",
+    "nerotech:multimeter",
+    "nerotech:thermal_goggles",
+    "nerotech:filter_mask"
   ]
 }

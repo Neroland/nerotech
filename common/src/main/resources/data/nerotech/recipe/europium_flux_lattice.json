@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "nerotech:fusion_casing",
+    "E": "nerotech:europium_dust",
+    "I": "#c:ingots/cindersteel"
+  },
+  "pattern": [
+    "EIE",
+    "IFI",
+    "EIE"
+  ],
+  "result": {
+    "id": "nerotech:europium_flux_lattice",
+    "count": 2
+  }
+}

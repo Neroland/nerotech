@@ -99,7 +99,7 @@ public record MachineStatsPayload(int containerId, int status, int heatPermille,
         return new MachineStatsPayload(containerId, stats.status().ordinal(),
                 machine.heatPermille(), machine.energyPermille(), stats.currentOpsRate(),
                 effSpeedPct, effEnergyPct, ambient, machine.heat(), NeroTechConfig.heatCapacity(),
-                NeroTechConfig.heatThrottleThreshold(), regionPollution,
+                machine.heatThrottleThreshold(), regionPollution,
                 NeroTechConfig.pollutionEventThreshold(), machine.pollutionPerMinute(),
                 stats.heatHistory(), stats.energyHistory(), opsBytes, stats.pollutionHistory(),
                 detail(stats.statusDetailKey()));

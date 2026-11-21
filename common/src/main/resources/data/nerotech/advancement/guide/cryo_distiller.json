@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_cryo_distiller": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:cryo_distiller"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_cryo_distiller"
+    ]
+  ]
+}

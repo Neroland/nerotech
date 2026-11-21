@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "nerospace:packed_cryo_ice",
+      "required": false
+    },
+    {
+      "id": "nerospace:dry_ice",
+      "required": false
+    },
+    {
+      "id": "#c:ices",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "type": "nerotech:cryo_distilling",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/dry_ice",
+      "count": 1
+    }
+  ],
+  "gas_out": {
+    "id": "nerotech:carbon_dioxide",
+    "amount": 4
+  },
+  "energy": 30,
+  "time": 160
+}

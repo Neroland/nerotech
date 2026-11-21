@@ -1,0 +1,23 @@
+{
+  "type": "nerotech:etching",
+  "items": [
+    {
+      "ingredient": "nerotech:wafer",
+      "count": 1
+    },
+    {
+      "ingredient": "#c:wires/copper",
+      "count": 2
+    }
+  ],
+  "catalyst": "nerotech:quartz_focus_lens",
+  "results": [
+    {
+      "item": "nerotech:logic_processor",
+      "count": 1
+    }
+  ],
+  "energy": 40,
+  "time": 200,
+  "min_heat": 0
+}

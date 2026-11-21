@@ -16,6 +16,7 @@ import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.item.ConfiguratorItem;
 import za.co.neroland.nerotech.item.TechGuideDatapadItem;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
+import za.co.neroland.nerotech.upgrade.NeroTechModule;
 import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
 
 /**
@@ -152,6 +153,62 @@ public final class ModItems {
     public static final RegistryEntry<Item> EFFICIENCY_MODULE = module("efficiency_module", UpgradeType.EFFICIENCY);
     public static final RegistryEntry<Item> CAPACITY_MODULE = module("capacity_module", UpgradeType.CAPACITY);
     public static final RegistryEntry<Item> RANGE_MODULE = module("range_module", UpgradeType.RANGE);
+    // 0.8.0: NeroTech-classified modules (Core's UpgradeType is closed; see upgrade.NeroTechModule)
+    public static final RegistryEntry<Item> HEAT_SINK_MODULE = ITEMS.register("heat_sink_module",
+            key -> new UpgradeModuleItem(new Item.Properties().setId(key), NeroTechModule.HEAT_SINK));
+    public static final RegistryEntry<Item> SCRUBBER_MODULE = ITEMS.register("scrubber_module",
+            key -> new UpgradeModuleItem(new Item.Properties().setId(key), NeroTechModule.SCRUBBER));
+
+    // --- 0.8.0 materials (decision 001): plain items, consumed by tag in recipes -----------------
+    // Structural
+    public static final RegistryEntry<Item> CINDERSTEEL_INGOT = item("cindersteel_ingot");
+    public static final RegistryEntry<Item> CINDERSTEEL_PLATE = item("cindersteel_plate");
+    public static final RegistryEntry<Item> CINDERSTEEL_ROD = item("cindersteel_rod");
+    /** Only ever an alternative to the cindersteel plate (no titanium ingot is registered). */
+    public static final RegistryEntry<Item> TITANIUM_PLATE = item("titanium_plate");
+    // Superconductor — standalone stand-in, tagged c:gems/glacite like Nerospace's glacite
+    public static final RegistryEntry<Item> SYNTHETIC_GLACITE = item("synthetic_glacite");
+    // Semiconductor
+    public static final RegistryEntry<Item> CRYSTAL_SEED = item("crystal_seed");
+    public static final RegistryEntry<Item> CRYSTAL_BOULE = item("crystal_boule");
+    public static final RegistryEntry<Item> WAFER = item("wafer");
+    // Chemistry — sulfur dust is a standalone stand-in, tagged c:dusts/sulfur
+    public static final RegistryEntry<Item> SULFUR_DUST = item("sulfur_dust");
+    public static final RegistryEntry<Item> POLYMER_SHEET = item("polymer_sheet");
+    // Fusion fuel
+    public static final RegistryEntry<Item> EUROPIUM_DUST = item("europium_dust");
+    // Component ladder — processors sit a tier above circuit_board, never replace it
+    public static final RegistryEntry<Item> LOGIC_PROCESSOR = item("logic_processor");
+    public static final RegistryEntry<Item> QUANTUM_PROCESSOR = item("quantum_processor");
+    public static final RegistryEntry<Item> COPPER_WIRE = item("copper_wire");
+    public static final RegistryEntry<Item> CINDERSTEEL_WIRE = item("cindersteel_wire");
+    public static final RegistryEntry<Item> SUPERCONDUCTOR_WIRE = item("superconductor_wire");
+    public static final RegistryEntry<Item> COPPER_COIL = item("copper_coil");
+    public static final RegistryEntry<Item> CINDERSTEEL_COIL = item("cindersteel_coil");
+    public static final RegistryEntry<Item> SUPERCONDUCTOR_COIL = item("superconductor_coil");
+    public static final RegistryEntry<Item> SERVO = item("servo");
+    public static final RegistryEntry<Item> CAPACITOR = item("capacitor");
+    public static final RegistryEntry<Item> HEAT_SINK = item("heat_sink");
+    // Optics (Laser Etcher catalysts — never consumed)
+    public static final RegistryEntry<Item> QUARTZ_FOCUS_LENS = item("quartz_focus_lens", p -> p.stacksTo(16));
+    public static final RegistryEntry<Item> GLACITE_FOCUS_LENS = item("glacite_focus_lens", p -> p.stacksTo(16));
+    public static final RegistryEntry<Item> EMBER_FOCUS_LENS = item("ember_focus_lens", p -> p.stacksTo(16));
+    public static final RegistryEntry<Item> VOID_FOCUS_LENS = item("void_focus_lens", p -> p.stacksTo(16));
+    // Drilling
+    public static final RegistryEntry<Item> IRON_DRILL_HEAD = item("iron_drill_head", p -> p.stacksTo(16));
+    public static final RegistryEntry<Item> CINDERSTEEL_DRILL_HEAD = item("cindersteel_drill_head", p -> p.stacksTo(16));
+    public static final RegistryEntry<Item> GLACITE_DRILL_HEAD = item("glacite_drill_head", p -> p.stacksTo(16));
+
+    // --- 0.8.0 chemistry: Process Tank + liquid buckets -------------------------------------------
+    public static final RegistryEntry<BlockItem> PROCESS_TANK_ITEM = ITEMS.register("process_tank",
+            key -> new TooltipBlockItem(ModBlocks.PROCESS_TANK.get(), new Item.Properties().setId(key),
+                    "block.nerotech.process_tank.tooltip"));
+    public static final RegistryEntry<Item> CRYO_COOLANT_BUCKET =
+            bucket(za.co.neroland.nerotech.fluid.NeroTechLiquid.CRYO_COOLANT);
+    public static final RegistryEntry<Item> SULFURIC_ACID_BUCKET =
+            bucket(za.co.neroland.nerotech.fluid.NeroTechLiquid.SULFURIC_ACID);
+    public static final RegistryEntry<Item> POLYMER_RESIN_BUCKET =
+            bucket(za.co.neroland.nerotech.fluid.NeroTechLiquid.POLYMER_RESIN);
 
     /** Every NeroTech item, in display order, for NeroTech's own creative tab. */
     private static List<RegistryEntry<? extends ItemLike>> creativeOrder() {
@@ -173,7 +230,20 @@ public final class ModItems {
                 ANALYTICS_TERMINAL_ITEM,
                 TECH_GUIDE_ITEM, TECH_GUIDE_DATAPAD,
                 CONFIGURATOR,
-                SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE);
+                SPEED_MODULE, EFFICIENCY_MODULE, CAPACITY_MODULE, RANGE_MODULE,
+                HEAT_SINK_MODULE, SCRUBBER_MODULE,
+                // 0.8.0 materials
+                CINDERSTEEL_INGOT, CINDERSTEEL_PLATE, CINDERSTEEL_ROD, TITANIUM_PLATE,
+                SYNTHETIC_GLACITE, CRYSTAL_SEED, CRYSTAL_BOULE, WAFER,
+                SULFUR_DUST, POLYMER_SHEET, EUROPIUM_DUST,
+                LOGIC_PROCESSOR, QUANTUM_PROCESSOR,
+                COPPER_WIRE, CINDERSTEEL_WIRE, SUPERCONDUCTOR_WIRE,
+                COPPER_COIL, CINDERSTEEL_COIL, SUPERCONDUCTOR_COIL,
+                SERVO, CAPACITOR, HEAT_SINK,
+                QUARTZ_FOCUS_LENS, GLACITE_FOCUS_LENS, EMBER_FOCUS_LENS, VOID_FOCUS_LENS,
+                IRON_DRILL_HEAD, CINDERSTEEL_DRILL_HEAD, GLACITE_DRILL_HEAD,
+                // 0.8.0 chemistry
+                PROCESS_TANK_ITEM, CRYO_COOLANT_BUCKET, SULFURIC_ACID_BUCKET, POLYMER_RESIN_BUCKET);
     }
 
     private static RegistryEntry<Item> item(String name) {
@@ -184,8 +254,40 @@ public final class ModItems {
         return ITEMS.register(name, key -> new Item(props.apply(new Item.Properties().setId(key))));
     }
 
+    /** A vanilla bucket of a NeroTech liquid: places the liquid block, empties back to a bucket. */
+    private static RegistryEntry<Item> bucket(za.co.neroland.nerotech.fluid.NeroTechLiquid liquid) {
+        return ITEMS.register(liquid.bucketId(), key -> new net.minecraft.world.item.BucketItem(liquid.source(),
+                new Item.Properties().setId(key).stacksTo(1)
+                        .craftRemainder(net.minecraft.world.item.Items.BUCKET)));
+    }
+
     private static RegistryEntry<Item> module(String name, UpgradeType type) {
         return ITEMS.register(name, key -> new UpgradeModuleItem(new Item.Properties().setId(key), type));
+    }
+
+    /**
+     * Register a plain item (0.8.0 machine-family seam; see {@code registry.FamilyRegistry}). The
+     * family's items land in {@link #ITEMS}, so loader flushing is unchanged.
+     */
+    public static RegistryEntry<Item> simpleItem(String name) {
+        return item(name);
+    }
+
+    /** Register an item with adjusted properties (stack size, durability, ...). */
+    public static RegistryEntry<Item> simpleItem(String name, UnaryOperator<Item.Properties> props) {
+        return item(name, props);
+    }
+
+    /** Register a plain block item for a family block (same id as the block). */
+    public static RegistryEntry<BlockItem> familyBlockItem(String name, RegistryEntry<? extends Block> block) {
+        return blockItem(name, block);
+    }
+
+    /** Register a block item carrying one grey tooltip line ({@code tooltipKey}). */
+    public static RegistryEntry<BlockItem> tooltipBlockItem(String name, RegistryEntry<? extends Block> block,
+            String tooltipKey) {
+        return ITEMS.register(name, key -> new TooltipBlockItem(block.get(), new Item.Properties().setId(key),
+                tooltipKey));
     }
 
     private static RegistryEntry<BlockItem> blockItem(String name, RegistryEntry<? extends Block> block) {
@@ -329,6 +431,10 @@ public final class ModItems {
         for (RegistryEntry<? extends ItemLike> entry : creativeOrder()) {
             out.add(entry.get());
         }
+        // 0.8.0 machine families, in family order (FamilyRegistry), after NeroTech's own entries.
+        out.addAll(FamilyRegistry.creativeContents());
+        // 0.8.0 tools (item.tools), after the families.
+        out.addAll(za.co.neroland.nerotech.item.tools.ToolsContent.creativeContents());
         return out;
     }
 

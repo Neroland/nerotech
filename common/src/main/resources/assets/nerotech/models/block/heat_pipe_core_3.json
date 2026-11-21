@@ -1,0 +1,79 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "pipe": "nerotech:block/heat_pipe_3",
+    "particle": "nerotech:block/heat_pipe_3"
+  },
+  "elements": [
+    {
+      "name": "node",
+      "from": [
+        5,
+        5,
+        5
+      ],
+      "to": [
+        11,
+        11,
+        11
+      ],
+      "light_emission": 9,
+      "faces": {
+        "north": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "south": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "east": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "west": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "up": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        },
+        "down": {
+          "texture": "#pipe",
+          "uv": [
+            0,
+            9,
+            6,
+            15
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -37,7 +37,13 @@ public class TechGuideScreen extends AbstractContainerScreen<TechGuideMenu> {
     private static final int DONE = 0xFF58D08A;
     private static final int TITLE = 0xFFD6ECFF;
 
+    /** Chapters shown on one page of the rail (0.8.0 doubled the chapter count). */
+    private static final int RAIL_PAGE = 9;
+    private static final int RAIL_PITCH = 15;
+
     private final List<TechButton> chapterButtons = new ArrayList<>();
+    private @org.jetbrains.annotations.Nullable TechButton pageButton;
+    private int railPage;
     private final List<TechButton> stepButtons = new ArrayList<>();
     private int selectedChapter;
     private int selectedStep;
@@ -57,16 +63,46 @@ public class TechGuideScreen extends AbstractContainerScreen<TechGuideMenu> {
     @Override
     protected void init() {
         super.init();
+        rebuildRail();
+        rebuildStepButtons();
+    }
+
+    private static int railPages() {
+        return (TechGuide.CHAPTER_COUNT + RAIL_PAGE - 1) / RAIL_PAGE;
+    }
+
+    private int firstRailChapter() {
+        return this.railPage * RAIL_PAGE;
+    }
+
+    /** The chapter rail: one page of chapter buttons plus a page toggle when there is more than one page. */
+    private void rebuildRail() {
+        this.chapterButtons.forEach(this::removeWidget);
         this.chapterButtons.clear();
-        for (int i = 0; i < TechGuide.CHAPTER_COUNT; i++) {
+        if (this.pageButton != null) {
+            this.removeWidget(this.pageButton);
+            this.pageButton = null;
+        }
+        int first = firstRailChapter();
+        int last = Math.min(TechGuide.CHAPTER_COUNT, first + RAIL_PAGE);
+        for (int i = first; i < last; i++) {
             final int chapter = i;
-            TechButton button = new TechButton(this.leftPos + 8, this.topPos + 22 + i * 17, 66, 14,
+            TechButton button = new TechButton(this.leftPos + 8, this.topPos + 22 + (i - first) * RAIL_PITCH, 66, 13,
                     Component.translatable(TechGuide.CHAPTERS.get(i).titleKey()), ACCENT,
                     b -> selectChapter(chapter));
             this.addRenderableWidget(button);
             this.chapterButtons.add(button);
         }
-        rebuildStepButtons();
+        int pages = railPages();
+        if (pages > 1) {
+            this.pageButton = new TechButton(this.leftPos + 8, this.topPos + 24 + RAIL_PAGE * RAIL_PITCH, 66, 13,
+                    Component.translatable("gui.nerotech.tech_guide.page", this.railPage + 1, pages), ACCENT,
+                    b -> {
+                        this.railPage = (this.railPage + 1) % railPages();
+                        rebuildRail();
+                    });
+            this.addRenderableWidget(this.pageButton);
+        }
     }
 
     private void selectChapter(int chapter) {
@@ -167,10 +203,12 @@ public class TechGuideScreen extends AbstractContainerScreen<TechGuideMenu> {
         List<TechGuide.Step> steps = TechGuide.CHAPTERS.get(this.selectedChapter).steps();
 
         // Chapter rail: light fully-completed chapters.
+        int firstChapter = firstRailChapter();
         for (int i = 0; i < this.chapterButtons.size(); i++) {
-            int total = TechGuide.CHAPTERS.get(i).steps().size();
-            boolean allDone = Integer.bitCount(this.menu.completionMask(i)) >= total;
-            this.chapterButtons.get(i).setSelected(i == this.selectedChapter || allDone);
+            int chapter = firstChapter + i;
+            int total = TechGuide.CHAPTERS.get(chapter).steps().size();
+            boolean allDone = Integer.bitCount(this.menu.completionMask(chapter)) >= total;
+            this.chapterButtons.get(i).setSelected(chapter == this.selectedChapter || allDone);
         }
 
         // Dotted circuit-trace line linking the chapter's nodes in order (the progression path).

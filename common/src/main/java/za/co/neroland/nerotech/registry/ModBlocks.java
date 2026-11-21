@@ -10,6 +10,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.fluid.NeroTechLiquid;
+import za.co.neroland.nerotech.fluid.NeroTechLiquidBlock;
+import za.co.neroland.nerotech.machine.tank.ProcessTankBlock;
 import za.co.neroland.nerotech.guide.TechGuideBlock;
 import za.co.neroland.nerotech.machine.AcceleratorGuideBlock;
 import za.co.neroland.nerotech.machine.AdvancedFabricatorBlock;
@@ -208,6 +211,58 @@ public final class ModBlocks {
                     .lightLevel(s -> 7)
                     .sound(SoundType.METAL)
                     .noOcclusion()));
+
+    // --- 0.8.0 chemistry: Process Tank + placeable liquids ---------------------
+    /** Stackable single-medium tank (fluid or gas); a column of up to 16 shares one level. */
+    public static final RegistryEntry<ProcessTankBlock> PROCESS_TANK =
+            register("process_tank", ProcessTankBlock::new);
+
+    // Liquid world blocks (placed by the buckets). NeroTechFluids registers first (ModRegistries),
+    // so the source fluid is already in the registry on the eager (Fabric) loader.
+    public static final RegistryEntry<NeroTechLiquidBlock> CRYO_COOLANT =
+            liquid(NeroTechLiquid.CRYO_COOLANT, MapColor.COLOR_LIGHT_BLUE);
+    public static final RegistryEntry<NeroTechLiquidBlock> SULFURIC_ACID =
+            liquid(NeroTechLiquid.SULFURIC_ACID, MapColor.COLOR_YELLOW);
+    public static final RegistryEntry<NeroTechLiquidBlock> POLYMER_RESIN =
+            liquid(NeroTechLiquid.POLYMER_RESIN, MapColor.TERRACOTTA_ORANGE);
+
+    private static RegistryEntry<NeroTechLiquidBlock> liquid(NeroTechLiquid liquid, MapColor color) {
+        return BLOCKS.register(liquid.id(), key -> new NeroTechLiquidBlock(liquid,
+                (net.minecraft.world.level.material.FlowingFluid) liquid.source(),
+                liquidProperties(BlockBehaviour.Properties.of().setId(key))
+                        .mapColor(color).replaceable()
+                        .strength(100.0F).noLootTable()
+                        .liquid()));
+    }
+
+    private static BlockBehaviour.Properties liquidProperties(BlockBehaviour.Properties properties) {
+        //? if >=1.21.9 {
+        return properties.noCollision();
+        //?} else {
+        /*// Vanilla spelled it noCollission() before 1.21.9.
+        return properties.noCollission();
+        *///?}
+    }
+
+    /**
+     * Register a machine block with the standard machine properties (metal, 3.5 strength, pickaxe,
+     * no occlusion). The seam the 0.8.0 machine families ({@code machine/<family>/<Family>Content})
+     * use; registers into this class's {@link #BLOCKS} so loader flushing is unchanged.
+     */
+    public static <B extends Block> RegistryEntry<B> machine(String name,
+            Function<BlockBehaviour.Properties, B> factory) {
+        return register(name, factory);
+    }
+
+    /**
+     * Register a block with caller-adjusted machine properties (shells, glass, pipes): {@code tweak}
+     * receives the standard machine properties with the id already set.
+     */
+    public static <B extends Block> RegistryEntry<B> machine(String name,
+            java.util.function.UnaryOperator<BlockBehaviour.Properties> tweak,
+            Function<BlockBehaviour.Properties, B> factory) {
+        return BLOCKS.register(name, key -> factory.apply(tweak.apply(machineProperties().setId(key))));
+    }
 
     private static <B extends Block> RegistryEntry<B> register(String name,
             Function<BlockBehaviour.Properties, B> factory) {

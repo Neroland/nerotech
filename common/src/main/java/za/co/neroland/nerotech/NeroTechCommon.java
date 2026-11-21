@@ -34,9 +34,13 @@ public final class NeroTechCommon {
         // NeroLink: register NeroTech's link module (data sections + safe actions + live events) with
         // Core's link registry, so the NeroLink companion bridge auto-serves NeroTech.
         za.co.neroland.nerotech.link.NeroTechLinkModule.register();
+        // Core map API: the proximity-scoped pollution overlay (NeroMaps / the app draw it).
+        za.co.neroland.nerotech.map.PollutionMapLayer.register();
         // Quest-pack hooks: listen for the hook gates a quest mod opens when a player completes one of
         // NeroTech's own quests (Core progression events only — no quest-mod dependency).
         za.co.neroland.nerotech.progression.QuestHooks.init();
+        // Event-driven milestone records (gas-fed fusion ignition), credited to the online operator.
+        za.co.neroland.nerotech.progression.MilestoneGates.init();
         // NeroEconomy (optional): claim the "machine_operation" charge handle now — claims close when the
         // first server starts. Dormant (every charge free) when NeroEconomy is absent.
         za.co.neroland.nerotech.compat.neroeconomy.MachineCharges.init();

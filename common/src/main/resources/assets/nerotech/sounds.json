@@ -1,0 +1,224 @@
+{
+  "machine.stall": {
+    "subtitle": "subtitles.nerotech.machine.stall",
+    "sounds": [
+      {
+        "name": "nerotech:machine/stall",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "machine.overheat": {
+    "subtitle": "subtitles.nerotech.machine.overheat",
+    "sounds": [
+      {
+        "name": "nerotech:machine/overheat",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "plasma_crucible.arc": {
+    "subtitle": "subtitles.nerotech.plasma_crucible.arc",
+    "sounds": [
+      {
+        "name": "nerotech:plasma_crucible/arc",
+        "attenuation_distance": 12,
+        "stream": false
+      }
+    ]
+  },
+  "plate_press.stamp": {
+    "subtitle": "subtitles.nerotech.plate_press.stamp",
+    "sounds": [
+      {
+        "name": "nerotech:plate_press/stamp",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "filament_spooler.spin": {
+    "subtitle": "subtitles.nerotech.filament_spooler.spin",
+    "sounds": [
+      {
+        "name": "nerotech:filament_spooler/spin",
+        "attenuation_distance": 12,
+        "stream": false
+      }
+    ]
+  },
+  "centrifuge.spin": {
+    "subtitle": "subtitles.nerotech.centrifuge.spin",
+    "sounds": [
+      {
+        "name": "nerotech:centrifuge/spin",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "cryo_distiller.vent": {
+    "subtitle": "subtitles.nerotech.cryo_distiller.vent",
+    "sounds": [
+      {
+        "name": "nerotech:cryo_distiller/vent",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "atmospheric_condenser.draw": {
+    "subtitle": "subtitles.nerotech.atmospheric_condenser.draw",
+    "sounds": [
+      {
+        "name": "nerotech:atmospheric_condenser/draw",
+        "attenuation_distance": 12,
+        "stream": false
+      }
+    ]
+  },
+  "reaction_vat.bubble": {
+    "subtitle": "subtitles.nerotech.reaction_vat.bubble",
+    "sounds": [
+      {
+        "name": "nerotech:reaction_vat/bubble",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "component_forge.assemble": {
+    "subtitle": "subtitles.nerotech.component_forge.assemble",
+    "sounds": [
+      {
+        "name": "nerotech:component_forge/assemble",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "laser_etcher.etch": {
+    "subtitle": "subtitles.nerotech.laser_etcher.etch",
+    "sounds": [
+      {
+        "name": "nerotech:laser_etcher/etch",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "crystal_grower.chime": {
+    "subtitle": "subtitles.nerotech.crystal_grower.chime",
+    "sounds": [
+      {
+        "name": "nerotech:crystal_grower/chime",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "fuel_injector.pulse": {
+    "subtitle": "subtitles.nerotech.fuel_injector.pulse",
+    "sounds": [
+      {
+        "name": "nerotech:fuel_injector/pulse",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "induction_charger.hum": {
+    "subtitle": "subtitles.nerotech.induction_charger.hum",
+    "sounds": [
+      {
+        "name": "nerotech:induction_charger/hum",
+        "attenuation_distance": 12,
+        "stream": false
+      }
+    ]
+  },
+  "annunciator_panel.alarm": {
+    "subtitle": "subtitles.nerotech.annunciator_panel.alarm",
+    "sounds": [
+      {
+        "name": "nerotech:annunciator_panel/alarm",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "blast_foundry.form": {
+    "subtitle": "subtitles.nerotech.blast_foundry.form",
+    "sounds": [
+      {
+        "name": "nerotech:blast_foundry/form",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "blast_foundry.roar": {
+    "subtitle": "subtitles.nerotech.blast_foundry.roar",
+    "sounds": [
+      {
+        "name": "nerotech:blast_foundry/roar",
+        "attenuation_distance": 12,
+        "stream": false
+      }
+    ]
+  },
+  "blast_foundry.pour": {
+    "subtitle": "subtitles.nerotech.blast_foundry.pour",
+    "sounds": [
+      {
+        "name": "nerotech:blast_foundry/pour",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "heat_pipe.tick": {
+    "subtitle": "subtitles.nerotech.heat_pipe.tick",
+    "sounds": [
+      {
+        "name": "nerotech:heat_pipe/tick",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "deep_core_drill.grind": {
+    "subtitle": "subtitles.nerotech.deep_core_drill.grind",
+    "sounds": [
+      {
+        "name": "nerotech:deep_core_drill/grind",
+        "attenuation_distance": 12,
+        "stream": false
+      }
+    ]
+  },
+  "tool.scan": {
+    "subtitle": "subtitles.nerotech.tool.scan",
+    "sounds": [
+      {
+        "name": "nerotech:tool/scan",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "tool.power_drill": {
+    "subtitle": "subtitles.nerotech.tool.power_drill",
+    "sounds": [
+      {
+        "name": "nerotech:tool/power_drill",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "tool.cutting_lance": {
+    "subtitle": "subtitles.nerotech.tool.cutting_lance",
+    "sounds": [
+      {
+        "name": "nerotech:tool/cutting_lance",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "tool.arc_wrench": {
+    "subtitle": "subtitles.nerotech.tool.arc_wrench",
+    "sounds": [
+      {
+        "name": "nerotech:tool/arc_wrench",
+        "attenuation_distance": 12
+      }
+    ]
+  }
+}

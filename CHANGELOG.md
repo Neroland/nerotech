@@ -33,6 +33,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the Gradle distribution from 9.8.1 to 9.9.1.
 - Updated the Sentry Java SDK from 8.60.0 to 8.64.0.
 
+### Privacy
+
+- 0.8.0 adds no store keyed by a player. Deposits are chunk-keyed world data; the Induction Charger and
+  Annunciator Panel never record an owner; new milestones go to the online operator in the moment, which
+  NeroTech holds only in memory. `PRIVACY.md` and the new `Privacy` wiki page describe each one.
+- An erase request now also clears the link module's in-memory state (nearby handles, action rate window,
+  alarm throttle) at once, and machines drop an erased player as their transient operator.
+- The Electrolyzer's old-fluid purge no longer logs the machine's position.
+- New compliance tests: a source scan that fails on any unreviewed player-identity persistence, SavedData,
+  data component, UUID-keyed map or identity in INFO+ logs, and Core's erasure conformance harness over
+  every NeroTech player store.
+
 ## [0.7.1-beta.1] - 2026-10-31
 
 ### Changed

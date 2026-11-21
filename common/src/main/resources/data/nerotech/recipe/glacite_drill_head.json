@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "#nerotech:inputs/glacite",
+    "H": "nerotech:cindersteel_drill_head",
+    "W": "nerotech:superconductor_wire"
+  },
+  "pattern": [
+    " G ",
+    "GHG",
+    " W "
+  ],
+  "result": {
+    "id": "nerotech:glacite_drill_head"
+  }
+}

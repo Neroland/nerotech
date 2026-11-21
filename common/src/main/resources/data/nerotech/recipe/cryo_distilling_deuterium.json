@@ -1,0 +1,15 @@
+{
+  "type": "nerotech:cryo_distilling",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/deuterium",
+      "count": 1
+    }
+  ],
+  "gas_out": {
+    "id": "nerotech:deuterium",
+    "amount": 4
+  },
+  "energy": 50,
+  "time": 200
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "nerotech:fusion_casing",
+    "S": "nerotech:superconductor_coil",
+    "I": "#c:ingots/cindersteel"
+  },
+  "pattern": [
+    "I I",
+    "SFS",
+    "I I"
+  ],
+  "result": {
+    "id": "nerotech:fuel_injector",
+    "count": 1
+  }
+}

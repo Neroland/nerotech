@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_multimeter": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:multimeter"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_multimeter"
+    ]
+  ]
+}

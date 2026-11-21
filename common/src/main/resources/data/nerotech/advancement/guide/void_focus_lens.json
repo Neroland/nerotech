@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "has_void_focus_lens": {
+      "conditions": {
+        "items": [
+          {
+            "items": "nerotech:void_focus_lens"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_void_focus_lens"
+    ]
+  ]
+}

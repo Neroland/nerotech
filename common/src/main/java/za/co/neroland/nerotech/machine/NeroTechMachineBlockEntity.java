@@ -101,6 +101,59 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     private int syncedHeatBucket;
     private int syncedPulse;
 
+    // --- machine contract C1 (0.8.0): synced readout, progress easing, alarms, transient operator ---
+    // Machine-scoped state only. Ride the update tag, only when they change (never per tick).
+
+    /** Ticks a new status must hold before the readout commits to it (stops brownout flicker syncs). */
+    private static final int READOUT_SETTLE_TICKS = 3;
+
+    /** The committed analytics status behind {@link #readout()} (server: debounced; client: synced). */
+    private MachineStatus readoutStatus = MachineStatus.IDLE;
+    /** The committed readout (server: derived each tick; client: synced). */
+    private Readout readout = Readout.REST;
+    /**
+     * The detail lang key committed with {@link #readoutStatus} (null = the plain status), so a BER can
+     * tell e.g. "wrong lens" from other stalls. A lang key only — never player data.
+     */
+    @Nullable
+    private String readoutDetail;
+    @Nullable
+    private String syncedReadoutDetail;
+    /** Finished operations, a wrapping counter (update tag only, never saved): drives one-shot sounds/art. */
+    private int completions;
+    private int syncedCompletions;
+    /** Server: the status seen on the last tick and how long it has held. */
+    private MachineStatus pendingStatus = MachineStatus.IDLE;
+    private int pendingTicks;
+    /** Server: progress added per tick, debounced like the status; and the progress-wrap detector. */
+    private int progressStep;
+    private int pendingStep;
+    private int pendingStepTicks;
+    private int lastProgressSample;
+    private boolean progressWrapped;
+    /** Client: the last synced alarm mask (the server computes it live). */
+    private int clientAlarmMask;
+    /** Last values pushed to clients for the C1 surface. */
+    private Readout syncedReadout = Readout.REST;
+    private MachineStatus syncedReadoutStatus = MachineStatus.IDLE;
+    private int syncedAlarmMask;
+    private int syncedProgressStep;
+    private int syncedMaxProgress;
+    /** Pollution emitted in the current and previous {@link MachineAlarms#POLLUTION_WINDOW_TICKS} window. */
+    private long pollutionWindow = Long.MIN_VALUE;
+    private int pollutionThisWindow;
+    private int pollutionLastWindow;
+    /** Client-side progress extrapolation for BERs (never saved). */
+    private final ProgressEasing progressEasing = new ProgressEasing();
+
+    /**
+     * The player whose interaction or placement last touched this machine, for gate/trophy credit "in
+     * the moment" (machine contract, Credit). Never saved, never synced, cleared on unload. Personal
+     * data: never log it.
+     */
+    @Nullable
+    private UUID lastOperator;
+
     // --- client-side BER display state (never saved, never synced; POPIA: pure visuals, no player data).
     // The quarry-renderer easing recipe: the BER eases displayPos toward its target ONCE per game tick
     // (storing the previous tick's value) and lerps by partialTick, so motion is FPS-independent.
@@ -321,9 +374,19 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
     @Override
     protected final void serverTick(Level level, BlockPos pos, BlockState state) {
+        // /nerotech budget: read the clock only while a sampling window is open (zero cost otherwise).
+        long budgetStart = za.co.neroland.nerotech.command.TickBudget.sampling() ? System.nanoTime() : 0L;
+        serverTickBody(level, pos, state);
+        if (budgetStart != 0L) {
+            za.co.neroland.nerotech.command.TickBudget.record(getType(), System.nanoTime() - budgetStart);
+        }
+    }
+
+    private void serverTickBody(Level level, BlockPos pos, BlockState state) {
         checkOwnerErasure(level);
         this.statusReported = false;
         tickMachine(level, pos, state);
+        exchangeMedia(level, pos);
         // Analytics default: RUNNING while visibly working, IDLE otherwise — subclasses that know
         // the sharper cause (STARVED/BLOCKED/THROTTLED/...) reported it from tickMachine.
         if (!this.statusReported) {
@@ -331,11 +394,25 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         }
         thermalTick(level, pos);
         statsTick(level);
+        readoutTick(level);
         syncRenderState(level, pos, state);
     }
 
     /** Per-machine server logic. The thermal exchange runs automatically after this each tick. */
     protected abstract void tickMachine(Level level, BlockPos pos, BlockState state);
+
+    /**
+     * Hook run every server tick right after {@link #tickMachine}: machines with fluid or gas tanks hand
+     * them to, and draw them from, adjacent blocks here, budgeted with {@link MediumTransfer#due} so the
+     * work runs every few ticks rather than every tick. Default: nothing. Added in 0.8.0 (additive).
+     */
+    protected void exchangeMedia(Level level, BlockPos pos) {
+    }
+
+    /** This machine's phase for budgeted work ({@link MediumTransfer#due}), spread across machines. */
+    protected final int exchangePhase() {
+        return Math.floorMod(System.identityHashCode(this) * 31, MediumTransfer.INTERVAL_TICKS);
+    }
 
     // --- BER client sync (active flag + heat bucket + pulse ride the BE update packet) -----------
 
@@ -440,7 +517,12 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         // Floor 1 at each step: a polluting machine on Eco (or a clean-burning one) still pollutes;
         // only a config of 0 above disables emission entirely.
         amount = Math.max(1, amount * this.preset.pollutionPermille() / 1000);
-        return Math.max(1, amount * pollutionScalePermille() / 1000);
+        amount = Math.max(1, amount * pollutionScalePermille() / 1000);
+        // Scrubber Modules (NeroTech-classified), bounded by scrubberModuleFloorPermille; additive.
+        int scrubbed = za.co.neroland.nerotech.upgrade.ModuleMath.pollutionPermille(
+                extraModules(za.co.neroland.nerotech.upgrade.NeroTechModule.SCRUBBER),
+                NeroTechConfig.scrubberModulePollutionPermille(), NeroTechConfig.scrubberModuleFloorPermille());
+        return Math.max(1, amount * scrubbed / 1000);
     }
 
     /** Heat as permille of capacity (analytics payload scale). */
@@ -475,6 +557,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
                 || this.clientPulse != this.syncedPulse;
         // Evaluate the hook even when already dirty so its compare-and-record state stays current.
         dirty |= renderSyncDirty();
+        dirty |= readoutSyncDirty();
         if (dirty) {
             this.syncedActive = this.active;
             this.syncedHeatBucket = bucket;
@@ -483,7 +566,11 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         }
     }
 
-    private int heatBucket() {
+    /**
+     * Heat as a bucket {@code 0 .. HEAT_SYNC_BUCKETS - 1} ({@code heat * 6 / heatCapacity}): the value
+     * that drives heat syncs, the HOT readout and the art's heat tints (machine contract C1).
+     */
+    public int heatBucket() {
         int capacity = NeroTechConfig.heatCapacity();
         return capacity <= 0 ? 0 : Math.min(HEAT_SYNC_BUCKETS - 1, this.heat * HEAT_SYNC_BUCKETS / capacity);
     }
@@ -518,6 +605,16 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         // POPIA/GDPR: the owner's UUID is server-side data — it never rides the update packet to clients.
         tag.remove("OwnerMost");
         tag.remove("OwnerLeast");
+        // Machine contract C1: the readout surface rides the update tag only (never written to disk).
+        tag.putInt("RdOut", this.readout.ordinal());
+        tag.putInt("RdStatus", this.readoutStatus.ordinal());
+        tag.putInt("RdAlarms", alarmMask());
+        tag.putInt("RdStep", this.progressStep);
+        tag.putInt("RdDone", this.completions);
+        if (this.readoutDetail != null) {
+            tag.putString("RdDetail", this.readoutDetail);
+        }
+        writeRenderExtras(tag);
         return tag;
     }
 
@@ -776,7 +873,30 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     /** True once heat reaches the throttle threshold — processing machines stall until cooled. */
     @Override
     public boolean overheated() {
-        return this.heat >= NeroTechConfig.heatThrottleThreshold();
+        return this.heat >= heatThrottleThreshold();
+    }
+
+    /**
+     * This machine's throttle threshold: {@code heatThrottleThreshold} widened by fitted Heat Sink
+     * Modules ({@link za.co.neroland.nerotech.upgrade.ModuleMath#throttleThreshold}, bounded to half the
+     * headroom below {@code heatCapacity}). Additive: with no module it is the config value.
+     */
+    public int heatThrottleThreshold() {
+        return za.co.neroland.nerotech.upgrade.ModuleMath.throttleThreshold(NeroTechConfig.heatThrottleThreshold(),
+                NeroTechConfig.heatCapacity(), extraModules(za.co.neroland.nerotech.upgrade.NeroTechModule.HEAT_SINK),
+                NeroTechConfig.heatSinkModuleHeadroomPermille());
+    }
+
+    /** Fitted NeroTech-classified modules of {@code kind} (Core's classifier does not count these). */
+    public int extraModules(za.co.neroland.nerotech.upgrade.NeroTechModule kind) {
+        int total = 0;
+        for (int i = 0; i < upgrades().slots(); i++) {
+            ItemStack stack = upgrades().getStack(i);
+            if (!stack.isEmpty() && UpgradeModuleItem.extraTypeOf(stack) == kind) {
+                total += stack.getCount();
+            }
+        }
+        return total;
     }
 
     @Override
@@ -824,6 +944,11 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
                 && PollutionAttributionPrefs.get(serverLevel.getServer()).isPendingErasure(this.ownerId)) {
             clearOwner();
         }
+        // The transient operator (credit in the moment) is dropped the same way if they were erased.
+        if (this.lastOperator != null && level instanceof ServerLevel serverLevel
+                && PollutionAttributionPrefs.get(serverLevel.getServer()).isPendingErasure(this.lastOperator)) {
+            this.lastOperator = null;
+        }
     }
 
     /**
@@ -859,7 +984,210 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         int interval = NeroTechConfig.pollutionContributionIntervalTicks();
         if ((serverLevel.getGameTime() + this.pollutionPhase) % interval == 0) {
             PollutionManager.record(serverLevel, pos, amount, this.ownerId);
+            rollPollutionWindow(serverLevel.getGameTime());
+            this.pollutionThisWindow += amount;
         }
+    }
+
+    // --- machine contract C1 (0.8.0) -----------------------------------------------------------
+
+    /** Advance the pollution look-back window to {@code gameTime}. */
+    private void rollPollutionWindow(long gameTime) {
+        long window = gameTime / MachineAlarms.POLLUTION_WINDOW_TICKS;
+        if (window != this.pollutionWindow) {
+            this.pollutionLastWindow = window == this.pollutionWindow + 1 ? this.pollutionThisWindow : 0;
+            this.pollutionThisWindow = 0;
+            this.pollutionWindow = window;
+        }
+    }
+
+    /** Pollution this machine emitted in roughly the last five seconds (server side). */
+    public int recentPollution() {
+        if (this.level == null) {
+            return 0;
+        }
+        rollPollutionWindow(this.level.getGameTime());
+        return Math.max(this.pollutionThisWindow, this.pollutionLastWindow);
+    }
+
+    /**
+     * Commit the debounced status, the readout and (for {@link #syncsProgress()} machines) the progress
+     * step, once per server tick after the thermal step. Integer compares only.
+     */
+    private void readoutTick(Level level) {
+        MachineStatus status = this.stats.status();
+        if (status != this.pendingStatus) {
+            this.pendingStatus = status;
+            this.pendingTicks = 0;
+        } else if (this.pendingTicks < READOUT_SETTLE_TICKS) {
+            this.pendingTicks++;
+        }
+        int bucket = heatBucket();
+        if (this.pendingTicks >= READOUT_SETTLE_TICKS || Readout.of(status, bucket) == Readout.HOT) {
+            this.readoutStatus = status;
+            this.readoutDetail = this.stats.statusDetailKey();
+        }
+        this.readout = Readout.of(this.readoutStatus, bucket);
+        if (syncsProgress()) {
+            int step = this.progress - this.lastProgressSample;
+            this.lastProgressSample = this.progress;
+            if (step < 0) {
+                this.progressWrapped = true;
+            } else {
+                if (step != this.pendingStep) {
+                    this.pendingStep = step;
+                    this.pendingStepTicks = 0;
+                } else if (this.pendingStepTicks < READOUT_SETTLE_TICKS) {
+                    this.pendingStepTicks++;
+                }
+                if (this.pendingStepTicks >= READOUT_SETTLE_TICKS && this.readout == Readout.WORK) {
+                    this.progressStep = step;
+                }
+            }
+        }
+    }
+
+    /** Compare-and-record for the C1 surface; true when watching clients need an update packet. */
+    private boolean readoutSyncDirty() {
+        int alarms = alarmMask();
+        boolean dirty = this.readout != this.syncedReadout
+                || this.readoutStatus != this.syncedReadoutStatus
+                || alarms != this.syncedAlarmMask
+                || !java.util.Objects.equals(this.readoutDetail, this.syncedReadoutDetail)
+                || this.completions != this.syncedCompletions;
+        if (syncsProgress()) {
+            dirty |= this.progressWrapped
+                    || (this.readout == Readout.WORK && (this.progressStep != this.syncedProgressStep
+                    || this.maxProgress != this.syncedMaxProgress));
+        }
+        this.progressWrapped = false;
+        if (dirty) {
+            this.syncedReadout = this.readout;
+            this.syncedReadoutStatus = this.readoutStatus;
+            if (alarms != this.syncedAlarmMask && this.level instanceof net.minecraft.server.level.ServerLevel sl) {
+                za.co.neroland.nerotech.link.MachineAlarmLink.onAlarmMaskChanged(sl, this, this.syncedAlarmMask, alarms);
+            }
+            this.syncedAlarmMask = alarms;
+            this.syncedReadoutDetail = this.readoutDetail;
+            this.syncedCompletions = this.completions;
+            this.syncedProgressStep = this.progressStep;
+            this.syncedMaxProgress = this.maxProgress;
+        }
+        return dirty;
+    }
+
+    /**
+     * Whether this machine's progress drives a BER through {@link #progressFraction(float)}: when true
+     * the base also syncs on every new operation and on a change of rate (once per operation, never per
+     * tick). Progress must count up from 0 to {@code maxProgress}. Default false (generators count fuel
+     * down); {@link ProcessingMachineBlockEntity} turns it on.
+     */
+    protected boolean syncsProgress() {
+        return false;
+    }
+
+    /** The four-state readout (art direction §2) — synced on change. */
+    public Readout readout() {
+        return this.readout;
+    }
+
+    /** The committed analytics status behind {@link #readout()} (synced on change; lamp-dark test, GUI line). */
+    public MachineStatus readoutStatus() {
+        return this.readoutStatus;
+    }
+
+    /**
+     * The detail lang key committed with {@link #readoutStatus()} (synced on change), or null for the
+     * plain status — lets a BER show a cause-specific pose (e.g. a missing lens, a depleted deposit).
+     */
+    @Nullable
+    public String readoutDetail() {
+        return this.readoutDetail;
+    }
+
+    /**
+     * Count one finished operation (server side, where the machine actually produced something — an
+     * aborted batch never counts). Watching clients get the new count on the next sync and play the
+     * completion one-shot (stamp, chime, pour) once per change. Transient; never saved.
+     */
+    protected void markCompleted() {
+        this.completions = (this.completions + 1) & 0xFFFF;
+    }
+
+    /** The finished-operation counter (server: live; client: last synced). Compare, never read as a total. */
+    public int completions() {
+        return this.completions;
+    }
+
+    /**
+     * Subclass hook: write update-tag-only render fields (machine contract C1 per-machine extras that
+     * are not part of the disk save). Called from {@link #getUpdateTag}; never written to disk. Pair it
+     * with {@link #renderSyncDirty} so the packet goes out only when one of them changes.
+     */
+    protected void writeRenderExtras(CompoundTag tag) {
+    }
+
+    /**
+     * Subclass hook: read the fields {@link #writeRenderExtras} wrote. Called client-side only for an
+     * update tag (never for a disk load, which has no C1 surface).
+     */
+    protected void readRenderExtras(ValueInput input) {
+    }
+
+    /** Whether the status lamp is fully dark: no energy for the next step (art direction §2). */
+    public boolean lampDark() {
+        return Readout.dark(this.readoutStatus);
+    }
+
+    /**
+     * Work progress 0..1 for a BER, eased between game ticks by {@code partialTick}. Client side it is
+     * extrapolated from the last sync (see {@link ProgressEasing}); 0 when idle; frozen mid-stroke
+     * while stalled. Machines that do not {@link #syncsProgress()} report the last synced value.
+     */
+    public float progressFraction(float partialTick) {
+        if (this.level != null && this.level.isClientSide() && syncsProgress()) {
+            return this.progressEasing.fraction(this.level.getGameTime(), partialTick);
+        }
+        return this.maxProgress <= 0 ? 0f : Math.min(1f, (float) this.progress / this.maxProgress);
+    }
+
+    /**
+     * The five Annunciator alarm bits ({@link MachineAlarms}): computed live on the server, the last
+     * synced value on the client.
+     */
+    public int alarmMask() {
+        if (this.level == null || this.level.isClientSide()) {
+            return this.clientAlarmMask;
+        }
+        return MachineAlarms.mask(this.readout, this.readoutStatus, recentPollution(),
+                NeroTechConfig.annunciatorPollutionThreshold(), failureStage());
+    }
+
+    /**
+     * The machine's active {@code MachineFailureEvents} stage (0 = none). Machines that fire failure
+     * events override it so the {@code failing} alarm tracks them.
+     */
+    protected int failureStage() {
+        return 0;
+    }
+
+    /** Record the operator in the moment (interaction, menu open or placement). Transient. */
+    public void setLastOperator(@Nullable UUID operator) {
+        this.lastOperator = operator;
+    }
+
+    /**
+     * The player whose interaction or placement last touched this machine, for gate/trophy credit; empty
+     * after unload. Never saved or synced. Personal data: never log it.
+     */
+    public Optional<UUID> lastOperator() {
+        return Optional.ofNullable(this.lastOperator);
+    }
+
+    @Override
+    public void setRemoved() {
+        this.lastOperator = null;
+        super.setRemoved();
     }
 
     // --- persistence (Core's super handles energy + upgrades) ----------------
@@ -910,6 +1238,20 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         this.ownerErasureEpoch = -1;
         for (int i = 0; i < this.items.size(); i++) {
             this.items.set(i, input.read("Item" + i, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+        }
+        // Machine contract C1 (update tag only; absent in a disk save, which keeps the defaults).
+        int readoutOrdinal = input.getIntOr("RdOut", -1);
+        if (readoutOrdinal >= 0) {
+            this.readout = Readout.byOrdinal(readoutOrdinal);
+            this.readoutStatus = MachineStatus.byOrdinal(input.getIntOr("RdStatus", MachineStatus.IDLE.ordinal()));
+            this.clientAlarmMask = input.getIntOr("RdAlarms", 0);
+            this.progressStep = input.getIntOr("RdStep", 0);
+            this.progressEasing.sync(this.progress, this.maxProgress, this.progressStep,
+                    this.readout == Readout.WORK);
+            this.completions = input.getIntOr("RdDone", 0);
+            String detail = input.getStringOr("RdDetail", "");
+            this.readoutDetail = detail.isEmpty() ? null : detail;
+            readRenderExtras(input);
         }
     }
 
@@ -973,7 +1315,8 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         if (slot < this.machineSlots) {
             return canPlaceMachineItem(slot, stack);
         }
-        return upgrades().isModule(stack);
+        // Core's classifier accepts the Core-typed cards; NeroTech-classified ones (Heat Sink, Scrubber) too.
+        return upgrades().isModule(stack) || UpgradeModuleItem.isModule(stack);
     }
 
     @Override

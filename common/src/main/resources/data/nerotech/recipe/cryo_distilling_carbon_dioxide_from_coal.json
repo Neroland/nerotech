@@ -1,0 +1,19 @@
+{
+  "type": "nerotech:cryo_distilling",
+  "items": [
+    {
+      "ingredient": "#minecraft:coals",
+      "count": 1
+    }
+  ],
+  "gas_in": {
+    "id": "nerospace:oxygen",
+    "amount": 1
+  },
+  "gas_out": {
+    "id": "nerotech:carbon_dioxide",
+    "amount": 2
+  },
+  "energy": 20,
+  "time": 100
+}

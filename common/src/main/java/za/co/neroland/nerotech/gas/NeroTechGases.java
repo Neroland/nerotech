@@ -49,6 +49,32 @@ public final class NeroTechGases {
     public static final Identifier LEGACY_OXYGEN =
             Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "oxygen");
 
+    // --- 0.8.0 process media (decision: same id-based model and unit as hydrogen) ----------------
+
+    /** Fusion fuel; distilled from Nerospace's deuterium items, or the standalone heavy-water route. */
+    public static final Identifier DEUTERIUM =
+            Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "deuterium");
+
+    /** Fusion fuel; only ever a NeroTech gas (no helium-3 item is registered). */
+    public static final Identifier HELIUM_3 =
+            Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "helium_3");
+
+    /** Chemistry feedstock (polymer resin) and a turbine fuel candidate. */
+    public static final Identifier METHANE =
+            Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "methane");
+
+    /** Inert process gas: condensed from an atmosphere or boiled off cryo ice. */
+    public static final Identifier NITROGEN =
+            Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "nitrogen");
+
+    /** Condensed from thin CO2 atmospheres or sublimed dry ice. */
+    public static final Identifier CARBON_DIOXIDE =
+            Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "carbon_dioxide");
+
+    /** Every gas NeroTech declares (canonical ids), in a stable order: the two originals, then 0.8.0's. */
+    public static final java.util.List<Identifier> ALL =
+            java.util.List.of(HYDROGEN, OXYGEN, DEUTERIUM, HELIUM_3, METHANE, NITROGEN, CARBON_DIOXIDE);
+
     private NeroTechGases() {
     }
 

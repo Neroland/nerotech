@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "nerotech:cindersteel_plate",
+    "B": "nerotech:circuit_board",
+    "S": "nerotech:servo",
+    "F": "nerotech:machine_frame",
+    "H": "#nerotech:drill_heads"
+  },
+  "pattern": [
+    "PBP",
+    "SFS",
+    "PHP"
+  ],
+  "result": {
+    "id": "nerotech:deep_core_drill"
+  }
+}

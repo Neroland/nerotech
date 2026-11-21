@@ -40,6 +40,9 @@ public final class NeroTechForge {
         ForgeRegistrationFactory.registerAll(modBusGroup);
         // NeroTech's own payloads (menu → machine position sync); see network.NeroTechNetwork.
         ForgeNetwork.register();
+        //? if >=1.21.2 {
+        ForgeRecipeSync.registerListener();
+        //?}
         ForgeCapabilities.register();
         // Periodic regional pollution decay + retention sweep and quest-hook delivery (game bus; gated inside).
         //? if >=1.21.9 {

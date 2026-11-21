@@ -1,0 +1,15 @@
+{
+  "type": "nerotech:cryo_distilling",
+  "items": [
+    {
+      "ingredient": "#nerotech:inputs/helium_3",
+      "count": 1
+    }
+  ],
+  "gas_out": {
+    "id": "nerotech:helium_3",
+    "amount": 2
+  },
+  "energy": 60,
+  "time": 240
+}
