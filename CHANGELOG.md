@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.8.0] - Unreleased
+## [0.8.0] - 2026-11-21
 
 **Offworld Industry.** Six production chains, 22 new machines and blocks, a component ladder, seven powered
 tools, virtual deposits, heat you can pipe, a gas-fed fusion tier, a NeroTech module for the NeroLink app and
