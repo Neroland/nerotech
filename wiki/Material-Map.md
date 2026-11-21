@@ -55,7 +55,7 @@ same tag works too. A recipe viewer (JEI or EMI) shows the exact numbers.
 
 ### Acid ore leaching
 
-The Reaction Vat soaks one raw iron, copper or gold ore (or one raw hematite) in 250 mB of sulfuric
+The Reaction Vat soaks one raw iron, copper or gold ore (or one raw hematite) in 500 mB of sulfuric
 acid and returns **four** dusts: one more than the Chemical Processor or the Advanced Ore Processor.
 
 ## Superconductor
@@ -118,13 +118,13 @@ acid and returns **four** dusts: one more than the Chemical Processor or the Adv
   processors.
 - **For other mods:** blank wafers for NeroLogistics and NeroCompanion electronics.
 
-### Logic Processor (`nerotech:processors/logic`) and Quantum Processor (`nerotech:processors/quantum`)
+### Logic Chip (`nerotech:processors/logic`) and Quantum Processor (`nerotech:processors/quantum`)
 
 - **Logic:** a Wafer and two copper wire with the Quartz Focus Lens, or a Wafer and two cindersteel
   wire with the Ember Focus Lens (Laser Etcher).
 - **Logic** with the Ember Focus Lens is the fast one: half the time of the Quartz Focus Lens.
-- **Quantum:** a Wafer, a Logic Processor and two Superconductor Wire with the Void Focus Lens, or two
-  Wafers and two Superconductor Wire with the Glacite Focus Lens (no Logic Processor, slower).
+- **Quantum:** a Wafer, a Logic Chip and two Superconductor Wire with the Void Focus Lens, or two
+  Wafers and two Superconductor Wire with the Glacite Focus Lens (no Logic Chip, slower).
 - **Makes:** Logic goes into Quantum, the Survey Scanner, the Cutting Lance and the Heat Sink and Scrubber modules; Quantum goes into the Deep Core Drill, the Fuel Injector
   and the Europium Flux Lattice (Component Forge route).
 - **For other mods:** controller parts. NeroPower reactor control, NeroLogistics routing,
@@ -138,8 +138,8 @@ A lens sits in the Laser Etcher's lens slot and is never used up; it decides wha
 
 | Lens | Offworld | Standalone | Etches |
 |---|---|---|---|
-| Quartz | four xertz quartz and a glass pane | four nether quartz and a glass pane | Logic Processor |
-| Ember | four cindrite and a glass pane | four blaze powder, two quartz and a glass pane, slowly | Logic Processor from cindersteel wire |
+| Quartz | four xertz quartz and a glass pane | four nether quartz and a glass pane | Logic Chip |
+| Ember | four cindrite and a glass pane | four blaze powder, two quartz and a glass pane, slowly | Logic Chip from cindersteel wire |
 | Glacite | four glacite and a glass pane | four Synthetic Glacite and a glass pane | Quantum Processor from superconductor wire |
 | Void | two voidglass or crystal shards and a glass pane | two Void Crystal and a glass pane, slowly | Quantum Processor |
 
@@ -174,8 +174,8 @@ and NeroCompanion sensors.
 | Gas | Offworld | Standalone | Used in |
 |---|---|---|---|
 | Nitrogen | Atmospheric Condenser on Glacira, Greenxertz or Nyxara; Cryo Distiller on cryo ice | Atmospheric Condenser in the Overworld, slowly | Cryo coolant, packed ice |
-| Carbon dioxide | dry ice in the Cryo Distiller; the Condenser on Mars or Cindara | coal burned with oxygen in the Cryo Distiller; the Condenser in the Nether | Cryo coolant |
-| Methane | methane crystal in the Cryo Distiller | coal with hydrogen in the Cryo Distiller | Polymer resin |
+| Carbon dioxide | dry ice in the Cryo Distiller; the Condenser on Mars or Cindara | coal burned with oxygen in the Cryo Distiller; the Condenser in the Nether | Cryo coolant, calcite |
+| Methane | methane crystal in the Cryo Distiller | coal with hydrogen in the Cryo Distiller | Polymer resin, Gas Turbine fuel |
 
 ## Fusion fuel
 

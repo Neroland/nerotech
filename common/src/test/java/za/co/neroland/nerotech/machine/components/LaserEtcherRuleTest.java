@@ -36,7 +36,7 @@ class LaserEtcherRuleTest {
 
     @Test
     void lensMustMatchTheRecipe() {
-        RecipeFixture logic = RecipeFixture.load("etching_logic_processor");
+        RecipeFixture logic = RecipeFixture.load("etching_logic_chip");
         List<Stack> parts = List.of(new Stack("nerotech:wafer", 1), new Stack("nerotech:copper_wire", 2));
         assertTrue(logic.matches(parts, "nerotech:quartz_focus_lens", null, 0L));
         assertFalse(logic.matches(parts, "nerotech:void_focus_lens", null, 0L), "wrong lens");
@@ -45,14 +45,14 @@ class LaserEtcherRuleTest {
 
         RecipeFixture quantum = RecipeFixture.load("etching_quantum_processor");
         List<Stack> quantumParts = List.of(new Stack("nerotech:wafer", 1),
-                new Stack("nerotech:superconductor_wire", 2), new Stack("nerotech:logic_processor", 1));
+                new Stack("nerotech:superconductor_wire", 2), new Stack("nerotech:logic_chip", 1));
         assertTrue(quantum.matches(quantumParts, "nerotech:void_focus_lens", null, 0L));
         assertFalse(quantum.matches(quantumParts, "nerotech:quartz_focus_lens", null, 0L), "wrong lens");
     }
 
     @Test
     void lensIsNeverAnIngredient() {
-        for (String name : List.of("etching_logic_processor", "etching_quantum_processor")) {
+        for (String name : List.of("etching_logic_chip", "etching_quantum_processor")) {
             RecipeFixture recipe = RecipeFixture.load(name);
             assertEquals("nerotech:etching", recipe.type());
             assertTrue(recipe.catalyst().isPresent(), name + " names its lens as the catalyst");
@@ -66,7 +66,7 @@ class LaserEtcherRuleTest {
 
     @Test
     void lensSurvivesRepeatedOperations() {
-        RecipeFixture logic = RecipeFixture.load("etching_logic_processor");
+        RecipeFixture logic = RecipeFixture.load("etching_logic_chip");
         // The machine's slots: inputs, then the lens. An operation spends inputs 0..inputs()-1 only
         // (ProcessingMachineBlockEntity.finish walks spec.inputSlot(i) for i < inputs()).
         String[] ids = {"nerotech:wafer", "nerotech:copper_wire", null};

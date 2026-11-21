@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Transitioning to stable versions: the alpha/beta label is dropped from the version number, so this release is **0.7.1** (previously 0.7.1-beta.1). Nothing else changes with the version label.
+
 ### Dependencies
 
 - Updated Neroland Core from 1.17.0 to 1.17.6.

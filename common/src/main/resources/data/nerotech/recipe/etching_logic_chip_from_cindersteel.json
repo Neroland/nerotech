@@ -6,18 +6,18 @@
       "count": 1
     },
     {
-      "ingredient": "#c:wires/copper",
+      "ingredient": "#c:wires/cindersteel",
       "count": 2
     }
   ],
-  "catalyst": "nerotech:quartz_focus_lens",
+  "catalyst": "nerotech:ember_focus_lens",
   "results": [
     {
-      "item": "nerotech:logic_processor",
+      "item": "nerotech:logic_chip",
       "count": 1
     }
   ],
-  "energy": 40,
-  "time": 200,
+  "energy": 50,
+  "time": 100,
   "min_heat": 0
 }

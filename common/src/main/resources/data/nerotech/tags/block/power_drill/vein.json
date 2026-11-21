@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "#c:ores",
+    "minecraft:gravel",
+    "minecraft:clay",
+    "minecraft:glowstone"
+  ]
+}

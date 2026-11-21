@@ -58,13 +58,13 @@ heat, zero pollution**. That is the whole point of it: clean power, not free pow
 
 | | |
 | --- | --- |
-| **Fuel** | Whatever `turbineGasBurn` lists — default `nerotech:hydrogen=2` |
+| **Fuel** | Whatever `turbineGasBurn` lists — default `nerotech:hydrogen=2,nerotech:methane=4` |
 | **Yield** | `gasTurbineNePerUnit` (default 60) × the fuel's multiplier, per unit (100 mB) |
 | **Burn time** | `gasTurbineTicksPerUnit` (default 20) per unit, with the yield spread evenly |
 | **Slots** | None — its fuel is a gas, pushed in through Core's gas capability |
 
 The tank refuses any gas that is **not** on the fuel list, so a stray gas can never jam it. Adding a
-fuel is a config edit, not a code change: `turbineGasBurn=nerotech:hydrogen=2,othermod:methane=5`.
+fuel is a config edit, not a code change: `turbineGasBurn=nerotech:hydrogen=2,nerotech:methane=4,othermod:propane=5`.
 
 > **Balance note.** Electrolysis is deliberately a *net energy sink* — you spend far more NE
 > splitting water than the turbine gives back. The turbine's value is that it is clean, storable

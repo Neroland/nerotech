@@ -541,7 +541,7 @@ def _pins(px, positions, y0, y1, vertical):
                 put(px, q, p + 1, K.GOLD[1] if col == K.GOLD[0] else shadow(K.GOLD[1], 0.3))
 
 
-def paint_logic_processor():
+def paint_logic_chip():
     """Square green-teal package, gold pins on four sides, one die window."""
     base, light, dark, glint = PACKAGE
     img = K.new_img()
@@ -552,7 +552,7 @@ def paint_logic_processor():
     _pins(px, spots, 5, 7, False)
     _pins(px, spots, 24, 26, False)
     rect(px, 8, 8, 23, 23, base)
-    speckle(px, "logic_processor", 9, 9, 22, 22, [K.mix(base, light, 0.3), K.mix(base, dark, 0.4)], 0.3)
+    speckle(px, "logic_chip", 9, 9, 22, 22, [K.mix(base, light, 0.3), K.mix(base, dark, 0.4)], 0.3)
     rect(px, 8, 8, 23, 8, light)
     rect(px, 8, 8, 8, 23, light)
     rect(px, 8, 23, 23, 23, dark)
@@ -569,7 +569,7 @@ def paint_logic_processor():
     px[11, 10] = light
     for x in (10, 12, 14):                                              # part marking
         px[x, 21] = K.mix(base, light, 0.7)
-    save_item(img, "logic_processor")
+    save_item(img, "logic_chip")
 
 
 def paint_quantum_processor():
@@ -1019,7 +1019,7 @@ def paint_bucket(name, medium):
 ITEMS = (
     "cindersteel_ingot", "cindersteel_plate", "cindersteel_rod", "titanium_plate",
     "synthetic_glacite", "crystal_seed", "crystal_boule", "wafer", "sulfur_dust", "polymer_sheet",
-    "europium_dust", "logic_processor", "quantum_processor",
+    "europium_dust", "logic_chip", "quantum_processor",
     "copper_wire", "cindersteel_wire", "superconductor_wire",
     "copper_coil", "cindersteel_coil", "superconductor_coil",
     "servo", "capacitor", "heat_sink",
@@ -1042,7 +1042,7 @@ def paint():
     paint_dust("sulfur_dust", SULFUR, spread=0.95, crystals=((11, 22), (20, 19)))
     paint_polymer_sheet()
     paint_dust("europium_dust", EURO, spread=0.75, spark=K.T_CYAN)
-    paint_logic_processor()
+    paint_logic_chip()
     paint_quantum_processor()
     paint_wire("copper_wire", COP)
     paint_wire("cindersteel_wire", CIN)

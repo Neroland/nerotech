@@ -8,7 +8,7 @@
   ],
   "fluid_in": {
     "id": "#c:sulfuric_acid",
-    "amount": 250
+    "amount": 500
   },
   "results": [
     {
@@ -17,5 +17,5 @@
     }
   ],
   "energy": 40,
-  "time": 160
+  "time": 240
 }

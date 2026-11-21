@@ -100,7 +100,7 @@ class RecipeGraphTest {
     static final Set<String> VANILLA_LEAVES = Set.of(
             "minecraft:amethyst_shard", "minecraft:anvil", "minecraft:blaze_powder", "minecraft:blue_ice",
             "minecraft:book", "minecraft:bucket", "minecraft:cauldron", "minecraft:charcoal", "minecraft:clay_ball",
-            "minecraft:coal", "minecraft:comparator", "minecraft:composter", "minecraft:copper_block",
+            "minecraft:coal", "minecraft:cobblestone", "minecraft:comparator", "minecraft:composter", "minecraft:copper_block",
             "minecraft:copper_ingot", "minecraft:copper_ore", "minecraft:crafting_table",
             "minecraft:deepslate_copper_ore", "minecraft:deepslate_gold_ore", "minecraft:deepslate_iron_ore",
             "minecraft:diamond", "minecraft:echo_shard", "minecraft:ender_pearl", "minecraft:flint",
@@ -168,7 +168,7 @@ class RecipeGraphTest {
     /** New 0.8.0 materials that must have two uses: a NeroTech recipe input and a sibling-facing tag. */
     static final List<String> NEW_MATERIALS = List.of("cindersteel_ingot", "cindersteel_plate", "cindersteel_rod",
             "titanium_plate", "synthetic_glacite", "crystal_seed", "crystal_boule", "wafer", "sulfur_dust",
-            "polymer_sheet", "europium_dust", "logic_processor", "quantum_processor", "copper_wire",
+            "polymer_sheet", "europium_dust", "logic_chip", "quantum_processor", "copper_wire",
             "cindersteel_wire", "superconductor_wire", "copper_coil", "cindersteel_coil", "superconductor_coil",
             "servo", "capacitor", "heat_sink", "quartz_focus_lens", "glacite_focus_lens", "ember_focus_lens",
             "void_focus_lens");
@@ -179,7 +179,14 @@ class RecipeGraphTest {
     /** New gases: a NeroTech recipe input, or a machine that burns them (no gas tag registry exists). */
     static final List<String> NEW_GASES = List.of("deuterium", "helium_3", "methane", "nitrogen", "carbon_dioxide");
     static final Map<String, String> GAS_MACHINE_CONSUMERS = Map.of(
-            "nerotech:helium_3", "Fuel Injector", "nerotech:deuterium", "Fuel Injector");
+            "nerotech:helium_3", "Fuel Injector", "nerotech:deuterium", "Fuel Injector",
+            "nerotech:methane", "Gas Turbine");
+
+    /**
+     * Gases exempt from the two-use rule: helium-3 is the fusion fuel the whole chain ends in, so its one
+     * use is the reactor.
+     */
+    static final Set<String> GAS_ENDPOINTS = Set.of("nerotech:helium_3");
 
     /** {@code NO_SILK} is standalone without the {@link #SILK_TOUCH_LEAVES} (a player with no Silk Touch). */
     enum Mode { STANDALONE, OFFWORLD, NO_SILK }
@@ -317,15 +324,23 @@ class RecipeGraphTest {
             }
         }
         Set<String> fluidInputs = new HashSet<>();
-        Set<String> gasInputs = new HashSet<>();
+        // Gas id -> its distinct uses: what each consuming recipe makes (a recipe that returns the same gas
+        // is enrichment, not a use) plus the machines that burn it (Stage 3 review S3: two uses, not one).
+        Map<String, Set<String>> gasUses = new HashMap<>();
         for (JsonObject recipe : recipes().values()) {
             if (recipe.has("fluid_in")) {
                 fluidInputs.addAll(expand(recipe.getAsJsonObject("fluid_in").get("id").getAsString(), "fluid"));
             }
             if (recipe.has("gas_in")) {
-                gasInputs.add(recipe.getAsJsonObject("gas_in").get("id").getAsString());
+                String gas = recipe.getAsJsonObject("gas_in").get("id").getAsString();
+                String product = primaryProduct(recipe);
+                if (product != null && !product.equals(gas)) {
+                    gasUses.computeIfAbsent(gas, k -> new TreeSet<>()).add(product);
+                }
             }
         }
+        GAS_MACHINE_CONSUMERS.forEach((gas, machine) ->
+                gasUses.computeIfAbsent(gas, k -> new TreeSet<>()).add("machine:" + machine));
         for (String name : NEW_LIQUIDS) {
             String id = "nerotech:" + name;
             if (!fluidInputs.contains(id)) {
@@ -339,11 +354,33 @@ class RecipeGraphTest {
         }
         for (String name : NEW_GASES) {
             String id = "nerotech:" + name;
-            if (!gasInputs.contains(id) && !GAS_MACHINE_CONSUMERS.containsKey(id)) {
-                problems.add(id + " is no recipe's gas input and no machine burns it");
+            Set<String> uses = gasUses.getOrDefault(id, Set.of());
+            int needed = GAS_ENDPOINTS.contains(id) ? 1 : 2;
+            if (uses.size() < needed) {
+                problems.add(id + " has " + uses.size() + " use(s) " + uses + ", needs " + needed);
             }
         }
         assertTrue(problems.isEmpty(), String.join("\n", problems));
+    }
+
+    /** What a recipe makes first: its first item result, else its fluid output, else its gas output. */
+    private static String primaryProduct(JsonObject recipe) {
+        if (recipe.has("results") && !recipe.getAsJsonArray("results").isEmpty()) {
+            JsonObject first = recipe.getAsJsonArray("results").get(0).getAsJsonObject();
+            if (first.has("item")) {
+                return first.get("item").getAsString();
+            }
+        }
+        if (recipe.has("result") && recipe.get("result").isJsonObject()
+                && recipe.getAsJsonObject("result").has("id")) {
+            return recipe.getAsJsonObject("result").get("id").getAsString();
+        }
+        for (String field : new String[] {"fluid_out", "gas_out"}) {
+            if (recipe.has(field) && recipe.get(field).isJsonObject()) {
+                return recipe.getAsJsonObject(field).get("id").getAsString();
+            }
+        }
+        return null;
     }
 
     @Test

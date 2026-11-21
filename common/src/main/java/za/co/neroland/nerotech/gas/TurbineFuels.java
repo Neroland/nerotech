@@ -11,7 +11,7 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
 
 /**
  * Which gases the Gas Turbine burns, and how well — the config-driven fuel table
- * ({@code turbineGasBurn}, default {@code nerotech:hydrogen=2}). One unit of a fuel yields
+ * ({@code turbineGasBurn}, default {@code nerotech:hydrogen=2,nerotech:methane=4}). One unit of a fuel yields
  * {@code gasTurbineNePerUnit × multiplier} NE, so packs retune both the ladder and the roster
  * without a code change.
  *

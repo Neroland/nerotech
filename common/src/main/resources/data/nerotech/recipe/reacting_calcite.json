@@ -1,0 +1,25 @@
+{
+  "type": "nerotech:reacting",
+  "items": [
+    {
+      "ingredient": "minecraft:cobblestone",
+      "count": 1
+    }
+  ],
+  "fluid_in": {
+    "id": "minecraft:water",
+    "amount": 250
+  },
+  "gas_in": {
+    "id": "nerotech:carbon_dioxide",
+    "amount": 2
+  },
+  "results": [
+    {
+      "item": "minecraft:calcite",
+      "count": 1
+    }
+  ],
+  "energy": 20,
+  "time": 160
+}

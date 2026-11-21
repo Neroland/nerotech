@@ -18,7 +18,7 @@
     },
     {
       "type": "neroquests:collect_item",
-      "item": "nerotech:logic_processor",
+      "item": "nerotech:logic_chip",
       "count": 2
     }
   ],

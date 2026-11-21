@@ -4,10 +4,13 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import za.co.neroland.nerolandcore.energy.NeroEnergyStorage;
@@ -25,7 +29,8 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
 /**
  * Power Drill — a charged pickaxe-and-shovel with three modes, cycled by sneak-using it in the air:
  * <b>single</b>, <b>area</b> (the 3×3 plane facing you) and <b>vein</b> (up to
- * {@code powerDrillVeinMaxBlocks} connected blocks of the same kind, hard cap 64). Every block costs
+ * {@code powerDrillVeinMaxBlocks} connected blocks of the same kind, hard cap 64, and only from a block in
+ * {@link #VEIN_BLOCKS}; anything else breaks alone). Every block costs
  * {@code powerDrillEnergyPerBlock}; with no charge it mines like a bare hand.
  *
  * <p><b>Protection.</b> Each extra block goes through the player's real break path,
@@ -41,6 +46,10 @@ public class PowerDrillItem extends ChargedToolItem {
 
     /** The three modes, in cycle order (stored as {@link ToolCharge#mode()}). */
     public static final String[] MODES = {"single", "area", "vein"};
+
+    /** Blocks vein mode walks: ores, gravel, clay and glowstone by default (decision 014 row 9). */
+    public static final TagKey<Block> VEIN_BLOCKS = TagKey.create(Registries.BLOCK,
+            Identifier.fromNamespaceAndPath("nerotech", "power_drill/vein"));
 
     /** Server-thread re-entry guard: the extra breaks call {@link #mineBlock} again through destroyBlock. */
     private static boolean breaking;
@@ -84,7 +93,7 @@ public class PowerDrillItem extends ChargedToolItem {
         serverLevel.playSound(null, pos, za.co.neroland.nerotech.registry.ModSounds.TOOL_POWER_DRILL.get(),
                 net.minecraft.sounds.SoundSource.PLAYERS, 0.6F, 1.0F);
         int mode = charge(stack).mode() % MODES.length;
-        if (mode == 0 || !mineable(state)) {
+        if (mode == 0 || !mineable(state) || (mode == 2 && !ToolRules.drillWalksVein(state.is(VEIN_BLOCKS)))) {
             return true;
         }
         BreakPlanner.Cell origin = cell(pos);

@@ -178,7 +178,7 @@ public final class ModItems {
     // Fusion fuel
     public static final RegistryEntry<Item> EUROPIUM_DUST = item("europium_dust");
     // Component ladder — processors sit a tier above circuit_board, never replace it
-    public static final RegistryEntry<Item> LOGIC_PROCESSOR = item("logic_processor");
+    public static final RegistryEntry<Item> LOGIC_CHIP = item("logic_chip");
     public static final RegistryEntry<Item> QUANTUM_PROCESSOR = item("quantum_processor");
     public static final RegistryEntry<Item> COPPER_WIRE = item("copper_wire");
     public static final RegistryEntry<Item> CINDERSTEEL_WIRE = item("cindersteel_wire");
@@ -236,7 +236,7 @@ public final class ModItems {
                 CINDERSTEEL_INGOT, CINDERSTEEL_PLATE, CINDERSTEEL_ROD, TITANIUM_PLATE,
                 SYNTHETIC_GLACITE, CRYSTAL_SEED, CRYSTAL_BOULE, WAFER,
                 SULFUR_DUST, POLYMER_SHEET, EUROPIUM_DUST,
-                LOGIC_PROCESSOR, QUANTUM_PROCESSOR,
+                LOGIC_CHIP, QUANTUM_PROCESSOR,
                 COPPER_WIRE, CINDERSTEEL_WIRE, SUPERCONDUCTOR_WIRE,
                 COPPER_COIL, CINDERSTEEL_COIL, SUPERCONDUCTOR_COIL,
                 SERVO, CAPACITOR, HEAT_SINK,

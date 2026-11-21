@@ -39,7 +39,7 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  * generation stays thin (the NeroPower split discipline).
  *
  * <p>Which gases burn, and how well, is config-driven ({@code turbineGasBurn}, default
- * {@code nerotech:hydrogen=2}); the tank refuses anything not on that list, so a stray gas can
+ * {@code nerotech:hydrogen=2,nerotech:methane=4}); the tank refuses anything not on that list, so a stray gas can
  * never jam the turbine. One unit yields {@code gasTurbineNePerUnit x multiplier} NE spread evenly
  * over {@code gasTurbineTicksPerUnit} ticks.
  *

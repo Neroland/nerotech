@@ -152,7 +152,7 @@ public final class TechGuide {
                     guide("crystal_boule"),
                     guide("wafer"),
                     guide("laser_etcher"),
-                    guide("logic_processor"),
+                    guide("logic_chip"),
                     milestone("first_quantum_processor", "quantum_processor"))),
             new Chapter("optics", List.of(
                     guide("quartz_focus_lens"),

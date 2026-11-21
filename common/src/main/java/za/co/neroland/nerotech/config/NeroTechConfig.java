@@ -136,7 +136,7 @@ public final class NeroTechConfig {
     private static final ConfigValue<Integer> GAS_TURBINE_TICKS_PER_UNIT = SCHEMA.intRange("gasTurbineTicksPerUnit",
             20, 1, 72_000, true, "ticks one unit of gas burns for (the NE yield is spread evenly across them)");
     private static final ConfigValue<String> TURBINE_GAS_BURN = SCHEMA.string("turbineGasBurn",
-            "nerotech:hydrogen=2", true, "which gases the Gas Turbine burns and how well: comma-list of "
+            "nerotech:hydrogen=2,nerotech:methane=4", true, "which gases the Gas Turbine burns and how well: comma-list of "
             + "gasId=multiplier, e.g. nerotech:hydrogen=2,nerospace:oxygen=1. Yield per unit is "
             + "gasTurbineNePerUnit x multiplier; a gas not listed here is not accepted at all");
     private static final ConfigValue<Integer> CHEMICAL_GAS_PER_OP = SCHEMA.intRange("chemicalProcessorGasPerOp",

@@ -1,10 +1,10 @@
 {
   "criteria": {
-    "has_logic_processor": {
+    "has_logic_chip": {
       "conditions": {
         "items": [
           {
-            "items": "nerotech:logic_processor"
+            "items": "nerotech:logic_chip"
           }
         ]
       },
@@ -13,7 +13,7 @@
   },
   "requirements": [
     [
-      "has_logic_processor"
+      "has_logic_chip"
     ]
   ]
 }
