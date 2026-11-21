@@ -20,7 +20,7 @@ import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 
 /**
- * Decision 002: every entry of NeroTech's {@code nerotech:inputs/*} item tags points at another mod's
+ * Every entry of NeroTech's {@code nerotech:inputs/*} item tags points at another mod's
  * material and must be written {@code {"id": ..., "required": false}}, so the tag still loads on a
  * Core + NeroTech server without Nerospace. Also checks the three liquids ship their fluid tags.
  */
@@ -44,8 +44,8 @@ class InputTagsTest {
                 }
             }
         }
-        // Decision 002's eighteen, plus inputs/brine (the Reaction Vat's optional Nerospace brine bucket).
-        assertEquals(19, files, "decision 002 lists eighteen input tags, plus brine");
+        // Eighteen input tags, plus inputs/brine (the Reaction Vat's optional Nerospace brine bucket).
+        assertEquals(19, files, "eighteen input tags, plus brine");
         assertTrue(problems.isEmpty(), "entries not written required:false: " + problems);
     }
 

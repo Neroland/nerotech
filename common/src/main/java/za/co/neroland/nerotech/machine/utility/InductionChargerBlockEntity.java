@@ -129,7 +129,10 @@ public class InductionChargerBlockEntity extends NeroTechMachineBlockEntity {
                 if (stack.isEmpty()) {
                     continue;
                 }
-                long fe = EnergyConversions.neroToForge(ne);
+                long fe = ChargeMath.neToFeFloor(ne, EnergyConversions.neroToForgeRatio());
+                if (fe <= 0) {
+                    return;
+                }
                 long accepted = WirelessCharging.chargeItem(stack, fe, false);
                 if (accepted > 0) {
                     spendNe(feToNeCost(Math.min(accepted, fe)), now);
@@ -138,31 +141,41 @@ public class InductionChargerBlockEntity extends NeroTechMachineBlockEntity {
         }
     }
 
-    /** NE this charger can hand out right now: its stored energy, limited by the per-tick budget. */
+    /**
+     * NE this charger can hand out in one call right now: the per-tick budget, limited by what one
+     * extraction from the buffer really yields (the buffer clamps each call to its max transfer).
+     */
     long availableNe(long now) {
         long perTick = ChargeMath.scaledPerTick(UtilitySettings.inductionChargerTransferPerTick(),
                 modifiers().speedMultiplier() * presetSpeedFactor());
         long allowance = this.budget.available(now, perTick, perTick * ChargeMath.PASS_TICKS);
-        return Math.min(allowance, Math.max(0L, getEnergy().getAmount()));
+        if (allowance <= 0) {
+            return 0L;
+        }
+        return Math.max(0L, energyBuffer().extract(allowance, true));
     }
 
-    /** Take {@code ne} from the buffer and the budget, and mark the pad as charging. */
-    void spendNe(long ne, long now) {
+    /**
+     * Take {@code ne} from the buffer and charge the budget what was really taken; marks the pad as
+     * charging when anything moved. Returns the NE taken.
+     */
+    long spendNe(long ne, long now) {
         if (ne <= 0) {
-            return;
+            return 0L;
         }
-        long taken = energyBuffer().extract(ne, false);
+        long taken = Math.max(0L, energyBuffer().extract(ne, false));
+        if (taken <= 0) {
+            return 0L;
+        }
         this.budget.spend(taken);
         this.lastDelivery = now;
         setChanged();
+        return taken;
     }
 
-    /** NE that paying {@code fe} costs (at least 1 for any non-zero delivery, so nothing is free). */
+    /** NE that paying {@code fe} costs: rounded up, at least 1 for any non-zero delivery, so nothing is free. */
     static long feToNeCost(long fe) {
-        if (fe <= 0) {
-            return 0L;
-        }
-        return Math.max(1L, EnergyConversions.forgeToNero(fe));
+        return ChargeMath.feToNeCeil(fe, EnergyConversions.neroToForgeRatio());
     }
 
     /** Reach in blocks on every axis (menu data; the screen's reach line). */
@@ -187,12 +200,19 @@ public class InductionChargerBlockEntity extends NeroTechMachineBlockEntity {
         return new ChargeMath.Source() {
             @Override
             public long available() {
-                return EnergyConversions.neroToForge(self.availableNe(now));
+                return ChargeMath.neToFeFloor(self.availableNe(now), EnergyConversions.neroToForgeRatio());
             }
 
             @Override
-            public void take(long amount) {
-                self.spendNe(feToNeCost(amount), now);
+            public long take(long amount) {
+                if (amount <= 0) {
+                    return 0L;
+                }
+                long cost = feToNeCost(amount);
+                long taken = self.spendNe(cost, now);
+                // A short extraction delivers only the FE that was paid for.
+                return taken >= cost ? amount
+                        : Math.min(amount, ChargeMath.neToFeFloor(taken, EnergyConversions.neroToForgeRatio()));
             }
         };
     }

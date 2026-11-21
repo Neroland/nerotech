@@ -3,7 +3,7 @@ package za.co.neroland.nerotech.machine.utility;
 import za.co.neroland.nerotech.machine.MachineAlarms;
 
 /**
- * Pure rules of the Annunciator Panel (decision 013): how the masks of the machines touching it combine,
+ * Pure rules of the Annunciator Panel: how the masks of the machines touching it combine,
  * what a comparator reads for the selected channel, and which lamps blink as new. No Minecraft types.
  */
 public final class AnnunciatorMath {

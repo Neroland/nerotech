@@ -1,6 +1,7 @@
 # Pollution & Mitigation
 
-Industrial activity emits **pollution**, tracked per **region** (a coarse 64×64-block grid). It
+Industrial activity emits **pollution**, tracked per **region** (a coarse 64×64-block grid) in each
+**dimension**: since 0.8.0 a region on Mars and the same region in the Overworld are separate. It
 builds while your machines run, decays slowly on its own — and, since 0.1.0-beta.1, can be actively
 cleaned up with dedicated mitigation machines. Cleanup is designed as a genuine resource sink: it
 costs power and materials, not just patience.
@@ -38,6 +39,10 @@ on a batched interval — never per-tick.
 
 ## Reading pollution numbers
 
+The [Multimeter](Tools.md#multimeter) reads the band (none, low, high, severe) of the region you point at, and
+NeroMaps (when installed) has a pollution layer on its world map: the regions around you, in your own
+dimension, shaded light, heavy or severe. It never shows a raw reading or who polluted.
+
 The Analytics tab on each machine shows a **pollution rate**. Note that displayed rates are
 **nominal** — derived from the machine's configured per-operation values and its current preset —
 rather than a live measurement of the region.
@@ -53,10 +58,13 @@ cleanup from waiting:
 | `nerotech:pollution` | **Rising** when machine emissions push a region past the line; **falling** only when a Scrubber or Remediator actively removes enough to bring it back under. |
 | `nerotech:pollution_decay` | **Falling** when the periodic decay sweep alone carries a region back under the line. Never rises. |
 
-Both are keyed by the region, never by a player. Nothing in NeroTech reacts to them itself; quest
+Both are keyed by the place, never by a player. Since 0.8.0 the scope is `<dimension id>|<region key>`
+(for example `minecraft:overworld|<key>`); before 0.8.0 it was the bare region key, so a listener that
+parsed the old form needs updating. Nothing in NeroTech reacts to them itself; quest
 packs and event mods listen (the shipped quest chapter's world-log quests, for instance — see
 [NeroQuests Integration](NeroQuests-Integration.md)). A Remediator that actually removes pollution also
-records the **Remediated** milestone for its owner.
+records the **Remediated** milestone for the player operating it at that moment (and for its recorded owner,
+if it has one).
 
 ## Exposure and the Filter Mask
 
@@ -69,7 +77,8 @@ The **Scrubber Module** cuts a machine's own emissions (see [Machines](Machines.
 ## Config keys
 
 `scrubberNePerOp`, `scrubberPollutionPerOp`, `scrubberAdjacentPermille`, `scrubberFilterCapacity`,
-`remediatorNePerOp`, `remediatorPollutionPerOp`, `pollutionEventThreshold` — alongside the base
+`remediatorNePerOp`, `remediatorPollutionPerOp`, `pollutionEventThreshold`, `pollutionExposureEffects`,
+`pollutionExposureIntervalTicks`, `scrubberModulePollutionPermille`, `scrubberModuleFloorPermille` — alongside the base
 pollution keys listed in [Consequence Systems](Consequence-Systems.md).
 
 ## See also

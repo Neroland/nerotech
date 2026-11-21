@@ -11,7 +11,7 @@ reads as the "power" member of the set. Renders supersampled, then downsamples.
 
 Outputs:
   art/logo/nerotech_logo.png       (1024x1024 master)
-  art/logo/nerotech_logo_400.png   (CurseForge/Modrinth-ready)
+  art/logo/nerotech_logo_400.png   (CurseForge-ready)
   common/src/main/resources/nerotech_logo.png  (256x256 in-game mods-list icon)
 """
 import math

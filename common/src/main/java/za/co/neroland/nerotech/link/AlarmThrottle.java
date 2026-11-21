@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.function.LongSupplier;
 
 /**
- * At most one {@code alarm} event per machine type per player per {@link #WINDOW_MS} (decision 007).
+ * At most one {@code alarm} event per machine type per player per {@link #WINDOW_MS}.
  * Keyed by recipient UUID and block id only; in memory, cleared on logout.
  */
 final class AlarmThrottle {

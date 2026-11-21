@@ -23,7 +23,7 @@ import za.co.neroland.nerotech.registry.ModMenuTypes;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * WP-Fusion — the fusion machine family (fuel_injector, europium_flux_lattice). Owned by its work package: every block, item,
+ * The fusion machine family (fuel_injector, europium_flux_lattice). Every block, item,
  * block-entity type, menu, screen and renderer of the family is declared here and nowhere else;
  * {@code registry.FamilyRegistry} wires this class into every central place.
  *

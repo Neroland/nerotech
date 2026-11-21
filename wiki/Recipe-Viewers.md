@@ -14,15 +14,36 @@ One page per machine recipe type, with the machines that run it as the page's wo
 | Advanced Fabricating | `nerotech:advanced_fabricating` | Advanced Fabricator |
 | Particle Accelerator | `nerotech:collider` | Accelerator Controller (two inputs, plus the minimum collision energy) |
 | Chemical Processing | `nerotech:chemical_processing` | Chemical Processor |
+| Alloying | `nerotech:alloying` | Plasma Crucible |
+| Foundry Casting | `nerotech:foundry_casting` | Blast Foundry |
+| Pressing | `nerotech:pressing` | Plate Press |
+| Drawing | `nerotech:drawing` | Filament Spooler |
+| Centrifuging | `nerotech:centrifuging` | Centrifuge |
+| Cryo Distilling | `nerotech:cryo_distilling` | Cryo Distiller |
+| Condensing | `nerotech:condensing` | Atmospheric Condenser |
+| Reacting | `nerotech:reacting` | Reaction Vat |
+| Component Forging | `nerotech:component_forging` | Component Forge |
+| Etching | `nerotech:etching` | Laser Etcher |
+| Crystal Growing | `nerotech:crystal_growing` | Crystal Grower |
 
 Vanilla crafting and smelting recipes need nothing from NeroTech; the viewers read those themselves.
 
 ## Datapack recipes
 
-All five types are datapack-driven, so a pack's added or overridden recipes appear on these pages too.
-Since Minecraft 26.x the client no longer receives the full recipe list, so NeroTech opts its machine
-recipes into the server's recipe sync on every loader. A server running an older NeroTech that does not
-send them leaves the pages empty.
+All sixteen types are datapack-driven, so a pack's added or overridden recipes appear on these pages too.
+
+Since Minecraft 1.21.2 the client no longer receives the full recipe list, so NeroTech sends its machine
+recipes to the client itself. Where each build gets them:
+
+| Build | Recipe pages |
+| --- | --- |
+| Minecraft 1.21.1, every loader | Complete (the game still sends every recipe) |
+| NeoForge, 1.21.4 and later | Complete |
+| Forge, 1.21.4 and later | Complete since 0.8.0 (earlier releases sent nothing on Forge, so the pages were empty) |
+| Fabric, 1.21.9 and later (the 1.21.10, 1.21.11 and 26.x builds) | Complete |
+| **Fabric 1.21.4, 1.21.5 and 1.21.8** | **Can be empty.** Fabric has no way to send these recipes to the client on those versions. The machines work; only the viewer pages are missing. |
+
+A server running an older NeroTech that does not send the recipes leaves the pages empty.
 
 ## EMI on Minecraft 26.x
 

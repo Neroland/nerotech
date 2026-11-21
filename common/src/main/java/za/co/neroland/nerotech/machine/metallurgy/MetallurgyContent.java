@@ -29,7 +29,7 @@ import za.co.neroland.nerotech.registry.ModMenuTypes;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * WP-Metallurgy — the metallurgy machine family (plasma_crucible, plate_press, filament_spooler). Owned by its work package: every block, item,
+ * The metallurgy machine family (plasma_crucible, plate_press, filament_spooler). Every block, item,
  * block-entity type, menu, screen and renderer of the family is declared here and nowhere else;
  * {@code registry.FamilyRegistry} wires this class into every central place.
  *
@@ -39,7 +39,7 @@ import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
  */
 public final class MetallurgyContent {
 
-    /** Items the Plate Press die slot accepts (decision 011). */
+    /** Items the Plate Press die slot accepts. */
     public static final TagKey<Item> PRESS_DIES = TagKey.create(Registries.ITEM,
             Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "press_dies"));
 
@@ -64,7 +64,7 @@ public final class MetallurgyContent {
             ModItems.tooltipBlockItem("filament_spooler", FILAMENT_SPOOLER,
                     "block.nerotech.filament_spooler.tooltip");
 
-    /** Plate Press dies (decision 011): held in the die slot, never used up. */
+    /** Plate Press dies: held in the die slot, never used up. */
     public static final RegistryEntry<Item> PLATE_DIE = ModItems.simpleItem("plate_die", p -> p.stacksTo(1));
     public static final RegistryEntry<Item> ROD_DIE = ModItems.simpleItem("rod_die", p -> p.stacksTo(1));
     public static final RegistryEntry<Item> WAFER_DIE = ModItems.simpleItem("wafer_die", p -> p.stacksTo(1));

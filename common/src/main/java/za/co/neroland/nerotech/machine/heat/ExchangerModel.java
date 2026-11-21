@@ -6,7 +6,7 @@ import java.util.Map;
 import za.co.neroland.nerotech.heat.ThermalMath;
 
 /**
- * The Heat Exchanger's rule (decision 012), pure so it is tested without a bootstrap. What the tank holds
+ * The Heat Exchanger's rule, pure so it is tested without a bootstrap. What the tank holds
  * decides the direction:
  *
  * <ul>

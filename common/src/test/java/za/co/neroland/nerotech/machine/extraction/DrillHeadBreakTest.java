@@ -1,29 +1,65 @@
 package za.co.neroland.nerotech.machine.extraction;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * Adversarial pass: breaking and re-placing a Deep Core Drill must not reset head wear. A drill broken with
- * a part-worn head spends that head; a fresh head (no wear) is handed back whole. Pure JVM.
+ * Head wear cannot be reset. Wear is a number on the head item, so taking the head out, breaking the drill
+ * and putting the head back into a fresh controller continues from the same wear. Modelled here with the
+ * int the item carries; a "fresh controller" holds no wear of its own. Pure JVM.
  */
 class DrillHeadBreakTest {
 
+    /** Run {@code ops} operations on a head holding {@code wear}; returns the new wear, or -1 once used up. */
+    private static int run(int wear, DrillHeadTier tier, int ops) {
+        int used = wear;
+        for (int i = 0; i < ops; i++) {
+            if (DrillRules.wornOut(used, tier)) {
+                return -1;
+            }
+            used = DrillRules.wear(used, tier);
+        }
+        return used;
+    }
+
     @Test
-    void aWornHeadIsSpentWhenTheDrillBreaks() {
-        assertFalse(DrillRules.headSpentOnBreak(0), "an unused head comes back");
-        assertTrue(DrillRules.headSpentOnBreak(1));
+    void removingTheHeadAndReplacingTheControllerKeepsTheWear() {
+        for (DrillHeadTier tier : DrillHeadTier.values()) {
+            int ops = tier.operations();
+            // One operation short of worn out, then out through the GUI: the wear goes with the item.
+            int carried = run(0, tier, ops - 1);
+            assertEquals(ops - 1, carried, tier + " wear before removal");
+            // A broken and re-placed controller keeps nothing; the head brings its wear back in.
+            assertEquals(1, DrillRules.operationsLeft(carried, tier), tier + " ops left after the round trip");
+            assertEquals(-1, run(carried, tier, 1), tier + " the next operation uses the head up");
+        }
+    }
+
+    @Test
+    void aHeadGivesExactlyItsRatedOperations() {
         for (DrillHeadTier tier : DrillHeadTier.values()) {
             int used = 0;
-            boolean everFreeReset = false;
-            for (int op = 0; op < 5; op++) {
+            int done = 0;
+            while (true) {
+                done++;
+                if (DrillRules.wornOut(used, tier)) {
+                    break;
+                }
                 used = DrillRules.wear(used, tier);
-                // Any wear at all makes a break cost the head: there is no window to reset it for free.
-                everFreeReset |= used > 0 && !DrillRules.headSpentOnBreak(used);
+                assertTrue(done < 100_000, "runaway");
             }
-            assertFalse(everFreeReset, tier + " wear could be reset by breaking the drill");
+            assertEquals(tier.operations(), done, tier + " operations per head");
         }
+    }
+
+    @Test
+    void theWearBarIsFullWhenFreshAndFallsWithUse() {
+        DrillHeadTier tier = DrillHeadTier.IRON;
+        assertEquals(13, DrillRules.wearBarWidth(0, tier));
+        assertTrue(DrillRules.wearBarWidth(tier.operations() / 2, tier) < 13);
+        assertEquals(0, DrillRules.wearBarWidth(tier.operations(), tier));
+        assertEquals(0, DrillRules.operationsLeft(tier.operations() + 5, tier));
     }
 }

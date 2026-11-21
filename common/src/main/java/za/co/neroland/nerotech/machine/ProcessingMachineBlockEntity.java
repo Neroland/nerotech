@@ -156,6 +156,8 @@ public abstract class ProcessingMachineBlockEntity extends NeroTechMachineBlockE
 
     @Nullable
     private RecipeHolder<ProcessRecipe> cachedRecipe;
+    /** The recipe the current progress was made on ({@link RecipeProgress#NONE} when none); saved. */
+    private String progressRecipe = RecipeProgress.NONE;
     private long inputFingerprint = Long.MIN_VALUE;
     private int detail = DETAIL_NONE;
     private int detailParam;
@@ -277,6 +279,7 @@ public abstract class ProcessingMachineBlockEntity extends NeroTechMachineBlockE
             stall(MachineStatus.STARVED, starved, starvedDetailParam(starved));
             return;
         }
+        trackRecipeProgress(this.cachedRecipe);
         int heatNeeded = recipe.minHeat();
         if (heatAvailable() < heatNeeded) {
             int blockedCold = outputBlocked(recipe);
@@ -434,6 +437,22 @@ public abstract class ProcessingMachineBlockEntity extends NeroTechMachineBlockE
     @Nullable
     protected ProcessRecipe matchedRecipe() {
         return this.cachedRecipe == null ? null : this.cachedRecipe.value();
+    }
+
+    /**
+     * Progress belongs to one recipe: when the matched recipe is not the one the progress was made on,
+     * start again from zero. Returns true when progress was reset (subclasses drop their own carries).
+     */
+    protected final boolean trackRecipeProgress(@Nullable RecipeHolder<?> holder) {
+        String key = holder == null ? RecipeProgress.NONE : String.valueOf(holder.id());
+        boolean reset = false;
+        if (this.progress > 0 && !RecipeProgress.keepsProgress(this.progressRecipe, key)) {
+            this.progress = 0;
+            reset = true;
+            setChanged();
+        }
+        this.progressRecipe = key;
+        return reset;
     }
 
     /** Forget the cached recipe (subclasses call this when something {@link #recipeInput()} reads changes). */
@@ -844,6 +863,9 @@ public abstract class ProcessingMachineBlockEntity extends NeroTechMachineBlockE
         ValueOutput output = ValueOutput.of(tag, registries);
     *///?}
         output.putInt("PaidOps", this.paidOps);
+        if (this.progress > 0 && !this.progressRecipe.isEmpty()) {
+            output.putString("ProgressRecipe", this.progressRecipe);
+        }
         if (this.fluidIn != null) {
             this.fluidIn.save(output, "FluidIn");
         }
@@ -869,6 +891,7 @@ public abstract class ProcessingMachineBlockEntity extends NeroTechMachineBlockE
         ValueInput input = ValueInput.of(tag, registries);
     *///?}
         this.paidOps = Math.max(0, input.getIntOr("PaidOps", 0));
+        this.progressRecipe = input.getStringOr("ProgressRecipe", RecipeProgress.NONE);
         if (this.fluidIn != null) {
             this.fluidIn.load(input, "FluidIn");
         }

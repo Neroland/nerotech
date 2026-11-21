@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import za.co.neroland.nerotech.machine.components.RecipeFixture;
 
 /**
- * Power Drill vein mode is restricted to {@code nerotech:power_drill/vein} (decision 014 row 9): ores,
+ * Power Drill vein mode is restricted to {@code nerotech:power_drill/vein}: ores,
  * gravel, clay and glowstone walk a vein; stone and the other quarry blocks never do. Pure JVM over the
  * shipped tag file; the in-world break is on the runtime script.
  */
@@ -35,7 +35,7 @@ class PowerDrillVeinTagTest {
     @Test
     void defaultTagIsOresGravelClayGlowstone() {
         assertEquals(Set.of("#c:ores", "minecraft:gravel", "minecraft:clay", "minecraft:glowstone"), veinTag());
-        assertEquals("nerotech:power_drill/vein", PowerDrillItem.VEIN_BLOCKS.location().toString());
+        assertEquals("power_drill/vein", ToolRules.DRILL_VEIN_TAG_PATH, "PowerDrillItem.VEIN_BLOCKS reads this path");
     }
 
     @Test

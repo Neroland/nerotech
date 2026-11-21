@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-/** Run-cache rules (decision 012): bounded resolve, invalidation, split/merge conserve heat, TTL, reseed. */
+/** Run-cache rules: bounded resolve, invalidation, split/merge conserve heat, TTL, reseed. */
 class HeatRunIndexTest {
 
     /** A line of pipes along x, packed as plain longs (x only). */

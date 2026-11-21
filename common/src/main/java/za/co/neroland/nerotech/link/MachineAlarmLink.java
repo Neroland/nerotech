@@ -21,7 +21,7 @@ import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.machine.utility.AnnunciatorPanelBlockEntity;
 
 /**
- * The {@code alarm} link event (schema 2, decision 007) and the proximity delivery it shares with the
+ * The {@code alarm} link event (schema 2) and the proximity delivery it shares with the
  * {@code meltdown} event.
  *
  * <p><b>Hook.</b> The machine base calls {@link #onAlarmMaskChanged} when its server-side alarm mask
@@ -33,8 +33,8 @@ import za.co.neroland.nerotech.machine.utility.AnnunciatorPanelBlockEntity;
  * existing attribution opt-in), at most one per machine type per recipient per 30 s. The body is the
  * block id and one alarm id: no position, no owner, no player. Only the recorded owner's copy goes on
  * the {@code alarm} topic with the {@code _notify} text the bridge uses for a push; every other
- * recipient gets a {@link NearbyFormat#bystanderNotice bystander notice}, which the bridge never pushes
- * (decision 007 amendment, review M2). An ownerless machine therefore pushes nobody. Never a broadcast.
+ * recipient gets a {@link NearbyFormat#bystanderNotice bystander notice}, which the bridge never pushes.
+ * An ownerless machine therefore pushes nobody. Never a broadcast.
  */
 public final class MachineAlarmLink {
 

@@ -36,17 +36,25 @@ public final class DepositService {
         return survey(level, chunk.getMinBlockX() >> 4, chunk.getMinBlockZ() >> 4);
     }
 
-    /** Read-only survey by chunk coordinates. */
+    /** Read-only survey by chunk coordinates (the world's own deposit, never the gallery demo). */
     @Nullable
     public static Survey survey(ServerLevel level, int chunkX, int chunkZ) {
-        Resolved r = resolve(level, chunkX, chunkZ);
+        return survey(level, chunkX, chunkZ, false);
+    }
+
+    /**
+     * Read-only survey by chunk coordinates for a drill. Only a gallery exhibit ({@code exhibit}) in the
+     * gallery's demo chunk reads the demo deposit; any other drill there reads the world's own.
+     */
+    @Nullable
+    public static Survey survey(ServerLevel level, int chunkX, int chunkZ, boolean exhibit) {
+        Resolved r = resolve(level, chunkX, chunkZ, exhibit);
         if (r == null) {
             return null;
         }
-        int remaining = NeroTechConfig.depositDepletionEnabled()
-                ? DepositState.get(level.getServer()).peek(r.key, r.deposit.capacity(), now(level),
-                        NeroTechConfig.depositRecoveryPerDay())
-                : r.deposit.capacity();
+        int remaining = r.demo() || !NeroTechConfig.depositDepletionEnabled() ? r.deposit.capacity()
+                : DepositState.get(level.getServer()).peek(r.key, r.deposit.capacity(), now(level),
+                        NeroTechConfig.depositRecoveryPerDay());
         return new Survey(r.dimension, r.deposit.ore(), r.output, r.deposit.capacity(), remaining,
                 r.deposit.richness());
     }
@@ -57,20 +65,30 @@ public final class DepositService {
         return extract(level, chunk.getMinBlockX() >> 4, chunk.getMinBlockZ() >> 4, units);
     }
 
-    /** Extraction by chunk coordinates. */
+    /** Extraction by chunk coordinates (the world's own deposit, never the gallery demo). */
     @Nullable
     public static Extraction extract(ServerLevel level, int chunkX, int chunkZ, int units) {
+        return extract(level, chunkX, chunkZ, units, false);
+    }
+
+    /**
+     * Extraction by chunk coordinates for a drill. The never-depleting demo deposit serves only a gallery
+     * exhibit ({@code exhibit}) in the demo chunk, so a survival drill built beside the gallery depletes
+     * the world's deposit like anywhere else.
+     */
+    @Nullable
+    public static Extraction extract(ServerLevel level, int chunkX, int chunkZ, int units, boolean exhibit) {
         if (units <= 0) {
             return null;
         }
-        Resolved r = resolve(level, chunkX, chunkZ);
+        Resolved r = resolve(level, chunkX, chunkZ, exhibit);
         if (r == null) {
             return null;
         }
-        int taken = NeroTechConfig.depositDepletionEnabled()
-                ? DepositState.get(level.getServer()).extract(r.key, r.deposit.capacity(), units, now(level),
-                        NeroTechConfig.depositRecoveryPerDay())
-                : units;
+        // A gallery demo deposit never depletes and is never written to the depletion store.
+        int taken = r.demo() || !NeroTechConfig.depositDepletionEnabled() ? units
+                : DepositState.get(level.getServer()).extract(r.key, r.deposit.capacity(), units, now(level),
+                        NeroTechConfig.depositRecoveryPerDay());
         if (taken <= 0) {
             return null;
         }
@@ -106,11 +124,22 @@ public final class DepositService {
         DepositState.get(server).prune(overworld.getGameTime(), NeroTechConfig.depositRecoveryPerDay(), PRUNE_LIMIT);
     }
 
-    private record Resolved(String dimension, String key, DepositSeed.Deposit deposit, Item output) {
+    private record Resolved(String dimension, String key, DepositSeed.Deposit deposit, Item output, boolean demo) {
+    }
+
+    /**
+     * Fixed seed of the {@code /nerotech gallery} demo deposit: the drilling rig's chunk is served from this
+     * seed instead of the world's, so the rig always has ore, and the deposit is never depleted or stored.
+     */
+    public static final long GALLERY_DEMO_SEED = 0x4E65726F54656368L;
+
+    /** Whether the demo deposit applies: only to a gallery exhibit, and only inside the demo chunk. Pure. */
+    public static boolean demoApplies(boolean exhibit, boolean demoChunk) {
+        return exhibit && demoChunk;
     }
 
     @Nullable
-    private static Resolved resolve(ServerLevel level, int chunkX, int chunkZ) {
+    private static Resolved resolve(ServerLevel level, int chunkX, int chunkZ, boolean exhibit) {
         String dim = PollutionManager.dimensionId(level);
         if (disabled(dim, NeroTechConfig.depositDisabledDimensions())) {
             return null;
@@ -118,7 +147,10 @@ public final class DepositService {
         MinecraftServer server = level.getServer();
         DepositTable table = DepositTable.forServer(server);
         java.util.List<DepositTable.Entry> entries = table.entries(dim);
-        DepositSeed.Deposit deposit = DepositSeed.of(server.overworld().getSeed(), dim, chunkX, chunkZ, entries);
+        boolean demo = exhibit && demoApplies(true, za.co.neroland.nerotech.command.gallery.GalleryState.get(server)
+                .isDemoChunk(dim, chunkX, chunkZ));
+        DepositSeed.Deposit deposit = DepositSeed.of(demo ? GALLERY_DEMO_SEED : server.overworld().getSeed(), dim,
+                chunkX, chunkZ, entries);
         if (deposit == null) {
             return null;
         }
@@ -126,7 +158,7 @@ public final class DepositService {
         if (output == null) {
             return null;
         }
-        return new Resolved(dim, DepositState.key(dim, chunkX, chunkZ), deposit, output);
+        return new Resolved(dim, DepositState.key(dim, chunkX, chunkZ), deposit, output, demo);
     }
 
     /** One clock for every dimension: the overworld's game time (depletion is stored on the overworld). */

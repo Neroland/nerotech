@@ -42,7 +42,7 @@ public final class MachineFailureEvents {
     public static final int STAGE_WARNING = 1;
     /** Stage 2: unstable. */
     public static final int STAGE_UNSTABLE = 2;
-    /** Stage 3: failure / meltdown. */
+    /** Failure / meltdown. */
     public static final int STAGE_FAILURE = 3;
     /** Stage 4: containment breach. */
     public static final int STAGE_BREACH = 4;

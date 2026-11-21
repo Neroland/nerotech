@@ -44,4 +44,11 @@ public final class FabricPlatformHelper implements IPlatformHelper {
     public boolean isModLoaded(String modId) {
         return FabricLoader.getInstance().isModLoaded(modId);
     }
+
+    @Override
+    public boolean mayBreak(net.minecraft.server.level.ServerPlayer player, net.minecraft.server.level.ServerLevel level,
+            net.minecraft.core.BlockPos pos) {
+        return net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.BEFORE.invoker()
+                .beforeBlockBreak(level, player, pos, level.getBlockState(pos), level.getBlockEntity(pos));
+    }
 }

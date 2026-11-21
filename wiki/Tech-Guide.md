@@ -19,7 +19,7 @@ you have already done are already ticked).
 
 ## The chapters
 
-Eight chapters, twenty-two steps, mirroring NeroTech's arc:
+Eighteen chapters. The first eight follow NeroTech's original arc:
 
 1. **First Power** — craft a Machine Frame, build a Nero Generator and a Solar Array, give the
    array clear skies. Their Nero Coils and Circuit Boards craft from copper and gold ingots, so no
@@ -36,9 +36,27 @@ Eight chapters, twenty-two steps, mirroring NeroTech's arc:
    eleven blocks or more, collide two Stellar Cells into antimatter, build a
    [Singularity Vault](Exotic-Endgame.md).
 
+0.8.0 adds ten more, one per chain and system, each naming the next step. Long chapter lists scroll in
+pages on the left of the screen.
+
+- **9. Alloys** — the [Structural chain](Chain-Structural.md): Plasma Crucible, Plate Press, Blast Foundry.
+- **10. Wire & Coil** — the [Superconductor chain](Chain-Superconductor.md).
+- **11. Chips** — the [Semiconductor chain](Chain-Semiconductor.md): boules, wafers, Logic Chips and Quantum
+  Processors.
+- **12. Optics** — the [focus lenses](Chain-Optics.md).
+- **13. Chemistry** — [acid, resin and gases](Chain-Chemistry.md).
+- **14. Fuel Gases** — [deuterium, helium-3 and europium](Chain-Fusion-Fuel.md).
+- **15. Heat** — [Heat Pipes, the Heat Exchanger and heat loops](Heat-as-a-Resource.md).
+- **16. Drilling** — [deposits, the Deep Core Drill and the Survey Scanner](Deposits-and-Drilling.md).
+- **17. Gas Fusion** — [Fuel Injectors and Flux Lattices](Fusion-Fuel.md).
+- **18. Tools** — the [powered tools](Tools.md) and the Induction Charger.
+
+The milestone steps (first foundry pour, first deposit tapped, first Quantum Chip, gas-fed ignition)
+tick when the milestone is recorded for you, including ones you earned before the guide had them.
+
 ## See also
 
-- [Tier-1 Machines](Machines.md)
+- [Machines](Machines.md)
 - [Advanced Tier](Advanced-Tier.md)
 - [Fusion Reactor](Fusion-Reactor.md)
 - [Exotic Endgame](Exotic-Endgame.md)

@@ -103,11 +103,13 @@ public final class ToolsContent {
         }
         if (stack.getItem() instanceof SurveyScannerItem) {
             ScannerState state = SurveyScannerItem.state(stack);
-            int accepted = ScannerRules.chargeAmount(state.energy(), ExtractionSettings.surveyScannerCapacity(), maxFe);
+            double ratio = za.co.neroland.nerolandcore.energy.EnergyConversions.neroToForgeRatio();
+            long maxNe = za.co.neroland.nerotech.machine.utility.ChargeMath.feOfferToNe(maxFe, ratio);
+            int accepted = ScannerRules.chargeAmount(state.energy(), ExtractionSettings.surveyScannerCapacity(), maxNe);
             if (accepted > 0 && !simulate) {
                 stack.set(ExtractionContent.SCANNER_STATE.get(), state.withEnergy(state.energy() + accepted));
             }
-            return accepted;
+            return za.co.neroland.nerotech.machine.utility.ChargeMath.acceptedFe(accepted, ratio, maxFe);
         }
         return 0L;
     }

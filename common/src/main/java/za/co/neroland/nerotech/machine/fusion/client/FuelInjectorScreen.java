@@ -2,12 +2,12 @@ package za.co.neroland.nerotech.machine.fusion.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
+import za.co.neroland.nerotech.client.GaugeTooltips;
 import za.co.neroland.nerotech.client.MachineScreen;
 import za.co.neroland.nerotech.machine.ProcessingMachineBlockEntity;
 import za.co.neroland.nerotech.machine.fusion.FuelInjectorMenu;
@@ -64,6 +64,8 @@ public class FuelInjectorScreen extends MachineScreen<FuelInjectorMenu> {
         super.extractContents(extractor, mouseX, mouseY, partialTick);
         int x = this.leftPos;
         int y = this.topPos;
+        sampleTank(0, amount(2));
+        sampleTank(1, amount(4));
         gauge(extractor, x + HEAT_X, y + GAUGE_Y, GAUGE_W, GAUGE_H, this.menu.heatFraction(), HEAT);
         gauge(extractor, x + D_X, y + GAUGE_Y, GAUGE_W, GAUGE_H, this.menu.extraFraction(0), DEUTERIUM);
         gauge(extractor, x + HE_X, y + GAUGE_Y, GAUGE_W, GAUGE_H, this.menu.extraFraction(1), HELIUM_3);
@@ -76,15 +78,12 @@ public class FuelInjectorScreen extends MachineScreen<FuelInjectorMenu> {
         Component status = Component.translatable(charged()
                 ? "gui.nerotech.fuel_injector.status.ready" : "gui.nerotech.fuel_injector.status.needs_both");
         extractor.text(this.font, status, x + 8, y + STATUS_Y, charged() ? OK : STALL, false);
+        // The tooltip is emitted by MachineScreen from gaugeTooltip (once, after every part).
+    }
 
-        List<Component> tip = tooltip(mouseX - x, mouseY - y);
-        if (!tip.isEmpty()) {
-            //? if >=1.21.6 {
-            extractor.setComponentTooltipForNextFrame(this.font, tip, mouseX, mouseY);
-            //?} else {
-            /*extractor.renderComponentTooltip(this.font, tip, mouseX, mouseY);
-            *///?}
-        }
+    @Override
+    protected List<Component> gaugeTooltip(int mx, int my) {
+        return tooltip(mx, my);
     }
 
     private void centred(GuiGraphicsExtractor extractor, Component text, int cx, int ty, int color) {
@@ -99,20 +98,16 @@ public class FuelInjectorScreen extends MachineScreen<FuelInjectorMenu> {
         List<Component> lines = new ArrayList<>();
         long capacity = amount(7);
         if (inside(mx, my, D_X)) {
-            lines.add(Component.translatable("gas.nerotech.deuterium"));
-            lines.add(Component.translatable("nerotech.gui.tank.amount", number(amount(2)), number(capacity)));
+            GaugeTooltips.tank(lines, null, Component.translatable("gas.nerotech.deuterium"), amount(2), capacity,
+                    true, false, tankWindow(0).perTick());
         } else if (inside(mx, my, HE_X)) {
-            lines.add(Component.translatable("gas.nerotech.helium_3"));
-            lines.add(Component.translatable("nerotech.gui.tank.amount", number(amount(4)), number(capacity)));
+            GaugeTooltips.tank(lines, null, Component.translatable("gas.nerotech.helium_3"), amount(4), capacity,
+                    true, false, tankWindow(1).perTick());
         } else if (inside(mx, my, HEAT_X)) {
-            lines.add(Component.translatable("nerotech.gui.heat"));
+            heatTooltip(lines);
         } else if (mx >= D_X + GAUGE_W && mx < HE_X && my >= GAUGE_Y && my < GAUGE_Y + GAUGE_H) {
             lines.add(Component.translatable("gui.nerotech.fuel_injector.ratio.tooltip"));
         }
         return lines;
-    }
-
-    private static String number(long value) {
-        return String.format(Locale.ROOT, "%,d", value);
     }
 }

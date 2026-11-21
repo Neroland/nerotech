@@ -25,8 +25,48 @@ class ChargeMathTest {
         }
 
         @Override
-        public void take(long amount) {
+        public long take(long amount) {
             this.stored -= amount;
+            return amount;
+        }
+    }
+
+    /**
+     * A charger stand-in shaped like the real one: a token budget of {@code budget} units, a buffer of
+     * {@code stored} units, and a per-call extraction clamp of {@code maxExtract} units.
+     */
+    private static final class ClampedCharger implements ChargeMath.Source {
+        long budget;
+        long stored;
+        final long maxExtract;
+        final boolean reportOnlyBudget;
+
+        ClampedCharger(long budget, long stored, long maxExtract, boolean reportOnlyBudget) {
+            this.budget = budget;
+            this.stored = stored;
+            this.maxExtract = maxExtract;
+            this.reportOnlyBudget = reportOnlyBudget;
+        }
+
+        private long extract(long want, boolean simulate) {
+            long got = Math.max(0, Math.min(want, Math.min(this.maxExtract, this.stored)));
+            if (!simulate) {
+                this.stored -= got;
+            }
+            return got;
+        }
+
+        @Override
+        public long available() {
+            // The fixed charger caps availability with a simulated extraction; the old one did not.
+            return this.reportOnlyBudget ? Math.min(this.budget, this.stored) : extract(this.budget, true);
+        }
+
+        @Override
+        public long take(long amount) {
+            long got = extract(amount, false);
+            this.budget -= got;
+            return got;
         }
     }
 
@@ -80,6 +120,60 @@ class ChargeMathTest {
         Pool ok = new Pool(20);
         assertEquals(20, ChargeMath.offer(100, false, List.of(broken, ok)));
         assertEquals(-50, broken.stored);
+    }
+
+    @Test
+    void aClampedChargerDeliversExactlyWhatItLoses() {
+        // H1: budget 5,120, buffer 100,000, per-call clamp 2,000. Three offers used to deliver 9,360.
+        ClampedCharger charger = new ClampedCharger(5120, 100_000, 2000, false);
+        long delivered = 0;
+        for (int i = 0; i < 3; i++) {
+            delivered += ChargeMath.offer(5120, false, List.of(charger));
+        }
+        assertEquals(100_000 - charger.stored, delivered);
+        assertTrue(delivered <= 5120);
+    }
+
+    @Test
+    void offerCountsOnlyWhatTheSourceReallyGave() {
+        // Even a source that over-reports availability cannot make offer() count energy it never gave.
+        ClampedCharger charger = new ClampedCharger(5120, 100_000, 2000, true);
+        long delivered = ChargeMath.offer(5120, false, List.of(charger));
+        assertEquals(2000, delivered);
+        assertEquals(98_000, charger.stored);
+    }
+
+    @Test
+    void conversionsNeverMakeEnergyAtAnyRatio() {
+        for (double ratio : new double[] {0.25, 0.5, 1.0, 2.5, 4.0, 10.0}) {
+            for (long ne = 0; ne <= 50; ne++) {
+                long fe = ChargeMath.neToFeFloor(ne, ratio);
+                // Paying for the FE an NE amount buys never costs more than that NE...
+                assertTrue(ChargeMath.feToNeCeil(fe, ratio) <= Math.max(ne, fe > 0 ? 1 : 0),
+                        "ratio " + ratio + " ne " + ne);
+                // ...and the FE bought is never worth more than the NE paid.
+                assertTrue(fe <= ne * ratio + 1e-9);
+            }
+            for (long fe = 1; fe <= 50; fe++) {
+                // Every non-zero delivery costs at least its worth, and at least 1 NE.
+                long cost = ChargeMath.feToNeCeil(fe, ratio);
+                assertTrue(cost >= 1);
+                assertTrue(cost * ratio + 1e-9 >= fe, "ratio " + ratio + " fe " + fe);
+                // An NE item offered fe FE takes no more NE than the offer is worth, and reports no
+                // more FE than offered, but at least the worth of what it took.
+                long ne = ChargeMath.feOfferToNe(fe, ratio);
+                assertTrue(ne * ratio <= fe + 1e-9);
+                long reported = ChargeMath.acceptedFe(ne, ratio, fe);
+                assertTrue(reported <= fe);
+                assertTrue(ne == 0 || ChargeMath.feToNeCeil(reported, ratio) >= ne);
+            }
+        }
+        // Ratio 10: 14 FE costs 2 NE (it used to cost 1); ratio 4: a tool offered 2,000 FE takes 500 NE.
+        assertEquals(2, ChargeMath.feToNeCeil(14, 10.0));
+        assertEquals(500, ChargeMath.feOfferToNe(2000, 4.0));
+        assertEquals(2000, ChargeMath.acceptedFe(500, 4.0, 2000));
+        assertEquals(0, ChargeMath.feToNeCeil(0, 4.0));
+        assertEquals(0, ChargeMath.neToFeFloor(10, 0.0));
     }
 
     @Test

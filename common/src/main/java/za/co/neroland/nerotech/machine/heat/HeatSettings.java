@@ -3,7 +3,7 @@ package za.co.neroland.nerotech.machine.heat;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 
 /**
- * WP-Heat config, defaults inline until the integrator moves these keys into {@code NeroTechConfig}
+ * Heat config, defaults inline until the integrator moves these keys into {@code NeroTechConfig}
  * (same names; see the family's config sheet). Every value is read per use, so a hot reload applies.
  */
 public final class HeatSettings {

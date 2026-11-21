@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "nerotech:item/quantum_processor"
+    "layer0": "nerotech:item/quantum_chip"
   }
 }

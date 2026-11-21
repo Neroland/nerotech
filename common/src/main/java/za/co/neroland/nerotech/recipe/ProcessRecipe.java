@@ -39,8 +39,8 @@ import org.jetbrains.annotations.Nullable;
 import za.co.neroland.nerotech.gas.NeroTechGases;
 
 /**
- * One multi-input / multi-output process step — the single recipe class behind every 0.8.0 machine
- * (decision 010). Eleven recipe types share it and one serializer factory; the type says which machine
+ * One multi-input / multi-output process step — the single recipe class behind every 0.8.0 machine.
+ * Eleven recipe types share it and one serializer factory; the type says which machine
  * runs it.
  *
  * <pre>{@code

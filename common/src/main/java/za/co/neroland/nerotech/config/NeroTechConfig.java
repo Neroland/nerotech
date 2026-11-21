@@ -85,7 +85,7 @@ public final class NeroTechConfig {
             64, 1, 4_096, true, "operations one machineOperationChargeCost payment covers (64 = one stack). "
             + "Charging per batch, never per tick, keeps a machine well inside the economy's rate limit");
 
-    // --- heat (Stage 3 consequence axis; full thermal model per Stage C decision 2026-07-10) ----
+    // --- heat (the consequence axis: the full thermal model) ----
     private static final ConfigValue<Integer> HEAT_CAPACITY = SCHEMA.intRange("heatCapacity",
             1_000, 1, 1_000_000, true, "max heat units a machine can hold (gauge scale)");
     private static final ConfigValue<Integer> HEAT_PER_OP = SCHEMA.intRange("heatPerOperation",

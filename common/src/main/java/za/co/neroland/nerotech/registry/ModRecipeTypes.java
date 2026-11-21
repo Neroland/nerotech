@@ -58,7 +58,7 @@ public final class ModRecipeTypes {
     public static final RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> CHEMICAL_PROCESSING_SERIALIZER =
             serializer("chemical_processing", CHEMICAL_PROCESSING);
 
-    // --- 0.8.0 process recipe types: one ProcessRecipe class, one type per machine (decision 010) ---
+    // --- 0.8.0 process recipe types: one ProcessRecipe class, one type per machine ---
     /** Plasma Crucible. */
     public static final RegistrationProvider.RegistryEntry<RecipeType<ProcessRecipe>> ALLOYING = processType("alloying");
     /** Plate Press. */

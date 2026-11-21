@@ -11,4 +11,10 @@ public class GasTurbineScreen extends TankMachineScreen<GasTurbineMenu> {
     public GasTurbineScreen(GasTurbineMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, HYDROGEN);
     }
+
+    /** The turbine burns any listed fuel gas, so the gauge names the role rather than one gas. */
+    @Override
+    protected Component tankName(int i) {
+        return Component.translatable("nerotech.gui.gauge.fuel_gas");
+    }
 }

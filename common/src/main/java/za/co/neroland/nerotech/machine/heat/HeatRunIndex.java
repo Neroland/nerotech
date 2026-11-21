@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The cached runs of one level (decision 012). Positions are packed longs, and the world is reached only
+ * The cached runs of one level. Positions are packed longs, and the world is reached only
  * through {@link Topology}, so the cache rules are tested on the plain JVM.
  *
  * <ul>

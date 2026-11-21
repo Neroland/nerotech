@@ -39,4 +39,21 @@ class MachineAlarmsTest {
         assertEquals(0, mask >>> MachineAlarms.COUNT);
         assertEquals(MachineAlarms.COUNT, MachineAlarms.IDS.length);
     }
+
+    /** The {@code failing} alarm follows real {@code MachineFailureEvents} crossings (fusion overheat, breach). */
+    @Test
+    void failureStageFollowsTheEventEdges() {
+        int stage = MachineAlarms.nextFailureStage(0, 1, true);
+        assertEquals(1, stage, "overheat warning raises the alarm");
+        assertTrue(MachineAlarms.has(MachineAlarms.mask(Readout.WORK, MachineStatus.RUNNING, 0, 8, stage),
+                MachineAlarms.FAILING));
+        assertEquals(0, MachineAlarms.nextFailureStage(stage, 1, false), "warning falling edge clears it");
+        assertEquals(4, MachineAlarms.nextFailureStage(1, 4, true), "a breach escalates");
+        assertEquals(4, MachineAlarms.nextFailureStage(4, 1, true), "a lesser rising edge never de-escalates");
+        assertEquals(4, MachineAlarms.nextFailureStage(4, 1, false), "a lesser falling edge leaves the breach");
+        assertEquals(0, MachineAlarms.nextFailureStage(3, 3, false));
+        assertEquals(0, MachineAlarms.nextFailureStage(0, 2, false));
+        assertEquals(0, MachineAlarms.mask(Readout.WORK, MachineStatus.RUNNING, 0, 8,
+                MachineAlarms.nextFailureStage(1, 1, false)));
+    }
 }

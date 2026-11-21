@@ -22,7 +22,7 @@ import za.co.neroland.nerotech.registry.ModRecipeTypes;
 
 /**
  * Atmospheric Condenser ({@code nerotech:condensing}): slowly draws the dimension's air into gas. What
- * it draws is the {@link Atmosphere} {@code PlanetApi.atmosphereAt} reports (decision 006 §5), matched
+ * it draws is the {@link Atmosphere} {@code PlanetApi.atmosphereAt} reports, matched
  * against each recipe's {@code atmosphere} field; the reading is cached and refreshed every 200 ticks.
  * Twilight worlds draw at half rate (folded into the preset speed factor). In {@link Atmosphere#VACUUM}
  * it idles, stalled with a "no atmosphere" cause on the status line and in analytics.

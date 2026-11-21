@@ -1,14 +1,14 @@
 {
   "title": "quest.nerotech.industrial_record.quantum_leap.title",
   "description": "quest.nerotech.industrial_record.quantum_leap.desc",
-  "icon": "nerotech:quantum_processor",
+  "icon": "nerotech:quantum_chip",
   "prerequisites": [
     "nerotech:industrial_record/silicon_age"
   ],
   "objectives": [
     {
       "type": "neroquests:gate_open",
-      "gate": "nerotech:first_quantum_processor"
+      "gate": "nerotech:first_quantum_chip"
     }
   ],
   "rewards": [

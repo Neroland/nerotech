@@ -30,7 +30,7 @@ import za.co.neroland.nerotech.machine.multiblock.MultiblockController;
 import za.co.neroland.nerotech.registry.ModSounds;
 
 /**
- * Heat Pipe: conducts heat along a run between machines and Foundry Heat Ports (decision 012). No block
+ * Heat Pipe: conducts heat along a run between machines and Foundry Heat Ports. No block
  * entity: a run of connected pipes resolves into a cached link set held by {@link HeatPipeNetwork}, and only
  * the run's anchor pipe ticks, on the exchange interval. Blockstate {@code heat} (0..3) shows the run's
  * temperature and changes only when that level changes; six booleans drive the connected multipart model.

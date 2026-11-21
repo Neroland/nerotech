@@ -48,6 +48,7 @@ class NoNewPlayerKeyedDataTest {
     /** The reviewed SavedData stores. A new one needs a row in the Stage 6 store table and PRIVACY.md. */
     private static final Set<String> SAVED_DATA = Set.of(
             "deposit/DepositState.java",
+            "command/gallery/GalleryState.java",             // gallery sites: dimension + origin, no player
             "pollution/PollutionState.java",
             "pollution/PollutionAttributionPrefs.java",
             "guide/TechGuideSeenState.java");
@@ -65,7 +66,9 @@ class NoNewPlayerKeyedDataTest {
     /** Every registered data component (item stack data): tool state, tank and vault contents only. */
     private static final Set<String> DATA_COMPONENTS = Set.of(
             "configurator_state", "vault_contents", "tank_contents", "tool_charge", "tool_charged",
-            "fitted_lens", "fitted_filter", "drill_mode", "carried_machine", "survey_scanner_state");
+            "fitted_lens", "fitted_filter", "drill_mode", "carried_machine", "survey_scanner_state",
+            // An int: operations a drill head has used. No player data.
+            "drill_head_wear");
 
     private static final Pattern SAVED_DATA_DECL = Pattern.compile("extends\\s+SavedData\\b");
     private static final Pattern UUID_FIELD = Pattern.compile(

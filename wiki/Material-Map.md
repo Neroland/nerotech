@@ -14,13 +14,13 @@ same tag works too. A recipe viewer (JEI or EMI) shows the exact numbers.
 ## The six chains at a glance
 
 | Chain | Offworld source | Product | Standalone source |
-|---|---|---|---|
-| Structural | Cindrite with hematite or iron dust | Cindersteel ingot, plate, rod; titanium plate | Iron dust, coal and blaze powder in the Plasma Crucible |
-| Superconductor | Glacite, packed cryo ice | Superconductor wire and coil | Synthetic Glacite grown from Void Crystal, snow and packed ice |
-| Semiconductor | Xertz quartz, brine salt | Crystal Boule, Wafer, Logic and Quantum Processors | Nether quartz |
-| Optics | Voidglass, crystal shards, cindrite, glacite | Four focus lenses | Void Crystal, blaze powder, Synthetic Glacite, quartz |
-| Chemistry | Vent sulfide, Cindara sulfur, methane crystal, amber sap, dry ice | Sulfuric acid, polymer resin and sheet, carbon dioxide, methane | Gunpowder, logs, coal, hydrogen, Overworld and Nether air |
-| Fusion fuel | Deuterium shards and cells, helium-3 canisters, raw europium | Deuterium, helium-3, Europium Dust, Europium Flux Lattice | Electrolyzer hydrogen, Centrifuge cascades, glowstone dust |
+| --- | --- | --- | --- |
+| [Structural](Chain-Structural.md) | Cindrite with hematite or iron dust | Cindersteel ingot, plate, rod; titanium plate | Iron dust, coal and blaze powder in the Plasma Crucible |
+| [Superconductor](Chain-Superconductor.md) | Glacite, packed cryo ice | Superconductor wire and coil | Synthetic Glacite grown from Void Crystal, snow and packed ice |
+| [Semiconductor](Chain-Semiconductor.md) | Xertz quartz, brine salt | Crystal Boule, Wafer, Logic and Quantum Chips | Nether quartz |
+| [Optics](Chain-Optics.md) | Voidglass, crystal shards, cindrite, glacite | Four focus lenses | Void Crystal, blaze powder, Synthetic Glacite, quartz |
+| [Chemistry](Chain-Chemistry.md) | Vent sulfide, Cindara sulfur, methane crystal, amber sap, dry ice | Sulfuric acid, polymer resin and sheet, carbon dioxide, methane | Gunpowder, logs, coal, hydrogen, Overworld and Nether air |
+| [Fusion fuel](Chain-Fusion-Fuel.md) | Deuterium shards and cells, helium-3 canisters, raw europium | Deuterium, helium-3, Europium Dust, Europium Flux Lattice | Electrolyzer hydrogen, Centrifuge cascades, glowstone dust |
 
 ## Structural
 
@@ -77,7 +77,7 @@ acid and returns **four** dusts: one more than the Chemical Processor or the Adv
 
 - **From:** two glacite (or Synthetic Glacite) and two Cindersteel Wire in the Filament Spooler, two
   wires out.
-- **Makes:** the Superconductor Coil, the Quantum Processor, the Glacite Drill Head, the Europium Flux
+- **Makes:** the Superconductor Coil, the Quantum Chip, the Glacite Drill Head, the Europium Flux
   Lattice.
 - **For other mods:** loss-free power links. NeroPower beamed power and grid parts, NeroLogistics
   network cabling.
@@ -118,7 +118,7 @@ acid and returns **four** dusts: one more than the Chemical Processor or the Adv
   processors.
 - **For other mods:** blank wafers for NeroLogistics and NeroCompanion electronics.
 
-### Logic Chip (`nerotech:processors/logic`) and Quantum Processor (`nerotech:processors/quantum`)
+### Logic Chip (`nerotech:processors/logic`) and Quantum Chip (`nerotech:processors/quantum`)
 
 - **Logic:** a Wafer and two copper wire with the Quartz Focus Lens, or a Wafer and two cindersteel
   wire with the Ember Focus Lens (Laser Etcher).
@@ -137,11 +137,11 @@ acid and returns **four** dusts: one more than the Chemical Processor or the Adv
 A lens sits in the Laser Etcher's lens slot and is never used up; it decides what can be etched.
 
 | Lens | Offworld | Standalone | Etches |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Quartz | four xertz quartz and a glass pane | four nether quartz and a glass pane | Logic Chip |
 | Ember | four cindrite and a glass pane | four blaze powder, two quartz and a glass pane, slowly | Logic Chip from cindersteel wire |
-| Glacite | four glacite and a glass pane | four Synthetic Glacite and a glass pane | Quantum Processor from superconductor wire |
-| Void | two voidglass or crystal shards and a glass pane | two Void Crystal and a glass pane, slowly | Quantum Processor |
+| Glacite | four glacite and a glass pane | four Synthetic Glacite and a glass pane | Quantum Chip from superconductor wire |
+| Void | two voidglass or crystal shards and a glass pane | two Void Crystal and a glass pane, slowly | Quantum Chip |
 
 All grow in the Crystal Grower in water. **For other mods:** optics parts for NeroPower beamed power
 and NeroCompanion sensors.
@@ -172,7 +172,7 @@ and NeroCompanion sensors.
 ### Gases
 
 | Gas | Offworld | Standalone | Used in |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Nitrogen | Atmospheric Condenser on Glacira, Greenxertz or Nyxara; Cryo Distiller on cryo ice | Atmospheric Condenser in the Overworld, slowly | Cryo coolant, packed ice |
 | Carbon dioxide | dry ice in the Cryo Distiller; the Condenser on Mars or Cindara | coal burned with oxygen in the Cryo Distiller; the Condenser in the Nether | Cryo coolant, calcite |
 | Methane | methane crystal in the Cryo Distiller | coal with hydrogen in the Cryo Distiller | Polymer resin, Gas Turbine fuel |
@@ -201,7 +201,7 @@ and NeroCompanion sensors.
 ## Components
 
 | Component | Tag | Made in | Goes into |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Servo | `nerotech:components/servos` | Component Forge | Deep Core Drill, Power Drill |
 | Capacitor | `nerotech:components/capacitors` | Component Forge, with sulfuric acid | Survey Scanner, Power Drill, Filter Mask, Thermal Goggles |
 | Heat Sink | `nerotech:components/heat_sinks` | Component Forge, from cindersteel plate, or titanium plate (two out) | Superconductor Coil, Heat Sink Module |

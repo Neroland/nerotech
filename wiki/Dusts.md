@@ -123,6 +123,12 @@ gold.
   the Fusion Cell.
 - **Other mods** — the `c:dusts/*` tags let any mod that processes dust by tag accept NeroTech's.
 
+## Acid ore leaching (0.8.0)
+
+The [Reaction Vat](Chemistry-and-Cryogenics.md#reaction-vat) soaks one raw iron, copper or gold ore, or
+one raw hematite, in 500 mB of sulfuric acid and returns **four** dusts: one more than the Chemical
+Processor or the Advanced Ore Processor. See the [Chemistry chain](Chain-Chemistry.md) for the acid.
+
 ## For pack makers
 
 Every dust recipe is a datapack JSON, so you can add, replace or remove them:
@@ -132,6 +138,7 @@ Every dust recipe is a datapack JSON, so you can add, replace or remove them:
 | Ore Processor / Advanced Ore Processor | `nerotech:ore_processing` |
 | Chemical Processor | `nerotech:chemical_processing` |
 | Particle Accelerator | `nerotech:collider` |
+| Reaction Vat (acid ore leaching) | `nerotech:reacting` |
 
 ```json
 {
@@ -143,7 +150,7 @@ Every dust recipe is a datapack JSON, so you can add, replace or remove them:
 
 ## See also
 
-- [Tier-1 Machines](Machines.md)
+- [Machines](Machines.md)
 - [Materials & Components](Materials-and-Components.md)
 - [Fluids & Gases](Fluids-and-Gases.md)
 - [Particle Accelerator](Particle-Collider.md)

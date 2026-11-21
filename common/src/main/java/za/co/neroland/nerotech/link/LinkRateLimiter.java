@@ -9,10 +9,10 @@ import java.util.UUID;
 import java.util.function.LongSupplier;
 
 /**
- * NeroTech's own action budget (link schema 2, decision 007): {@link #MAX_ACTIONS} actions per player
+ * NeroTech's own action budget (link schema 2): {@link #MAX_ACTIONS} actions per player
  * per sliding {@link #WINDOW_MS}. In memory only, keyed by UUID. A window is dropped only once its
  * newest call is older than the window ({@link #pruneExpired}), not when the player logs out, so a
- * relog or an offline action does not refill the budget (review L1); an erasure request drops it at
+ * relog or an offline action does not refill the budget; an erasure request drops it at
  * once. The bridge has a limiter of its own; this one holds even when a bridge is configured loosely.
  */
 final class LinkRateLimiter {

@@ -41,7 +41,7 @@ import za.co.neroland.nerotech.menu.ProcessingMenu;
  * Annunciator Panel: an alarm board for the NeroTech machines touching it. It lights one lamp per alarm
  * ({@link MachineAlarms}: overheat, starved, full, polluting, failing) as the OR of its neighbours'
  * {@code alarmMask()}, so a base in trouble shows on the wall without opening a GUI, and drives a
- * comparator per decision 013 (any channel: 3 per lit alarm; an alarm channel: 15 while lit).
+ * comparator (any channel: 3 per lit alarm; an alarm channel: 15 while lit).
  *
  * <p>Budget: the touching machines are cached and re-found only on a neighbour change; their masks are
  * re-read every {@code annunciatorRefreshTicks} ticks. Needs no power. Its {@link #alarmMask()} is the
@@ -157,7 +157,7 @@ public class AnnunciatorPanelBlockEntity extends NeroTechMachineBlockEntity {
         return this.freshMask;
     }
 
-    /** The comparator channel: 0 = any, 1..5 = one alarm (decision 013). Synced on change. */
+    /** The comparator channel: 0 = any, 1..5 = one alarm. Synced on change. */
     public int channel() {
         return this.channel;
     }

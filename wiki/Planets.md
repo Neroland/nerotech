@@ -31,6 +31,20 @@ For both solar and ambient, NeroTech resolves values in this order:
 So a server without Nerospace can still make its custom mining dimension run hot, and a server with
 Nerospace gets sensible planet behaviour with zero configuration.
 
+## Offworld Industry (0.8.0)
+
+Location matters more since 0.8.0:
+
+- The **Atmospheric Condenser** collects what the planet's air holds: nothing in a vacuum, carbon dioxide on
+  Mars and Cindara, nitrogen on Glacira, Greenxertz, Nyxara and the Overworld. Without Nerospace the
+  `condenserAtmospheres` config decides. See [Chemistry and Cryogenics](Chemistry-and-Cryogenics.md#atmospheric-condenser).
+- The **Cryo Distiller** and **Crystal Grower** run faster in cold ambient; the **Plasma Crucible** and **Blast
+  Foundry** hold their heat better in hot ambient. Both read the same ambient as the thermal model.
+- **Deposits** under each chunk follow the dimension: hematite on Mars, glacite on Glacira, raw europium on
+  Europa. See [Deposits and Drilling](Deposits-and-Drilling.md).
+- Every chain takes planet resources by tag, and every chain also has a standalone route. See the
+  [Material Map](Material-Map.md).
+
 ## How the coupling works
 
 The integration is deliberately soft: NeroTech only queries Nerospace's stable planet API when
@@ -42,5 +56,5 @@ through shared `c:` tags as before — there is no hard dependency in either dir
 
 - [Thermal System](Thermal-System.md)
 - [Advanced Tier](Advanced-Tier.md)
-- [Tier-1 Machines](Machines.md)
+- [Machines](Machines.md)
 - [Home](Home.md)

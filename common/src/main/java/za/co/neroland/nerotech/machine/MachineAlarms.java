@@ -61,6 +61,24 @@ public final class MachineAlarms {
         return mask;
     }
 
+    /**
+     * The active failure stage after a {@code MachineFailureEvents} crossing: a rising edge escalates to
+     * {@code stage} (never de-escalates a worse active stage); a falling edge clears the alarm when the
+     * stage it ends is the worst one active, and leaves a worse stage standing. Pure, so the
+     * {@link #FAILING} wiring is unit-testable.
+     *
+     * @param current the machine's active stage (0 = none)
+     * @param stage   the stage that crossed
+     * @param rising  {@code true} when the stage was entered, {@code false} when it ended
+     */
+    public static int nextFailureStage(int current, int stage, boolean rising) {
+        int now = Math.max(0, current);
+        if (rising) {
+            return Math.max(now, Math.max(0, stage));
+        }
+        return stage >= now ? 0 : now;
+    }
+
     /** Whether {@code mask} has {@code bit} set. */
     public static boolean has(int mask, int bit) {
         return (mask & bit) != 0;

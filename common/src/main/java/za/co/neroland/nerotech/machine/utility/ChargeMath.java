@@ -18,8 +18,12 @@ public final class ChargeMath {
         /** Units this source can give right now (never negative). */
         long available();
 
-        /** Take {@code amount} units (never more than {@link #available()} reported). */
-        void take(long amount);
+        /**
+         * Take up to {@code amount} units (never more than {@link #available()} reported).
+         *
+         * @return the units really taken, which may be fewer than asked
+         */
+        long take(long amount);
     }
 
     /**
@@ -51,11 +55,60 @@ public final class ChargeMath {
                 continue;
             }
             if (!simulate) {
-                source.take(give);
+                // Count only what the source really gave up: a source may clamp a single call.
+                give = Math.max(0L, Math.min(give, source.take(give)));
             }
             remaining -= give;
         }
         return max - remaining;
+    }
+
+    /**
+     * FE that {@code ne} NE pays for at {@code ratio} FE per NE, rounded down so a delivery never
+     * outruns its payment. 0 for a non-positive amount or ratio.
+     */
+    public static long neToFeFloor(long ne, double ratio) {
+        if (ne <= 0 || !(ratio > 0)) {
+            return 0L;
+        }
+        double fe = Math.floor(ne * ratio + 1e-9);
+        return fe >= Long.MAX_VALUE ? Long.MAX_VALUE : (long) fe;
+    }
+
+    /**
+     * NE that delivering {@code fe} FE costs at {@code ratio} FE per NE, rounded up (at least 1 for any
+     * non-zero delivery), so nothing is free at any ratio. 0 for a non-positive amount or ratio.
+     */
+    public static long feToNeCeil(long fe, double ratio) {
+        if (fe <= 0 || !(ratio > 0)) {
+            return 0L;
+        }
+        double ne = Math.ceil(fe / ratio - 1e-9);
+        return Math.max(1L, ne >= Long.MAX_VALUE ? Long.MAX_VALUE : (long) ne);
+    }
+
+    /**
+     * NE an NE-denominated item may accept from an offer of {@code maxFe} FE: rounded down, so the FE it
+     * then reports ({@link #acceptedFe}) never exceeds the offer.
+     */
+    public static long feOfferToNe(long maxFe, double ratio) {
+        if (maxFe <= 0 || !(ratio > 0)) {
+            return 0L;
+        }
+        double ne = Math.floor(maxFe / ratio + 1e-9);
+        return ne >= Long.MAX_VALUE ? Long.MAX_VALUE : (long) ne;
+    }
+
+    /**
+     * FE to report for {@code ne} NE accepted by an NE-denominated item: rounded up and capped at
+     * {@code maxFe}, so the charger is paid at least what the item gained.
+     */
+    public static long acceptedFe(long ne, double ratio, long maxFe) {
+        if (ne <= 0 || !(ratio > 0) || maxFe <= 0) {
+            return 0L;
+        }
+        double fe = Math.ceil(ne * ratio - 1e-9);
+        return Math.min(maxFe, fe >= Long.MAX_VALUE ? Long.MAX_VALUE : (long) fe);
     }
 
     /** {@code perTick} scaled by a speed factor, floored at 0 and saturated at {@code Long.MAX_VALUE / PASS_TICKS}. */

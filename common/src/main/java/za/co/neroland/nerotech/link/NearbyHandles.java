@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.LongSupplier;
 
 /**
- * The opaque per-request handles a {@code nearby} response hands out (link schema 2, decision 007).
+ * The opaque per-request handles a {@code nearby} response hands out (link schema 2).
  *
  * <p>Each {@code nearby} answer replaces the requester's previous table: a fresh random nonce plus the
  * targets in response order. A handle is {@code <nonce>-<index>}; it resolves only for the requester

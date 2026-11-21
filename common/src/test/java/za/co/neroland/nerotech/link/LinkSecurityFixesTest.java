@@ -31,10 +31,10 @@ import za.co.neroland.nerolandcore.link.NeroLinkRegistry;
 import za.co.neroland.nerotech.machine.MachinePreset;
 
 /**
- * The Stage 7 security fixes (decision 007, amendment 2026-11-21): in-person reach and the owner rule
- * for handle presets (H1), one uniform refusal (H2, L2), shuffled {@code nearby} (M1), bystander
- * copies the bridge never pushes (M2), rate windows that survive a relog and a bounded opt-out budget
- * (L1), typed bodies (L3) and one reach rule for {@code nearby} and events (L5). Plain JVM.
+ * The link security fixes: in-person reach and the owner rule
+ * for handle presets, one uniform refusal, shuffled {@code nearby}, bystander
+ * copies the bridge never pushes, rate windows that survive a relog and a bounded opt-out budget,
+ * typed bodies and one reach rule for {@code nearby} and events. Plain JVM.
  */
 class LinkSecurityFixesTest {
 
@@ -61,11 +61,17 @@ class LinkSecurityFixesTest {
     }
 
     @Test
-    void someoneElsesRecordedOwnerIsRefusedAnOwnerlessOrOwnMachineIsNot() {
+    void onlyTheRecordedOwnerMayChangeAPresetRemotely() {
         UUID me = UUID.randomUUID();
-        assertTrue(PresetAccess.ownerAllows(null, me), "ownerless: allowed only within in-person reach");
+        // An ownerless machine cannot be changed from the app, however close you stand.
+        assertFalse(PresetAccess.ownerAllows(null, me), "ownerless: never from the app");
         assertTrue(PresetAccess.ownerAllows(me, me));
         assertFalse(PresetAccess.ownerAllows(UUID.randomUUID(), me));
+        assertFalse(PresetAccess.ownerAllows(me, null));
+        // The nearby flag the app shows the control on follows exactly the same rule.
+        assertTrue(PresetAccess.ownedBy(me, me));
+        assertFalse(PresetAccess.ownedBy(null, me));
+        assertFalse(PresetAccess.ownedBy(UUID.randomUUID(), me));
     }
 
     // --- H2 / L2 -------------------------------------------------------------------------
@@ -264,7 +270,9 @@ class LinkSecurityFixesTest {
     }
 
     @Test
-    void discoveryReportsTheReleaseVersion() {
-        assertEquals("0.8.0-beta.1", NeroTechLinkModule.MOD_VERSION);
+    void discoveryReportsTheLoaderVersion() {
+        assertEquals("0.8.0-beta.1", NeroTechLinkModule.resolveVersion(" 0.8.0-beta.1 "));
+        assertEquals(NeroTechLinkModule.FALLBACK_VERSION, NeroTechLinkModule.resolveVersion(null));
+        assertEquals(NeroTechLinkModule.FALLBACK_VERSION, NeroTechLinkModule.resolveVersion("  "));
     }
 }

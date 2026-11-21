@@ -1,4 +1,9 @@
-# Tier-1 Machines (Earth)
+# Machines
+
+This page starts with NeroTech's first, Tier-1 machines, then lists the 0.8.0 roster, the utility blocks
+and what every machine screen shows.
+
+## Tier-1 machines (Earth)
 
 NeroTech's first machines run on Earth ores and **Nero Energy (NE)** stored in each machine's
 internal buffer. They are built on Neroland Core's machine/energy/upgrade framework, so energy and
@@ -80,6 +85,64 @@ hand recipes from vanilla ingots (Copper Ingot + Iron Ingot + Copper Ingot; Reds
 Redstone), so the first generator is always craftable. The dust recipes and the Fabricator are the
 cheaper routes once the processor is running. See [Standalone Progression](Progression.md).
 
+## The 0.8.0 roster
+
+0.8.0 ("Offworld Industry") adds 22 blocks. Each machine has a GUI, side configuration, analytics, overclock
+presets, upgrade slots and a [Tech Guide](Tech-Guide.md) entry, like every machine before it, and a default side
+preset so it works the moment it is placed.
+
+| Family | Blocks | Page |
+| --- | --- | --- |
+| Metallurgy | Plasma Crucible, Plate Press, Filament Spooler, Blast Foundry, Foundry Brick, Foundry Heat Port | [Metallurgy](Metallurgy.md) |
+| Chemistry | Centrifuge, Cryo Distiller, Atmospheric Condenser, Reaction Vat, Process Tank | [Chemistry and Cryogenics](Chemistry-and-Cryogenics.md) |
+| Components | Component Forge, Laser Etcher, Crystal Grower | [Components](Components.md) |
+| Heat | Heat Pipe, Heat Exchanger | [Heat as a Resource](Heat-as-a-Resource.md) |
+| Extraction | Deep Core Drill, Drill Derrick | [Deposits and Drilling](Deposits-and-Drilling.md) |
+| Fusion | Fuel Injector, Europium Flux Lattice | [Fusion Fuel](Fusion-Fuel.md) |
+| Utility | Induction Charger, Annunciator Panel | below |
+
+Machines next to each other hand over fluids and gases as well as items: a machine pushes its fluid or gas
+output into the neighbour on an output face and pulls inputs from one on an input face, following the side
+configuration, the same way items move.
+
+Every 0.8.0 machine shows its state without opening it: a status lamp on the model tells idle, working,
+starved and overheating apart, and working machines have their own sounds (with subtitles).
+
+## Utility blocks
+
+### Induction Charger
+
+A charging pad. It tops up energy items held or worn by players standing within `inductionChargerRadius`
+(4) blocks, and charges companions and other entities from mods that use NeroTech's charging API. It hands
+out at most `inductionChargerTransferPerTick` NE per tick, shared between everything in reach, and takes power
+from any side. Every NeroTech tool charges here. Players can be left out with
+`inductionChargePlayers=false`; entity charging keeps working.
+
+The charger never records an owner and stores nothing about who it charged.
+
+### Annunciator Panel
+
+An alarm board for a base. It reads the NeroTech machines touching its six faces and lights one lamp per
+alarm: **overheat**, **starved**, **full**, **polluting** and **failing**. It needs no power and no GUI to read;
+a lamp blinks for a few seconds when it first lights, and the panel beeps once (`annunciatorAlarmSound`).
+
+Comparator output depends on the panel's channel. Crouch-use with an empty hand cycles it:
+
+| Channel | Comparator strength |
+| --- | --- |
+| `any` (default) | 3 per lit alarm: 0, 3, 6, 9, 12 or 15 |
+| `overheat`, `starved`, `full`, `polluting`, `failing` | 15 while that alarm is lit, else 0 |
+
+For one redstone line per alarm, put one panel per alarm on the same machine. Panels do not read other
+panels, so they do not chain. A plain use opens the status screen.
+
+## Gauge tooltips
+
+Hover any bar or gauge in a NeroTech machine screen to see what it is, how much it holds against its
+capacity, and its rate: energy in and out per tick, heat and how close it is to the throttle point, tank fill
+or drain, and progress with the time left. Where the machine is stalled, the tooltip names the cause and what
+fixes it. The numbers are what your own screen already shows; nothing extra is sent about other players.
+
 ## Upgrade modules
 
 Machines have four upgrade-module slots. Modules are Core upgrade types — **Speed** (more work per
@@ -101,12 +164,12 @@ Two more modules go in the same slots:
 These two are NeroTech's own modules: Core's upgrade framework holds them like any other card, and
 NeroTech's machines read them.
 
-Tools you carry — the Power Drill, Cutting Lance, Arc Wrench, Multimeter, Thermal Goggles and Filter
-Mask — are on the [Tools](Tools.md) page.
+Tools you carry (the Power Drill, Cutting Lance, Arc Wrench, Multimeter, Survey Scanner, Thermal Goggles
+and Filter Mask) are on the [Tools](Tools.md) page.
 
 ## Progression
 
-Placing your first NeroTech machine opens Core's **`industrial_power`** progression gate — NeroTech is
+Placing your first NeroTech machine opens Core's **`industrial_power`** milestone — NeroTech is
 the canonical opener of that milestone. That gate is a milestone other Neroland mods may read; it never
 locks anything in NeroTech. The [Advanced Tier](Advanced-Tier.md) is paced purely by materials
 (Starsteel/Void Crystal possession) — no use-lock, fully standalone-friendly.
@@ -114,6 +177,8 @@ locks anything in NeroTech. The [Advanced Tier](Advanced-Tier.md) is paced purel
 ## See also
 
 - [Materials & Components](Materials-and-Components.md)
+- [Material Map](Material-Map.md)
+- [Config](Config.md)
 - [Standalone Progression](Progression.md)
 - [Thermal System](Thermal-System.md)
 - [Overclock Presets](Overclock-Presets.md)

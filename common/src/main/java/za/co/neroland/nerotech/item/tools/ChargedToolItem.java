@@ -73,12 +73,15 @@ public abstract class ChargedToolItem extends Item {
      * capacity. Returns FE accepted; changes the stack only when not {@code simulate}.
      */
     public long acceptCharge(ItemStack stack, long maxFe, boolean simulate) {
+        // The charge is kept in NE; the offer is FE. Convert both ways so no ratio makes energy.
+        double ratio = za.co.neroland.nerolandcore.energy.EnergyConversions.neroToForgeRatio();
+        long maxNe = za.co.neroland.nerotech.machine.utility.ChargeMath.feOfferToNe(maxFe, ratio);
         ToolCharge charge = charge(stack);
-        int accepted = ToolRules.chargeAmount(charge.energy(), capacity(), maxFe);
+        int accepted = ToolRules.chargeAmount(charge.energy(), capacity(), maxNe);
         if (accepted > 0 && !simulate) {
             setCharge(stack, charge.withEnergy(charge.energy() + accepted));
         }
-        return accepted;
+        return za.co.neroland.nerotech.machine.utility.ChargeMath.acceptedFe(accepted, ratio, maxFe);
     }
 
     /** Charge from a block exposing Core energy (sneak-use, like the Survey Scanner). */

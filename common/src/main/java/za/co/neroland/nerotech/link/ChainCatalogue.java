@@ -6,7 +6,7 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The static half of the public {@code catalogue} section (link schema 2, decision 007): which
+ * The static half of the public {@code catalogue} section (link schema 2): which
  * machines, materials and chains exist, in what order, and which recipe ids make up each route. The
  * recipes themselves are resolved at runtime from the loaded recipe manager (see
  * {@link CatalogueSection}); a recipe id that is not loaded is skipped, so a datapack that removes or
@@ -126,7 +126,7 @@ final class ChainCatalogue {
             new Machine("conveyor_belt", "utility"),
             new Machine("singularity_vault", "utility"));
 
-    // --- materials (decision 001) -------------------------------------------------------
+    // --- materials -------------------------------------------------------
 
     static final List<Material> MATERIALS = List.of(
             new Material("item", "cindersteel_ingot", List.of("c:ingots/cindersteel")),
@@ -141,7 +141,7 @@ final class ChainCatalogue {
             new Material("item", "polymer_sheet", List.of("c:plates/polymer")),
             new Material("item", "europium_dust", List.of("c:dusts/europium", "c:dusts")),
             new Material("item", "logic_chip", List.of()),
-            new Material("item", "quantum_processor", List.of()),
+            new Material("item", "quantum_chip", List.of()),
             new Material("item", "copper_wire", List.of("c:wires/copper")),
             new Material("item", "cindersteel_wire", List.of("c:wires/cindersteel")),
             new Material("item", "superconductor_wire", List.of("c:wires/superconductor")),
@@ -197,7 +197,7 @@ final class ChainCatalogue {
         return MACHINE_BY_TYPE.get(recipeTypeId);
     }
 
-    // --- the six chains (BUILD-PROMPT "six chains", decision 003) -------------------------
+    // --- the six chains -------------------------------------------------------------------
 
     private static final StepRef STANDALONE_CINDERSTEEL = r("alloying_cindersteel_ingot_standalone",
             "collider_cindersteel_ingot");
@@ -258,12 +258,12 @@ final class ChainCatalogue {
                             route(r("crystal_growing_crystal_boule_salt_doped", "crystal_growing_crystal_boule"),
                                     r("pressing_wafer"), r("crystal_growing_quartz_focus_lens"),
                                     r("drawing_copper_wire"), r("etching_logic_chip"))),
-                    new Product("nerotech:quantum_processor",
+                    new Product("nerotech:quantum_chip",
                             route(r("crystal_growing_crystal_boule"), r("pressing_wafer"),
-                                    r("crystal_growing_void_focus_lens_standalone"), r("etching_quantum_processor")),
+                                    r("crystal_growing_void_focus_lens_standalone"), r("etching_quantum_chip")),
                             route(r("crystal_growing_crystal_boule_salt_doped", "crystal_growing_crystal_boule"),
                                     r("pressing_wafer"), r("crystal_growing_void_focus_lens"),
-                                    r("etching_quantum_processor"))))),
+                                    r("etching_quantum_chip"))))),
             new Chain("optics", List.of(
                     new Product("nerotech:quartz_focus_lens",
                             route(r("crystal_growing_quartz_focus_lens_standalone", "crystal_growing_quartz_focus_lens")),

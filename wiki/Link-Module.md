@@ -12,7 +12,7 @@ keep their shape, so an app written for schema 1 keeps working.
 ## Sections
 
 | Section | Scope | What it holds |
-|---|---|---|
+| --- | --- | --- |
 | `pollution` | The requester only | `attributionEnabled`; when on: `optedOut`, `retentionDays`, and `attributed` (your own total). **`attributed` is left out entirely when you have opted out.** While you are online: `localRegion` with `dimension` and a coarse `band` for the area you stand in. When attribution is off: a `note` and nothing personal. |
 | `guide` | The requester only | `chapters`, `chaptersStarted`, `totalSteps`, `seenSteps`: totals only. |
 | `wiki` | Public | Page index, or one page as markdown (`?page=<slug>`). |
@@ -41,13 +41,14 @@ is random too, so the order says nothing about where a machine is.
 ```
 
 | Field | Meaning |
-|---|---|
+| --- | --- |
 | `type` | Block id of the machine. |
 | `state` | `idle`, `working`, `starved`, `overheating`, `failing` or `full`. |
 | `alarms` | Raised Annunciator alarms: `overheat`, `starved`, `full`, `polluting`, `failing`. Annunciator Panels always list none (they only repeat their neighbours). |
 | `energyPct`, `heatPct` | 0 to 100. |
 | `tankPct` | 0 to 100 for the machine's fluid tank (else its gas tank), or `null` when it has no tank. |
 | `h` | An opaque handle for `set_machine_preset`. Valid for 30 seconds, only for you, and only until your next `nearby` request. |
+| `ownedByYou` | `true` when you are the machine's recorded owner, the only machines `set_machine_preset` accepts; otherwise `false`. It never says who else owns a machine, or whether anyone does. |
 
 **Never included:** coordinates, direction, distance or dimension of a machine, who owns or placed it, or any other
 player. When you are offline, or nothing is in range, the list is empty. The two cases look the same on purpose.
@@ -68,8 +69,8 @@ Public recipe data, identical for every player and rebuilt once per datapack rel
 
 NeroTech allows **10 actions per player per minute**. The count is kept in memory and expires a minute after your
 last action (logging out does not reset it). Turning pollution attribution **off** has its own budget of 30 a
-minute, so it is never refused in normal use. The server re-checks every action: the app can do no more than you
-could standing at the machine in game.
+minute, so it is never refused in normal use. The server re-checks every action, and a remote change is narrower than
+what you could do standing at the machine in game.
 
 When a well-formed request is refused, the answer is always the same: `NOT_OWNER` with the message `unavailable`.
 It does not say whether the machine is missing, too far, someone else's, or in a chunk that is not loaded.
@@ -80,15 +81,15 @@ It does not say whether the machine is missing, too far, someone else's, or in a
   - **Schema 2:** `{ "h": "<handle>", "preset": "ECO" }`. The handle must come from your own latest `nearby` response
     and be under 30 seconds old. At the moment of the change you must be able to do it in person: the machine is in
     your dimension, **within 16 blocks** of you (not the 128 of `nearby`), its chunk is loaded, you may interact with
-    that block (spawn protection, world border, adventure mode and the game's own build checks), and it has no
-    recorded owner or you are its owner.
+    that block (spawn protection, world border, adventure mode and the game's own build checks), and you are its
+    recorded owner. A machine with no recorded owner cannot be changed from the app at all.
   - **Schema 1:** `{ "dim", "x", "y", "z", "preset" }`, unchanged. Only for machines you own. Ownership is recorded
     only when per-player attribution was on at placement.
 
 ## Events
 
 | Event | Sent to | Body |
-|---|---|---|
+| --- | --- | --- |
 | `pollution` | You, when your own attributed total first crosses the server's alert threshold (attribution on only). Also raises a WARN alert. | `attributed`, `threshold` |
 | `alarm` | The machine's recorded owner, when a machine raises a new alarm. At most one per machine type per player every 30 seconds. | `type`, `alarm` |
 | `meltdown` | The reactor's recorded owner. The owner also gets a CRITICAL alert. | `kind` (`meltdown` or `containment_breach`), `shell` |

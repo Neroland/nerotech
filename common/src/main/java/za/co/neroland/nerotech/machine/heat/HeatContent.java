@@ -23,11 +23,11 @@ import za.co.neroland.nerotech.registry.ModMenuTypes;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * WP-Heat — the heat machine family (heat_pipe, heat_exchanger). Owned by its work package: every block, item,
+ * The heat machine family (heat_pipe, heat_exchanger). Every block, item,
  * block-entity type, menu, screen and renderer of the family is declared here and nowhere else;
  * {@code registry.FamilyRegistry} wires this class into every central place.
  *
- * <p>The Heat Pipe has no block entity (decision 012): its runs are cached in {@link HeatPipeNetwork}.
+ * <p>The Heat Pipe has no block entity: its runs are cached in {@link HeatPipeNetwork}.
  */
 public final class HeatContent {
 

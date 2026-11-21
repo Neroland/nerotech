@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "nerotech:item/quantum_processor"
+    "model": "nerotech:item/quantum_chip"
   }
 }

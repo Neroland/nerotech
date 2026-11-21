@@ -39,6 +39,10 @@ further than its own**, which is exactly why antimatter is burnable there and no
 it also adds a flat **+2** to the reactor's heat rate on top of the shell scaling — the meltdown risk
 is the price of the longest burn in the mod. See [Exotic Endgame](Exotic-Endgame.md).
 
+**Gas-fed burn (0.8.0).** A 7×7×7 shell with **Fuel Injectors** in its walls can burn deuterium and
+helium-3 piped in from tanks instead of cells, at 1.5× the output of a cell burn. See
+[Fusion Fuel](Fusion-Fuel.md).
+
 Higher tiers burn far longer per cell (`fusionFuelTier1BurnTicks` / `Tier2` / `Tier3` / `Tier4`,
 the last defaulting to twice tier 3), and bigger
 shells multiply output: the base rate (`fusionReactorNePerTick`) is scaled **1× / 4× / 12×** for the
@@ -61,10 +65,22 @@ Power scales — so does the danger:
   the reactor down before resizing or moving it.
 
 Cooling a big reactor is a genuine [thermal-system](Thermal-System.md) exercise: ambient, coolant
-blocks and spacing all matter.
+blocks and spacing all matter. Since 0.8.0 there are two more tools for it:
+
+- **Europium Flux Lattices** replace casing blocks; each one in a formed shell takes 6% of the heat out of
+  every burning tick, up to eight (48%). See [Fusion Fuel](Fusion-Fuel.md#europium-flux-lattice).
+- **Heat Pipes** carry the reactor's heat away to a Blast Foundry, where it is useful. See
+  [Heat as a Resource](Heat-as-a-Resource.md).
+
+A meltdown or containment breach also notifies players nearby in the [NeroLink app](Companion-App.md) and
+the reactor's recorded owner. The notice carries no coordinates.
+
+The reactor's structure is checked when a shell block changes, on the same multiblock base as the Blast
+Foundry and the Deep Core Drill. Existing reactors and their saves load unchanged.
 
 ## See also
 
+- [Fusion Fuel](Fusion-Fuel.md)
 - [Advanced Tier](Advanced-Tier.md)
 - [Thermal System](Thermal-System.md)
 - [Pollution & Mitigation](Pollution-and-Mitigation.md)

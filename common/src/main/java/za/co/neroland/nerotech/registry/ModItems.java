@@ -159,7 +159,7 @@ public final class ModItems {
     public static final RegistryEntry<Item> SCRUBBER_MODULE = ITEMS.register("scrubber_module",
             key -> new UpgradeModuleItem(new Item.Properties().setId(key), NeroTechModule.SCRUBBER));
 
-    // --- 0.8.0 materials (decision 001): plain items, consumed by tag in recipes -----------------
+    // --- 0.8.0 materials: plain items, consumed by tag in recipes -----------------
     // Structural
     public static final RegistryEntry<Item> CINDERSTEEL_INGOT = item("cindersteel_ingot");
     public static final RegistryEntry<Item> CINDERSTEEL_PLATE = item("cindersteel_plate");
@@ -179,7 +179,7 @@ public final class ModItems {
     public static final RegistryEntry<Item> EUROPIUM_DUST = item("europium_dust");
     // Component ladder — processors sit a tier above circuit_board, never replace it
     public static final RegistryEntry<Item> LOGIC_CHIP = item("logic_chip");
-    public static final RegistryEntry<Item> QUANTUM_PROCESSOR = item("quantum_processor");
+    public static final RegistryEntry<Item> QUANTUM_CHIP = item("quantum_chip");
     public static final RegistryEntry<Item> COPPER_WIRE = item("copper_wire");
     public static final RegistryEntry<Item> CINDERSTEEL_WIRE = item("cindersteel_wire");
     public static final RegistryEntry<Item> SUPERCONDUCTOR_WIRE = item("superconductor_wire");
@@ -195,9 +195,10 @@ public final class ModItems {
     public static final RegistryEntry<Item> EMBER_FOCUS_LENS = item("ember_focus_lens", p -> p.stacksTo(16));
     public static final RegistryEntry<Item> VOID_FOCUS_LENS = item("void_focus_lens", p -> p.stacksTo(16));
     // Drilling
-    public static final RegistryEntry<Item> IRON_DRILL_HEAD = item("iron_drill_head", p -> p.stacksTo(16));
-    public static final RegistryEntry<Item> CINDERSTEEL_DRILL_HEAD = item("cindersteel_drill_head", p -> p.stacksTo(16));
-    public static final RegistryEntry<Item> GLACITE_DRILL_HEAD = item("glacite_drill_head", p -> p.stacksTo(16));
+    // One per stack: each head carries its own wear (machine.extraction.DrillHeadItem).
+    public static final RegistryEntry<Item> IRON_DRILL_HEAD = drillHead("iron_drill_head");
+    public static final RegistryEntry<Item> CINDERSTEEL_DRILL_HEAD = drillHead("cindersteel_drill_head");
+    public static final RegistryEntry<Item> GLACITE_DRILL_HEAD = drillHead("glacite_drill_head");
 
     // --- 0.8.0 chemistry: Process Tank + liquid buckets -------------------------------------------
     public static final RegistryEntry<BlockItem> PROCESS_TANK_ITEM = ITEMS.register("process_tank",
@@ -236,7 +237,7 @@ public final class ModItems {
                 CINDERSTEEL_INGOT, CINDERSTEEL_PLATE, CINDERSTEEL_ROD, TITANIUM_PLATE,
                 SYNTHETIC_GLACITE, CRYSTAL_SEED, CRYSTAL_BOULE, WAFER,
                 SULFUR_DUST, POLYMER_SHEET, EUROPIUM_DUST,
-                LOGIC_CHIP, QUANTUM_PROCESSOR,
+                LOGIC_CHIP, QUANTUM_CHIP,
                 COPPER_WIRE, CINDERSTEEL_WIRE, SUPERCONDUCTOR_WIRE,
                 COPPER_COIL, CINDERSTEEL_COIL, SUPERCONDUCTOR_COIL,
                 SERVO, CAPACITOR, HEAT_SINK,
@@ -248,6 +249,11 @@ public final class ModItems {
 
     private static RegistryEntry<Item> item(String name) {
         return ITEMS.register(name, key -> new Item(new Item.Properties().setId(key)));
+    }
+
+    private static RegistryEntry<Item> drillHead(String name) {
+        return ITEMS.register(name, key -> new za.co.neroland.nerotech.machine.extraction.DrillHeadItem(
+                new Item.Properties().setId(key).stacksTo(1)));
     }
 
     private static RegistryEntry<Item> item(String name, UnaryOperator<Item.Properties> props) {

@@ -138,6 +138,11 @@ public class ArcWrenchItem extends ChargedToolItem {
 
     private void pickUp(ServerPlayer player, ServerLevel level, BlockPos pos, Direction face, ItemStack stack) {
         WrenchRules.Refusal refusal = WrenchRules.check(target(player, level, pos, face, stack), false);
+        if (refusal == WrenchRules.Refusal.OK
+                && !za.co.neroland.nerotech.platform.Services.PLATFORM.mayBreak(player, level, pos)) {
+            // Lifting removes the block: a claim that allows use but not breaking refuses it here.
+            refusal = WrenchRules.Refusal.NOT_PERMITTED;
+        }
         if (refusal != WrenchRules.Refusal.OK) {
             refuse(player, refusal);
             return;
@@ -175,7 +180,9 @@ public class ArcWrenchItem extends ChargedToolItem {
                 return level.removeBlock(pos, false);
             }
         });
-        lifted.ifPresent(tag -> {
+        // The carried copy drops the owner and the gallery-exhibit flag (the in-world restore path above
+        // keeps the exhibit intact if the lift fails).
+        lifted.map(tag -> WrenchRules.stripCarried(tag, CompoundTag::remove)).ifPresent(tag -> {
             stack.set(ToolsContent.CARRIED_MACHINE.get(), new CarriedMachine(state, tag));
             level.playSound(null, pos, ModSounds.TOOL_ARC_WRENCH.get(), SoundSource.BLOCKS, 0.6F, 0.8F);
             tell(player, Component.translatable("message.nerotech.arc_wrench.picked_up", state.getBlock().getName()));

@@ -16,18 +16,23 @@ import za.co.neroland.nerolandcore.link.LinkActionResult;
 import za.co.neroland.nerotech.machine.MachinePreset;
 
 /**
- * The pure rules of a remote {@code set_machine_preset} (decision 007, amendment 2026-11-21). Nothing
+ * The pure rules of a remote {@code set_machine_preset}. Nothing
  * here touches the world, so every rule is unit-testable.
  *
  * <ul>
  *   <li><b>One refusal.</b> Once the body is well formed, every failure (unknown dimension, chunk not
  *       loaded, no machine, someone else's machine, unknown or expired handle, out of reach, not
  *       permitted to interact there) is the same answer, {@link #UNAVAILABLE}, so no failure tells a
- *       requester where chunks are loaded or where a machine stands (H2, L2).</li>
- *   <li><b>In-person reach.</b> The handle form needs the requester within {@link #ACTION_REACH}
- *       blocks of the machine, the interaction check a right-click passes, and no recorded owner or
- *       the requester as owner (H1). {@code nearby} reads keep their 128-block reach.</li>
- *   <li><b>Typed bodies.</b> A wrong JSON type is a {@code VALIDATION} answer, never an exception (L3).</li>
+ *       requester where chunks are loaded or where a machine stands.</li>
+ *   <li><b>Owner only.</b> Either body changes only a machine whose recorded owner is the requester.
+ *       An ownerless machine (the default: owners are recorded only under the opt-in settings) cannot
+ *       be changed from the app at all, because no claim or protection mod sees an app action and
+ *       OVERDRIVE can push a reactor into meltdown. {@code nearby} still lists ownerless machines,
+ *       read-only.</li>
+ *   <li><b>In-person reach.</b> The handle form also needs the requester within {@link #ACTION_REACH}
+ *       blocks of the machine and the interaction check a right-click passes. {@code nearby} reads keep
+ *       their 128-block reach.</li>
+ *   <li><b>Typed bodies.</b> A wrong JSON type is a {@code VALIDATION} answer, never an exception.</li>
  * </ul>
  */
 final class PresetAccess {
@@ -61,9 +66,14 @@ final class PresetAccess {
         return dx * dx + dy * dy + dz * dz <= (double) ACTION_REACH * ACTION_REACH;
     }
 
-    /** An ownerless machine, or one the requester owns. */
+    /** Only a machine whose recorded owner is the requester; an ownerless machine is refused. */
     static boolean ownerAllows(@Nullable UUID owner, UUID requester) {
-        return owner == null || owner.equals(requester);
+        return owner != null && requester != null && owner.equals(requester);
+    }
+
+    /** The {@code ownedByYou} flag of a {@code nearby} entry: the same test, so the app never offers a refused change. */
+    static boolean ownedBy(@Nullable UUID owner, UUID requester) {
+        return ownerAllows(owner, requester);
     }
 
     /** The preset named by a JSON string, or empty for anything else (null, number, array, unknown name). */

@@ -153,7 +153,7 @@ public final class TechGuide {
                     guide("wafer"),
                     guide("laser_etcher"),
                     guide("logic_chip"),
-                    milestone("first_quantum_processor", "quantum_processor"))),
+                    milestone("first_quantum_chip", "quantum_chip"))),
             new Chapter("optics", List.of(
                     guide("quartz_focus_lens"),
                     guide("glacite_focus_lens"),
@@ -205,7 +205,7 @@ public final class TechGuide {
      * the gate opens for an online player.
      */
     public static final List<String> MILESTONE_STEPS = List.of(
-            "first_foundry_pour", "first_quantum_processor", "first_deposit_tapped", "gas_fed_ignition");
+            "first_foundry_pour", "first_quantum_chip", "first_deposit_tapped", "gas_fed_ignition");
 
     public static final int CHAPTER_COUNT = CHAPTERS.size();
 

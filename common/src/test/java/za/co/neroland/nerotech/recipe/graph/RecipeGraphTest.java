@@ -80,7 +80,7 @@ import za.co.neroland.nerotech.machine.components.RecipeFixture;
  * The cheapest cost of every node is the fixpoint of relaxing every edge until nothing gets cheaper; an
  * unreachable node never gets a cost.
  *
- * <p>The ratio contract (decision 003) is {@code 3 ≤ standalone / offworld ≤ 5} per row of {@link #ROWS}.
+ * <p>The ratio contract is {@code 3 ≤ standalone / offworld ≤ 5} per row of {@link #ROWS}.
  * {@link #OWNER_PENDING} is empty since the owner decisions of the chains report were applied: every row
  * must hold the band. A row may only be added there with the reason and an owner decision.
  */
@@ -115,7 +115,7 @@ class RecipeGraphTest {
             "minecraft:tinted_glass", "minecraft:water_bucket", "minecraft:dried_kelp_block");
 
     /**
-     * Vanilla leaves that cost a player more than one item (Stage 3 review M4): Silk-Touch-only ice blocks
+     * Vanilla leaves that cost a player more than one item: Silk-Touch-only ice blocks
      * at their ice count, and the echo shard, which no farm renews, at a documented 50 leaves.
      */
     static final Map<String, Double> LEAF_WEIGHTS = Map.of("minecraft:packed_ice", 9.0D,
@@ -157,9 +157,9 @@ class RecipeGraphTest {
 
     /** Items allowed to be unreachable standalone, with the reason. */
     static final Map<String, String> STANDALONE_EXEMPT = Map.of(
-            "nerotech:titanium_plate", "decision 003: optional material; every recipe taking it has a cindersteel twin");
+            "nerotech:titanium_plate", "optional material; every recipe taking it has a cindersteel twin");
 
-    /** Decision 003's rows: label → the node whose cost is compared. */
+    /** The ratio rows: label → the node whose cost is compared. */
     static final Map<String, String> ROWS = rows();
 
     /** Rows allowed outside the band, with the reason (none: every row holds 3-5x). */
@@ -168,7 +168,7 @@ class RecipeGraphTest {
     /** New 0.8.0 materials that must have two uses: a NeroTech recipe input and a sibling-facing tag. */
     static final List<String> NEW_MATERIALS = List.of("cindersteel_ingot", "cindersteel_plate", "cindersteel_rod",
             "titanium_plate", "synthetic_glacite", "crystal_seed", "crystal_boule", "wafer", "sulfur_dust",
-            "polymer_sheet", "europium_dust", "logic_chip", "quantum_processor", "copper_wire",
+            "polymer_sheet", "europium_dust", "logic_chip", "quantum_chip", "copper_wire",
             "cindersteel_wire", "superconductor_wire", "copper_coil", "cindersteel_coil", "superconductor_coil",
             "servo", "capacitor", "heat_sink", "quartz_focus_lens", "glacite_focus_lens", "ember_focus_lens",
             "void_focus_lens");
@@ -286,7 +286,7 @@ class RecipeGraphTest {
         Solution standalone = solve(Mode.STANDALONE);
         Solution offworld = solve(Mode.OFFWORLD);
         List<String> problems = new ArrayList<>();
-        StringBuilder table = new StringBuilder("decision 003 ratios (standalone / offworld FE):\n");
+        StringBuilder table = new StringBuilder("standalone / offworld FE ratios:\n");
         for (Map.Entry<String, String> row : ROWS.entrySet()) {
             Double s = standalone.cost().get(row.getValue());
             Double o = offworld.cost().get(row.getValue());
@@ -325,7 +325,7 @@ class RecipeGraphTest {
         }
         Set<String> fluidInputs = new HashSet<>();
         // Gas id -> its distinct uses: what each consuming recipe makes (a recipe that returns the same gas
-        // is enrichment, not a use) plus the machines that burn it (Stage 3 review S3: two uses, not one).
+        // is enrichment, not a use) plus the machines that burn it.
         Map<String, Set<String>> gasUses = new HashMap<>();
         for (JsonObject recipe : recipes().values()) {
             if (recipe.has("fluid_in")) {

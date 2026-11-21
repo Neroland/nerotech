@@ -1,6 +1,11 @@
 package za.co.neroland.nerotech.item.tools;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
+
+import za.co.neroland.nerotech.machine.utility.UtilitySaveKeys;
 
 /**
  * The Arc Wrench's pick-up and place-back rules without Minecraft types (unit-tested), written so a
@@ -72,6 +77,22 @@ public final class WrenchRules {
     }
 
     /** Pick the machine up: the snapshot to store on the wrench, or empty when nothing left the world. */
+    /**
+     * Save keys removed from the copy a wrench carries: the owner (POPIA/GDPR: it never rides on the item)
+     * and the {@code /nerotech gallery} exhibit flag, so a wrenched exhibit is placed back as an ordinary
+     * machine that credits its new owner normally.
+     */
+    public static final List<String> STRIPPED_ON_PICKUP = Stream.concat(
+            UtilitySaveKeys.STRIPPED_OWNER_KEYS.stream(), Stream.of("GalleryExhibit")).toList();
+
+    /** Remove {@link #STRIPPED_ON_PICKUP} from a carried save through {@code remover}; returns {@code tag}. */
+    public static <T> T stripCarried(T tag, BiConsumer<T, String> remover) {
+        for (String key : STRIPPED_ON_PICKUP) {
+            remover.accept(tag, key);
+        }
+        return tag;
+    }
+
     public static <S> Optional<S> pickUp(Site<S> site) {
         S snapshot = site.snapshot();
         site.clear();

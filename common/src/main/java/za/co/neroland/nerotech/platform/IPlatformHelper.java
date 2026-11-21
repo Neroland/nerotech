@@ -26,4 +26,14 @@ public interface IPlatformHelper {
 
     /** Whether the mod with {@code modId} is loaded (gates optional bridges such as compat/neroeconomy). */
     boolean isModLoaded(String modId);
+
+    /**
+     * Whether {@code player} may break the block at {@code pos}, asked through the loader's own break
+     * event (NeoForge and Forge {@code BlockEvent.BreakEvent}, Fabric {@code PlayerBlockBreakEvents.BEFORE})
+     * so claim and protection mods can veto it. Nothing is broken here. Server thread only.
+     */
+    default boolean mayBreak(net.minecraft.server.level.ServerPlayer player, net.minecraft.server.level.ServerLevel level,
+            net.minecraft.core.BlockPos pos) {
+        return true;
+    }
 }

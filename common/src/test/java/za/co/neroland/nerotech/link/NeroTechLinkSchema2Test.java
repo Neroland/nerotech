@@ -31,7 +31,7 @@ import za.co.neroland.nerotech.machine.MachineAlarms;
 import za.co.neroland.nerotech.machine.Readout;
 
 /**
- * Link schema 2 (decision 007): the {@code nearby} reach rule and handles, the action rate limit, the
+ * Link schema 2: the {@code nearby} reach rule and handles, the action rate limit, the
  * public {@code catalogue}, the coordinate-free {@code meltdown} body, the opted-out {@code pollution}
  * shape, and that the schema-1 sections keep their shape. Plain JVM: no game bootstrap, no server.
  */
@@ -91,8 +91,13 @@ class NeroTechLinkSchema2Test {
     @Test
     void entryCarriesNoPlaceOwnerOrDirection() {
         JsonObject entry = NearbyFormat.entry("nerotech:blast_foundry", Readout.HOT,
-                MachineAlarms.OVERHEAT | MachineAlarms.FULL, 820, 970, null, "abc-0", true);
-        assertEquals(Set.of("type", "state", "alarms", "energyPct", "heatPct", "tankPct", "h"), entry.keySet());
+                MachineAlarms.OVERHEAT | MachineAlarms.FULL, 820, 970, null, "abc-0", true, false);
+        assertEquals(Set.of("type", "state", "alarms", "energyPct", "heatPct", "tankPct", "h", "ownedByYou"),
+                entry.keySet());
+        assertFalse(entry.get("ownedByYou").getAsBoolean());
+        assertTrue(entry.get("ownedByYou").getAsJsonPrimitive().isBoolean(), "a boolean, never an identity");
+        assertTrue(NearbyFormat.entry("nerotech:blast_foundry", Readout.HOT, 0, 0, 0, null, "abc-2", true, true)
+                .get("ownedByYou").getAsBoolean());
         assertEquals("overheating", entry.get("state").getAsString());
         assertEquals(82, entry.get("energyPct").getAsInt());
         assertEquals(97, entry.get("heatPct").getAsInt());
@@ -119,7 +124,7 @@ class NeroTechLinkSchema2Test {
     @Test
     void annunciatorPanelsReportNoAlarms() {
         JsonObject entry = NearbyFormat.entry("nerotech:annunciator_panel", Readout.WORK,
-                MachineAlarms.OVERHEAT | MachineAlarms.FAILING, 1000, 0, null, "abc-1", false);
+                MachineAlarms.OVERHEAT | MachineAlarms.FAILING, 1000, 0, null, "abc-1", false, false);
         assertEquals(0, entry.getAsJsonArray("alarms").size());
         assertEquals("working", entry.get("state").getAsString());
     }

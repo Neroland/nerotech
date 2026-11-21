@@ -2899,7 +2899,7 @@ def gen_080_materials():
     gen_sheet("polymer_sheet", POLYMER)
     gen_dust("europium_dust", EUROPIUM)
     gen_processor("logic_chip", T_CYAN)
-    gen_processor("quantum_processor", EUROPIUM[0])
+    gen_processor("quantum_chip", EUROPIUM[0])
     gen_wire("copper_wire", COPPER)
     gen_wire("cindersteel_wire", CINDERSTEEL)
     gen_wire("superconductor_wire", SUPERCOND)

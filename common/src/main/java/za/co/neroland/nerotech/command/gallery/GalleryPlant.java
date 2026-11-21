@@ -286,7 +286,7 @@ public final class GalleryPlant {
                 charge(be);
             }
             case "fusion_fuel.raw" -> chest(be, Items.GLOWSTONE_DUST, ModItems.EUROPIUM_DUST.get(),
-                    ModItems.QUANTUM_PROCESSOR.get());
+                    ModItems.QUANTUM_CHIP.get());
             case "fusion_fuel.deuterium" -> {
                 charge(be);
                 fluid(be, Fluids.WATER);
@@ -299,7 +299,7 @@ public final class GalleryPlant {
             case "fusion_fuel.europium" -> powered(be, Items.GLOWSTONE_DUST);
             case "fusion_fuel.lattice" -> {
                 powered(be, ModBlocks.FUSION_CASING.get(), ModItems.EUROPIUM_DUST.get(),
-                        ModItems.CINDERSTEEL_INGOT.get(), ModItems.QUANTUM_PROCESSOR.get(),
+                        ModItems.CINDERSTEEL_INGOT.get(), ModItems.QUANTUM_CHIP.get(),
                         ModItems.SUPERCONDUCTOR_WIRE.get());
                 fluid(be, NeroTechFluids.CRYO_COOLANT.get());
             }

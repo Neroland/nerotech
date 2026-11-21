@@ -7,6 +7,167 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - Unreleased
+
+**Offworld Industry.** Six production chains, 22 new machines and blocks, a component ladder, seven powered
+tools, virtual deposits, heat you can pipe, a gas-fed fusion tier, a NeroTech module for the NeroLink app and
+a walkable gallery. Requires **Neroland Core 1.19.0**. NeroTech stays complete on a Core-only server: every new
+item has a standalone route at roughly three to five times the offworld cost. Nerospace is optional; with it,
+the chains take its ores, ices and gases by tag.
+
+### Added
+
+- **Six chains**, each with an offworld and a standalone route (see the wiki's Material Map and chain pages):
+  - **Structural**: Cindersteel ingot, plate and rod, and titanium plate. Standalone cindersteel comes from
+    iron dust, coal and blaze powder in the Plasma Crucible.
+  - **Superconductor**: Superconductor Wire and Coil; **Synthetic Glacite** (`c:gems/glacite`) grown from Void
+    Crystal, snow and packed ice for servers without Nerospace.
+  - **Semiconductor**: Crystal Seed, Crystal Boule, Wafer, **Logic Chip** and **Quantum Chip**.
+  - **Optics**: Quartz, Ember, Glacite and Void focus lenses.
+  - **Chemistry**: Sulfur Dust (`c:dusts/sulfur`), sulfuric acid, polymer resin and Polymer Sheet. **Acid ore
+    leaching** in the Reaction Vat: one raw iron, copper or gold ore (or raw hematite) and 500 mB of acid give
+    four dusts.
+  - **Fusion fuel**: deuterium, helium-3 (Centrifuge cascades standalone), Europium Dust, Europium Flux Lattice.
+- **22 new blocks.** Metallurgy: Plasma Crucible, Plate Press (Plate, Rod and Wafer Dies, tag
+  `nerotech:press_dies`), Filament Spooler, Blast Foundry with Foundry Brick and Foundry Heat Port (3x3x3 and
+  5x5x5, heated only through its ports). Chemistry: Centrifuge (cascades of up to four), Cryo Distiller,
+  Atmospheric Condenser (output follows the planet's air), Reaction Vat, Process Tank (one fluid or gas, columns
+  of up to 16, comparator output). Components: Component Forge, Laser Etcher (the lens is never used up),
+  Crystal Grower (grows slowly unpowered, faster in the cold). Heat: Heat Pipe, Heat Exchanger. Extraction: Deep
+  Core Drill on three Drill Derricks. Fusion: Fuel Injector, Europium Flux Lattice. Utility: Induction Charger,
+  Annunciator Panel.
+- **New media**: gases deuterium, helium-3, methane, nitrogen and carbon dioxide; liquids cryo coolant,
+  sulfuric acid and polymer resin, with buckets. Nerospace items enter through machines by
+  `nerotech:inputs/*` tags, never straight into a tank.
+- **Component ladder** above the tier-1 parts: Logic Chip, Quantum Chip, copper / cindersteel /
+  superconductor wire and coil, Servo, Capacitor, Heat Sink, Polymer Sheet, Wafer, Crystal Seed, four lenses,
+  Iron / Cindersteel / Glacite drill heads. Sibling tags: `nerotech:components/servos`, `/capacitors`,
+  `/heat_sinks`, `nerotech:wafers`, `nerotech:crystal_boules`, `nerotech:crystal_seeds`,
+  `nerotech:polymer_sheets`, `nerotech:processors/logic`, `nerotech:processors/quantum`, `nerotech:coils/tier1..3`,
+  `nerotech:focus_lenses`.
+- **Two upgrade modules**: Heat Sink Module (moves the throttle point towards the heat ceiling, at most half the
+  headroom) and Scrubber Module (a fifth less pollution each, floor a quarter).
+- **Seven tools**, all charged with Core energy and config-tunable: Power Drill (single / 3x3 / vein; vein only
+  follows `nerotech:power_drill/vein`, by default ores, gravel, clay and glowstone), Cutting Lance (the fitted
+  lens sets the cut), Arc Wrench (rotate, or pick up a machine with its contents and settings), Multimeter,
+  Survey Scanner, Thermal Goggles, Filter Mask. Every break or placement goes through the loader's normal
+  permission checks, so claim and protection mods can refuse it.
+- **Virtual deposits**: every chunk has a deposit worked out from the world seed, dimension and chunk. The Deep
+  Core Drill mines it without changing terrain; it depletes and recovers. Data-driven tables per dimension
+  (`data/<ns>/nerotech_deposits/`), nine built in.
+- **Heat as a resource**: Heat Pipe runs (no block entity, cached, at most 64 pipes) carry heat between
+  machines and into Foundry Heat Ports; the Heat Exchanger moves heat between a machine and a Process Tank of
+  coolant, lava or water. Heat never becomes energy.
+- **Gas-fed fusion**: Fuel Injectors feed deuterium and helium-3 (2:1) to a 7x7x7 shell, drawn per charge, at
+  1.5x a cell burn. Each Europium Flux Lattice takes 6% of the burn's heat, up to eight.
+- **Induction Charger** and a public charging API, `api.WirelessCharging` (`offer(ServerLevel, BlockPos, long,
+  boolean)`, `registerItemCharger`). No player data in the call.
+- **Annunciator Panel**: one lamp per alarm (overheat, starved, full, polluting, failing) from the machines it
+  touches, a comparator channel per panel, needs no power.
+- **Gauge tooltips**: hovering any bar or gauge in a NeroTech screen shows what it is, how much, and the rate,
+  plus the stall cause and its fix.
+- **Pollution exposure**: a region at the severe band (twice `pollutionEventThreshold`) gives brief Weakness and
+  Hunger unless a charged Filter Mask with a cartridge blocks it.
+- **NeroLink link schema 2**: new `nearby` section (machines within 128 blocks of the online requester, in their
+  dimension; no coordinates, no owner, opaque 30-second handles, shuffled), new public `catalogue` section
+  (machines, materials and both routes of all six chains), `set_machine_preset` by handle (within 16 blocks,
+  claim-checked, 10 actions per minute, one uniform refusal), and an `alarm` event. A NeroTech module in the
+  NeroLink app: Nearby, Chain planner, Tech Guide progress and your own pollution.
+- **Tech Guide**: ten new chapters (18 in total), entries for every new block and tool, and a paged chapter
+  rail.
+- **Quest pack**: twelve quests added to *Industrial Record*.
+- **Milestone records**: `nerotech:first_foundry_pour`, `first_quantum_chip`, `first_deposit_tapped`,
+  `gas_fed_ignition`, `meltdown_averted` and `vault_operated`, credited to the player operating the machine at
+  that moment. The four older records are now credited the same way as well, so they open on a default server.
+- **Map layer** for NeroMaps (Core map API): pollution bands around the viewer, in their own dimension.
+- **Commands**: `/nerotech budget` (per-machine-type tick cost over 200 ticks, op level 2) and
+  `/nerotech gallery tour [next|stop]`. The gallery gained a twelve-bay plant: one bay per chain, a heat loop
+  into a Blast Foundry, a drilling rig on a demo deposit, a gas-fed reactor, alarms and a tool rack, an item
+  catalogue and a tank farm. Gallery machines credit no milestone, trophy or statistic.
+- **Config**: 76 new keys (deposits, the machine families, modules, tools, pollution exposure). Every key is on
+  the wiki's Config page.
+- New API, additive only: `api.Atmosphere` and `api.PlanetApi.atmosphereAt(Level, BlockPos)`;
+  `PollutionManager.record` keeps its old signature as an overload. `MachineMenu` gained data slots.
+
+### Changed
+
+- **Defaults chosen for this release**: `pollutionExposureEffects=true` (severe band only);
+  `inductionChargePlayers=true`; `turbineGasBurn` now also burns methane (`nerotech:hydrogen=2,nerotech:methane=4`);
+  the Induction Charger is a tier-1 recipe; the four 0.8.0 acid-leaching recipes take 500 mB of acid and 240
+  ticks (the older Chemical Processor is unchanged).
+- **Pollution is now kept per dimension.** Existing regions load into the Overworld on first start. **Listeners:**
+  the `nerotech:pollution` and `nerotech:pollution_decay` threshold-event scope is now
+  `<dimension id>|<region key>`; before 0.8.0 it was the bare region key.
+- **`/nerotech gallery` now needs permission level 2**, as its description always said, and stays player-only and
+  creative-only.
+- **Forge now sends NeroTech's machine recipes to the client** on 1.21.4 and later, so JEI and EMI pages are no
+  longer empty on Forge. All sixteen recipe types have JEI and EMI pages.
+- **Machines hand fluids and gases to their neighbours** by side configuration, like items.
+- The Fusion Reactor runs on a shared multiblock base with the Blast Foundry and the Deep Core Drill. Existing
+  reactors and saves load unchanged.
+- No released id was renamed or removed, and no recipe from before 0.8.0 was changed.
+- **Drill heads now stack to 1 and carry their own wear** (`nerotech:drill_head_wear`, shown as a bar). A
+  part-worn head can be taken out and refitted without losing or resetting its wear. A drill saved with wear
+  on the machine moves it onto the fitted head the first time it ticks.
+- **Remote preset changes are owner-only.** `set_machine_preset` from the app now works only on machines you are
+  the recorded owner of; `nearby` entries carry `ownedByYou`, and the app shows the preset control only on those.
+- **The Arc Wrench asks the loader's break event before lifting a machine**, so protection mods that deny
+  breaking also deny lifting.
+- **Progress no longer carries over to a different recipe.** Swapping a machine's inputs for another recipe
+  mid-run starts from zero.
+- **Machines drop their contents when broken on 1.21.1 and 1.21.4**, as they already did on later lines.
+- **Induction Charger accounting.** It now charges exactly what it hands out, however the request is split, and
+  rounds energy conversions so no FE ratio makes energy.
+- The gallery's endless demo deposit now serves only the exhibit drill; any other drill in that chunk reads the
+  world's deposit.
+
+### Privacy
+
+- **The link `meltdown` event no longer carries coordinates and is no longer broadcast.** It used to go to every
+  linked client with the reactor's x/y/z; it now goes only to players in range and to a recorded owner. Link
+  schema 2; schema-1 sections keep their shape.
+- 0.8.0 adds no store keyed by a player. Deposits are chunk-keyed world data; the Induction Charger and
+  Annunciator Panel never record an owner; new milestones go to the online operator in the moment, which
+  NeroTech holds only in memory; the gallery remembers only its dimension and origin (at most 16 sites, removed
+  by `gallery clear`). `PRIVACY.md` and the new `Privacy` wiki page describe each one.
+- Push notifications for NeroTech go only to a machine's recorded owner; everyone else's notices only refresh an
+  open app. The app keeps the Nearby list in memory only.
+- An erase request now also clears the link module's in-memory state (nearby handles, action rate window,
+  alarm throttle) at once, and machines drop an erased player as their transient operator.
+- The Electrolyzer's old-fluid purge no longer logs the machine's position.
+- New compliance tests: a source scan that fails on any unreviewed player-identity persistence, SavedData,
+  data component, UUID-keyed map or identity in INFO+ logs, and Core's erasure conformance harness over
+  every NeroTech player store.
+
+### Cut from this release
+
+- **Particle Accelerator routes to cindersteel, Synthetic Glacite and europium.** A ring's energy cap makes any
+  such route as cheap as, or cheaper than, the offworld one. Slow process routes (Plasma Crucible, Crystal
+  Grower, Centrifuge on glowstone) carry those materials instead.
+- **Standalone deuterium** is a Centrifuge recipe on Electrolyzer hydrogen, not a trace output of the
+  Electrolyzer itself. The Bio Generator has no sulfur by-product; gunpowder in the Centrifuge is the standalone
+  sulfur.
+
+### Known issues
+
+- **Fabric 1.21.4, 1.21.5 and 1.21.8:** JEI and EMI pages for NeroTech's machine recipes can be empty, because
+  Fabric has no way to send them to the client on those versions. The machines work. Every other build,
+  including Fabric 1.21.1, 1.21.10, 1.21.11 and 26.x, is complete.
+- **Tool polish still open:** the Thermal Goggles show heat motes but no colour legend on screen; Multimeter and
+  Survey Scanner readings go to chat rather than a readout card; on Minecraft 1.21.1 tool models do not change
+  with the tool's mode or charge.
+- **Centrifuge cascades:** gas piped straight into the last centrifuge of a cascade skips the first stages. The
+  shortcut still costs more than three times the offworld route and still needs three linked centrifuges.
+- A Crystal Grower loses less than one tick of growth when its chunk unloads mid-crystal.
+- Europium Flux Lattices keep their "stable" look for a moment after their reactor controller is broken, until
+  the next structure check.
+- Annunciator Panels light no lamp for an unformed multiblock or an unpaid operating charge.
+- Machine input tanks have no dump button yet; a wrong leftover fluid has to be drawn out by automation. A
+  Process Tank can be vented by sneak-using it with an empty hand.
+- `/nerotech budget` numbers for a large base are still to be measured on a live server.
+
+## [0.7.1] - 2026-11-21
+
 ### Changed
 
 - Transitioning to stable versions: the alpha/beta label is dropped from the version number, so this release is **0.7.1** (previously 0.7.1-beta.1). Nothing else changes with the version label.
@@ -36,18 +197,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Stonecutter from 0.9.8 to 0.10.
 - Updated the Gradle distribution from 9.8.1 to 9.9.1.
 - Updated the Sentry Java SDK from 8.60.0 to 8.64.0.
-
-### Privacy
-
-- 0.8.0 adds no store keyed by a player. Deposits are chunk-keyed world data; the Induction Charger and
-  Annunciator Panel never record an owner; new milestones go to the online operator in the moment, which
-  NeroTech holds only in memory. `PRIVACY.md` and the new `Privacy` wiki page describe each one.
-- An erase request now also clears the link module's in-memory state (nearby handles, action rate window,
-  alarm throttle) at once, and machines drop an erased player as their transient operator.
-- The Electrolyzer's old-fluid purge no longer logs the machine's position.
-- New compliance tests: a source scan that fails on any unreviewed player-identity persistence, SavedData,
-  data component, UUID-keyed map or identity in INFO+ logs, and Core's erasure conformance harness over
-  every NeroTech player store.
 
 ## [0.7.1-beta.1] - 2026-10-31
 

@@ -189,4 +189,20 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
         return createTickerHelper(type, machineType(),
                 (lvl, pos, st, be) -> AbstractMachineBlockEntity.tick(lvl, pos, st, be));
     }
+
+    //? if <1.21.5 {
+    /*// Before 1.21.5 vanilla does not spill a block entity's container when its block goes, so every
+    // machine drops its slots here (from 1.21.5 BlockEntity.preRemoveSideEffects does it). Subclasses that
+    // override onRemove do their own work first and then call this. The Arc Wrench empties a machine
+    // before removing it, so a wrench lift drops nothing twice.
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && !level.isClientSide()
+                && level.getBlockEntity(pos) instanceof NeroTechMachineBlockEntity machine) {
+            net.minecraft.world.Containers.dropContents(level, pos, machine);
+            level.updateNeighbourForOutputSignal(pos, this);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+    *///?}
 }

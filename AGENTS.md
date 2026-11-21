@@ -13,7 +13,7 @@
   never lock a machine, recipe or item. Do not add use-locks.
 - Mod id: **`nerotech`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.nerotech`. Author: **Neroland**.
-- Version: **0.7.1-beta.1** (requires Neroland Core **1.19.0**; `nerolandcore_version` in `gradle.properties`).
+- Version: **0.8.0** "Offworld Industry" (requires Neroland Core **1.19.0**; `nerolandcore_version` in `gradle.properties`).
 - Targets **MC 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 AND 26.3** on **NeoForge,
   MinecraftForge/Forge, and Fabric** → **27 cells** (the source is written for 26.x; older lines use `//?` blocks and the
   `legacyRenames` list in `stonecutter.gradle`). **Java 25** for 26.x, **Java 21** for 1.21.x. Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
@@ -76,12 +76,35 @@
 - Loader entry points: `NeroTechFabric` (+ `NeroTechFabricClient`), `NeroTechForge`,
   `NeroTechNeoForge` — each calls `NeroTechCommon.init()` during construction.
 - **Public add-on API = `za.co.neroland.nerotech.api`** (`PowerMachine`, `MachineTypeRegistry`,
-  `MachineFailureEvents`, `PlanetApi`): stable within a 0.x minor, NeroPower depends on it — a breaking
+  `MachineFailureEvents`, `PlanetApi` incl. `atmosphereAt`, `Atmosphere`, `WirelessCharging`): stable within a 0.x minor, NeroPower depends on it — a breaking
   change there bumps the minor and goes in `CHANGELOG.md`. Everything else is internal. Capability wiring
   on every loader reads `MachineTypeRegistry` (seeded first in `NeroTechCommon.init()`), not hand lists.
 - Each loader cell publishes to Maven (`za.co.neroland.nerotech:nerotech-<loader>-<mc>:<version>`,
   `./gradlew publishToMavenLocal` / GitHub Packages) so add-ons resolve NeroTech like NeroTech resolves Core.
 - NeoForge/Forge debug tasks use `-PnerotechDebug`; Fabric Loom honours Gradle `--debug-jvm`.
+- NeroPower also compiles against the machine base classes, `MachineMenu`/`MachineScreen`, `NeroTechConfig`,
+  `ModBlocks`, `ModDataComponents`, `ConfiguratorItem`/`ConfiguratorState` and `PollutionManager`: treat those
+  as API too (additive changes only).
+
+## Package map (0.8.0 additions)
+
+- `machine/<family>/` — `metallurgy`, `foundry`, `chemistry`, `components`, `heat`, `extraction`, `fusion`,
+  `utility`, each with a `<Family>Content` registering its blocks, block entities, menus and items through
+  `registry/FamilyRegistry`; shared `machine/ProcessingMachineBlockEntity` (data-driven process recipes,
+  readout, alarms, transient `lastOperator`), `machine/tank/` (Process Tank columns, fluid-or-gas handler) and
+  `machine/multiblock/` (`StructureShape`, `MultiblockValidator`, `MultiblockController`; the Fusion Reactor,
+  Blast Foundry and Deep Core Drill shapes).
+- `recipe/ProcessRecipe` + the eleven 0.8.0 recipe types in `registry/ModRecipeTypes`; client sync on every
+  loader (Forge `ForgeRecipeSync`; Fabric only on >=1.21.9). `RecipeGraphTest` (`recipe/graph/`) proves every
+  item is reachable standalone and offworld at 3–5x.
+- `deposit/` — virtual deposits (`DepositSeed`, `DepositTable`, `DepositState` behind Core `SavedDataRecovery`,
+  `DepositService`); tables in `data/nerotech/nerotech_deposits/`.
+- `item/tools/` — the seven tools; `upgrade/` — Heat Sink and Scrubber modules.
+- `link/` — link schema 2 (`nearby`, `catalogue`, handle-based preset action, alarm events); `map/` — the
+  NeroMaps pollution layer; `command/gallery/` — the gallery plant and tour; `command/TickBudget` —
+  `/nerotech budget`.
+- `client/GaugeMath` + `GaugeTooltips` — gauge hover tooltips on every screen.
+- Compliance tests in `common/src/test/.../compliance/` (no new player-keyed data; Core erasure conformance).
 
 ## IDE (VS Code) run & debug
 

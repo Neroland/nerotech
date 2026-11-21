@@ -264,6 +264,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
                 MilestoneGates.credit(serverLevel, operator, MilestoneGates.MELTDOWN_AVERTED);
             }
             this.worstFailureStage = 0;
+            clearFailureStage();
         }
         this.formed = nowFormed;
         this.shellSize = nowSize;
@@ -435,6 +436,7 @@ public class FusionReactorBlockEntity extends NeroTechMachineBlockEntity {
     /** Publish a failure stage for this reactor on the ecosystem bus (server side only). */
     private void fireFailure(Level level, int stage, boolean rising) {
         if (level instanceof ServerLevel) {
+            noteFailureStage(stage, rising);
             MachineFailureEvents.fire(MACHINE_ID, level.dimension().identifier().toString(), stage, rising);
         }
     }

@@ -121,6 +121,12 @@ Core's privacy notice and erased through the same shared data-erasure hook.
   online players in range (and a machine's recorded owner) and carry **no coordinates**. Handles, the
   action rate limit (10 per minute) and the alarm throttle are kept in memory only, cleared within a few
   seconds of logout and at once on an erase request.
+- **Gallery sites** — `/nerotech gallery` (creative, operators only) remembers where each gallery was built
+  so `gallery clear` and `gallery tour` work from anywhere inside it: **the dimension and the origin block
+  only**, at most 16 rows (the oldest is dropped first), and `gallery clear` removes that site's row. It
+  records nothing about who built or toured it. Machines the gallery places never record an owner or an
+  operator and credit no milestone, trophy or statistic. The gallery's demo deposit writes nothing to the
+  deposit store.
 - **Logs** — nothing NeroTech logs at INFO or above contains a UUID, a player name, coordinates or text
   written by players.
 

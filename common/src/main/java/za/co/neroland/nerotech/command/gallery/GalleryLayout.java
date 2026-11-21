@@ -198,7 +198,7 @@ public final class GalleryLayout {
         return b.bay();
     }
 
-    /** Seed + quartz → boule → wafer → Logic Chip → Quantum Processor. */
+    /** Seed + quartz → boule → wafer → Logic Chip → Quantum Chip. */
     private static Bay semiconductor(int x0, int z0) {
         B b = new B("semiconductor", x0, z0, 24, 6);
         b.chest(1, "semiconductor.raw");
@@ -330,20 +330,25 @@ public final class GalleryLayout {
         return b.bay();
     }
 
-    /** A 5³ reactor fed by two Fuel Injectors, four Europium Flux Lattices in its shell, a coolant pump at the console. */
+    /**
+     * A 7³ reactor (the maximal shell: {@code fusionGasMinShellSize} defaults to 7, so a smaller one cannot burn
+     * gas) fed by two Fuel Injectors, four Europium Flux Lattices in its shell, a coolant pump at the console.
+     * Shell spans lx 2..8, ly 1..7, lz 2..8; the controller sits at the north wall centre (5, 4, 2).
+     */
     private static Bay gasFusion(int x0, int z0) {
-        B b = new B("gas_fusion", x0, z0, 26, 8);
-        List<int[]> lattices = List.of(new int[] {2, 3, 4}, new int[] {6, 3, 4}, new int[] {4, 5, 4},
-                new int[] {4, 1, 4});
-        List<int[]> injectors = List.of(new int[] {3, 3, 2}, new int[] {5, 3, 2});
-        fusionShell(b, 2, 1, 2, 5, lattices, injectors);
-        b.part(Kind.FUSION_REACTOR, 4, 3, 2, 'N', "fusion.gas");
-        b.part(Kind.FUSION_CASING, 4, 1, 1, '-', "");
-        b.part(Kind.FUSION_CASING, 4, 2, 1, '-', "");
-        b.part(Kind.COOLANT_PUMP, 4, 3, 1, '-', "coolant");
-        b.part(Kind.RADIATOR, 4, 4, 1, '-', "");
-        b.part(Kind.RADIATOR, 4, 5, 1, '-', "");
-        b.part(Kind.CREATIVE_BATTERY, 5, 3, 1, '-', "");
+        B b = new B("gas_fusion", x0, z0, 26, 9);
+        List<int[]> lattices = List.of(new int[] {2, 4, 5}, new int[] {8, 4, 5}, new int[] {5, 7, 5},
+                new int[] {5, 1, 5});
+        List<int[]> injectors = List.of(new int[] {4, 4, 2}, new int[] {6, 4, 2});
+        fusionShell(b, 2, 1, 2, 7, lattices, injectors);
+        b.part(Kind.FUSION_REACTOR, 5, 4, 2, 'N', "fusion.gas");
+        b.part(Kind.FUSION_CASING, 5, 1, 1, '-', "");
+        b.part(Kind.FUSION_CASING, 5, 2, 1, '-', "");
+        b.part(Kind.FUSION_CASING, 5, 3, 1, '-', "");
+        b.part(Kind.COOLANT_PUMP, 5, 4, 1, '-', "coolant");
+        b.part(Kind.RADIATOR, 5, 5, 1, '-', "");
+        b.part(Kind.RADIATOR, 5, 6, 1, '-', "");
+        b.part(Kind.CREATIVE_BATTERY, 6, 4, 1, '-', "");
         return b.bay();
     }
 

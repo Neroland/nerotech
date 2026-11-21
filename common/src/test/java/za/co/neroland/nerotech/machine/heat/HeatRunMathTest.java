@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * Heat Pipe run rules (decision 012): heat is conserved along a run (out never exceeds in), it flows from
+ * Heat Pipe run rules: heat is conserved along a run (out never exceeds in), it flows from
  * the hot endpoint to the cold one, long runs lose more, re-seeding never creates heat, and the contact
  * damage threshold. Pure JVM.
  */

@@ -44,6 +44,7 @@ import za.co.neroland.nerotech.guide.TechGuideSeenState;
 import za.co.neroland.nerotech.machine.MachinePreset;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.machine.utility.AnnunciatorPanelBlockEntity;
+import za.co.neroland.nerotech.platform.Services;
 import za.co.neroland.nerotech.pollution.PollutionAttributionPrefs;
 import za.co.neroland.nerotech.pollution.PollutionState;
 
@@ -69,8 +70,8 @@ import za.co.neroland.nerotech.pollution.PollutionState;
  * </ul>
  *
  * <p><b>Actions</b>: {@code set_pollution_attribution} (a player's own privacy opt-out) and
- * {@code set_machine_preset} (remote overclock preset: owner-gated by position, or by a {@code nearby}
- * handle within in-person reach — see {@link PresetAccess}). Ten actions per player per minute, in
+ * {@code set_machine_preset} (remote overclock preset, only on machines the requester is the recorded
+ * owner of: by position, or by a {@code nearby} handle within in-person reach — see {@link PresetAccess}). Ten actions per player per minute, in
  * memory; opt-outs have their own budget of thirty. Every refusal after validation is the one answer
  * {@code unavailable}. The bridge validates token,
  * module presence, action-enabled config, rate limit and offline policy; this handler still
@@ -85,10 +86,8 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     public static final String MODULE_ID = "nerotech";
     public static final int SCHEMA_VERSION = 2;
 
-    /** Display version reported in discovery (matches NeroTech's mod version). */
-    // TODO: hand-maintained duplicate — bump this in step with `mod_version` in gradle.properties,
-    // or the companion app reports a stale NeroTech version.
-    public static final String MOD_VERSION = "0.8.0-beta.1";
+    /** Version reported when the loader cannot say (unit tests, a missing platform service). */
+    public static final String FALLBACK_VERSION = "unknown";
 
     private static final List<String> SECTIONS = List.of("pollution", "guide", "wiki", "nearby", "catalogue");
     private static final List<String> ACTIONS = List.of("set_pollution_attribution", "set_machine_preset");
@@ -103,17 +102,17 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     record Target(ResourceKey<Level> dimension, BlockPos pos) {
     }
 
-    /** Handles minted by {@code nearby}, per requester, in memory (decision 007). */
+    /** Handles minted by {@code nearby}, per requester, in memory. */
     static final NearbyHandles<Target> HANDLES = new NearbyHandles<>(System::currentTimeMillis);
 
-    /** Ten actions per player per minute, in memory (decision 007). */
+    /** Ten actions per player per minute, in memory. */
     static final LinkRateLimiter LIMITER = new LinkRateLimiter(System::currentTimeMillis);
 
-    /** Privacy opt-outs: their own generous budget, so they are never refused in normal use (review L1). */
+    /** Privacy opt-outs: their own generous budget, so they are never refused in normal use. */
     static final LinkRateLimiter OPT_OUTS = new LinkRateLimiter(System::currentTimeMillis,
             LinkRateLimiter.MAX_OPT_OUTS);
 
-    /** Shuffles each {@code nearby} answer so order and truncation say nothing about direction (review M1). */
+    /** Shuffles each {@code nearby} answer so order and truncation say nothing about direction. */
     private static final SecureRandom SHUFFLE = new SecureRandom();
 
     /** Ticks between sweeps that drop in-memory link state of players who have logged out. */
@@ -153,9 +152,28 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
                 || MachineAlarmLink.holds(player);
     }
 
+    /**
+     * Display version reported in discovery: NeroTech's own version from the loader's mod metadata (the
+     * same {@code IPlatformHelper} seam telemetry uses), or {@link #FALLBACK_VERSION} off-loader.
+     */
+    public static String modVersion() {
+        String raw;
+        try {
+            raw = Services.PLATFORM.getModVersion();
+        } catch (RuntimeException | LinkageError e) {
+            raw = null;
+        }
+        return resolveVersion(raw);
+    }
+
+    /** The loader-reported version, trimmed; {@link #FALLBACK_VERSION} when missing or blank. Pure. */
+    static String resolveVersion(@Nullable String raw) {
+        return raw == null || raw.isBlank() ? FALLBACK_VERSION : raw.trim();
+    }
+
     /** Register the module (snapshot + action) with Core's link registry. Idempotent per process. */
     public static void register() {
-        LinkModuleInfo info = new LinkModuleInfo(MODULE_ID, MOD_VERSION, SCHEMA_VERSION, SECTIONS, ACTIONS);
+        LinkModuleInfo info = new LinkModuleInfo(MODULE_ID, modVersion(), SCHEMA_VERSION, SECTIONS, ACTIONS);
         NeroLinkRegistry.registerSnapshotProvider(INSTANCE, info);
         NeroLinkRegistry.registerActionHandler(INSTANCE, info);
         registerErasure();
@@ -265,7 +283,7 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     }
 
     /**
-     * PROXIMITY-scoped machines around the ONLINE requester (decision 007): their current dimension,
+     * PROXIMITY-scoped machines around the ONLINE requester: their current dimension,
      * the loaded chunks of a 9 x 9 square around them (nothing is loaded to answer), a 128-block box,
      * at most 128 entries. Walls and claims do not hide a machine: this is what stands within reach.
      * The whole in-reach set is shuffled before it is cut to 128 and before handles are minted, so the
@@ -317,7 +335,8 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
                 String type = BuiltInRegistries.BLOCK.getKey(machine.getBlockState().getBlock()).toString();
                 machines.add(NearbyFormat.entry(type, machine.readout(), machine.alarmMask(),
                         machine.energyPermille(), machine.heatPermille(), tankPermille(machine), handles.get(i),
-                        !(machine instanceof AnnunciatorPanelBlockEntity)));
+                        !(machine instanceof AnnunciatorPanelBlockEntity),
+                        PresetAccess.ownedBy(machine.ownerId(), playerId)));
             }
         } else {
             HANDLES.forget(playerId);
@@ -477,7 +496,7 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
      *
      * <p>Once the body is well formed, every refusal is the one {@link PresetAccess#UNAVAILABLE} answer:
      * an unknown dimension, an unloaded chunk, no machine and someone else's machine look the same, so
-     * the action is no oracle for loaded chunks or machine positions (review H2).
+     * the action is no oracle for loaded chunks or machine positions.
      */
     private LinkActionResult setMachinePreset(UUID playerId, JsonObject params) {
         MinecraftServer srv = server;
@@ -525,8 +544,7 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
         if (!(be instanceof NeroTechMachineBlockEntity machine) || be.isRemoved()) {
             return PresetAccess.refuse(PresetAccess.Refusal.NO_MACHINE);
         }
-        UUID owner = machine.ownerId();
-        if (owner == null || !owner.equals(playerId)) {
+        if (!PresetAccess.ownerAllows(machine.ownerId(), playerId)) {
             // Ownership cannot be established (attribution off at placement, or someone else's machine).
             return PresetAccess.refuse(PresetAccess.Refusal.NOT_OWNER);
         }
@@ -541,13 +559,13 @@ public final class NeroTechLinkModule implements LinkSnapshotProvider, LinkActio
     }
 
     /**
-     * Schema-2 body {@code {h, preset}} (decision 007, amendment 2026-11-21): the handle must come from
+     * Schema-2 body {@code {h, preset}}: the handle must come from
      * the requester's OWN latest {@code nearby} response and be under 30 s old, and the requester must be
      * able to make the change in person, now: same dimension, within {@link PresetAccess#ACTION_REACH}
      * blocks (not the 128 of {@code nearby}), the chunk already loaded, the interaction checks a
      * right-click passes at that block (spawn protection, world border, adventure rules, build
-     * restrictions), and no recorded owner or the requester as owner. Every refusal is the same
-     * {@code unavailable} answer.
+     * restrictions), and the requester is the machine's recorded owner (ownerless machines are refused:
+     * owner-only). Every refusal is the same {@code unavailable} answer.
      */
     private LinkActionResult setMachinePresetByHandle(ServerPlayer player, JsonObject params) {
         Optional<String> handle = PresetAccess.string(params.get("h"));

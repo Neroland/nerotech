@@ -58,13 +58,16 @@ public final class ToolRules {
     /**
      * Power Drill: whether a vein-mode break walks the vein from a block. Only blocks in
      * {@code nerotech:power_drill/vein} (ores, gravel, clay, glowstone by default) do; anything else breaks
-     * alone, so vein mode is never a free quarry (decision 014 row 9). Area mode still takes stone.
+     * alone, so vein mode is never a free quarry. Area mode still takes stone.
      */
+    public static final String DRILL_VEIN_TAG_PATH = "power_drill/vein";
+
+    /** Power Drill: see {@link #DRILL_VEIN_TAG_PATH}; true only for a block in the vein tag. */
     public static boolean drillWalksVein(boolean inVeinTag) {
         return inVeinTag;
     }
 
-    /** Cutting Lance: whether a cut fires from this hand. The main hand only (review M1: no off-hand cuts). */
+    /** Cutting Lance: whether a cut fires from this hand. The main hand only. */
     public static boolean lanceFiresFrom(boolean mainHand) {
         return mainHand;
     }

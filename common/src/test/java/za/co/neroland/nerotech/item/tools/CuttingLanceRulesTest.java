@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * Cutting Lance duplication fix (Stage 3 review M1): no cut from the off hand, and a Glacite cut yields
+ * Cutting Lance duplication fix: no cut from the off hand, and a Glacite cut yields
  * the preserved block exactly once. Pure JVM; the in-world drops (stone gives cobblestone through the
  * normal break path) are on the runtime script.
  */

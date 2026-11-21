@@ -80,10 +80,13 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
 
     private final MultiblockController controller = new MultiblockController(DrillShape.INSTANCE);
     private boolean formed;
-    /** Operations used on the current head (saved: the wear belongs to the machine, not the item). */
-    private int headUsed;
+    /**
+     * Wear from an old save, where the machine held it: moved onto the fitted head on the first tick and
+     * then forgotten. Head wear now lives on the head item ({@link DrillHeadItem#wear}).
+     */
+    private int legacyHeadUsed;
     @Nullable
-    private DrillHeadTier wearTier;
+    private DrillHeadTier legacyWearTier;
 
     // Transient caches, re-derived after a load.
     private boolean dimensionDisabled;
@@ -150,8 +153,9 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
 
     /** Operations left on the fitted head (0 without one). */
     public int headOperationsLeft() {
-        DrillHeadTier tier = tierOf(this.items.get(HEAD_SLOT));
-        return tier == null ? 0 : tier.operations() - this.headUsed;
+        ItemStack head = this.items.get(HEAD_SLOT);
+        DrillHeadTier tier = tierOf(head);
+        return tier == null ? 0 : DrillRules.operationsLeft(DrillHeadItem.wear(head), tier);
     }
 
     @Override
@@ -207,7 +211,7 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
 
         ItemStack head = this.items.get(HEAD_SLOT);
         DrillHeadTier tier = tierOf(head);
-        trackHead(tier);
+        trackHead(tier, head);
         boolean waiting = now < this.retryAt;
         if (!waiting && this.surveyedOutput == null && this.formed && !this.dimensionDisabled && tier != null) {
             refreshSurvey(serverLevel, pos, now);
@@ -278,7 +282,7 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
     /** One completed operation: the single deposit read, the output, and head wear. */
     private void operate(ServerLevel level, BlockPos pos, long now, DrillHeadTier tier, ItemStack head) {
         DepositService.Extraction taken = DepositService.extract(level, pos.getX() >> 4, pos.getZ() >> 4,
-                tier.unitsPerOperation());
+                tier.unitsPerOperation(), isGalleryExhibit());
         if (taken == null) {
             this.surveyedOutput = null;
             this.retryAt = now + ExtractionSettings.drillDepletedRetryTicks();
@@ -293,16 +297,20 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
             // Milestone record: credit the operator in the moment (online only, never stored; idempotent).
             MilestoneGates.credit(level, lastOperator().orElse(null), MilestoneGates.FIRST_DEPOSIT_TAPPED);
         }
-        if (DrillRules.wornOut(this.headUsed, tier)) {
+        int used = DrillHeadItem.wear(head);
+        if (DrillRules.wornOut(used, tier)) {
             head.shrink(1);
+            DrillHeadItem.setWear(head, 0); // an old oversize stack: the next head starts fresh
+        } else {
+            DrillHeadItem.setWear(head, DrillRules.wear(used, tier));
         }
-        this.headUsed = DrillRules.wear(this.headUsed, tier);
         pulseClient();
     }
 
     /** Read the deposit once (formation, load, after a retry wait); never per tick. */
     private void refreshSurvey(ServerLevel level, BlockPos pos, long now) {
-        DepositService.Survey survey = DepositService.survey(level, pos.getX() >> 4, pos.getZ() >> 4);
+        DepositService.Survey survey = DepositService.survey(level, pos.getX() >> 4, pos.getZ() >> 4,
+                isGalleryExhibit());
         if (survey == null) {
             this.retryAt = now + ExtractionSettings.drillDepletedRetryTicks();
             this.retryDetail = DETAIL_NO_DEPOSIT;
@@ -317,11 +325,16 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
         this.surveyedRichness = survey.richness();
     }
 
-    /** Keep the wear honest across a head swap: carry it as a fraction of life to the new tier. */
-    private void trackHead(@Nullable DrillHeadTier tier) {
-        if (tier != null && tier != this.wearTier) {
-            this.headUsed = this.wearTier == null ? this.headUsed : DrillRules.carryWear(this.headUsed, this.wearTier, tier);
-            this.wearTier = tier;
+    /** Track the fitted head's tier for the BER, and move an old save's machine-held wear onto the head. */
+    private void trackHead(@Nullable DrillHeadTier tier, ItemStack head) {
+        if (this.legacyHeadUsed > 0 && tier != null) {
+            if (DrillHeadItem.wear(head) == 0) {
+                DrillHeadTier from = this.legacyWearTier == null ? tier : this.legacyWearTier;
+                DrillHeadItem.setWear(head, Math.min(tier.operations() - 1,
+                        DrillRules.carryWear(this.legacyHeadUsed, from, tier)));
+            }
+            this.legacyHeadUsed = 0;
+            this.legacyWearTier = null;
             setChanged();
         }
         this.headTierOrdinal = tier == null ? -1 : tier.ordinal();
@@ -465,28 +478,7 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
         super.setRemoved();
     }
 
-    /**
-     * Breaking the drill spends a part-worn head ({@link DrillRules#headSpentOnBreak}) before the contents
-     * drop, so wear cannot be reset by breaking and re-placing the controller. Server side only.
-     */
-    public void spendWornHead() {
-        if (this.level == null || this.level.isClientSide() || !DrillRules.headSpentOnBreak(this.headUsed)) {
-            return;
-        }
-        ItemStack head = this.items.get(HEAD_SLOT);
-        if (!head.isEmpty()) {
-            head.shrink(1);
-        }
-        this.headUsed = 0;
-    }
-
-    //? if >=1.21.5 {
-    @Override
-    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        spendWornHead(); // before the base spills the contents
-        super.preRemoveSideEffects(pos, state);
-    }
-    //?}
+    // Head wear rides on the head item, so a broken drill simply drops its head with the wear it has.
 
     // --- persistence -------------------------------------------------------------------------------
 
@@ -501,8 +493,11 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
         ValueOutput output = ValueOutput.of(tag, registries);
     *///?}
         output.putBoolean("Formed", this.formed);
-        output.putInt("HeadUsed", this.headUsed);
-        output.putInt("WearTier", this.wearTier == null ? -1 : this.wearTier.ordinal());
+        if (this.legacyHeadUsed > 0) {
+            // Not yet moved onto a head (no head fitted since the old save loaded): keep it until it is.
+            output.putInt("HeadUsed", this.legacyHeadUsed);
+            output.putInt("WearTier", this.legacyWearTier == null ? -1 : this.legacyWearTier.ordinal());
+        }
     }
 
     //? if >=1.21.6 {
@@ -516,8 +511,8 @@ public class DeepCoreDrillBlockEntity extends NeroTechMachineBlockEntity {
         ValueInput input = ValueInput.of(tag, registries);
     *///?}
         this.formed = input.getBooleanOr("Formed", false);
-        this.headUsed = Math.max(0, input.getIntOr("HeadUsed", 0));
-        this.wearTier = DrillHeadTier.byOrdinal(input.getIntOr("WearTier", -1));
+        this.legacyHeadUsed = Math.max(0, input.getIntOr("HeadUsed", 0));
+        this.legacyWearTier = DrillHeadTier.byOrdinal(input.getIntOr("WearTier", -1));
         // Update-tag extras (absent in a disk save, which keeps the defaults).
         this.drilling = input.getBooleanOr("Drilling", false);
         this.headTierOrdinal = input.getIntOr("HeadTier", -1);

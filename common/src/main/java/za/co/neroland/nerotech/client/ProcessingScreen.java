@@ -14,6 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import org.jetbrains.annotations.Nullable;
+
 import za.co.neroland.nerotech.gas.NeroTechGases;
 import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.machine.ProcessingMachineBlockEntity;
@@ -94,14 +96,38 @@ public class ProcessingScreen<T extends ProcessingMenu> extends MachineScreen<T>
     public void extractContents(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
         super.extractContents(extractor, mouseX, mouseY, partialTick);
         extractMachine(extractor, mouseX, mouseY);
-        List<Component> tip = tooltip(mouseX - this.leftPos, mouseY - this.topPos);
-        if (!tip.isEmpty()) {
-            //? if >=1.21.6 {
-            extractor.setComponentTooltipForNextFrame(this.font, tip, mouseX, mouseY);
-            //?} else {
-            /*extractor.renderComponentTooltip(this.font, tip, mouseX, mouseY);
-            *///?}
+        // The tooltip itself is emitted by MachineScreen from gaugeTooltip (once, after every part).
+    }
+
+    @Override
+    protected List<Component> gaugeTooltip(int mx, int my) {
+        return tooltip(mx, my);
+    }
+
+    /** The current recipe's draw while a job runs (0 idle), from the synced energy rate. */
+    @Override
+    protected long energyUsedPerTick() {
+        return this.menu.working() ? Math.max(0, this.menu.energyRate()) : 0L;
+    }
+
+    @Nullable
+    @Override
+    protected Integer heatSupplied() {
+        return this.menu.heatAvailable();
+    }
+
+    /** The status line (state, cause and fix) whenever the machine is not simply running or resting. */
+    @Nullable
+    @Override
+    protected Component stallCause() {
+        MachineStatus status = this.menu.status();
+        if (status == MachineStatus.RUNNING) {
+            return null;
         }
+        if (status == MachineStatus.IDLE && this.menu.detail() < 0) {
+            return null;
+        }
+        return statusLine();
     }
 
     /** Status line, troughs, tanks, arrow and catalyst ghost. Override to add machine-specific parts. */
@@ -124,6 +150,7 @@ public class ProcessingScreen<T extends ProcessingMenu> extends MachineScreen<T>
             if (g == null || capacity <= 0) {
                 continue;
             }
+            sampleTank(tank, this.menu.tankAmount(tank));
             float f = (float) this.menu.tankAmount(tank) / capacity;
             gauge(extractor, x + g.x(), y + g.y(), g.w(), g.h(), f, tankColor(tank, this.menu.tankMedium(tank)));
         }
@@ -237,42 +264,40 @@ public class ProcessingScreen<T extends ProcessingMenu> extends MachineScreen<T>
         return mx >= x && mx < x + w && my >= y && my < y + h;
     }
 
-    private static String number(long value) {
-        return String.format(Locale.ROOT, "%,d", value);
-    }
-
     /** Tooltip lines for the panel-relative mouse position, or empty. */
     protected List<Component> tooltip(int mx, int my) {
         List<Component> lines = new ArrayList<>();
+        Component status = statusLine();
+        if (inside(mx, my, 8, ProcessingLayout.STATUS_Y - 1, Math.max(40, this.font.width(status)), 10)) {
+            GaugeTooltips.status(lines, status, this.menu.status());
+            return lines;
+        }
         ProcessingLayout.Gauge e = this.layout.energy();
-        if (drawsEnergyTrough() && inside(mx, my, e.x(), e.y(), e.w(), e.h())) {
-            lines.add(Component.translatable("nerotech.gui.energy"));
-            lines.add(Component.translatable("nerotech.gui.energy.level", this.menu.energyPermille() / 10));
-            lines.add(Component.translatable("nerotech.gui.energy.rate", number(this.menu.energyRate())));
+        if (drawsEnergyTrough() && over(mx, my, e.x(), e.y(), e.w(), e.h())) {
+            energyTooltip(lines);
             return lines;
         }
         ProcessingLayout.Gauge h = this.layout.heat();
-        if (inside(mx, my, h.x(), h.y(), h.w(), h.h())) {
-            lines.add(Component.translatable("nerotech.gui.heat"));
-            lines.add(Component.translatable("nerotech.gui.heat.level", Math.round(this.menu.heatFraction() * 100f),
-                    number(this.menu.heatAvailable())));
+        if (over(mx, my, h.x(), h.y(), h.w(), h.h())) {
+            heatTooltip(lines);
             return lines;
         }
         for (int tank = 0; tank < 4; tank++) {
             ProcessingLayout.Gauge g = this.layout.tank(tank);
             long capacity = this.menu.tankCapacity(tank);
-            if (g != null && capacity > 0 && inside(mx, my, g.x(), g.y(), g.w(), g.h())) {
-                lines.add(Component.translatable("nerotech.gui.tank." + TANK_ROLES[tank]));
-                lines.add(mediumName(tank, this.menu.tankMedium(tank)));
-                lines.add(Component.translatable("nerotech.gui.tank.amount", number(this.menu.tankAmount(tank)),
-                        number(capacity)));
+            if (g != null && capacity > 0 && over(mx, my, g.x(), g.y(), g.w(), g.h())) {
+                int medium = this.menu.tankMedium(tank);
+                GaugeTooltips.tank(lines, Component.translatable("nerotech.gui.tank." + TANK_ROLES[tank]),
+                        medium < 0 ? null : mediumName(tank, medium), this.menu.tankAmount(tank), capacity,
+                        tank >= ProcessingMachineBlockEntity.TANK_GAS_IN,
+                        tank == ProcessingMachineBlockEntity.TANK_FLUID_OUT || tank == ProcessingMachineBlockEntity.TANK_GAS_OUT,
+                        tankWindow(tank).perTick());
                 return lines;
             }
         }
         ProcessingLayout.Gauge a = this.layout.arrow();
         if (drawsWorkArrow() && inside(mx, my, a.x(), a.y(), a.w(), a.h())) {
-            lines.add(Component.translatable("nerotech.gui.progress",
-                    this.menu.working() ? Math.round(this.menu.workFraction() * 100f) : 0));
+            progressTooltip(lines);
             return lines;
         }
         Slot hovered = this.hoveredSlot;

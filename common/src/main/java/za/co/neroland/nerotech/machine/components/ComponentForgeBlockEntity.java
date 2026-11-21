@@ -26,7 +26,7 @@ import za.co.neroland.nerotech.registry.ModRecipeTypes;
 
 /**
  * Component Forge: up to six item inputs plus one fluid make one component ({@code nerotech:component_forging}).
- * The home of the component ladder (servo, capacitor, heat sink and what Stage 3 adds). It runs one recipe
+ * The home of the component ladder (servo, capacitor, heat sink and what later tiers add). It runs one recipe
  * at a time from its own slots: no patterns, no network awareness and no reaching into neighbours, which is
  * the Auto Crafter's and NeroLogistics' job. Everything else (side config, upgrades, presets, heat,
  * pollution, analytics, alarms) is the shared processing base.

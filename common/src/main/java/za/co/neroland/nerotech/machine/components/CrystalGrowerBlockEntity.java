@@ -104,6 +104,9 @@ public class CrystalGrowerBlockEntity extends ProcessingMachineBlockEntity {
             stall(MachineStatus.STARVED, starvedDetail());
             return;
         }
+        if (trackRecipeProgress(this.cached)) {
+            this.growthCarry = 0; // a different crystal starts from nothing
+        }
         if (!fits(recipe)) {
             stall(MachineStatus.BLOCKED, DETAIL_OUTPUT_FULL);
             return;

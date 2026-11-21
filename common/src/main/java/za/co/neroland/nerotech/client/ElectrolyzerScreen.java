@@ -11,4 +11,10 @@ public class ElectrolyzerScreen extends TankMachineScreen<ElectrolyzerMenu> {
     public ElectrolyzerScreen(ElectrolyzerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, WATER, HYDROGEN, OXYGEN);
     }
+
+    /** Hydrogen and oxygen are the products; water is the feed. */
+    @Override
+    protected boolean tankIsOutput(int i) {
+        return i > 0;
+    }
 }

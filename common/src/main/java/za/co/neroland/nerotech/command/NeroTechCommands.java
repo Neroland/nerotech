@@ -37,6 +37,11 @@ import za.co.neroland.nerolandcore.energy.EnergyBuffer;
 import za.co.neroland.nerolandcore.gas.NeroGasStorage;
 
 import za.co.neroland.nerotech.NeroTechCommon;
+import za.co.neroland.nerotech.command.gallery.GalleryCatalogue;
+import za.co.neroland.nerotech.command.gallery.GalleryLayout;
+import za.co.neroland.nerotech.command.gallery.GalleryPlant;
+import za.co.neroland.nerotech.command.gallery.GalleryState;
+import za.co.neroland.nerotech.command.gallery.GalleryTour;
 import za.co.neroland.nerotech.gas.NeroTechGases;
 import za.co.neroland.nerotech.machine.AbstractProcessingBlockEntity;
 import za.co.neroland.nerotech.machine.AcceleratorGuideBlock;
@@ -53,6 +58,7 @@ import za.co.neroland.nerotech.machine.RoboticArmBlockEntity;
 import za.co.neroland.nerotech.machine.ScrubberBlockEntity;
 import za.co.neroland.nerotech.machine.SingularityVaultBlockEntity;
 import za.co.neroland.nerotech.machine.WirelessNodeBlockEntity;
+import za.co.neroland.nerotech.pollution.PollutionManager;
 import za.co.neroland.nerotech.registry.ModBlocks;
 import za.co.neroland.nerotech.registry.ModItems;
 import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
@@ -77,6 +83,14 @@ import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
  * live item entities, a Robotic Arm shuttling between two chests, and a stocked Singularity Vault).
  * {@code /nerotech gallery clear} wipes that footprint (blocks + label stands) so a rebuild doesn't
  * stack duplicates.
+ *
+ * <p>0.8.0 adds the walkable plant east of the rotunda ({@code command.gallery}: {@code GalleryLayout} is
+ * the pure layout, {@code GalleryPlant} builds it): one bay per chain from raw input to product, the heat
+ * loop into a formed Blast Foundry, a drilling rig on the gallery's demo deposit, a gas-fed reactor with a
+ * lattice shell, the alarm panels and tool rack, the item catalogue and a tank farm.
+ * {@code /nerotech gallery tour [next|stop]} walks the bays. Every machine the gallery places is marked as an
+ * exhibit and credits no gate, trophy or statistic. The gallery's site (dimension + origin, no player data)
+ * is kept in {@code GalleryState} so {@code clear} and {@code tour} work from anywhere inside it.
  *
  * <p><b>Privacy (POPIA/GDPR):</b> the command acts at the invoking player's position and records
  * nothing — no positions, names or UUIDs are stored anywhere.
@@ -109,7 +123,41 @@ public final class NeroTechCommands {
                                         () -> buildGallery(ctx.getSource())))
                                 .then(Commands.literal("clear")
                                         .executes(ctx -> runSafely(ctx.getSource(), "gallery clear",
-                                                () -> clearGallery(ctx.getSource()))))));
+                                                () -> clearGallery(ctx.getSource()))))
+                                .then(Commands.literal("tour")
+                                        .executes(ctx -> runSafely(ctx.getSource(), "gallery tour",
+                                                () -> tour(ctx.getSource(), TourStep.START)))
+                                        .then(Commands.literal("next")
+                                                .executes(ctx -> runSafely(ctx.getSource(), "gallery tour next",
+                                                        () -> tour(ctx.getSource(), TourStep.NEXT))))
+                                        .then(Commands.literal("stop")
+                                                .executes(ctx -> runSafely(ctx.getSource(), "gallery tour stop",
+                                                        () -> tour(ctx.getSource(), TourStep.STOP)))))));
+    }
+
+    private enum TourStep { START, NEXT, STOP }
+
+    /** {@code gallery tour [next|stop]}: player-only, creative-only (op level 2 from the node). */
+    private static int tour(CommandSourceStack source, TourStep step) {
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.translatable("command.nerotech.gallery.player_only"));
+            return 0;
+        }
+        if (!player.getAbilities().instabuild) {
+            source.sendFailure(Component.translatable("command.nerotech.gallery.creative_only"));
+            return 0;
+        }
+        //? if >=1.21.6 {
+        ServerLevel level = player.level();
+        //?} else {
+        /*ServerLevel level = player.serverLevel();
+        *///?}
+        return switch (step) {
+            case START -> GalleryTour.start(source, player, level);
+            case NEXT -> GalleryTour.next(source, player, level);
+            case STOP -> GalleryTour.stop(source, player, level);
+        };
     }
 
     /** Op level 2 (game masters), on every Minecraft line. */
@@ -175,7 +223,9 @@ public final class NeroTechCommands {
         List<Block> blocks = new ArrayList<>();
         for (Block block : BuiltInRegistries.BLOCK) {
             Identifier bid = BuiltInRegistries.BLOCK.getKey(block);
-            if (NeroTechCommon.MOD_ID.equals(bid.getNamespace())) {
+            // Fluid source blocks would flow across the gallery: their buckets are in the catalogue instead.
+            if (NeroTechCommon.MOD_ID.equals(bid.getNamespace())
+                    && !GalleryCatalogue.UNPLACEABLE_BLOCKS.contains(bid.getPath())) {
                 blocks.add(block);
             }
         }
@@ -332,8 +382,18 @@ public final class NeroTechCommands {
         buildPowerPark(level, floor, origin.getX() + 24, origin.getZ() + 24, fy);
         buildAutomationLane(level, floor, origin.getX() - 28, origin.getZ() + 22, fy);
 
+        // --- 0.8.0 plant (east of the rotunda): one bay per chain plus heat, drilling, fusion, alarms, tools,
+        // the catalogue and the tank farm. Then every machine in the volume is marked as an exhibit, so none of
+        // them credits a gate, trophy or statistic, and the site is recorded for clear, tour and the demo deposit.
+        GalleryPlant.build(level, origin);
+        GalleryPlant.markExhibits(level, origin);
+        GalleryState.get(source.getServer()).add(new GalleryState.Site(PollutionManager.dimensionId(level),
+                origin.getX(), origin.getY(), origin.getZ()));
+
         int blockCount = blocks.size();
+        int bayCount = GalleryLayout.bays().size();
         source.sendSuccess(() -> Component.translatable("command.nerotech.gallery.built", blockCount), false);
+        source.sendSuccess(() -> Component.translatable("command.nerotech.gallery.plant_built", bayCount), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -358,7 +418,16 @@ public final class NeroTechCommands {
         //?} else {
         /*ServerLevel level = player.serverLevel();
         *///?}
-        BlockPos origin = player.blockPosition();
+        // Clear the recorded gallery the player stands in (so it works from anywhere inside it), else the one
+        // built at the player's feet. The site row goes too, which ends its demo deposit.
+        GalleryState galleries = GalleryState.get(source.getServer());
+        BlockPos feet = player.blockPosition();
+        GalleryState.Site site = galleries.find(PollutionManager.dimensionId(level), feet.getX(), feet.getY(),
+                feet.getZ());
+        BlockPos origin = site == null ? feet : new BlockPos(site.x(), site.y(), site.z());
+        if (site != null) {
+            galleries.remove(site);
+        }
         int oy = origin.getY();
 
         // Footprint of buildGallery plus margin. The far corners are: the accelerator ring
@@ -366,11 +435,13 @@ public final class NeroTechCommands {
         // (x +38, z +32) and the automation lane (x -30, z +26); the Wind Turbine mast is the
         // tallest thing at oy + 16 with its label above it.
         // The floor sits at oy, so clearing oy..topY restores the original flat ground at oy - 1.
-        int minX = origin.getX() - 34;
-        int maxX = origin.getX() + 46;
-        int minZ = origin.getZ() - 34;
-        int maxZ = origin.getZ() + 36;
-        int topY = oy + 22;
+        // The 0.8.0 plant extends the volume east (GalleryLayout.MAX_X); GalleryLayoutTest proves every part
+        // of it lies inside these bounds.
+        int minX = origin.getX() + GalleryLayout.MIN_X;
+        int maxX = origin.getX() + GalleryLayout.MAX_X;
+        int minZ = origin.getZ() + GalleryLayout.MIN_Z;
+        int maxZ = origin.getZ() + GalleryLayout.MAX_Z;
+        int topY = oy + GalleryLayout.MAX_Y;
 
         BlockState air = Blocks.AIR.defaultBlockState();
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
@@ -818,7 +889,7 @@ public final class NeroTechCommands {
     }
 
     /** Small floating label for gallery display clusters (the Nerospace label-stand recipe). */
-    private static void spawnLabelStand(ServerLevel level, BlockPos pos, Component name) {
+    public static void spawnLabelStand(ServerLevel level, BlockPos pos, Component name) {
         ArmorStand stand = new ArmorStand(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         // Marker = zero-size bounding box, and ArmorStand#isPickable() is false while it is set.
         // Without it an invisible stand overlapping a machine hijacks pick-block (middle click

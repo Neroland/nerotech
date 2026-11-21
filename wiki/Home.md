@@ -3,25 +3,45 @@
 Player- and contributor-facing documentation for **NeroTech**, part of the **Neroland ecosystem**
 of sci-fi mods. Built on **Neroland Core**.
 
-> **Status:** beta (version `0.1.0-beta.1`), built on Neroland Core (1.7.0+) across the six
-> cross-loader cells. The beta push is feature-complete: a full thermal model, the scalable Fusion
-> Reactor multiblock, pollution mitigation tech, production analytics, overclock presets, the
-> Configurator wrench, the Tech Guide, datapack machine recipes, optional Nerospace planet interop,
-> and an animated visual identity on every machine. In-game runtime verification is ongoing.
+> **Status:** beta (version `0.8.0`, "Offworld Industry"), built on Neroland Core 1.19.0+ for
+> Minecraft 1.21.1 to 26.3 on NeoForge, Fabric and Forge. 0.8.0 adds six production chains, 22 new
+> machines and blocks, a component ladder, seven powered tools, virtual deposits, heat you can pipe, a
+> gas-fed fusion tier, a NeroTech module in the NeroLink app and a walkable gallery of all of it.
+> NeroTech plays fully standalone with Neroland Core; Nerospace is optional and makes every chain
+> cheaper.
 
 ## Getting started
 
 - [Standalone Progression](Progression.md) — the full path from first components to antimatter with
   only Neroland Core installed: every recipe from vanilla materials, no gates.
-- [Tech Guide](Tech-Guide.md) — the in-game handbook: 8 chapters from first power to exotic matter.
+- [Tech Guide](Tech-Guide.md) — the in-game handbook, now 18 chapters from first power to the gas-fed
+  fusion tier and the tools.
 - [Materials & Components](Materials-and-Components.md) — Tier-1 crafting components and
   Earth-metal processing dusts, with their `c:` tags.
 - [Making Dust](Dusts.md) — every way to make dust: Ore Processor, Chemical Processor, Advanced
-  Ore Processor, Dirty Filter recycling and the Particle Accelerator.
-- [Tier-1 Machines](Machines.md) — Nero Generator, Solar Array, Ore Processor, Fabricator;
-  power/energy, upgrade modules, and the `industrial_power` gate.
+  Ore Processor, acid leaching, Dirty Filter recycling and the Particle Accelerator.
+- [Machines](Machines.md) — the Tier-1 machines, power and upgrade modules, the 0.8.0 roster, the
+  Induction Charger and Annunciator Panel, and gauge tooltips.
 - [Power Generation](Power-Generation.md) — the wider power tier: Wind Turbine, Geothermal and Bio
   Generators, Battery Bank, Grid Controller, Wireless Power Node.
+
+## Offworld Industry (0.8.0)
+
+- [Material Map](Material-Map.md) — every 0.8.0 material, both routes, and the tags other mods use.
+- The six chains: [Structural](Chain-Structural.md), [Superconductor](Chain-Superconductor.md),
+  [Semiconductor](Chain-Semiconductor.md), [Optics](Chain-Optics.md), [Chemistry](Chain-Chemistry.md),
+  [Fusion fuel](Chain-Fusion-Fuel.md).
+- [Metallurgy](Metallurgy.md) — Plasma Crucible, Plate Press and its dies, Filament Spooler, Blast Foundry.
+- [Chemistry and Cryogenics](Chemistry-and-Cryogenics.md) — Centrifuge cascades, Cryo Distiller,
+  Atmospheric Condenser, Reaction Vat, Process Tank, and the new fluids and gases.
+- [Components](Components.md) — the component ladder, Component Forge, Laser Etcher and lenses, Crystal
+  Grower.
+- [Heat as a Resource](Heat-as-a-Resource.md) — Heat Pipes, the Heat Exchanger and heat loops.
+- [Deposits and Drilling](Deposits-and-Drilling.md) — virtual deposits, the Deep Core Drill and the Survey
+  Scanner.
+- [Fusion Fuel](Fusion-Fuel.md) — Fuel Injectors and Europium Flux Lattices.
+- [Tools](Tools.md) — Power Drill, Cutting Lance, Arc Wrench, Multimeter, Survey Scanner, Thermal
+  Goggles and Filter Mask.
 
 ## Systems
 
@@ -32,7 +52,7 @@ of sci-fi mods. Built on **Neroland Core**.
 - [Consequence Systems](Consequence-Systems.md) — heat and regional pollution overview, with
   opt-in per-player attribution and POPIA/GDPR handling.
 - [Pollution & Mitigation](Pollution-and-Mitigation.md) — Scrubber, the Filter Cartridge cycle,
-  and the Remediator.
+  the Remediator, exposure and the Filter Mask.
 - [Analytics](Analytics.md) — the per-machine Analytics tab and the Analytics Terminal dashboard.
 - [Operating Charges](Operating-Charges.md) — optional, server-configured credit charges for running
   processing machines (needs NeroEconomy; off by default).
@@ -40,9 +60,7 @@ of sci-fi mods. Built on **Neroland Core**.
   ships as inert data, the milestone record gates behind it, and the Tech Guide quest hook.
 - [Overclock Presets](Overclock-Presets.md) — Eco / Balanced / Overdrive on every machine.
 - [Side Config & the Configurator](Side-Config-and-Configurator.md) — per-face I/O and the wrench.
-- [Tools](Tools.md) — Power Drill, Cutting Lance, Arc Wrench, Multimeter, Survey Scanner, Thermal
-  Goggles and Filter Mask.
-- [Recipe Viewers (JEI & EMI)](Recipe-Viewers.md) — the machine recipe pages, and EMI support on 26.x.
+- [Recipe Viewers (JEI & EMI)](Recipe-Viewers.md) — the machine recipe pages on every loader.
 
 ## Advanced & automation
 
@@ -56,14 +74,19 @@ of sci-fi mods. Built on **Neroland Core**.
   the standard item-capability handoff surface NeroLogistics routes through.
 - [Exotic Endgame](Exotic-Endgame.md) — the Antimatter Cell (tier-4 fusion fuel), the Singularity
   Vault, and collider transmutation.
-- [Planets](Planets.md) — how solar output and ambient heat follow Nerospace planet traits, with
-  a config fallback.
+- [Planets](Planets.md) — how solar output, ambient heat and the Atmospheric Condenser follow
+  Nerospace planet traits, with a config fallback.
+
+## Server admins
+
+- [Commands](Commands.md) — `/nerotech budget` and the `/nerotech gallery` showcase and tour.
+- [Config](Config.md) — every key in `config/nerotech.properties`, with defaults.
 
 ## Companion app
 
-- [NeroLink Companion App](Companion-App.md) — what NeroTech exposes to the NeroLink phone/desktop
-  app through Neroland Core's link API: your own pollution/guide data, remote overclock
-  presets, live meltdown alerts, the in-app wiki, and the opt-in privacy posture.
+- [NeroLink Companion App](Companion-App.md) — what the NeroTech section of the NeroLink app shows:
+  machines near you, the chain planner, your Tech Guide progress and your own pollution.
+- [Link Module](Link-Module.md) — the full link schema (version 2) for developers.
 - [Privacy](Privacy.md) — what NeroTech stores about players (very little), what it never stores,
   and how erasure and opt-out work.
 

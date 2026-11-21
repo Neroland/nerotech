@@ -45,4 +45,12 @@ public final class ForgePlatformHelper implements IPlatformHelper {
     public boolean isModLoaded(String modId) {
         return ModList.isLoaded(modId);
     }
+
+    @Override
+    public boolean mayBreak(net.minecraft.server.level.ServerPlayer player, net.minecraft.server.level.ServerLevel level,
+            net.minecraft.core.BlockPos pos) {
+        // -1 means the break event was cancelled or denied; anything else is the XP it would drop.
+        return net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(level,
+                player.gameMode.getGameModeForPlayer(), player, pos) != -1;
+    }
 }

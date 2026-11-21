@@ -39,14 +39,14 @@ import za.co.neroland.nerotech.registry.ModRecipeTypes;
  * <p>Machine contract C3: {@link #lens()} is the fitted lens's item id only, synced to watching clients
  * when it changes (never per tick) so the turret shows the lens colour and the beam takes it.
  *
- * <p>Milestone credit: the first Quantum Processor records {@link #FIRST_QUANTUM_PROCESSOR} for the
+ * <p>Milestone credit: the first Quantum Chip records {@link #FIRST_QUANTUM_CHIP} for the
  * operator in the moment ({@code lastOperator}, transient, never saved) if they are online. Nothing about
  * the player is stored here.
  */
 public class LaserEtcherBlockEntity extends ProcessingMachineBlockEntity {
 
-    /** Personal milestone record: etched a Quantum Processor. */
-    public static final Identifier FIRST_QUANTUM_PROCESSOR = MilestoneGates.FIRST_QUANTUM_PROCESSOR;
+    /** Personal milestone record: etched a Quantum Chip. */
+    public static final Identifier FIRST_QUANTUM_CHIP = MilestoneGates.FIRST_QUANTUM_CHIP;
 
     /** What fits the lens slot. */
     public static final TagKey<Item> FOCUS_LENSES =
@@ -162,11 +162,11 @@ public class LaserEtcherBlockEntity extends ProcessingMachineBlockEntity {
 
     private int quantumInOutput() {
         ItemStack out = this.items.get(SPEC.outputSlot(0));
-        return out.is(ModItems.QUANTUM_PROCESSOR.get()) ? out.getCount() : 0;
+        return out.is(ModItems.QUANTUM_CHIP.get()) ? out.getCount() : 0;
     }
 
     /** Record the milestone for the operator in the moment, only while they are online. */
     private void creditQuantum(ServerLevel level) {
-        MilestoneGates.credit(level, lastOperator().orElse(null), FIRST_QUANTUM_PROCESSOR);
+        MilestoneGates.credit(level, lastOperator().orElse(null), FIRST_QUANTUM_CHIP);
     }
 }

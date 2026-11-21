@@ -1,5 +1,8 @@
 package za.co.neroland.nerotech.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -21,8 +24,10 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigured;
 
 import za.co.neroland.nerotech.machine.MachinePreset;
+import za.co.neroland.nerotech.machine.MachineStatus;
 import za.co.neroland.nerotech.menu.MachineMenu;
 import za.co.neroland.nerotech.network.ClientMenuPos;
+import za.co.neroland.nerotech.network.MachineStatsPayload;
 import za.co.neroland.nerotech.network.MachinePresetPayload;
 import za.co.neroland.nerotech.network.NeroTechNetwork;
 
@@ -83,6 +88,26 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     /** The Stage G Analytics tab, stacked under the Side Config tab (needs only the container id). */
     private final AnalyticsWidget analyticsWidget;
 
+    // Gauge tooltips (0.8.0): rates are measured here from the synced values over the last ~20 client
+    // ticks, so no server change or packet is needed for them.
+    private final GaugeMath.RateWindow energyWindow = new GaugeMath.RateWindow();
+    private final GaugeMath.RateWindow heatWindow = new GaugeMath.RateWindow();
+    /** Progress resets at a job boundary (a jump of more than 30%). */
+    private final GaugeMath.RateWindow progressWindow = new GaugeMath.RateWindow(300);
+    /** Tank windows by tank index (processing tanks 0..3, legacy gauges 0..n, injector couplings). */
+    private final GaugeMath.RateWindow[] tankWindows = new GaugeMath.RateWindow[8];
+
+    /** Default gauge and work-bar rectangles (panel-relative). */
+    private static final int ENERGY_X = 8;
+    private static final int HEAT_X = 20;
+    private static final int GAUGE_Y = 20;
+    private static final int GAUGE_W = 10;
+    private static final int GAUGE_H = 46;
+    private static final int BAR_X = 40;
+    private static final int BAR_Y = 61;
+    private static final int BAR_W = 96;
+    private static final int BAR_H = 7;
+
     public MachineScreen(T menu, Inventory playerInventory, Component title) {
         this(menu, playerInventory, title, 176, 166);
     }
@@ -117,17 +142,23 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
     //? if >=26.1 {
     @Override
     public void extractContents(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        sampleGauges();
         extractPanel(extractor);
         super.extractContents(extractor, mouseX, mouseY, partialTick);
         extractTabs(extractor, mouseX, mouseY);
+        // Deferred to the end of the frame on 26.x, so subclasses drawing after super still sit under it.
+        emitGaugeTooltip(extractor, mouseX, mouseY);
     }
     //?} else {
     /*// Before 26.1 the hull panel is the container background (renderBg) and render() draws the slots.
     // Everything 26.x draws after the slots goes through extractContents, which subclasses extend.
     @Override
     public void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        sampleGauges();
         super.render(extractor, mouseX, mouseY, partialTick);
         extractContents(extractor, mouseX, mouseY, partialTick);
+        // After every subclass part, so an immediately drawn (pre-1.21.6) tooltip sits on top.
+        emitGaugeTooltip(extractor, mouseX, mouseY);
         this.renderTooltip(extractor, mouseX, mouseY);
     }
 
@@ -170,8 +201,8 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
 
         // Energy + heat gauges (left), each with an always-on colour cap.
         if (drawsDefaultGauges()) {
-            gauge(extractor, x + 8, y + 20, 10, 46, this.menu.energyFraction(), ENERGY);
-            gauge(extractor, x + 20, y + 20, 10, 46, this.menu.heatFraction(), HEAT);
+            gauge(extractor, x + ENERGY_X, y + GAUGE_Y, GAUGE_W, GAUGE_H, this.menu.energyFraction(), ENERGY);
+            gauge(extractor, x + HEAT_X, y + GAUGE_Y, GAUGE_W, GAUGE_H, this.menu.heatFraction(), HEAT);
         }
 
         // Stage H preset cycle button (Eco/Balanced/Overdrive; click sends the serverbound intent).
@@ -276,6 +307,161 @@ public class MachineScreen<T extends MachineMenu> extends AbstractContainerScree
         int bx = this.leftPos + presetX();
         int by = this.topPos + presetY();
         return mouseX >= bx && mouseX < bx + PRESET_W && mouseY >= by && mouseY < by + PRESET_H;
+    }
+
+    // --- gauge tooltips (0.8.0; art direction §9) ---------------------------------------------------
+
+    /** The current game tick (the rate windows' clock), or 0 before a level exists. */
+    protected final long gaugeTick() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc.level == null ? 0L : mc.level.getGameTime();
+    }
+
+    /** The rate window for tank {@code index} (created on first use). */
+    protected final GaugeMath.RateWindow tankWindow(int index) {
+        int i = Math.max(0, Math.min(this.tankWindows.length - 1, index));
+        if (this.tankWindows[i] == null) {
+            this.tankWindows[i] = new GaugeMath.RateWindow();
+        }
+        return this.tankWindows[i];
+    }
+
+    /** Record one tank amount for its rate (call once per frame from the screen that draws the tank). */
+    protected final void sampleTank(int index, long amount) {
+        tankWindow(index).sample(gaugeTick(), amount);
+    }
+
+    /** Sample the shared gauges once per frame (one sample per game tick is kept). */
+    private void sampleGauges() {
+        long tick = gaugeTick();
+        this.energyWindow.sample(tick, this.menu.energyStored());
+        this.heatWindow.sample(tick, this.menu.heatRaw());
+        if (this.menu.working()) {
+            this.progressWindow.sample(tick, Math.round(this.menu.workFraction() * 1000F));
+        } else {
+            this.progressWindow.reset();
+        }
+    }
+
+    /** Net energy change per tick over the window. */
+    protected final double gaugeEnergyNetPerTick() {
+        return this.energyWindow.perTick();
+    }
+
+    /** Heat change per second over the window. */
+    protected final double heatPerSecond() {
+        return this.heatWindow.perSecond();
+    }
+
+    /** Progress change in permille per tick over the window. */
+    protected final double progressPerTick() {
+        return this.progressWindow.perTick();
+    }
+
+    /** The latest Stage G analytics snapshot (1 Hz while the menu is open), or null before the first. */
+    @Nullable
+    protected final MachineStatsPayload latestStats() {
+        return this.analyticsWidget.latest();
+    }
+
+    /** The live status from the analytics snapshot, or null before the first one arrives. */
+    @Nullable
+    protected MachineStatus liveStatus() {
+        MachineStatsPayload stats = latestStats();
+        return stats == null ? null : MachineStatus.byOrdinal(stats.status());
+    }
+
+    /** Operations per minute from the analytics snapshot (0 when unknown or idle). */
+    protected int opsPerMinute() {
+        MachineStatsPayload stats = latestStats();
+        return stats == null ? 0 : Math.max(0, stats.opsRate()) * 60;
+    }
+
+    /** NE per tick the machine draws for its current job, or -1 when the screen does not know it. */
+    protected long energyUsedPerTick() {
+        return -1L;
+    }
+
+    /** NE per tick the machine hands to something else (a charger), or -1 when not applicable. */
+    protected long energyDeliveredPerTick() {
+        return -1L;
+    }
+
+    /** Heat a recipe source supplies, or null when the machine has none. */
+    @Nullable
+    protected Integer heatSupplied() {
+        return null;
+    }
+
+    /** Why work is not moving, or null when it is (or the screen cannot tell). */
+    @Nullable
+    protected Component stallCause() {
+        return GaugeTooltips.causeOf(liveStatus());
+    }
+
+    /** Append the energy gauge tooltip. */
+    protected void energyTooltip(List<Component> lines) {
+        GaugeTooltips.energy(lines, this.menu.energyStored(), this.menu.energyCapacity(), gaugeEnergyNetPerTick(),
+                energyUsedPerTick(), energyDeliveredPerTick());
+    }
+
+    /** Append the heat gauge tooltip. */
+    protected void heatTooltip(List<Component> lines) {
+        MachineStatsPayload stats = latestStats();
+        long capacity = this.menu.heatCapacityRaw();
+        if (capacity <= 0 && stats != null) {
+            capacity = stats.heatCapacity();
+        }
+        GaugeTooltips.heat(lines, this.menu.heatRaw(), capacity, this.menu.heatSafeLimit(), heatPerSecond(),
+                stats == null ? null : stats.ambientHeat(), heatSupplied());
+    }
+
+    /** Append the progress tooltip. */
+    protected void progressTooltip(List<Component> lines) {
+        boolean working = this.menu.working();
+        int permille = Math.round(this.menu.workFraction() * 1000F);
+        GaugeTooltips.progress(lines, working, permille, progressPerTick(), stallCause(), opsPerMinute());
+    }
+
+    /** Whether a panel-relative point is inside a rectangle (one pixel of slack for the gauge frame). */
+    protected static boolean over(int mx, int my, int x, int y, int w, int h) {
+        return mx >= x - 1 && mx <= x + w && my >= y - 1 && my <= y + h;
+    }
+
+    /**
+     * Tooltip lines for a panel-relative mouse position, or empty. The base answers for the default
+     * energy/heat gauges and the work bar; screens with their own gauges override and extend.
+     */
+    protected List<Component> gaugeTooltip(int mx, int my) {
+        List<Component> lines = new ArrayList<>();
+        if (drawsDefaultGauges()) {
+            if (over(mx, my, ENERGY_X, GAUGE_Y, GAUGE_W, GAUGE_H)) {
+                energyTooltip(lines);
+                return lines;
+            }
+            if (over(mx, my, HEAT_X, GAUGE_Y, GAUGE_W, GAUGE_H)) {
+                heatTooltip(lines);
+                return lines;
+            }
+        }
+        if (drawsDefaultWorkBar() && over(mx, my, BAR_X, BAR_Y, BAR_W, BAR_H)) {
+            progressTooltip(lines);
+        }
+        return lines;
+    }
+
+    /** Emit the gauge tooltip under the mouse, unless an item tooltip owns that spot. */
+    private void emitGaugeTooltip(GuiGraphicsExtractor extractor, int mouseX, int mouseY) {
+        Slot hovered = this.hoveredSlot;
+        if (hovered != null && hovered.hasItem()) {
+            return;
+        }
+        List<Component> lines = gaugeTooltip(mouseX - this.leftPos, mouseY - this.topPos);
+        if (lines.isEmpty()) {
+            return;
+        }
+        GaugeTooltips.show(extractor, this.font,
+                GaugeTooltips.wrap(this.font, lines, GaugeTooltips.wrapWidth(this.width)), mouseX, mouseY);
     }
 
     // --- layout hooks (0.8.0, additive): ProcessingScreen moves the shared widgets per its layout ---

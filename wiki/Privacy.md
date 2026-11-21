@@ -16,13 +16,14 @@ summary.
 Nothing below is about you unless the server has switched on one of the opt-in options.
 
 | What | Kept where | About a player? |
-|---|---|---|
+| --- | --- | --- |
 | Machine state (progress, heat, tanks, presets, side config) | the machine, in the world save | No. The placing player's UUID is kept only if the server turned on [operating charges](Operating-Charges.md) or per-player pollution attribution. |
 | Regional pollution | the world save, keyed by dimension and region | No. |
 | Per-player pollution totals | the world save | Only with `pollutionPerPlayerAttribution=true` (off by default). UUID only, pruned after `pollutionAttributionRetentionDays`. You can opt yourself out. |
 | Deep Core Drill deposits | the world save, keyed by dimension and chunk | No. Only how much is left and when it was last drilled. Removed once the deposit has recovered. |
 | Tech Guide "seen" marks | the world save, keyed by UUID | Yes: which guide steps you have clicked. Nothing else. |
 | Milestone records | Neroland Core's progression store | Yes: gate ids under your UUID, no times or places. |
+| Gallery sites | the world save | No. Where `/nerotech gallery` was built: the dimension and the origin block only, at most 16 sites, oldest dropped first. `/nerotech gallery clear` removes the site. Nothing about who built it. |
 | Tool data | on the item | No. Charge, mode, fitted lens or filter only. A machine carried by the Arc Wrench loses its owner before it goes on the item. |
 
 ## Induction Charger
@@ -33,7 +34,7 @@ logs nothing about it.
 
 ## Milestones credited "in the moment"
 
-Some milestones (first foundry pour, first quantum processor, first deposit tapped, gas-fed fusion
+Some milestones (first foundry pour, first quantum chip, first deposit tapped, gas-fed fusion
 ignition) go to whoever is operating the machine at that moment, if they are online and have not opted out
 of attribution. The machine remembers that player only in memory, never in the save, and forgets them when
 its chunk unloads. The record itself is a Neroland Core progression gate.
@@ -71,6 +72,7 @@ Anonymous error reporting is on by default and opt-out: set `telemetryEnabled=fa
 ## See also
 
 - [Link Module](Link-Module.md)
+- [Commands](Commands.md)
 - [Pollution & Mitigation](Pollution-and-Mitigation.md)
 - [Operating Charges](Operating-Charges.md)
 - [Home](Home.md)

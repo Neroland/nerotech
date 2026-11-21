@@ -26,7 +26,7 @@ import za.co.neroland.nerotech.registry.ModMenuTypes;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * WP-Extraction — the extraction machine family (deep_core_drill, drill_derrick) and the Survey Scanner. Owned by its work package: every block, item,
+ * The extraction machine family (deep_core_drill, drill_derrick) and the Survey Scanner. Every block, item,
  * block-entity type, menu, screen and renderer of the family is declared here and nowhere else;
  * {@code registry.FamilyRegistry} wires this class into every central place.
  *
@@ -42,6 +42,15 @@ public final class ExtractionContent {
     public static final RegistryEntry<DataComponentType<ScannerState>> SCANNER_STATE =
             ModDataComponents.COMPONENTS.register("survey_scanner_state",
                     key -> DataComponentType.<ScannerState>builder().persistent(ScannerState.CODEC).build());
+
+    /**
+     * Operations a drill head has used. Wear lives on the head item, so it leaves the drill with the head
+     * and cannot be reset by taking the head out or by breaking and re-placing the controller.
+     */
+    public static final RegistryEntry<DataComponentType<Integer>> DRILL_HEAD_WEAR =
+            ModDataComponents.COMPONENTS.register("drill_head_wear",
+                    key -> DataComponentType.<Integer>builder()
+                            .persistent(com.mojang.serialization.Codec.intRange(0, Integer.MAX_VALUE)).build());
 
     // --- blocks ---------------------------------------------------------------------------------------
 

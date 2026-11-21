@@ -10,7 +10,7 @@ special. Nothing about you is stored on a tool, and readings are shown only to y
 
 | Tool | What it does |
 | --- | --- |
-| **Power Drill** | Mines stone and earth fast. Sneak-use in the air cycles **single**, **area** (the 3×3 plane facing you) and **vein** (connected blocks of the same kind, up to 32 by default, never more than 64). |
+| **Power Drill** | Mines stone and earth fast. Sneak-use in the air cycles **single**, **area** (the 3×3 plane facing you) and **vein** (connected blocks of the same kind, up to 32 by default, never more than 64; ores, gravel, clay and glowstone only). |
 | **Cutting Lance** | Use it to cut the block you look at, up to 16 blocks away. The fitted focus lens sets what a cut does. |
 | **Arc Wrench** | Use on a machine to rotate it; sneak-use to pick it up with its contents and settings, then use on a block face to put it down. |
 | **Multimeter** | Right-click any block: energy, heat, tank levels and the pollution band of the region. |
@@ -25,6 +25,9 @@ charge (each extra block of an area or vein too). It stops when it runs out. **P
 protected:** every extra block goes through the same break path as a block you mine by hand, so a
 claim or protection mod can refuse any one of them, and the drill never takes a block you could not
 break yourself, a block with contents (chests, machines), or a block in an unloaded chunk.
+
+Vein mode only follows blocks in the `nerotech:power_drill/vein` block tag (by default `#c:ores`, gravel,
+clay and glowstone), so it cannot strip a hillside; area mode still mines stone. Packs can change the tag.
 
 ## Cutting Lance and focus lenses
 
@@ -55,8 +58,11 @@ The wrench refuses:
 - a formed multiblock controller (Fusion Reactor, Blast Foundry, Deep Core Drill), and any block
   inside a multiblock's footprint — take the structure apart first.
 
-A Deep Core Drill moved with the wrench keeps its head wear. Broken with a pickaxe, a drill with a
-part-worn head spends that head.
+Drill head wear lives on the head item, so a Deep Core Drill moved with the wrench, or broken with a
+pickaxe, gives its head back with the wear it had.
+
+Lifting a machine counts as breaking it: a claim or protection mod that stops you breaking blocks there also
+stops the wrench lifting machines. Rotating is not affected.
 
 ## Multimeter
 
@@ -78,6 +84,11 @@ spectator players are not affected). A worn, charged Filter Mask with a cartridg
 mask with a Filter Cartridge in your other hand to fit one; it blocks 36 exposures and then fouls into
 a **Dirty Filter**, which goes into your inventory — the same cycle as the
 [Scrubber](Pollution-and-Mitigation.md), and the Ore Processor still refunds it.
+
+## Charging
+
+The Induction Charger is a tier-1 block, so you can charge tools early, before you have an Arc Wrench to
+move machines with.
 
 ## Config keys
 

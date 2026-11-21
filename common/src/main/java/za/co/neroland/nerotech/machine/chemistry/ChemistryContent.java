@@ -24,7 +24,7 @@ import za.co.neroland.nerotech.registry.ModMenuTypes;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * WP-Chemistry — the chemistry machine family (centrifuge, cryo_distiller, atmospheric_condenser, reaction_vat). Owned by its work package: every block, item,
+ * The chemistry machine family (centrifuge, cryo_distiller, atmospheric_condenser, reaction_vat). Every block, item,
  * block-entity type, menu, screen and renderer of the family is declared here and nowhere else;
  * {@code registry.FamilyRegistry} wires this class into every central place. (The Process Tank, also a
  * chemistry block, lives in {@code machine.tank}.)

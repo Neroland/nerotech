@@ -24,7 +24,7 @@ import za.co.neroland.nerotech.registry.ModMenuTypes;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * WP-Utility — the utility machine family (induction_charger, annunciator_panel). Owned by its work package: every block, item,
+ * The utility machine family (induction_charger, annunciator_panel). Every block, item,
  * block-entity type, menu, screen and renderer of the family is declared here and nowhere else;
  * {@code registry.FamilyRegistry} wires this class into every central place.
  *

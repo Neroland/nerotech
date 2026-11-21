@@ -16,7 +16,7 @@ import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.heat.ThermalEnvironment;
 
 /**
- * Drives Heat Pipe runs (decision 012): one {@link HeatRunIndex} per level, held weakly so an unloaded level
+ * Drives Heat Pipe runs: one {@link HeatRunIndex} per level, held weakly so an unloaded level
  * drops its cache. Pipes have no block entity. Each run's <b>anchor</b> pipe carries a scheduled block tick
  * on the exchange interval; every other pipe of the run stays still. Endpoints are found when the run is
  * resolved (on a neighbour change, or when the run ages out), never per tick. Server thread only.

@@ -10,7 +10,7 @@ import za.co.neroland.nerotech.machine.Readout;
 
 /**
  * The pure half of the {@code nearby} section and the {@code alarm} / {@code meltdown} events (link
- * schema 2, decision 007): the reach rule, the state word, the alarm ids, the percentages and the
+ * schema 2): the reach rule, the state word, the alarm ids, the percentages and the
  * payload shapes. Nothing here touches the world, so every rule is unit-testable.
  *
  * <p><b>What a payload may carry:</b> a block id, a state word, alarm ids, three percentages and an
@@ -40,7 +40,7 @@ final class NearbyFormat {
     }
 
     /**
-     * The one reach rule {@code nearby} and the {@code alarm} / {@code meltdown} events share (review L5):
+     * The one reach rule {@code nearby} and the {@code alarm} / {@code meltdown} events share:
      * inside the {@link #RADIUS} box AND inside the {@code (2 * CHUNK_RADIUS + 1)^2} chunk square
      * {@code nearby} scans, so an event never reaches a player for a machine {@code nearby} would not list.
      * Walls and claims do not block it: it is what stands within reach, seen or not.
@@ -51,7 +51,7 @@ final class NearbyFormat {
     }
 
     /**
-     * Shuffle the whole in-reach set, then cut it to {@code max} (review M1): list order, handle indices and
+     * Shuffle the whole in-reach set, then cut it to {@code max}: list order, handle indices and
      * which entries a truncation keeps then carry no direction or chunk order. Mutates {@code found}.
      *
      * @return whether entries were cut
@@ -71,8 +71,8 @@ final class NearbyFormat {
     static final String BYSTANDER_VERB = "nearby";
 
     /**
-     * A bystander's (non-owner's) copy of an {@code alarm} or {@code meltdown} body (review M2, decision 007
-     * amendment). It is published on topic {@link #BYSTANDER_TOPIC} with {@code event} =
+     * A bystander's (non-owner's) copy of an {@code alarm} or {@code meltdown} body.
+     * It is published on topic {@link #BYSTANDER_TOPIC} with {@code event} =
      * {@link #BYSTANDER_VERB}: the bridge pushes an {@code alerts} event only when its {@code event} is absent
      * or {@code raised}, so this copy reaches only a live socket of that player and is never a phone push.
      * It carries no {@code _notify}. Only a recorded owner's copy, on the {@code alarm} / {@code meltdown}
@@ -150,9 +150,12 @@ final class NearbyFormat {
      *
      * @param reportAlarms false for machines whose mask only repeats their neighbours' (the Annunciator
      *                     Panel): they list no alarms, and their state ignores the alarm bits
+     * @param ownedByYou   whether the requester is the machine's recorded owner (the only machines the
+     *                     app may change); a boolean about the requester only, never anyone's identity
      */
     static JsonObject entry(String type, @Nullable Readout readout, int alarmMask, int energyPermille,
-            int heatPermille, @Nullable Integer tankPermille, String handle, boolean reportAlarms) {
+            int heatPermille, @Nullable Integer tankPermille, String handle, boolean reportAlarms,
+            boolean ownedByYou) {
         int mask = reportAlarms ? alarmMask : 0;
         JsonObject out = new JsonObject();
         out.addProperty("type", type);
@@ -166,6 +169,7 @@ final class NearbyFormat {
             out.addProperty("tankPct", pct(tankPermille));
         }
         out.addProperty("h", handle);
+        out.addProperty("ownedByYou", ownedByYou);
         return out;
     }
 

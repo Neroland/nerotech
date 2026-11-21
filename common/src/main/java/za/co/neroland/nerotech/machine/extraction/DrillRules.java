@@ -58,14 +58,15 @@ public final class DrillRules {
         return after == 0 && before >= 0;
     }
 
-    /**
-     * Whether breaking the drill spends its fitted head: the wear belongs to the machine, so a drill broken
-     * with a part-worn head ({@code used > 0}) loses that head instead of handing back a fresh one. Without
-     * this, breaking and re-placing the controller reset head wear for free (adversarial pass, 0.8.0). The
-     * Arc Wrench keeps the wear in the carried save, so a wrench move loses nothing.
-     */
-    public static boolean headSpentOnBreak(int used) {
-        return used > 0;
+    /** Operations left on a head of {@code tier} that has used {@code used} (never negative). */
+    public static int operationsLeft(int used, DrillHeadTier tier) {
+        return Math.max(0, tier.operations() - Math.max(0, used));
+    }
+
+    /** The item bar (0-13) for a head of {@code tier} that has used {@code used}: full when fresh. */
+    public static int wearBarWidth(int used, DrillHeadTier tier) {
+        int ops = Math.max(1, tier.operations());
+        return Math.round(13.0F * operationsLeft(used, tier) / ops);
     }
 
     /** Head wear after one operation: the new used count; equal to 0 together with a consumed head. */
@@ -80,8 +81,8 @@ public final class DrillRules {
     }
 
     /**
-     * Carry wear across a head swap as a fraction of life, rounded up, so swapping tiers can never
-     * reset a part-worn head.
+     * Convert wear between tiers as a fraction of life, rounded up, so no conversion can refund wear.
+     * Used to move a pre-0.8.0 machine-held wear figure onto the fitted head when an old save loads.
      */
     public static int carryWear(int used, DrillHeadTier from, DrillHeadTier to) {
         int u = Math.max(0, used);

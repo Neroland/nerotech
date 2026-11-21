@@ -8,55 +8,70 @@
 
 # NeroTech
 
-**Power it, process it, automate it — industrial machines for the Neroland universe, where throughput runs hot and dirty.**
+**Power it, process it, automate it: industrial machines for the Neroland universe, where throughput runs hot and dirty.**
 
-NeroTech is the **industry & automation** mod of the Neroland ecosystem. Build a full Earth-tier production line — burn fuel or catch sunlight for power, double your ores, fabricate components, and wire it all into auto crafters and sorters — then push past the atmosphere into a gated late game with the **Fusion Reactor** and advanced machines. Scaling up is a real decision: machines run **hot**, and industry leaves **pollution**.
+NeroTech is the **industry & automation** mod of the Neroland ecosystem. Start with a generator and an ore processor, grow into alloy foundries, chemistry, chip fabs and deep-core drills, and finish with a gas-fed fusion reactor. Scaling up is a real decision: machines run **hot**, and industry leaves **pollution**.
 
-Built on **Neroland Core**, so its Nero energy, upgrade modules, progression gates, and material tags are shared with the rest of the lineup. *(Early alpha — actively developed.)*
+**It plays complete on its own.** All you need is **Neroland Core**: every item in NeroTech has a standalone route from Overworld and Nether resources. Add **Nerospace** and the same chains run on planet ores, ices and gases, three to five times cheaper.
 
 ---
 
+## New in 0.8.0: Offworld Industry
+
+- 🏭 **Six production chains**, each ending in something you want:
+  - **Structural**: Cindersteel and titanium plate for tier-2 hulls, drill heads and tool bodies.
+  - **Superconductor**: glacite wire and tier-3 coils.
+  - **Semiconductor**: crystal boules, wafers, **Logic Chips** and **Quantum Chips**.
+  - **Optics**: four focus lenses that set what a Laser Etcher etches and what a Cutting Lance cuts.
+  - **Chemistry**: sulfuric acid (four dusts from one ore), polymer resin, methane and CO2.
+  - **Fusion fuel**: deuterium, helium-3 and the Europium Flux Lattice.
+- ⚙️ **22 new machines and blocks**: Plasma Crucible, Plate Press, Filament Spooler, the **Blast Foundry** multiblock (3³ and 5³), Centrifuge cascades, Cryo Distiller, Atmospheric Condenser, Reaction Vat, stackable Process Tanks, Component Forge, Laser Etcher, Crystal Grower, Heat Pipes and the Heat Exchanger, the **Deep Core Drill**, Fuel Injector, Europium Flux Lattice, Induction Charger and Annunciator Panel.
+- 🔥 **Heat as a resource**: pipe a reactor's waste heat into a Blast Foundry instead of fighting it.
+- ⛏️ **Virtual deposits**: every chunk has an ore body deep below. The Deep Core Drill mines it without breaking any ground, the deposit runs down and slowly recovers, and the Survey Scanner tells you what is left.
+- ☢️ **Gas-fed fusion**: pipe deuterium and helium-3 into a 7³ reactor, no cells to craft, and calm it with Flux Lattices.
+- 🧰 **Seven powered tools**: Power Drill, Cutting Lance, Arc Wrench, Multimeter, Survey Scanner, Thermal Goggles and Filter Mask. Tools respect claims and protected ground, and charge at the Induction Charger.
+- 🚨 **Readable bases**: an Annunciator Panel lights one lamp per alarm with a comparator output, every machine shows its state on its model, and hovering any gauge tells you what it is, how much, and the rate.
+- 📱 **NeroLink app module**: machines near you, a chain planner with both routes, your Tech Guide progress and your own pollution, on your phone.
+- 🏛️ **A walkable gallery**: `/nerotech gallery` builds every machine and chain running, with a guided tour.
+
 ## The production line
 
-1. **Components.** Craft Machine Frames, Circuit Boards and Nero Coils; grind iron, copper and gold into dusts (`c:dusts/*`, so other tech mods can use them too).
-2. **Power.** The **Nero Generator** burns solid fuel and the **Solar Array** catches daylight, producing **Nero Energy (NE)** and pushing it to neighbouring machines and storage.
-3. **Processing.** The **Ore Processor** turns raw ore into doubled dust; the **Fabricator** turns refined materials into components — both recipe-driven.
-4. **Upgrades.** Slot **Speed / Efficiency / Capacity / Range** modules into any machine — Core's shared upgrade framework, so modules are interchangeable across every Neroland mod.
-5. **Industrial Power.** Placing your first machine opens Core's **Industrial Power** progression gate — your first milestone.
-6. **Reach space.** Crafted from **Starsteel** (a space-only material): the high-output **Fusion Reactor** (which runs dangerously hot), the **Advanced Ore Processor**, and the **Advanced Fabricator**.
-7. **Automate.** The **Auto Crafter** assembles recipes on demand, and the directional **Item Sorter** routes items by filter — both exposed on standard item capabilities for clean logistics handoff.
+1. **Components.** Machine Frames, Circuit Boards and Nero Coils; grind iron, copper and gold into dusts (`c:dusts/*`).
+2. **Power.** Nero Generator, Solar Array, wind, geothermal and bio generators, Battery Banks, a Grid Controller and wireless power nodes, all on **Nero Energy (NE)**.
+3. **Processing.** Ore Processor, Fabricator and their Advanced tiers, then the 0.8.0 chains.
+4. **Upgrades.** Speed, Efficiency, Capacity and Range modules from Core's shared framework, plus NeroTech's Heat Sink and Scrubber modules, and Eco / Balanced / Overdrive presets on every machine.
+5. **Automate.** Auto Crafter, Item Sorter, Conveyor Belts and Robotic Arms, all on standard item, fluid and gas capabilities, ready for NeroLogistics, hoppers and pipes.
+6. **Endgame.** The scalable **Fusion Reactor** (3³/5³/7³), the free-form **Particle Accelerator**, antimatter and the Singularity Vault.
 
 ## Consequence systems
 
-- 🔥 **Heat** — every machine runs hot and **throttles** when it overheats; park coolant blocks (water, ice, snow) alongside to shed it faster. The Fusion Reactor will **melt down** at maximum heat — admin-disableable for survival-friendly servers.
-- 🌫️ **Pollution** — aggregated **regionally and periodically** (built for megabase performance, never a per-tick scan), so heavy industry has a footprint without tanking your TPS.
-- ⚙️ **Portable power** — generation talks only to Core's energy surface, so machines from across the ecosystem share one network.
+- 🔥 **Heat**: machines heat their neighbours, follow the climate of the world they are in, and **throttle** when they overheat. A Fusion Reactor will **melt down** at maximum heat (servers can turn that off).
+- 🌫️ **Pollution**: tracked per region in each dimension, batched for big bases. Severe pollution makes you sick unless you wear a Filter Mask; Scrubbers and Remediators clean it up.
 
 ## Why it fits the ecosystem
 
-- 🧩 **Built on Neroland Core** — one energy type, one upgrade-module system, one progression arc, and shared `c:` material tags. NeroTech ships in its own creative tab.
-- 🚀 **Soft synergy with Nerospace** — the advanced tier is unlocked by **Starsteel / planet ores** through shared Core tags (no hard dependency). With Nerospace absent the Earth tier plays **fully standalone**, and the advanced tier is simply uncraftable.
-- 🔌 **Logistics-ready** — every machine exposes a standard, *sided* item capability (inputs in, outputs out), ready for **NeroLogistics**, hoppers, pipes, and recipe viewers with no NeroTech dependency.
-- 🧱 **Cross-loader** — NeoForge, Forge, and Fabric on Minecraft **26.1.2** and **26.2**.
+- 🧩 **Built on Neroland Core**: one energy type, one upgrade system, shared material tags and milestone records. NeroTech has its own creative tab.
+- 🚀 **Optional Nerospace synergy**: planet ores, ices and gases feed every chain by tag. No hard dependency either way.
+- 🔌 **Interop by tag**: every 0.8.0 material carries a `c:` or `nerotech:` tag so NeroPower, NeroLogistics, NeroColonies and NeroCompanion (and other mods) can use it.
+- 🧱 **Cross-loader**: NeoForge, Forge and Fabric on Minecraft **1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 and 26.3**.
 
 ## Requirements & compatibility
 
-- **Requires [Neroland Core](https://nerolandmc.net/mods/neroland-core/)** — install it alongside NeroTech (it loads first).
-- Optional but recommended: **[Nerospace](https://nerolandmc.net/mods/nerospace/)** for the space materials that unlock the advanced tier.
-- Conventional `c:` tags on materials and loader-native item/energy capabilities on every machine face, so Create, AE2, Mekanism, and recipe viewers interoperate as the 26.x ecosystem fills in — no hard dependency on any of them.
-- **Modpacks are allowed and encouraged** — any platform, no need to ask. Use the official files and credit *NeroTech by Neroland* with links to the [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/nerotech) and the [GitHub repository](https://github.com/Neroland/nerotech). Full terms: [LICENSE](https://github.com/Neroland/nerotech/blob/main/LICENSE).
+- **Requires [Neroland Core](https://nerolandmc.net/mods/neroland-core/) 1.19.0 or later**: install it alongside NeroTech (it loads first).
+- Optional: **[Nerospace](https://nerolandmc.net/mods/nerospace/)** for the offworld routes and the Starsteel advanced tier. **NeroLink** for the companion app. JEI or EMI for recipe pages.
+- **Modpacks are allowed and encouraged**: any platform, no need to ask. Use the official files and credit *NeroTech by Neroland* with links to the [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/nerotech) and the [GitHub repository](https://github.com/Neroland/nerotech). Full terms: [LICENSE](https://github.com/Neroland/nerotech/blob/main/LICENSE).
 
 ## Privacy (POPIA / GDPR)
 
-NeroTech stores **no personal data by default**. Optional per-player **pollution attribution** is off unless a server turns it on; when enabled it keeps **UUIDs only** (never names), prunes on a configurable retention window, and registers with Core's shared data-erasure hook — so a single erase request clears your NeroTech data alongside every other Neroland mod.
+NeroTech stores **no personal data by default**. 0.8.0 adds no store keyed by a player: deposits are world data, the Induction Charger and Annunciator Panel never record an owner, and the app's nearby view shows no coordinates and no owners. Optional per-player **pollution attribution** is off unless a server turns it on; when enabled it keeps **UUIDs only** (never names), prunes on a retention window, and registers with Core's shared data-erasure hook, so one erase request clears your NeroTech data along with every other Neroland mod.
 
-NeroTech also includes anonymous **crash telemetry** (stack trace + mod/MC/loader/OS/Java versions only — never IPs, usernames, UUIDs, or world data) via Sentry on EU servers, so bugs can be fixed. **On by default** — opt out any time with `telemetryEnabled = false` in `config/nerotech.properties`. Full details: **[PRIVACY.md](https://github.com/Neroland/nerotech/blob/main/PRIVACY.md)**.
+NeroTech also includes anonymous **crash telemetry** (stack trace + mod/MC/loader/OS/Java versions only, never IPs, usernames, UUIDs or world data) via Sentry on EU servers, so bugs can be fixed. **On by default**: opt out any time with `telemetryEnabled = false` in `config/nerotech.properties`. Full details: **[PRIVACY.md](https://github.com/Neroland/nerotech/blob/main/PRIVACY.md)**.
 
 ## Links
 
-- 📖 **[Wiki](https://github.com/Neroland/nerotech/wiki)** — every block, machine, and system documented.
-- 💬 **[Discord](https://discord.gg/ArPXvYUzJG)** — chat, help, and sneak peeks.
-- 🐞 **[Issues](https://github.com/Neroland/nerotech/issues)** — bug reports and feature requests.
+- 📖 **[Wiki](https://github.com/Neroland/nerotech/wiki)**: every block, machine and system documented.
+- 💬 **[Discord](https://discord.gg/ArPXvYUzJG)**: chat, help and sneak peeks.
+- 🐞 **[Issues](https://github.com/Neroland/nerotech/issues)**: bug reports and feature requests.
 - 🗒️ **[Changelog](https://github.com/Neroland/nerotech/blob/main/CHANGELOG.md)**
 - 🔥 **[Also on CurseForge](https://www.curseforge.com/minecraft/mc-mods/nerotech)**
 

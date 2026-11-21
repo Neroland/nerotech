@@ -47,12 +47,15 @@ public class PowerDrillItem extends ChargedToolItem {
     /** The three modes, in cycle order (stored as {@link ToolCharge#mode()}). */
     public static final String[] MODES = {"single", "area", "vein"};
 
-    /** Blocks vein mode walks: ores, gravel, clay and glowstone by default (decision 014 row 9). */
+    /** Blocks vein mode walks: ores, gravel, clay and glowstone by default. */
     public static final TagKey<Block> VEIN_BLOCKS = TagKey.create(Registries.BLOCK,
-            Identifier.fromNamespaceAndPath("nerotech", "power_drill/vein"));
+            Identifier.fromNamespaceAndPath("nerotech", ToolRules.DRILL_VEIN_TAG_PATH));
 
-    /** Server-thread re-entry guard: the extra breaks call {@link #mineBlock} again through destroyBlock. */
-    private static boolean breaking;
+    /**
+     * Re-entry guard: the extra breaks call {@link #mineBlock} again through destroyBlock. Per thread, so
+     * an integrated server and its client never see each other's flag.
+     */
+    private static final ThreadLocal<Boolean> BREAKING = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     public PowerDrillItem(Properties properties) {
         super(properties);
@@ -83,7 +86,7 @@ public class PowerDrillItem extends ChargedToolItem {
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
-        if (breaking || !(level instanceof ServerLevel serverLevel) || !(entity instanceof ServerPlayer player)) {
+        if (BREAKING.get() || !(level instanceof ServerLevel serverLevel) || !(entity instanceof ServerPlayer player)) {
             return true;
         }
         int cost = NeroTechConfig.powerDrillEnergyPerBlock();
@@ -105,12 +108,12 @@ public class PowerDrillItem extends ChargedToolItem {
                 }, NeroTechConfig.powerDrillVeinMaxBlocks());
         int budget = ToolRules.affordable(charge(stack).energy(), cost, plan.size());
         int broken;
-        breaking = true;
+        BREAKING.set(Boolean.TRUE);
         try {
             broken = BreakPlanner.execute(plan, c -> mayBreak(serverLevel, player, pos(c)),
                     c -> player.gameMode.destroyBlock(pos(c)), budget);
         } finally {
-            breaking = false;
+            BREAKING.set(Boolean.FALSE);
         }
         drain(stack, broken * Math.max(0, cost));
         return true;

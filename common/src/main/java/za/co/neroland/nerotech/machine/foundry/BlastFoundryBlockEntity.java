@@ -360,7 +360,9 @@ public class BlastFoundryBlockEntity extends ProcessingMachineBlockEntity {
                 if (room <= 0) {
                     break;
                 }
-                if (level.getBlockEntity(portPos) instanceof FoundryHeatPortBlockEntity port) {
+                // A port across a chunk border may sit in a chunk unloaded since the last validation.
+                if (level.isLoaded(portPos)
+                        && level.getBlockEntity(portPos) instanceof FoundryHeatPortBlockEntity port) {
                     this.furnaceHeat += port.drainHeat(room);
                 }
             }

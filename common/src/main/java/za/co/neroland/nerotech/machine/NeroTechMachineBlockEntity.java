@@ -72,7 +72,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
     protected int maxProgress;
 
     /**
-     * Heat (Stage 3 consequence axis; full thermal model per Stage C decision 2026-07-10):
+     * Heat (the consequence axis: the full thermal model):
      * accumulates while working, relaxes toward the location's ambient level (dimension + biome,
      * see {@link za.co.neroland.nerotech.heat.ThermalEnvironment}), conducts to/from adjacent
      * machines, and sheds extra next to coolant blocks.
@@ -153,6 +153,18 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
      */
     @Nullable
     private UUID lastOperator;
+    /**
+     * Set by {@code /nerotech gallery} on every machine it places: an exhibit never records an owner or an
+     * operator, so it credits no gate, trophy or statistic. Saved (a plain flag, no player data) so it
+     * survives a reload.
+     */
+    private boolean galleryExhibit;
+    /**
+     * The machine's active {@code MachineFailureEvents} stage (0 = none), fed by
+     * {@link #noteFailureStage(int, boolean)} wherever the machine fires a failure event. Transient: a
+     * plain int, never saved or synced (the alarm mask is), no player data.
+     */
+    private int activeFailureStage;
 
     // --- client-side BER display state (never saved, never synced; POPIA: pure visuals, no player data).
     // The quarry-renderer easing recipe: the BER eases displayPos toward its target ONCE per game tick
@@ -370,7 +382,7 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         return slot < this.machineSlots && canTakeMachineItem(slot);
     }
 
-    // --- heat + pollution (Stage 3 consequence systems) ---------------------
+    // --- heat + pollution (consequence systems) ---------------------
 
     @Override
     protected final void serverTick(Level level, BlockPos pos, BlockState state) {
@@ -912,7 +924,20 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
 
     /** Capture the placing player (only stored when per-player attribution is enabled). */
     public void setOwner(@Nullable UUID owner) {
-        this.ownerId = owner;
+        this.ownerId = this.galleryExhibit ? null : owner;
+    }
+
+    /** Mark this machine as a gallery exhibit (see {@link #isGalleryExhibit()}); drops any owner and operator. */
+    public void markGalleryExhibit() {
+        this.galleryExhibit = true;
+        this.ownerId = null;
+        this.lastOperator = null;
+        setChanged();
+    }
+
+    /** Whether {@code /nerotech gallery} placed this machine: it then credits nothing to anyone. */
+    public boolean isGalleryExhibit() {
+        return this.galleryExhibit;
     }
 
     /**
@@ -1160,15 +1185,28 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
             return this.clientAlarmMask;
         }
         return MachineAlarms.mask(this.readout, this.readoutStatus, recentPollution(),
-                NeroTechConfig.annunciatorPollutionThreshold(), failureStage());
+                NeroTechConfig.annunciatorPollutionThreshold(), failureStageCode());
     }
 
     /**
-     * The machine's active {@code MachineFailureEvents} stage (0 = none). Machines that fire failure
-     * events override it so the {@code failing} alarm tracks them.
+     * The machine's active {@code MachineFailureEvents} stage (0 = none), as last reported through
+     * {@link #noteFailureStage(int, boolean)}; drives the {@code failing} alarm.
      */
-    protected int failureStage() {
-        return 0;
+    protected int failureStageCode() {
+        return this.activeFailureStage;
+    }
+
+    /**
+     * Track a {@code MachineFailureEvents} crossing this machine just fired, so the Annunciator's
+     * {@code failing} alarm follows the real staged-failure state ({@link MachineAlarms#nextFailureStage}).
+     */
+    protected final void noteFailureStage(int stage, boolean rising) {
+        this.activeFailureStage = MachineAlarms.nextFailureStage(this.activeFailureStage, stage, rising);
+    }
+
+    /** The failure episode is over (e.g. a breached shell re-formed): the {@code failing} alarm clears. */
+    protected final void clearFailureStage() {
+        this.activeFailureStage = 0;
     }
 
     /** Record the operator in the moment (interaction, menu open or placement). Transient. */
@@ -1181,7 +1219,8 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
      * after unload. Never saved or synced. Personal data: never log it.
      */
     public Optional<UUID> lastOperator() {
-        return Optional.ofNullable(this.lastOperator);
+        return Optional.ofNullable(
+                za.co.neroland.nerotech.progression.OperatorCredit.creditable(this.galleryExhibit, this.lastOperator));
     }
 
     @Override
@@ -1210,6 +1249,9 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         output.putInt("Pulse", this.clientPulse);
         output.putLong("OwnerMost", this.ownerId == null ? 0L : this.ownerId.getMostSignificantBits());
         output.putLong("OwnerLeast", this.ownerId == null ? 0L : this.ownerId.getLeastSignificantBits());
+        if (this.galleryExhibit) {
+            output.putBoolean("GalleryExhibit", true);
+        }
         for (int i = 0; i < this.items.size(); i++) {
             output.store("Item" + i, ItemStack.OPTIONAL_CODEC, this.items.get(i));
         }
@@ -1234,6 +1276,10 @@ public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEnt
         long ownerMost = input.getLongOr("OwnerMost", 0L);
         long ownerLeast = input.getLongOr("OwnerLeast", 0L);
         this.ownerId = (ownerMost == 0L && ownerLeast == 0L) ? null : new UUID(ownerMost, ownerLeast);
+        this.galleryExhibit = input.getBooleanOr("GalleryExhibit", false);
+        if (this.galleryExhibit) {
+            this.ownerId = null;
+        }
         // A (re)loaded owner is re-checked against the pending-erasure set on the next server tick.
         this.ownerErasureEpoch = -1;
         for (int i = 0; i < this.items.size(); i++) {

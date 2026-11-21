@@ -7,7 +7,7 @@ import java.util.List;
 import za.co.neroland.nerotech.heat.ThermalMath;
 
 /**
- * Pure integer maths for a Heat Pipe <b>run</b> (decision 012): a run of connected pipes is one thermal
+ * Pure integer maths for a Heat Pipe <b>run</b>: a run of connected pipes is one thermal
  * node holding {@code runHeat} spread over its pipes, so its temperature is {@code runHeat / pipes} on the
  * machines' heat scale. On each exchange every endpoint conducts with the run through
  * {@link ThermalMath#conductionStep}, hottest endpoint first, so heat can pass from a hot machine through

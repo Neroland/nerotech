@@ -20,6 +20,16 @@ public final class OperatorCredit {
     }
 
     /**
+     * The operator a machine may credit: none for a gallery exhibit ({@code /nerotech gallery} marks every
+     * machine it places), so exhibits open no gate, award no trophy and feed no statistic, whoever touches
+     * them. Otherwise the operator in the moment, unchanged.
+     */
+    @Nullable
+    public static UUID creditable(boolean galleryExhibit, @Nullable UUID operator) {
+        return galleryExhibit ? null : operator;
+    }
+
+    /**
      * Meltdown averted: a machine whose worst failure stage this episode was {@code worstStage} has just been
      * restored (formed and running again, or back below the failure line). Credits only from
      * {@link MachineFailureEvents#STAGE_FAILURE} or worse, and only with a known operator.

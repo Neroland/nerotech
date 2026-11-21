@@ -5,7 +5,7 @@ Painted here (``textures/item/<id>.png``, all 32x, all ``item/generated``):
 * structural   -- cindersteel ingot / plate / rod, titanium plate
 * semiconductor-- crystal seed, crystal boule, wafer
 * chemistry    -- sulfur dust, polymer sheet, europium dust, synthetic glacite
-* ladder       -- logic and quantum processor; copper / cindersteel / superconductor wire and coil;
+* ladder       -- logic and quantum chip; copper / cindersteel / superconductor wire and coil;
                   servo, capacitor, heat sink
 * optics       -- the four focus lenses (one ring mount, four cuts: the cut is the colour-blind cue)
 * drilling     -- iron (three cones), cindersteel (four stepped blades), glacite (six blades)
@@ -572,7 +572,7 @@ def paint_logic_chip():
     save_item(img, "logic_chip")
 
 
-def paint_quantum_processor():
+def paint_quantum_chip():
     """Larger and octagonal: a plasma core under a glass lid, pins on all eight sides."""
     img = K.new_img()
     px = img.load()
@@ -591,7 +591,7 @@ def paint_quantum_processor():
             if px[x, y][3] and (x + y) % 4 == 0:
                 px[x, y] = K.GOLD[2]
     poly(px, octagon(2), body[0])
-    speckle(px, "quantum_processor", 5, 5, 26, 26, [K.ALLOY[0], K.ALLOY[1]], 0.5)
+    speckle(px, "quantum_chip", 5, 5, 26, 26, [K.ALLOY[0], K.ALLOY[1]], 0.5)
     poly(px, octagon(2), lambda x, y: body[3] if (y == 5 or x == 5 or (x + y) <= 17)
          else (body[2] if (y == 26 or x == 26 or (x + y) >= 46) else px[x, y]))
     for y in range(S):                                                  # teal guard ring
@@ -617,7 +617,7 @@ def paint_quantum_processor():
     px[19, 19] = K.mix(K.T_DEEP, K.GLASS, 0.7)
     for (dx, dy) in ((8, 8), (23, 8), (8, 23), (23, 23)):               # corner lands
         px[dx, dy] = K.GOLD[2]
-    save_item(img, "quantum_processor")
+    save_item(img, "quantum_chip")
 
 
 # ---- parts -----------------------------------------------------------------------------------------
@@ -1019,7 +1019,7 @@ def paint_bucket(name, medium):
 ITEMS = (
     "cindersteel_ingot", "cindersteel_plate", "cindersteel_rod", "titanium_plate",
     "synthetic_glacite", "crystal_seed", "crystal_boule", "wafer", "sulfur_dust", "polymer_sheet",
-    "europium_dust", "logic_chip", "quantum_processor",
+    "europium_dust", "logic_chip", "quantum_chip",
     "copper_wire", "cindersteel_wire", "superconductor_wire",
     "copper_coil", "cindersteel_coil", "superconductor_coil",
     "servo", "capacitor", "heat_sink",
@@ -1043,7 +1043,7 @@ def paint():
     paint_polymer_sheet()
     paint_dust("europium_dust", EURO, spread=0.75, spark=K.T_CYAN)
     paint_logic_chip()
-    paint_quantum_processor()
+    paint_quantum_chip()
     paint_wire("copper_wire", COP)
     paint_wire("cindersteel_wire", CIN)
     paint_wire("superconductor_wire", SUP)

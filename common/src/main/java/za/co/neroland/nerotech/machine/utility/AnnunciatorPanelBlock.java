@@ -27,7 +27,7 @@ import za.co.neroland.nerotech.machine.NeroTechMachineBlock;
 
 /**
  * Annunciator Panel block: a thin wall panel (model {@code [1,1,14]->[15,15,16]}, front = facing).
- * Crouch-use with an empty hand cycles the comparator channel (decision 013); a plain use opens the
+ * Crouch-use with an empty hand cycles the comparator channel; a plain use opens the
  * status screen. Comparators read {@link AnnunciatorPanelBlockEntity#comparatorSignal()}.
  */
 public class AnnunciatorPanelBlock extends NeroTechMachineBlock {

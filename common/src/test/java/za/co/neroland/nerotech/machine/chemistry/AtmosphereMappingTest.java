@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import za.co.neroland.nerotech.api.Atmosphere;
 
 /**
- * Locks the condenser's atmosphere table (decision 006 §5): archetype → atmosphere, the Europa override,
+ * Locks the condenser's atmosphere table: archetype → atmosphere, the Europa override,
  * the twilight half rate, the band fallback for unknown archetypes, and the config table when Nerospace
  * is absent (defaulting to EARTHLIKE). Pure JVM.
  */

@@ -43,7 +43,7 @@ class LaserEtcherRuleTest {
         assertFalse(logic.matches(parts, "nerotech:ember_focus_lens", null, 0L), "wrong lens");
         assertFalse(logic.matches(parts, null, null, 0L), "no lens");
 
-        RecipeFixture quantum = RecipeFixture.load("etching_quantum_processor");
+        RecipeFixture quantum = RecipeFixture.load("etching_quantum_chip");
         List<Stack> quantumParts = List.of(new Stack("nerotech:wafer", 1),
                 new Stack("nerotech:superconductor_wire", 2), new Stack("nerotech:logic_chip", 1));
         assertTrue(quantum.matches(quantumParts, "nerotech:void_focus_lens", null, 0L));
@@ -52,7 +52,7 @@ class LaserEtcherRuleTest {
 
     @Test
     void lensIsNeverAnIngredient() {
-        for (String name : List.of("etching_logic_chip", "etching_quantum_processor")) {
+        for (String name : List.of("etching_logic_chip", "etching_quantum_chip")) {
             RecipeFixture recipe = RecipeFixture.load(name);
             assertEquals("nerotech:etching", recipe.type());
             assertTrue(recipe.catalyst().isPresent(), name + " names its lens as the catalyst");

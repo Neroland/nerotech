@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-/** Heat Exchanger direction rules (decision 012). Pure JVM. */
+/** Heat Exchanger direction rules. Pure JVM. */
 class ExchangerModelTest {
 
     private static final Map<String, Integer> COOL = ExchangerModel.parseTable(HeatSettings.heatExchangerCoolants());

@@ -9,13 +9,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerotech.config.NeroTechConfig;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
+import za.co.neroland.nerotech.machine.ProcessingMachineBlockEntity;
 import za.co.neroland.nerotech.network.MachineStatsPayload;
 import za.co.neroland.nerotech.network.NeroTechNetwork;
 
@@ -58,11 +61,22 @@ import za.co.neroland.nerotech.network.NeroTechNetwork;
  * and client containers agree; values ride {@code ContainerData}'s short-range sync, so keep each
  * value within a short. {@code MachineScreen} renders indices 0..6 for every machine; add-on screens
  * draw their extra gauges from 7+.
+ *
+ * <h2>Gauge tail (0.8.0, additive)</h2>
+ * After the block entity's own values this menu appends {@value #TAIL_COUNT} more, read by the gauge
+ * tooltips (art direction §9: amount / capacity with units): stored energy and capacity in NE, raw heat,
+ * heat capacity and the safe limit, and the configured capacity of the legacy (permille-only) fluid and
+ * gas tanks. Each value is split into two 15-bit halves ({@link ProcessingMachineBlockEntity#hi} /
+ * {@link ProcessingMachineBlockEntity#lo}) because ContainerData travels as shorts. Both sides append the
+ * tail in this constructor, so add-on menus get it without any change and their own indices stay put.
+ * Machine-scoped numbers only, never player data.
  */
 public abstract class MachineMenu extends AbstractContainerMenu {
 
     protected final Container container;
     protected final ContainerData data;
+    /** The gauge tail appended after {@link #data} (see the class doc); computed live server side. */
+    private final ContainerData gaugeTail;
     protected final int machineSlots;
     protected final int totalNonPlayer;
 
@@ -99,6 +113,9 @@ public abstract class MachineMenu extends AbstractContainerMenu {
         // Vanilla data-slot sync: without this the client's SimpleContainerData stays zeroed and
         // every gauge reads empty (the known 26.x "missing addDataSlots = dead gauges" gotcha).
         this.addDataSlots(data);
+        this.gaugeTail = container instanceof NeroTechMachineBlockEntity machine
+                ? new GaugeTail(machine) : new SimpleContainerData(TAIL_COUNT);
+        this.addDataSlots(this.gaugeTail);
     }
 
     /** The machine's position, or {@code null} if not yet known (client before resolution). */
@@ -227,6 +244,106 @@ public abstract class MachineMenu extends AbstractContainerMenu {
     public int extraValue(int index) {
         int i = 7 + index;
         return i < this.data.getCount() ? this.data.get(i) : 0;
+    }
+
+    // --- gauge tail (0.8.0): absolute amounts for the gauge tooltips -----------------------------
+
+    /** Tail index: stored energy, upper half. */
+    public static final int TAIL_ENERGY = 0;
+    /** Tail index: energy capacity, upper half. */
+    public static final int TAIL_ENERGY_CAPACITY = 2;
+    /** Tail index: raw heat, upper half. */
+    public static final int TAIL_HEAT = 4;
+    /** Tail index: heat capacity (the gauge scale), upper half. */
+    public static final int TAIL_HEAT_CAPACITY = 6;
+    /** Tail index: the heat throttle threshold (top of the safe band), upper half. */
+    public static final int TAIL_HEAT_SAFE = 8;
+    /** Tail index: the configured legacy fluid tank capacity in mB, upper half. */
+    public static final int TAIL_FLUID_CAPACITY = 10;
+    /** Tail index: the configured legacy gas tank capacity in mB, upper half. */
+    public static final int TAIL_GAS_CAPACITY = 12;
+    /** Values in the gauge tail (pairs of 15-bit halves). */
+    public static final int TAIL_COUNT = 14;
+
+    private long tail(int index) {
+        return ProcessingMachineBlockEntity.join(this.gaugeTail.get(index), this.gaugeTail.get(index + 1));
+    }
+
+    /** Stored energy in NE (clamped to about a billion by the 30-bit sync). */
+    public long energyStored() {
+        return tail(TAIL_ENERGY);
+    }
+
+    /** Energy capacity in NE (0 for a machine without a buffer). */
+    public long energyCapacity() {
+        return tail(TAIL_ENERGY_CAPACITY);
+    }
+
+    /** Raw heat. */
+    public long heatRaw() {
+        return tail(TAIL_HEAT);
+    }
+
+    /** Heat capacity in raw units (the heat gauge's full scale). */
+    public long heatCapacityRaw() {
+        return tail(TAIL_HEAT_CAPACITY);
+    }
+
+    /** The heat at which the machine starts to throttle — the top of its safe band. */
+    public long heatSafeLimit() {
+        return tail(TAIL_HEAT_SAFE);
+    }
+
+    /** Capacity in mB of a legacy fluid tank (Electrolyzer water), whose gauge syncs permille only. */
+    public long legacyFluidCapacity() {
+        return tail(TAIL_FLUID_CAPACITY);
+    }
+
+    /** Capacity in mB of a legacy gas tank (Electrolyzer, Gas Turbine, Chemical Processor). */
+    public long legacyGasCapacity() {
+        return tail(TAIL_GAS_CAPACITY);
+    }
+
+    /** Server-side tail: read live from the machine every broadcast (cheap getters, no allocation). */
+    private static final class GaugeTail implements ContainerData {
+
+        private final NeroTechMachineBlockEntity machine;
+
+        GaugeTail(NeroTechMachineBlockEntity machine) {
+            this.machine = machine;
+        }
+
+        private long value(int pair) {
+            return switch (pair) {
+                case TAIL_ENERGY -> this.machine.getEnergy().getAmount();
+                case TAIL_ENERGY_CAPACITY -> this.machine.getEnergy().getCapacity();
+                case TAIL_HEAT -> this.machine.heat();
+                case TAIL_HEAT_CAPACITY -> this.machine.heatCapacity();
+                case TAIL_HEAT_SAFE -> this.machine.heatThrottleThreshold();
+                case TAIL_FLUID_CAPACITY -> NeroTechConfig.machineFluidCapacity();
+                case TAIL_GAS_CAPACITY -> NeroTechConfig.machineGasCapacity();
+                default -> 0L;
+            };
+        }
+
+        @Override
+        public int get(int index) {
+            if (index < 0 || index >= TAIL_COUNT) {
+                return 0;
+            }
+            long v = value(index & ~1);
+            return (index & 1) == 0 ? ProcessingMachineBlockEntity.hi(v) : ProcessingMachineBlockEntity.lo(v);
+        }
+
+        @Override
+        public void set(int index, int value) {
+            // Server side reads live; the client's SimpleContainerData is the sync target.
+        }
+
+        @Override
+        public int getCount() {
+            return TAIL_COUNT;
+        }
     }
 
     /**

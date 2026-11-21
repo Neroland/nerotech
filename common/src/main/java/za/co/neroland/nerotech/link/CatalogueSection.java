@@ -35,7 +35,7 @@ import za.co.neroland.nerotech.recipe.ProcessMedium;
 import za.co.neroland.nerotech.recipe.ProcessRecipe;
 
 /**
- * The public {@code catalogue} section (link schema 2, decision 007): machines, materials and the six
+ * The public {@code catalogue} section (link schema 2): machines, materials and the six
  * chains with their standalone and offworld routes. Identical for every requester; {@code playerId}
  * is never read. Built from the loaded recipe manager once per datapack reload and cached, keyed by
  * the server and its recipe-manager instance (a reload builds a new one).
@@ -118,7 +118,7 @@ final class CatalogueSection {
             boolean present = switch (m.kind()) {
                 case "item" -> lookup.itemExists(id);
                 case "fluid" -> lookup.fluidExists(id);
-                default -> true; // gases live in Core's gas registry; the list is decision 001's
+                default -> true; // gases live in Core's gas registry; the list is fixed
             };
             if (!present) {
                 continue;

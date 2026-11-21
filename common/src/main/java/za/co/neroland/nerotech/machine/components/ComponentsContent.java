@@ -24,7 +24,7 @@ import za.co.neroland.nerotech.registry.ModMenuTypes;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * WP-Components — the components machine family (component_forge, laser_etcher, crystal_grower). Owned by its work package: every block, item,
+ * The components machine family (component_forge, laser_etcher, crystal_grower). Every block, item,
  * block-entity type, menu, screen and renderer of the family is declared here and nowhere else;
  * {@code registry.FamilyRegistry} wires this class into every central place.
  *

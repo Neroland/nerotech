@@ -53,4 +53,11 @@ public final class NeoForgePlatformHelper implements IPlatformHelper {
     public boolean isModLoaded(String modId) {
         return ModList.get().isLoaded(modId);
     }
+
+    @Override
+    public boolean mayBreak(net.minecraft.server.level.ServerPlayer player, net.minecraft.server.level.ServerLevel level,
+            net.minecraft.core.BlockPos pos) {
+        return !net.neoforged.neoforge.common.CommonHooks.fireBlockBreak(level,
+                player.gameMode.getGameModeForPlayer(), player, pos, level.getBlockState(pos)).isCanceled();
+    }
 }

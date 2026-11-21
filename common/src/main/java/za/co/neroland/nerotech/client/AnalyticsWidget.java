@@ -89,6 +89,12 @@ public final class AnalyticsWidget {
         this.presetOrdinal = presetOrdinal;
     }
 
+    /** The latest analytics snapshot this tab has drained, or null before the first (gauge tooltips). */
+    @Nullable
+    public MachineStatsPayload latest() {
+        return this.latest;
+    }
+
     public boolean isOpen() {
         return this.open;
     }

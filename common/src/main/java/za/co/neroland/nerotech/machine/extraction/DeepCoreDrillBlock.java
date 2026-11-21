@@ -38,15 +38,6 @@ public class DeepCoreDrillBlock extends NeroTechMachineBlock {
         return ExtractionContent.DEEP_CORE_DRILL_BE.get();
     }
 
-    //? if <1.21.5 {
-    /*// Before 1.21.5 removal side effects run from the block: spend a part-worn head before the contents drop.
-    @Override
-    protected void onRemove(BlockState state, net.minecraft.world.level.Level level, BlockPos pos, BlockState newState,
-            boolean movedByPiston) {
-        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof DeepCoreDrillBlockEntity be) {
-            be.spendWornHead();
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
-    *///?}
+    // Head wear is item data on the head, so breaking the drill needs no hook of its own: the contents drop
+    // through NeroTechMachineBlock (pre-1.21.5) or vanilla's preRemoveSideEffects (1.21.5+).
 }

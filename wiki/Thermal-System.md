@@ -30,6 +30,19 @@ Each machine's heat is the balance of four flows:
   to pull heat out of *every* adjacent machine, scaled by how many Radiators feed it. This is how you
   keep a Fusion Reactor or Particle Accelerator running flat out without a wall of ice.
 
+## Moving heat on purpose (0.8.0)
+
+- **Heat Pipes** carry heat along a run between machines and into Foundry Heat Ports, and a **Heat
+  Exchanger** moves heat between a machine and a Process Tank of coolant, lava or water. A reactor's waste
+  heat can run a Blast Foundry. See [Heat as a Resource](Heat-as-a-Resource.md).
+- The **Heat Sink Module** moves a machine's throttle point up towards its heat ceiling, at most half the
+  way with four modules (see [Machines](Machines.md#upgrade-modules)).
+- **Ambient matters more:** the Cryo Distiller and Crystal Grower run faster in cold places, and the Plasma
+  Crucible and Blast Foundry lose less heat in hot ones.
+- Hover the heat gauge in any machine screen for its exact heat, the throttle point and the rate it is
+  changing. The [Multimeter](Tools.md#multimeter) and [Thermal Goggles](Tools.md#thermal-goggles) read heat
+  in the world.
+
 ## Throttling
 
 Nothing has changed about the consequence: when a processing machine's heat reaches
@@ -56,6 +69,7 @@ neighbour scanning anywhere.
 
 ## See also
 
+- [Heat as a Resource](Heat-as-a-Resource.md)
 - [Consequence Systems](Consequence-Systems.md)
 - [Overclock Presets](Overclock-Presets.md)
 - [Analytics](Analytics.md)

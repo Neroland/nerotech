@@ -3,7 +3,7 @@ package za.co.neroland.nerotech.machine.fusion;
 import za.co.neroland.nerotech.config.NeroTechConfig;
 
 /**
- * WP-Fusion balance values, read in one place. The defaults are inline until the integrator moves them
+ * Fusion balance values, read in one place. The defaults are inline until the integrator moves them
  * into {@code NeroTechConfig} (keys and comments listed in the family's config note); every caller reads
  * them through these methods, so the move touches only this class.
  */

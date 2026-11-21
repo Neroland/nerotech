@@ -605,7 +605,8 @@ public class ProcessTankBlockEntity extends NeroTechMachineBlockEntity {
             TankMedium carried = contents.asMedium();
             if (!carried.isEmpty()) {
                 this.medium = carried;
-                this.amount = contents.amount();
+                // A command or creative item can carry more than one tank holds: clamp to capacity.
+                this.amount = Math.min(CAPACITY_MB, contents.amount());
             }
         }
     }

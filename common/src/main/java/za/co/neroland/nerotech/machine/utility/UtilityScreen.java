@@ -51,6 +51,12 @@ public class UtilityScreen extends ProcessingScreen<ProcessingMenu> {
     private static final int LIT = 0xFFE0B33A;
     private static final int DIM = 0xFF3A4654;
 
+    /** The charger's live output to items and players in reach (NE/t); the panel delivers nothing. */
+    @Override
+    protected long energyDeliveredPerTick() {
+        return this.charger ? Math.max(0, extraB()) : -1L;
+    }
+
     /** The panel draws no power; the charger does. */
     @Override
     protected boolean drawsEnergyTrough() {

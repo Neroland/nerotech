@@ -1,7 +1,7 @@
 package za.co.neroland.nerotech.heat;
 
 /**
- * Pure integer math for the full thermal model (Stage C decision, 2026-07-10): machines are no
+ * Pure integer math for the full thermal model: machines are no
  * longer thermal islands — heat conducts between adjacent machines and every machine relaxes
  * toward its environment's ambient heat level. This class is deliberately free of any
  * {@code net.minecraft} import so the maths is unit-testable on the plain JVM

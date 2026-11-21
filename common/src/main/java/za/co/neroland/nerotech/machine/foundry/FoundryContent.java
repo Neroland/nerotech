@@ -25,7 +25,7 @@ import za.co.neroland.nerotech.registry.ModMenuTypes;
 import za.co.neroland.nerotech.registry.RegistrationProvider.RegistryEntry;
 
 /**
- * WP-Foundry — the foundry machine family (blast_foundry, foundry_brick, foundry_heat_port). Owned by its work package: every block, item,
+ * The foundry machine family (blast_foundry, foundry_brick, foundry_heat_port). Every block, item,
  * block-entity type, menu, screen and renderer of the family is declared here and nowhere else;
  * {@code registry.FamilyRegistry} wires this class into every central place.
  *

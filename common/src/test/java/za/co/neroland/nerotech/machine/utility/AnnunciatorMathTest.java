@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import za.co.neroland.nerotech.machine.MachineAlarms;
 
-/** Annunciator Panel rules (decision 013): mask aggregation, comparator mapping, fresh lamps. Pure JVM. */
+/** Annunciator Panel rules: mask aggregation, comparator mapping, fresh lamps. Pure JVM. */
 class AnnunciatorMathTest {
 
     @Test
