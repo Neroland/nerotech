@@ -12,6 +12,10 @@ import java.util.Locale;
  * <p>Ordinals ride the analytics payloads (a single byte), so the order here is wire format —
  * append only. Colour hints stay client-side ({@code client.AnalyticsWidget}); this enum carries
  * only the lang key. Machine-scoped state only — no player data anywhere (POPIA/GDPR).
+ *
+ * <p><b>Add-on stable:</b> add-ons (NeroPower) subclass or read this type directly, so it keeps its
+ * public and protected signatures within a 0.x minor like the {@code api} package, and a breaking
+ * change bumps the minor and is called out in {@code CHANGELOG.md}. New members may be added.
  */
 public enum MachineStatus {
 

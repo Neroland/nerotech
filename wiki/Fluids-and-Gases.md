@@ -28,7 +28,7 @@ Splits stored water into hydrogen and oxygen at the electrolytic 2:1 ratio.
 | | |
 | --- | --- |
 | **Water in** | Right-click with a water bucket (1000 mB), or pipe it in on any face — the tank sits on Core's fluid capability *and* on the loader's standard one, so any mod's fluid pipe works |
-| **Power** | `electrolyzerNePerTick` (default 40) while running |
+| **Power** | `electrolyzerNePerTick` (default 40) while running. Speed modules raise the draw by the same factor they shorten the operation, so they never make hydrogen cheaper |
 | **Operation** | `electrolyzerOperationTicks` (default 200), consuming `electrolyzerWaterPerOp` (default 500 mB) |
 | **Output** | `electrolyzerHydrogenPerOp` (default 200 mB = 2 units) + `electrolyzerOxygenPerOp` (default 100 mB = 1 unit) |
 | **Tanks** | `machineFluidCapacity` water, `machineGasCapacity` per gas (defaults 4000 mB each) |

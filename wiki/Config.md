@@ -89,7 +89,7 @@ mode may take).
 | --- | --- | --- | --- |
 | `machineGasCapacity` | `4000` | 100 to 10,000,000 | capacity (mB) of each internal machine gas tank; one balance "unit" of gas is 100 mB (capacity changes apply when the machine next loads) |
 | `machineFluidCapacity` | `4000` | 1,000 to 10,000,000 | capacity (mB) of each internal machine fluid tank — the Electrolyzer's water tank (4 buckets by default) |
-| `electrolyzerNePerTick` | `40` | 0 to 1,000,000 | NE/tick the Electrolyzer draws while splitting water (before Efficiency) |
+| `electrolyzerNePerTick` | `40` | 0 to 1,000,000 | NE/tick the Electrolyzer draws while splitting water (before Efficiency; Speed modules multiply the draw) |
 | `electrolyzerOperationTicks` | `200` | 1 to 72,000 | base ticks one electrolysis operation takes (before Speed modules) |
 | `electrolyzerWaterPerOp` | `500` | 1 to 1,000,000 | water (mB) consumed per electrolysis operation (a bucket is 1000 mB) |
 | `electrolyzerHydrogenPerOp` | `200` | 0 to 1,000,000 | hydrogen (mB) produced per operation — 2 units at the default 100 mB/unit |

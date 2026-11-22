@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerotech.api.HeatAcceptor;
 import za.co.neroland.nerotech.machine.NeroTechMachineBlockEntity;
 import za.co.neroland.nerotech.machine.foundry.FoundryHeatPortBlockEntity;
 

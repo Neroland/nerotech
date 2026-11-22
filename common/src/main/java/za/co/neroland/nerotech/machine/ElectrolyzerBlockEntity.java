@@ -219,10 +219,12 @@ public class ElectrolyzerBlockEntity extends NeroTechMachineBlockEntity {
         }
 
         UpgradeModifiers mods = modifiers();
-        int effectiveTicks = Math.max(1, (int) Math.round(NeroTechConfig.electrolyzerOperationTicks()
-                / Math.max(0.01D, mods.speedMultiplier() * presetSpeedFactor())));
-        int cost = (int) Math.max(0, Math.round(NeroTechConfig.electrolyzerNePerTick()
-                * mods.energyMultiplier() * presetEnergyFactor()));
+        // Speed modules shorten the operation but raise the per-tick draw to match, so they never make
+        // hydrogen cheaper (ElectrolysisMath; keeps electrolysis an energy sink).
+        int effectiveTicks = ElectrolysisMath.operationTicks(NeroTechConfig.electrolyzerOperationTicks(),
+                mods.speedMultiplier(), presetSpeedFactor());
+        int cost = ElectrolysisMath.costPerTick(NeroTechConfig.electrolyzerNePerTick(),
+                mods.energyMultiplier(), presetEnergyFactor(), mods.speedMultiplier());
         this.maxProgress = effectiveTicks;
 
         // Heat throttle: an electrolyzer run too hard stalls until it sheds heat.

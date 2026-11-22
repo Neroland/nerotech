@@ -56,6 +56,10 @@ import za.co.neroland.nerotech.upgrade.UpgradeModuleItem;
  * <p>Add-on seam (0.4.0): the base implements {@link PowerMachine}, NeroTech's stable public read/steer
  * surface, so an add-on machine (NeroPower) that subclasses this gets the API for free and other mods
  * can consume any NeroTech-family machine through the interface alone.
+ *
+ * <p><b>Add-on stable:</b> add-ons (NeroPower) subclass or read this type directly, so it keeps its
+ * public and protected signatures within a 0.x minor like the {@code api} package, and a breaking
+ * change bumps the minor and is called out in {@code CHANGELOG.md}. New members may be added.
  */
 public abstract class NeroTechMachineBlockEntity extends AbstractMachineBlockEntity
         implements WorldlyContainer, MenuProvider, PowerMachine {

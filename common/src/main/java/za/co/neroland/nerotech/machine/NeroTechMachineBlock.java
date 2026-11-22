@@ -44,6 +44,10 @@ import za.co.neroland.nerotech.network.NeroTechNetwork;
  *
  * <p>Subclasses supply their concrete block-entity ({@link #newBlockEntity}), its type
  * ({@link #machineType()}) and a {@link #codec()}.
+ *
+ * <p><b>Add-on stable:</b> add-ons (NeroPower) subclass or read this type directly, so it keeps its
+ * public and protected signatures within a 0.x minor like the {@code api} package, and a breaking
+ * change bumps the minor and is called out in {@code CHANGELOG.md}. New members may be added.
  */
 public abstract class NeroTechMachineBlock extends BaseEntityBlock {
 

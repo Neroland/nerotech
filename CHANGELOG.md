@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-11-26
+
+### Added
+
+- **Add-on API** (requested by NeroPower): `api.MachineSettings` (`machineMaxTransfer`,
+  `renderAnimationsEnabled`), `api.Configurator` (copy/paste mode and the pending link target of a
+  Configurator stack), `api.Pollution.record(...)` (place only, or with owner attribution where the server
+  and the player allow it), `api.PrivacyPrefs.ownDataOptedOut(...)` and `api.HeatAcceptor`, so any block
+  entity can trade heat with Heat Pipes and Heat Exchangers without a NeroTech base class. The internal
+  `machine.heat.HeatAcceptor` now extends the public one and is deprecated.
+- `NeroTechMachineBlockEntity`, `NeroTechMachineBlock`, `MachineStatus` and `MachineEnergy` are now
+  declared add-on stable: their signatures keep within a minor, like the `api` package.
+
+### Changed
+
+- **Electrolyzer:** Speed modules now raise the per-tick draw by the same factor they shorten an
+  operation, so they no longer make hydrogen cheaper. With 8 Speed modules, Eco and the Efficiency floor
+  a hydrogen unit cost about 83 NE, less than a Gas Turbine gets back from it; it now costs about 660 NE.
+  Speed still makes it faster; Efficiency modules and the Eco preset still make it cheaper.
+
 ## [0.8.0] - 2026-11-21
 
 **Offworld Industry.** Six production chains, 22 new machines and blocks, a component ladder, seven powered

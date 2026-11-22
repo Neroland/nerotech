@@ -121,7 +121,7 @@ public final class NeroTechConfig {
             4_000, 1_000, 10_000_000, true, "capacity (mB) of each internal machine fluid tank — the "
             + "Electrolyzer's water tank (4 buckets by default)");
     private static final ConfigValue<Integer> ELECTROLYZER_NE_PER_TICK = SCHEMA.intRange("electrolyzerNePerTick",
-            40, 0, 1_000_000, true, "NE/tick the Electrolyzer draws while splitting water (before Efficiency)");
+            40, 0, 1_000_000, true, "NE/tick the Electrolyzer draws while splitting water (before Efficiency; Speed modules multiply the draw)");
     private static final ConfigValue<Integer> ELECTROLYZER_TICKS = SCHEMA.intRange("electrolyzerOperationTicks",
             200, 1, 72_000, true, "base ticks one electrolysis operation takes (before Speed modules)");
     private static final ConfigValue<Integer> ELECTROLYZER_WATER = SCHEMA.intRange("electrolyzerWaterPerOp",

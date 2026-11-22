@@ -18,6 +18,10 @@ import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
  * Core's loader-neutral {@link EnergyLookup} seam — so generation stays thin and talks only to
  * Core's energy surface (never to NeroTech-internal machine classes), keeping a future NeroPower
  * extraction a package move rather than a rewrite.
+ *
+ * <p><b>Add-on stable:</b> add-ons (NeroPower) subclass or read this type directly, so it keeps its
+ * public and protected signatures within a 0.x minor like the {@code api} package, and a breaking
+ * change bumps the minor and is called out in {@code CHANGELOG.md}. New members may be added.
  */
 public final class MachineEnergy {
 

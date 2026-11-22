@@ -26,7 +26,22 @@
  *   <li>{@link za.co.neroland.nerotech.api.WirelessCharging} — draw charge from Induction Chargers in
  *       reach for an entity's own energy, and register item-energy adapters for players' held or worn
  *       items. Takes a level, a position and an amount only.</li>
+ *   <li>{@link za.co.neroland.nerotech.api.MachineSettings} — read {@code machineMaxTransfer} and
+ *       {@code renderAnimationsEnabled} without the internal config class.</li>
+ *   <li>{@link za.co.neroland.nerotech.api.Configurator} — read a Configurator stack: copy/paste mode
+ *       and its pending link target.</li>
+ *   <li>{@link za.co.neroland.nerotech.api.Pollution} — emit pollution into the region model, with
+ *       owner attribution only where the server and the player allow it.</li>
+ *   <li>{@link za.co.neroland.nerotech.api.PrivacyPrefs} — whether a player opted out of NeroTech
+ *       recording data about them.</li>
+ *   <li>{@link za.co.neroland.nerotech.api.HeatAcceptor} — trade heat with Heat Pipes and Heat
+ *       Exchangers from any block entity, with no NeroTech base class.</li>
  * </ul>
+ *
+ * <p>Outside this package, four machine types are also <b>add-on stable</b> because add-ons subclass
+ * or read them directly: {@code machine.NeroTechMachineBlockEntity}, {@code machine.NeroTechMachineBlock},
+ * {@code machine.MachineStatus} and {@code machine.MachineEnergy}. They follow the same rule as this
+ * package.
  *
  * <p>Privacy (POPIA/GDPR): nothing in this package carries player data across mod boundaries —
  * the only player-shaped value, {@link za.co.neroland.nerotech.api.PowerMachine#owner()}, is the
