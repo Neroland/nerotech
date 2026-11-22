@@ -88,7 +88,7 @@ a **Dirty Filter**, which goes into your inventory — the same cycle as the
 ## Charging
 
 The Induction Charger is a tier-1 block, so you can charge tools early, before you have an Arc Wrench to
-move machines with.
+move machines with. The same pad also fills any other item that stores Neroland Core energy, held or worn.
 
 ## Config keys
 
