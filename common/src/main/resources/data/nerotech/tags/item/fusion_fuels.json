@@ -5,6 +5,7 @@
     "nerotech:plasma_cell",
     "nerotech:stellar_cell",
     "nerotech:antimatter_cell",
-    { "id": "nerospace:rocket_fuel_canister", "required": false }
+    { "id": "nerospace:rocket_fuel_canister", "required": false },
+    { "id": "#nerospace:gas_canisters/rocket_fuel", "required": false }
   ]
 }

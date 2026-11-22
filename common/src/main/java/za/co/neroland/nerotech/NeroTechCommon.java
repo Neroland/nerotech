@@ -69,6 +69,10 @@ public final class NeroTechCommon {
                     za.co.neroland.nerotech.guide.TechGuideSeenState.TYPE, seen,
                     za.co.neroland.nerotech.guide.TechGuideSeenState.ID.toString());
         });
+        // POPIA s23 / GDPR Art. 15 and 20: the read-side twin of the erasure hook above, so Core's
+        // `/neroland data exportme` includes what NeroTech stores about the requester (nothing else).
+        za.co.neroland.nerolandcore.data.PlayerDataExport.register(MOD_ID,
+                za.co.neroland.nerotech.pollution.NeroTechDataExport::export);
     }
 
     /**

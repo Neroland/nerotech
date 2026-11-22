@@ -5,7 +5,7 @@
       "required": false
     },
     {
-      "id": "nerospace:gas_canisters/helium3",
+      "id": "#nerospace:gas_canisters/helium3",
       "required": false
     }
   ]

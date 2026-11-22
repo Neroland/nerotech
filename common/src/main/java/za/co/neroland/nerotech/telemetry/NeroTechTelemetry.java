@@ -10,9 +10,14 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 
 import io.sentry.Breadcrumb;
-import io.sentry.Sentry;
+import io.sentry.IScopes;
+import io.sentry.Scope;
+import io.sentry.Scopes;
+import io.sentry.SentryClient;
 import io.sentry.SentryEvent;
 import io.sentry.SentryLevel;
+import io.sentry.SentryOptions;
+import io.sentry.UncaughtExceptionHandlerIntegration;
 import io.sentry.protocol.Message;
 import io.sentry.protocol.SentryException;
 import io.sentry.protocol.SentryStackFrame;
@@ -38,6 +43,11 @@ import za.co.neroland.nerotech.platform.Services;
  *       {@value #MAX_EVENTS_PER_SESSION} events per session.</li>
  * </ul>
  *
+ * <p><b>Isolated client:</b> every Nero mod bundles the same un-relocated Sentry jar, so the static
+ * {@code Sentry} API is one shared hub that each {@code Sentry.init} replaces. NeroTech never touches it:
+ * it builds its own options, client and scopes ({@link #isolatedScopes}) and reports only through them,
+ * so another mod's {@code Sentry.init} cannot silence NeroTech (and NeroTech cannot silence anyone).</p>
+ *
  * <p>{@link #init()} is called once per loader at bootstrap and reads loader facts through
  * {@link Services#PLATFORM}. Full disclosure text: {@code PRIVACY.md}.
  */
@@ -58,6 +68,10 @@ public final class NeroTechTelemetry {
             Pattern.compile("(?i)(?:[A-Z]:)?[/\\\\](?:Users|home)[/\\\\][^/\\\\\\s:;,'\"]+");
 
     private static volatile boolean active;
+    /** NeroTech's own scopes; {@code null} until {@link #start()} succeeds. Never the global hub. */
+    private static volatile IScopes scopes;
+    /** Process lifetime, never closed (a field so ecj sees it is not leaked). */
+    private static UncaughtExceptionHandlerIntegration uncaughtHandler;
     private static final AtomicInteger eventsSent = new AtomicInteger();
     private static final Set<String> seenFingerprints = ConcurrentHashMap.newKeySet();
     private static SentryLogAppender appender;
@@ -85,17 +99,11 @@ public final class NeroTechTelemetry {
         }
         String modVersion = Services.PLATFORM.getModVersion();
         boolean dev = Services.PLATFORM.isDevelopmentEnvironment();
-        Sentry.init(options -> {
-            options.setDsn(DSN);
-            options.setRelease("nerotech@" + modVersion);
-            options.setEnvironment(dev ? "development" : environmentOf(modVersion));
-            options.setSendDefaultPii(false);          // POPIA/GDPR: never the sender's IP/identity
-            options.setAttachServerName(false);        // hostname is identifying
-            options.setEnableUncaughtExceptionHandler(true);
-            options.setEnableAutoSessionTracking(false);
-            options.setBeforeSend((event, hint) -> ForeignMixinFailure.matches(event) ? null : filterAndScrub(event));
-        });
-        Sentry.configureScope(scope -> {
+        SentryOptions options = baseOptions(modVersion, dev ? "development" : environmentOf(modVersion));
+        options.setBeforeSend((event, hint) -> ForeignMixinFailure.matches(event) ? null : filterAndScrub(event));
+        IScopes own = isolatedScopes(options, "nerotech");
+        scopes = own;
+        own.configureScope(scope -> {
             scope.setTag("loader", Services.PLATFORM.getPlatformName().toLowerCase(Locale.ROOT));
             scope.setTag("dist", Services.PLATFORM.isClient() ? "client" : "dedicated_server");
             scope.setTag("runtime", dev ? "development" : "production");
@@ -118,11 +126,11 @@ public final class NeroTechTelemetry {
                 // mod list not available this early — skip it
             }
         });
-        Sentry.startSession();
+        own.startSession();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                Sentry.endSession();
-                Sentry.flush(2000L);
+                own.endSession();
+                own.flush(2000L);
             } catch (RuntimeException ignored) {
                 // best-effort flush on shutdown
             }
@@ -137,9 +145,40 @@ public final class NeroTechTelemetry {
                 + "opt out via telemetryEnabled=false in config/nerotech.properties).");
     }
 
+    /** Options for NeroTech's own client: same privacy settings as before, never the global hub's. */
+    static SentryOptions baseOptions(String modVersion, String environment) {
+        SentryOptions options = new SentryOptions();
+        options.setDsn(DSN);
+        options.setRelease("nerotech@" + modVersion);
+        options.setEnvironment(environment);
+        options.setSendDefaultPii(false);          // POPIA/GDPR: never the sender's IP/identity
+        options.setAttachServerName(false);        // hostname is identifying
+        options.setEnableUncaughtExceptionHandler(true);
+        options.setEnableShutdownHook(false);      // flushed by NeroTech's own hook; never close the global hub
+        options.setEnableAutoSessionTracking(false);
+        return options;
+    }
+
+    /**
+     * Builds isolated scopes bound to a client of NeroTech's own: what {@code Sentry.init} does, minus the
+     * global hub. The uncaught-exception handler chains to the previous one, so every mod still sees crashes
+     * and keeps only its own through {@code beforeSend}.
+     */
+    static IScopes isolatedScopes(SentryOptions options, String creator) {
+        options.activate();                        // start Sentry's executors, as the global init would
+        Scopes own = new Scopes(new Scope(options), new Scope(options), new Scope(options), creator);
+        own.bindClient(new SentryClient(options));
+        if (options.isEnableUncaughtExceptionHandler()) {
+            uncaughtHandler = new UncaughtExceptionHandlerIntegration();
+            uncaughtHandler.register(own, options);
+        }
+        return own;
+    }
+
     /** A non-identifying breadcrumb that rides along with the next error report. No-op when off. */
     public static void breadcrumb(String category, String message) {
-        if (!active) {
+        IScopes s = scopes;
+        if (!active || s == null) {
             return;
         }
         Breadcrumb crumb = new Breadcrumb();
@@ -147,7 +186,7 @@ public final class NeroTechTelemetry {
         crumb.setCategory(category);
         crumb.setLevel(SentryLevel.INFO);
         crumb.setMessage(scrub(message));
-        Sentry.addBreadcrumb(crumb);
+        s.addBreadcrumb(crumb);
     }
 
     private static String environmentOf(String version) {
@@ -198,10 +237,11 @@ public final class NeroTechTelemetry {
     }
 
     static void capture(Throwable t) {
-        if (!active || t == null) {
+        IScopes s = scopes;
+        if (!active || s == null || t == null) {
             return;
         }
-        Sentry.captureException(t);
+        s.captureException(t);
     }
 
     /** Capture a handled exception if it is still clearly from NeroTech code. */
@@ -213,19 +253,21 @@ public final class NeroTechTelemetry {
 
     /** Capture a handled exception with a non-identifying source label for triage. */
     public static void captureHandledException(Throwable t, String source, String operation) {
-        if (!active || t == null || !touchesNeroTech(t)) {
+        IScopes s = scopes;
+        if (!active || s == null || t == null || !touchesNeroTech(t)) {
             return;
         }
-        Sentry.withScope(scope -> {
+        // Tags set inside withScope never reach the event in Sentry 8.x; the ScopeCallback overload does.
+        s.captureException(t, scope -> {
             scope.setTag("handled", "true");
             scope.setTag("source", source);
             scope.setExtra("operation", operation);
-            Sentry.captureException(t);
         });
     }
 
     static void captureMessage(String message) {
-        if (!active) {
+        IScopes s = scopes;
+        if (!active || s == null) {
             return;
         }
         String scrubbed = scrub(message);
@@ -237,7 +279,7 @@ public final class NeroTechTelemetry {
         Message msg = new Message();
         msg.setFormatted(scrubbed);
         event.setMessage(msg);
-        Sentry.captureEvent(event);
+        s.captureEvent(event);
     }
 
     private static SentryEvent filterAndScrub(SentryEvent event) {

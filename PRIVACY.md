@@ -130,6 +130,15 @@ Core's privacy notice and erased through the same shared data-erasure hook.
 - **Logs** — nothing NeroTech logs at INFO or above contains a UUID, a player name, coordinates or text
   written by players.
 
+## Getting a copy of your data (export)
+
+With Neroland Core 1.20.1 or later, `/neroland data exportme` (operators: `/neroland data export <uuid>`)
+gives you a JSON copy of what every Nero mod stores about you. NeroTech's section holds exactly what its
+erasure hook erases: your opt-in pollution attribution total and the day it was last updated, your
+attribution opt-out setting, and your Tech Guide "seen" marks. Machines you placed are not listed (they sit
+in the world, possibly in unloaded chunks); the export says so. The export carries no other player's data,
+is shown to you as click-to-copy chat, and is never written to disk or logged.
+
 ## Legal basis and your rights (GDPR / POPIA)
 
 Error reports are processed on the basis of **legitimate interest** (GDPR Art. 6(1)(f); POPIA

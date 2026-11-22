@@ -9,7 +9,7 @@
       "required": false
     },
     {
-      "id": "nerospace:gas_canisters/deuterium",
+      "id": "#nerospace:gas_canisters/deuterium",
       "required": false
     }
   ]

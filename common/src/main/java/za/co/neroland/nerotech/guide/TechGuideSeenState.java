@@ -63,6 +63,12 @@ public final class TechGuideSeenState extends SavedData {
         return masks != null && chapter >= 0 && chapter < masks.size() ? masks.get(chapter) : 0;
     }
 
+    /** A copy of the player's per-chapter seen bitmasks; empty when nothing is stored. Read-only. */
+    public List<Integer> masks(UUID player) {
+        List<Integer> masks = seen.get(player);
+        return masks == null ? List.of() : List.copyOf(masks);
+    }
+
     /** Marks step {@code step} of {@code chapter} seen for the player (stops the completed-pulse). */
     public void markSeen(UUID player, int chapter, int step) {
         if (chapter < 0 || chapter >= TechGuide.CHAPTER_COUNT || step < 0 || step >= 16) {

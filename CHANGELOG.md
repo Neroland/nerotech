@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-22
+
+### Added
+
+- **Data export:** NeroTech registers with Neroland Core's per-player export (`/neroland data exportme`):
+  your opt-in pollution attribution row, attribution opt-out and Tech Guide "seen" marks; machine ownership
+  is described, not enumerated. Never written to disk or logged.
+
+### Changed
+
+- Requires Neroland Core **1.20.1**.
+- `nerotech:inputs/deuterium` and `inputs/helium_3` now reference Nerospace's `#nerospace:gas_canisters/*`
+  tags correctly (they named the tag without `#`, so it matched nothing), and `nerotech:fusion_fuels` also
+  takes `#nerospace:gas_canisters/rocket_fuel`. All optional (`required: false`).
+
+### Fixed
+
+- **Crash reports from NeroTech were silently dropped** whenever another mod (Nero or not) initialised
+  Sentry after it: every mod shares one bundled Sentry hub and each `Sentry.init` replaced the last.
+  NeroTech now reports through its own isolated Sentry client and scopes and never touches the global hub.
+  Same opt-out, filtering and scrubbing as before; handled-exception tags now reach the event.
+
 ## [0.8.1] - 2026-11-26
 
 ### Added

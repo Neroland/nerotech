@@ -197,6 +197,15 @@ public final class PollutionState extends SavedData {
         return a == null ? 0 : a.amount;
     }
 
+    /**
+     * Epoch day the player's attribution row was last updated, or {@code -1} when no row is stored.
+     * Read-only; used by the per-player data export.
+     */
+    public long attributedLastDay(UUID player) {
+        Attrib a = attribution.get(player);
+        return a == null ? -1L : a.lastDay;
+    }
+
     /** Prune attribution rows untouched for longer than {@code retentionDays} (0 disables). */
     public void pruneStale(int retentionDays, long nowDay) {
         if (retentionDays <= 0 || attribution.isEmpty()) {
