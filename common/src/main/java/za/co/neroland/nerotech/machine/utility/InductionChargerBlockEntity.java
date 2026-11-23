@@ -35,7 +35,8 @@ import za.co.neroland.nerotech.menu.ProcessingMenu;
 
 /**
  * Induction Charger: a floor pad that tops up energy items held or worn by players standing within its
- * bounded reach, and answers {@link WirelessCharging#offer} for entities (NeroCompanion's companions).
+ * bounded reach (NeroTech tools, and any other item Neroland Core's item-energy lookup knows), and answers
+ * {@link WirelessCharging#offer} for entities (NeroCompanion's companions).
  *
  * <p>Budget: players are looked for once every {@value ChargeMath#PASS_TICKS} ticks inside a fixed box
  * around the pad; the entity API reads a per-level registry, never the world. Output is capped per tick
@@ -76,8 +77,7 @@ public class InductionChargerBlockEntity extends NeroTechMachineBlockEntity {
             this.registered = true;
         }
         long now = level.getGameTime();
-        if ((now + this.passPhase) % ChargeMath.PASS_TICKS == 0 && UtilitySettings.inductionChargePlayers()
-                && WirelessCharging.hasItemChargers()) {
+        if ((now + this.passPhase) % ChargeMath.PASS_TICKS == 0 && UtilitySettings.inductionChargePlayers()) {
             chargePlayers(level, pos, now);
         }
         this.charging = now - this.lastDelivery <= ChargeMath.PASS_TICKS;
@@ -93,19 +93,20 @@ public class InductionChargerBlockEntity extends NeroTechMachineBlockEntity {
         }
     }
 
-    /** Idle causes on the shared detail slot: player charging switched off, or nothing can charge items. */
+    /** Idle cause on the shared detail slot: player charging switched off. */
     public static final int CODE_PLAYERS_OFF = 40;
     public static final int CODE_NO_ITEM_CHARGERS = 41;
     public static final String DETAIL_PLAYERS_OFF = "nerotech.machine.detail.induction_charger.players_off";
     public static final String DETAIL_NO_ITEM_CHARGERS = "nerotech.machine.detail.induction_charger.no_item_chargers";
 
-    /** Why an idle pad charges no player items ({@code DETAIL_NONE} when it would). */
+    /**
+     * Why an idle pad charges no player items ({@code DETAIL_NONE} when it would). Core's item-energy
+     * lookup is always a charge path, so a pad with no registered adapter no longer reports
+     * {@link #CODE_NO_ITEM_CHARGERS}.
+     */
     int idleCode() {
         if (!UtilitySettings.inductionChargePlayers()) {
             return CODE_PLAYERS_OFF;
-        }
-        if (!WirelessCharging.hasItemChargers()) {
-            return CODE_NO_ITEM_CHARGERS;
         }
         return za.co.neroland.nerotech.machine.ProcessingMachineBlockEntity.DETAIL_NONE;
     }

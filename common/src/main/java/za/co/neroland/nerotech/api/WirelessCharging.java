@@ -8,6 +8,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
+import org.jetbrains.annotations.Nullable;
+
+import za.co.neroland.nerolandcore.energy.EnergyConversions;
+import za.co.neroland.nerolandcore.energy.ItemEnergyLookup;
+import za.co.neroland.nerolandcore.energy.NeroEnergyStorage;
+
 import za.co.neroland.nerotech.machine.utility.ChargeMath;
 import za.co.neroland.nerotech.machine.utility.InductionChargerBlockEntity;
 import za.co.neroland.nerotech.machine.utility.InductionChargers;
@@ -21,10 +27,13 @@ import za.co.neroland.nerotech.machine.utility.InductionChargers;
  * that block contributes, nearest first, within its per-tick output cap. Use {@code simulate = true} to
  * ask how much is on offer without taking it.
  *
- * <p><b>Items:</b> Neroland Core has no item-energy API yet, so a charger fills a player's held or worn
- * items through the {@link ItemCharger} adapters registered here (a mod registers one for the items it
- * owns; NeroTech's loader modules may register one for their loader's item-energy capability). With no
- * adapter, players' items are simply not charged.
+ * <p><b>Items:</b> a charger fills a player's held or worn items through the {@link ItemCharger} adapters
+ * registered here first (a mod registers one for the items it owns; NeroTech's loader modules may register
+ * one for their loader's item-energy capability). If none accepts the stack, the charger fills whatever
+ * Neroland Core's {@link ItemEnergyLookup} resolves for it, so any item that registers there charges with
+ * no NeroTech adapter and no dependency on the item's mod. That storage is Nero energy (NE); this API still
+ * speaks Forge Energy (FE) and converts with Core's ratio. With neither an accepting adapter nor a lookup
+ * storage, the stack is not charged.
  *
  * <p>Privacy (POPIA/GDPR): no call here takes, returns or stores player data — a level, a block position
  * and an amount only. Server thread only. Stable within the 0.x minor, like the rest of this package.
@@ -81,11 +90,24 @@ public final class WirelessCharging {
     }
 
     /**
-     * Charge one item through the registered adapters (what a charger does to a player's held and worn
-     * items). Returns FE accepted, never more than {@code maxFe}.
+     * Charge one item: registered adapters first, then Neroland Core's {@link ItemEnergyLookup} (what a
+     * charger does to a player's held and worn items). Returns FE accepted, never more than {@code maxFe}.
      */
     public static long chargeItem(ItemStack stack, long maxFe, boolean simulate) {
         if (stack == null || stack.isEmpty() || maxFe <= 0) {
+            return 0L;
+        }
+        return chargeHeld(stack, ItemEnergyLookup.find(stack), maxFe, simulate, EnergyConversions.neroToForgeRatio());
+    }
+
+    /**
+     * Adapters first; {@code lookedUp} is what {@link ItemEnergyLookup#find} returned for the same stack
+     * (null when the stack holds no Core item energy). Package-private so a plain-JVM test can pass a
+     * lookup result without a bootstrapped item. Returns FE accepted, never more than {@code maxFe}.
+     */
+    static long chargeHeld(@Nullable ItemStack stack, @Nullable NeroEnergyStorage lookedUp, long maxFe,
+            boolean simulate, double ratio) {
+        if (maxFe <= 0) {
             return 0L;
         }
         for (ItemCharger charger : ITEM_CHARGERS) {
@@ -94,11 +116,38 @@ public final class WirelessCharging {
                 return Math.min(accepted, maxFe);
             }
         }
-        return 0L;
+        return fillStorage(lookedUp, maxFe, simulate, ratio);
     }
 
-    /** Whether any item adapter is registered (player charging is inert without one). */
+    /**
+     * Insert up to {@code maxFe} FE into a Core item-energy storage, in NE. Returns the FE to report,
+     * capped at the offer, so the charger pays for what the item gained and nothing is created.
+     */
+    private static long fillStorage(@Nullable NeroEnergyStorage storage, long maxFe, boolean simulate, double ratio) {
+        if (storage == null) {
+            return 0L;
+        }
+        long maxNe = ChargeMath.feOfferToNe(maxFe, ratio);
+        if (maxNe <= 0) {
+            return 0L;
+        }
+        long inserted = storage.insert(maxNe, simulate);
+        if (inserted <= 0) {
+            return 0L;
+        }
+        return ChargeMath.acceptedFe(Math.min(inserted, maxNe), ratio, maxFe);
+    }
+
+    /**
+     * Whether any item adapter is registered. Player item charging does not depend on this: Core's
+     * item-energy lookup is always tried after the adapters.
+     */
     public static boolean hasItemChargers() {
         return !ITEM_CHARGERS.isEmpty();
+    }
+
+    /** Test teardown only. */
+    static void clearChargersForTests() {
+        ITEM_CHARGERS.clear();
     }
 }

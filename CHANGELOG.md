@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Induction Charger:** an item that stores Neroland Core energy now charges while you hold or wear it on
+  the pad, along with NeroTech's own tools. The energy stays on the item. The pad still stores nothing
+  about who stood on it.
+- `api.WirelessCharging.chargeItem` asks a registered item adapter first, then Neroland Core's item-energy
+  lookup. NeroTech already builds against Core 1.20.1, which provides that lookup.
+
 ## [0.9.0] - 2026-11-22
 
 ### Added
