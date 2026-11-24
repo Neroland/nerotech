@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
  * the atmosphere name it reads. Slots are indexed items first, then the catalyst.
  */
 public record ProcessRecipeInput(List<ItemStack> items, ItemStack catalyst, Fluid fluid, long fluidAmount,
-        @Nullable Identifier gas, long gasAmount, int heat, String atmosphere) implements RecipeInput {
+        @Nullable Identifier gas, long gasAmount, int heat, String atmosphere) implements MachineRecipeInput {
 
     public ProcessRecipeInput {
         items = List.copyOf(items);

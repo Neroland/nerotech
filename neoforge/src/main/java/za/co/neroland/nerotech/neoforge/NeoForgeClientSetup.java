@@ -18,9 +18,8 @@ import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 //?}
 //? if >=26.1 {
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
-//?} else {
-/*import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+//?} else if >=1.21 {
+/*import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 *///?}
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 //? if >=1.21.2 {
@@ -72,7 +71,7 @@ public final class NeoForgeClientSetup {
                         (type, factory) -> event.registerSpriteSet(type, factory::apply)));
         //? if >=26.1 {
         modEventBus.addListener(NeoForgeClientSetup::onRegisterFluidModels);
-        //?} else {
+        //?} else if >=1.21 {
         /*// Before 26.1 the gas sprites come from the fluid types' client extensions.
         modEventBus.addListener(NeoForgeClientSetup::onRegisterClientExtensions);
         *///?}
@@ -176,34 +175,13 @@ public final class NeoForgeClientSetup {
                 null,
                 null);
     }
-    //?} else {
+    //?} else if >=1.21 {
     /*private static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
-        event.registerFluidType(gasExtensions("hydrogen"), NeoForgeFluidTypes.HYDROGEN.get());
-        event.registerFluidType(gasExtensions("oxygen"), NeoForgeFluidTypes.OXYGEN.get());
-        NeoForgeFluidTypes.gasTypes().forEach((gas, type) -> {
-            if (type != NeoForgeFluidTypes.HYDROGEN && type != NeoForgeFluidTypes.OXYGEN) {
-                event.registerFluidType(gasExtensions(gas.getPath()), type.get());
-            }
-        });
+        NeoForgeFluidTypes.gasTypes().forEach((gas, type) ->
+                event.registerFluidType(NeoForgeFluidTypes.textureExtensions(gas.getPath()), type.get()));
         for (za.co.neroland.nerotech.fluid.NeroTechLiquid liquid : za.co.neroland.nerotech.fluid.NeroTechLiquid.values()) {
-            event.registerFluidType(gasExtensions(liquid.id()), NeoForgeFluidTypes.forLiquid(liquid));
+            event.registerFluidType(NeoForgeFluidTypes.textureExtensions(liquid.id()), NeoForgeFluidTypes.forLiquid(liquid));
         }
-    }
-
-    private static IClientFluidTypeExtensions gasExtensions(String gas) {
-        Identifier still = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_still");
-        Identifier flowing = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + gas + "_flow");
-        return new IClientFluidTypeExtensions() {
-            @Override
-            public Identifier getStillTexture() {
-                return still;
-            }
-
-            @Override
-            public Identifier getFlowingTexture() {
-                return flowing;
-            }
-        };
     }
     *///?}
 

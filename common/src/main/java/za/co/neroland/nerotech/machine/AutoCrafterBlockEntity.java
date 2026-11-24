@@ -12,7 +12,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+//? if >=1.21 {
 import net.minecraft.world.item.crafting.CraftingInput;
+//?} else {
+/*import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.inventory.CraftingContainer;
+*///?}
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -118,7 +123,7 @@ public class AutoCrafterBlockEntity extends NeroTechMachineBlockEntity {
         Optional<RecipeHolder<CraftingRecipe>> recipe = Optional.empty();
         ItemStack result = ItemStack.EMPTY;
         if (!gridEmpty()) {
-            CraftingInput input = craftingInput();
+            var input = craftingInput();
             recipe = serverLevel.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, serverLevel);
             if (recipe.isPresent()) {
                 //? if >=26.1 {
@@ -214,6 +219,7 @@ public class AutoCrafterBlockEntity extends NeroTechMachineBlockEntity {
         setChanged();
     }
 
+    //? if >=1.21 {
     private CraftingInput craftingInput() {
         List<ItemStack> grid = new ArrayList<>(GRID_SIZE);
         for (int i = 0; i < GRID_SIZE; i++) {
@@ -221,6 +227,31 @@ public class AutoCrafterBlockEntity extends NeroTechMachineBlockEntity {
         }
         return CraftingInput.of(3, 3, grid);
     }
+    //?} else {
+    /*private CraftingContainer craftingInput() {
+        ItemStack[] grid = new ItemStack[GRID_SIZE];
+        for (int i = 0; i < GRID_SIZE; i++) {
+            grid[i] = this.items.get(i).copy();
+        }
+        return new CraftingGrid(grid);
+    }
+
+    private static final class CraftingGrid extends SimpleContainer implements CraftingContainer {
+        private CraftingGrid(ItemStack[] grid) {
+            super(grid);
+        }
+
+        @Override
+        public int getWidth() {
+            return 3;
+        }
+
+        @Override
+        public int getHeight() {
+            return 3;
+        }
+    }
+    *///?}
 
     private boolean canOutput(ItemStack result) {
         ItemStack out = this.items.get(OUTPUT_SLOT);

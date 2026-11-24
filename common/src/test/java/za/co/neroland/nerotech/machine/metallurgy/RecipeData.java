@@ -17,6 +17,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import za.co.neroland.nerotech.machine.components.RecipeFixture;
 import za.co.neroland.nerotech.recipe.ProcessMatching;
 
 /**
@@ -35,7 +36,8 @@ final class RecipeData {
     }
 
     static Path resources() {
-        URL marker = RecipeData.class.getClassLoader().getResource("data/nerotech/tags/item/press_dies.json");
+        URL marker = RecipeData.class.getClassLoader().getResource(
+                RecipeFixture.dataPath("data/nerotech/tags/item/press_dies.json"));
         if (marker == null) {
             throw new IllegalStateException("press_dies tag missing from the test classpath");
         }
@@ -57,7 +59,7 @@ final class RecipeData {
     /** Every recipe of {@code type} (e.g. {@code nerotech:pressing}) under data/nerotech/recipe. */
     static List<View> recipes(String type) {
         List<View> out = new ArrayList<>();
-        Path dir = resources().resolve("data/nerotech/recipe");
+        Path dir = resources().resolve(RecipeFixture.dataPath("data/nerotech/recipe"));
         try (DirectoryStream<Path> files = Files.newDirectoryStream(dir, "*.json")) {
             for (Path file : files) {
                 JsonObject json = read(file);
@@ -112,7 +114,8 @@ final class RecipeData {
             return;
         }
         int colon = id.indexOf(':');
-        Path file = resources().resolve("data/" + id.substring(0, colon) + "/tags/item/" + id.substring(colon + 1) + ".json");
+        Path file = resources().resolve(RecipeFixture.dataPath(
+                "data/" + id.substring(0, colon) + "/tags/item/" + id.substring(colon + 1) + ".json"));
         if (!Files.isRegularFile(file)) {
             return;
         }

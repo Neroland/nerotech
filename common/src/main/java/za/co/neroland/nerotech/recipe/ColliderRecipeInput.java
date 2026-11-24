@@ -1,14 +1,13 @@
 package za.co.neroland.nerotech.recipe;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeInput;
 
 /**
  * The two particles arriving at an Accelerator Controller: {@code circulating} is the one that was
  * injected and has been lapping the ring, {@code target} is the one sitting in the collision slot.
  * Order carries no meaning — {@link ColliderRecipe#matches} tests both ways round.
  */
-public record ColliderRecipeInput(ItemStack circulating, ItemStack target) implements RecipeInput {
+public record ColliderRecipeInput(ItemStack circulating, ItemStack target) implements MachineRecipeInput {
 
     @Override
     public ItemStack getItem(int index) {

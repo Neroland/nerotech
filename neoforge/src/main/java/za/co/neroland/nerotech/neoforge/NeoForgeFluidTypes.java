@@ -3,6 +3,9 @@ package za.co.neroland.nerotech.neoforge;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+//? if <26.1 {
+/*import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+*///?}
 
 import za.co.neroland.nerotech.NeroTechCommon;
 import za.co.neroland.nerotech.fluid.NeroTechLiquid;
@@ -23,10 +26,10 @@ public final class NeoForgeFluidTypes {
             RegistrationProvider.get(NeoForgeRegistries.Keys.FLUID_TYPES, NeroTechCommon.MOD_ID);
 
     public static final RegistrationProvider.RegistryEntry<FluidType> HYDROGEN =
-            TYPES.register("hydrogen", key -> gasType());
+            TYPES.register("hydrogen", key -> gasType("hydrogen"));
 
     public static final RegistrationProvider.RegistryEntry<FluidType> OXYGEN =
-            TYPES.register("oxygen", key -> gasType());
+            TYPES.register("oxygen", key -> gasType("oxygen"));
 
     /** 0.8.0 gases, keyed by canonical gas id (hydrogen and oxygen keep their own fields above). */
     private static final java.util.Map<Identifier, RegistrationProvider.RegistryEntry<FluidType>> GAS_TYPES =
@@ -40,7 +43,7 @@ public final class NeoForgeFluidTypes {
         GAS_TYPES.put(NeroTechGases.OXYGEN, OXYGEN);
         for (Identifier gas : NeroTechGases.ALL) {
             if (!GAS_TYPES.containsKey(gas)) {
-                GAS_TYPES.put(gas, TYPES.register(gas.getPath(), key -> gasType()));
+                GAS_TYPES.put(gas, TYPES.register(gas.getPath(), key -> gasType(gas.getPath())));
             }
         }
         for (NeroTechLiquid liquid : NeroTechLiquid.values()) {
@@ -72,15 +75,15 @@ public final class NeoForgeFluidTypes {
     }
 
     private static FluidType liquidType(NeroTechLiquid liquid) {
-        return new FluidType(FluidType.Properties.create()
+        return fluidType(liquid.id(), FluidType.Properties.create()
                 .density(liquid.density())
                 .viscosity(liquid.viscosity())
                 .temperature(liquid.temperature())
                 .canConvertToSource(false));
     }
 
-    private static FluidType gasType() {
-        return new FluidType(FluidType.Properties.create()
+    private static FluidType gasType(String name) {
+        return fluidType(name, FluidType.Properties.create()
                 .density(-10)
                 .viscosity(100)
                 .canDrown(false)
@@ -88,4 +91,35 @@ public final class NeoForgeFluidTypes {
                 .canPushEntity(false)
                 .canExtinguish(false));
     }
+
+    private static FluidType fluidType(String name, FluidType.Properties properties) {
+        //? if >=1.21 {
+        return new FluidType(properties);
+        //?} else {
+        /*return new FluidType(properties) {
+            @Override
+            public void initializeClient(java.util.function.Consumer<IClientFluidTypeExtensions> consumer) {
+                consumer.accept(textureExtensions(name));
+            }
+        };
+        *///?}
+    }
+
+    //? if <26.1 {
+    /*static IClientFluidTypeExtensions textureExtensions(String name) {
+        Identifier still = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + name + "_still");
+        Identifier flowing = Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "block/" + name + "_flow");
+        return new IClientFluidTypeExtensions() {
+            @Override
+            public Identifier getStillTexture() {
+                return still;
+            }
+
+            @Override
+            public Identifier getFlowingTexture() {
+                return flowing;
+            }
+        };
+    }
+    *///?}
 }

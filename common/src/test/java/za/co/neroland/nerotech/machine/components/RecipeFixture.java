@@ -168,7 +168,7 @@ public final class RecipeFixture {
     }
 
     private static Optional<JsonObject> read(String path) {
-        try (InputStream in = RecipeFixture.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream in = RecipeFixture.class.getClassLoader().getResourceAsStream(dataPath(path))) {
             if (in == null) {
                 return Optional.empty();
             }
@@ -177,5 +177,14 @@ public final class RecipeFixture {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static String dataPath(String path) {
+        //? if >=1.21 {
+        return path;
+        //?} else {
+        /*return path.replaceFirst("^(data/[^/]+/)(recipe)(?=/|$)", "$1$2s")
+                .replaceFirst("^(data/[^/]+/tags/)(block|entity_type|fluid|item)(?=/|$)", "$1$2s");
+        *///?}
     }
 }

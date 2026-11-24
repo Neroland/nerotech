@@ -740,7 +740,7 @@ class RecipeGraphTest {
     private static Set<String> siblingTaggedItems() {
         Set<String> out = new HashSet<>();
         for (String namespace : List.of("c", "nerotech")) {
-            Path root = resourceRoot().resolve("data/" + namespace + "/tags/item");
+            Path root = resourceRoot().resolve(RecipeFixture.dataPath("data/" + namespace + "/tags/item"));
             if (!Files.isDirectory(root)) {
                 continue;
             }
@@ -802,7 +802,7 @@ class RecipeGraphTest {
     }
 
     private static Set<String> names(String dir) {
-        Path path = resourceRoot().resolve(dir);
+        Path path = resourceRoot().resolve(RecipeFixture.dataPath(dir));
         Set<String> out = new TreeSet<>();
         try (Stream<Path> list = Files.list(path)) {
             list.map(p -> p.getFileName().toString()).filter(n -> n.endsWith(".json"))
@@ -814,7 +814,8 @@ class RecipeGraphTest {
     }
 
     private static Path resourceRoot() {
-        URL marker = RecipeGraphTest.class.getClassLoader().getResource("data/nerotech/tags/item/inputs/glacite.json");
+        URL marker = RecipeGraphTest.class.getClassLoader().getResource(
+                RecipeFixture.dataPath("data/nerotech/tags/item/inputs/glacite.json"));
         assumeTrue(marker != null && "file".equals(marker.getProtocol()), "resources not on the classpath as files");
         try {
             return Path.of(marker.toURI()).getParent().getParent().getParent().getParent().getParent().getParent();

@@ -88,7 +88,7 @@ public final class ModBlocks {
      */
     public static final RegistryEntry<TransparentBlock> FUSION_CONTAINMENT_GLASS =
             BLOCKS.register("fusion_containment_glass",
-                    key -> new TransparentBlock(BlockBehaviour.Properties.of()
+                    key -> containmentGlass(BlockBehaviour.Properties.of()
                             .setId(key)
                             .mapColor(MapColor.COLOR_CYAN)
                             .strength(3.5F)
@@ -103,6 +103,14 @@ public final class ModBlocks {
                             *///?} else {
                             .isViewBlocking((state, level, pos) -> false)));
                             //?}
+
+    private static TransparentBlock containmentGlass(BlockBehaviour.Properties properties) {
+        //? if >=1.21 {
+        return new TransparentBlock(properties);
+        //?} else {
+        /*return new TransparentBlock(properties) { };
+        *///?}
+    }
 
     // --- Particle Accelerator (Stage B; free-form rework) --------------------
     /**

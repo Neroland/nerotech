@@ -12,6 +12,7 @@ plugins {
 
 // MC version comes from the Stonecutter node (e.g. :neoforge:26.1.2), not a global property.
 def mc = stonecutter.current.version
+def economyApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
 // Minecraft before 26.1 ships obfuscated (NeoForge 1.21.x still runs Mojang-named in dev).
 def legacyMc = mc.startsWith('1.')
 // Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
@@ -74,6 +75,9 @@ sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
 // compat/emi compiles only where an EMI API exists for this Minecraft line (the 26.x unofficial port, or official
 // EMI on 1.21.1). The other 1.21.x lines have no EMI at all, so the plugin is left out of their jars.
+if (!jeiVersion && !emiFile && !emiVersion) {
+    sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/jei/**')
+}
 if (!emiFile && !emiVersion) {
     sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/emi/**')
 }
@@ -111,7 +115,7 @@ dependencies {
     // NeroEconomy — OPTIONAL per-operation machine charges: compileOnly ONLY (never bundled or
     // required). Only compat/neroeconomy/NeroEconomyBridge imports it, behind isModLoaded("neroeconomy").
     if (neroeconomyVersion) {
-        compileOnly "za.co.neroland.neroeconomy:neroeconomy-neoforge-${mc}:${neroeconomyVersion}"
+        compileOnly "za.co.neroland.neroeconomy:neroeconomy-neoforge-${economyApiMc}:${neroeconomyVersion}"
     }
 
     // Nerospace — OPTIONAL planet-trait interop (Stage H): compileOnly ONLY, so the runtime-guarded

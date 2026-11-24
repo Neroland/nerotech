@@ -105,12 +105,18 @@ public class MachineRecipe extends SingleItemRecipe {
     public Ingredient input() {
         return this.ingredient;
     }
+    *///?}
 
-    // 1.21.1's SingleItemRecipe leaves matching to the subclass (stonecutting checks the one input).
-    @Override
+    //? if >=1.21 && <1.21.2 {
+    /*@Override
     public boolean matches(net.minecraft.world.item.crafting.SingleRecipeInput input,
             net.minecraft.world.level.Level level) {
         return this.ingredient.test(input.item());
+    }
+    *///?} else if <1.21 {
+    /*@Override
+    public boolean matches(net.minecraft.world.Container input, net.minecraft.world.level.Level level) {
+        return this.ingredient.test(input.getItem(0));
     }
     *///?}
 

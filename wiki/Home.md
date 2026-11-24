@@ -3,8 +3,9 @@
 Player- and contributor-facing documentation for **NeroTech**, part of the **Neroland ecosystem**
 of sci-fi mods. Built on **Neroland Core**.
 
-> **Status:** beta (version `0.8.0`, "Offworld Industry"), built on Neroland Core 1.19.0+ for
-> Minecraft 1.21.1 to 26.3 on NeoForge, Fabric and Forge. 0.8.0 adds six production chains, 22 new
+> Requires **Neroland Core 1.23.0 or newer** (below 2.0). Minecraft 1.20.5 runs on Fabric,
+> and 1.20.6 runs on Fabric, Forge and NeoForge. Both use the in-game Tech Guide for recipe help.
+> Offworld Industry adds six production chains, 22 new
 > machines and blocks, a component ladder, seven powered tools, virtual deposits, heat you can pipe, a
 > gas-fed fusion tier, a NeroTech module in the NeroLink app and a walkable gallery of all of it.
 > NeroTech plays fully standalone with Neroland Core; Nerospace is optional and makes every chain

@@ -13,6 +13,7 @@ plugins {
 
 // MC version comes from the Stonecutter node (e.g. :fabric:26.1.2), not a global property.
 def mc = stonecutter.current.version
+def economyApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
 // Minecraft before 26.1 ships obfuscated, so those cells need mappings and a remapped jar.
 def obfuscated = mc.startsWith('1.')
 apply plugin: obfuscated ? 'net.fabricmc.fabric-loom-remap' : 'net.fabricmc.fabric-loom'
@@ -77,6 +78,9 @@ sourceSets.main.resources.srcDir rootProject.ext.commonResources
 // compat/emi compiles only where an EMI API exists for this Minecraft line (the 26.x unofficial port, or official
 // EMI on 1.21.1). The other 1.21.x lines have no EMI at all, so the plugin is left out of their jars (and
 // fabric.mod.json does not list the emi entrypoint there; see recipe_viewer_entrypoints).
+if (!jeiVersion && !emiFile && !emiVersion) {
+    sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/jei/**')
+}
 if (!emiFile && !emiVersion) {
     sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/emi/**')
 }
@@ -135,9 +139,9 @@ dependencies {
     if (neroeconomyVersion) {
         // 1.21.x publishes an intermediary jar, so Loom must remap it (modCompileOnly).
         if (obfuscated) {
-            modCompileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${mc}:${neroeconomyVersion}"
+            modCompileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${neroeconomyVersion}"
         } else {
-            compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${mc}:${neroeconomyVersion}"
+            compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${neroeconomyVersion}"
         }
     }
 
@@ -207,8 +211,8 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         minecraft_version    : mc,
         minecraft_requirement: minecraftRequirement,
         // The EMI plugin exists only where an EMI API does (26.x, 1.21.1), so only those manifests name it.
-        recipe_viewer_entrypoints: ''',
-    "jei_mod_plugin": ["za.co.neroland.nerotech.compat.jei.NeroTechJeiPlugin"]''' + ((emiFile || emiVersion) ? ''',
+        recipe_viewer_entrypoints: (jeiVersion ? ''',
+    "jei_mod_plugin": ["za.co.neroland.nerotech.compat.jei.NeroTechJeiPlugin"]''' : '') + ((emiFile || emiVersion) ? ''',
     "emi": ["za.co.neroland.nerotech.compat.emi.NeroTechEmiPlugin"]''' : ''),
         // Floor the required Core version at what we compile against so the loader refuses to
         // run against a Core too old to have the APIs it references.
