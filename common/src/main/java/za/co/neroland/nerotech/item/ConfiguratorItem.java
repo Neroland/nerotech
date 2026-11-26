@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jetbrains.annotations.Nullable;
 
+import za.co.neroland.nerolandcore.sideconfig.ConfiguratorTool;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.Configurator;
 import za.co.neroland.nerolandcore.sideconfig.SideConfigComponent;
@@ -74,7 +75,7 @@ import za.co.neroland.nerotech.registry.ModDataComponents;
  * <p>Touches world/block routing data only — no player identity is read, stored or logged
  * (POPIA/GDPR).
  */
-public class ConfiguratorItem extends Item {
+public class ConfiguratorItem extends Item implements ConfiguratorTool {
 
     public ConfiguratorItem(Properties properties) {
         super(properties);
@@ -82,6 +83,10 @@ public class ConfiguratorItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
+        InteractionResult targetResult = ConfiguratorTool.useTarget(context);
+        if (targetResult != InteractionResult.PASS) {
+            return targetResult;
+        }
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         SideConfigComponent comp = componentAt(level, pos);

@@ -70,8 +70,13 @@ public record MachineStatsPayload(int containerId, int status, int heatPermille,
     /** Longest status detail key carried (lang keys are short; anything longer is dropped). */
     private static final int MAX_DETAIL_LENGTH = 96;
 
+    //? if >=1.20.5 {
     public static final Type<MachineStatsPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "machine_stats"));
+    //?} else {
+    /*public static final Type<MachineStatsPayload> TYPE =
+            new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "machine_stats"), MachineStatsPayload.class);
+    *///?}
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineStatsPayload> STREAM_CODEC =
             StreamCodec.of(MachineStatsPayload::write, MachineStatsPayload::read);

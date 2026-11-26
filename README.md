@@ -2,7 +2,7 @@
 
 > Part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
 
-Requires Neroland Core 1.23.0 or newer (below 2.0). NeroPower builds on the public add-on API in `za.co.neroland.nerotech.api`. NeroTech includes 31 blocks, 26 of them block-entity machines, including the scalable multiblock Fusion Reactor (3³/5³/7³ shells), Scrubber/Remediator pollution mitigation, Auto Crafter with recipe preview + grid lock, Item Sorter, Analytics Terminal and the Tech Guide pedestal; a full thermal model, regional pollution with opt-in per-player attribution (POPIA/GDPR-compliant), overclock presets, side-config tooling, a NeroLink companion-app module, and a complete content pipeline (models, textures, recipes, advancements, lang). **Standalone-first:** no progression gate ever locks a machine — pacing is via recipes/materials, and pairing with other Neroland mods enhances rather than restricts. NeroTech opens Core's `INDUSTRIAL_POWER` milestone for the wider ecosystem.
+Requires Neroland Core 1.24.0 or newer (below 2.0). NeroPower builds on the public add-on API in `za.co.neroland.nerotech.api`. NeroTech includes 31 blocks, 26 of them block-entity machines, including the scalable multiblock Fusion Reactor (3³/5³/7³ shells), Scrubber/Remediator pollution mitigation, Auto Crafter with recipe preview + grid lock, Item Sorter, Analytics Terminal and the Tech Guide pedestal; a full thermal model, regional pollution with opt-in per-player attribution (POPIA/GDPR-compliant), overclock presets, side-config tooling, a NeroLink companion-app module, and a complete content pipeline (models, textures, recipes, advancements, lang). **Standalone-first:** no progression gate ever locks a machine — pacing is via recipes/materials, and pairing with other Neroland mods enhances rather than restricts. NeroTech opens Core's `INDUSTRIAL_POWER` milestone for the wider ecosystem.
 
 The 0.1.0-beta.1 tech tree also covers:
 
@@ -28,8 +28,8 @@ The 0.1.0-beta.1 tech tree also covers:
 
 - **Minecraft:** 1.21.1, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1.2, 26.2 and 26.3
 - **Loaders:** Fabric, Forge and NeoForge for the versions above.
-- **Minecraft 1.20.5** on Fabric and **1.20.6** on Fabric, Forge and NeoForge.
-- **Java:** 21 for 1.20.5 through 1.21.x, and 25 for 26.x.
+- **Minecraft 1.20 through 1.20.6** on Fabric, **1.20 through 1.20.4 and 1.20.6** on Forge, and **1.20.4 through 1.20.6** on NeoForge. The NeoForge build for 1.20.5 uses loader 20.5.21-beta.
+- **Java:** 17 for 1.20 through 1.20.4, 21 for 1.20.5 through 1.21.x, and 25 for 26.x.
 - The Tech Guide covers every build. JEI recipe pages are available from 1.21.1, with EMI pages on 1.21.1 and 26.x.
 - Mod id: `nerotech` · package `za.co.neroland.nerotech`
 

@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1]
+
+### Added
+
+- Minecraft 1.20 through 1.20.4 on Fabric and Forge, and 1.20.4 and 1.20.5 on NeoForge.
+
+- Sneak-use a Configurator on a Nero, Bio or Geothermal Generator to see its recent energy
+  production in NE/t.
+
+### Changed
+
+- The NeroTech Configurator works on NeroLogistics conduits and Nerospace Universal Pipes.
+  Configurators from those mods can cycle and inspect basic NeroTech machine faces.
+- Requires Neroland Core 1.24.0 or a newer 1.x release.
+
+### Fixed
+
+- Fixed a crash when opening the Particle Accelerator or process recipe pages with older JEI
+  builds on Minecraft 1.21.1.
+- The wiki now lists the full Component Forge recipe for the Capacitor, including ingredient
+  counts, sulfuric acid, output, processing time and energy cost.
+
 ## [0.10.0] - 2026-11-24
 
 ### Added

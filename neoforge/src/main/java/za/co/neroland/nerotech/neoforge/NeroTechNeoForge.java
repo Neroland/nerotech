@@ -12,7 +12,9 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+//? if >=1.20.5 {
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+//?}
 //? if >=1.21.9 {
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
@@ -60,7 +62,15 @@ public final class NeroTechNeoForge {
         NeoForgeNetwork.register(modEventBus);
         modEventBus.addListener(NeroTechNeoForge::onRegisterCapabilities);
         // Periodic regional pollution decay + retention sweep and quest-hook delivery (game bus; gated inside).
+        //? if >=1.20.5 {
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> NeroTechCommon.serverTick(event.getServer()));
+        //?} else {
+        /*NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.TickEvent.ServerTickEvent event) -> {
+            if (event.phase == net.neoforged.neoforge.event.TickEvent.Phase.END) {
+                NeroTechCommon.serverTick(event.getServer());
+            }
+        });
+        *///?}
         // Creative-only debug commands (/nerotech gallery); shared brigadier tree in common.
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 NeroTechCommands.register(event.getDispatcher()));

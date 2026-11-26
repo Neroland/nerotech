@@ -26,8 +26,13 @@ import za.co.neroland.nerotech.menu.MachineMenu;
  */
 public record MachinePresetPayload(int containerId, int ordinal) implements CustomPacketPayload {
 
+    //? if >=1.20.5 {
     public static final Type<MachinePresetPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "machine_preset"));
+    //?} else {
+    /*public static final Type<MachinePresetPayload> TYPE =
+            new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "machine_preset"), MachinePresetPayload.class);
+    *///?}
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MachinePresetPayload> STREAM_CODEC =
             StreamCodec.of(MachinePresetPayload::write, MachinePresetPayload::read);

@@ -109,8 +109,13 @@ public final class ModItems {
     /** Tier-4 Fusion Reactor fuel; Collider-only, and only the 7³ shell will burn it. */
     public static final RegistryEntry<Item> ANTIMATTER_CELL = item("antimatter_cell", p -> p.stacksTo(16));
     /** Carries the vault tooltip, plus what a broken vault's dropped item still holds (blocks have no hover hook). */
+    //? if >=1.20.5 {
     public static final RegistryEntry<BlockItem> SINGULARITY_VAULT_ITEM = ITEMS.register("singularity_vault",
             key -> new SingularityVaultBlockItem(ModBlocks.SINGULARITY_VAULT.get(), new Item.Properties().setId(key)));
+    //?} else {
+    /*public static final RegistryEntry<BlockItem> SINGULARITY_VAULT_ITEM = ITEMS.register("singularity_vault",
+            key -> new SingularityVaultBlockItem(ModBlocks.SINGULARITY_VAULT.get(), new Item.Properties().stacksTo(1)));
+    *///?}
 
     // --- Pollution mitigation (Stage F) --------------------------------------
     /** Consumable scrubbing medium; fouls into a {@link #DIRTY_FILTER} at capacity. */

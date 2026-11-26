@@ -4,13 +4,18 @@
 plugins {
     id 'net.minecraftforge.gradle'
     id 'net.minecraftforge.jarjar'
+    id 'net.minecraftforge.renamer' apply false
     id 'eclipse'
     id 'maven-publish'
 }
 
 // MC version comes from the Stonecutter node (e.g. :forge:26.1.2), not a global property.
 def mc = stonecutter.current.version
-def economyApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
+def preComponents = stonecutter.eval(mc, '<1.20.5')
+if (preComponents) {
+    apply plugin: 'net.minecraftforge.renamer'
+}
+def economyApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
@@ -22,7 +27,7 @@ def legacyMc = mc.startsWith('1.')
 // Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
 def mcCeiling = project.findProperty("mc_ceiling_${mc}")
 def mcFloor = project.findProperty("mc_floor_${mc}") ?: mc
-def neroeconomyVersion = project.findProperty('neroeconomy_version')
+def neroeconomyVersion = project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')
 
 if (!forgeVersion) {
     throw new GradleException("Missing forge_version_${mc} in gradle.properties")
@@ -190,6 +195,29 @@ dependencies {
 }
 
 // Expand mods.toml from src/main/templates into generated resources.
+if (preComponents) {
+    renamer.mappings.from minecraft.dependency.toSrgFile
+    renamer.enableMixinRefmaps {
+        config 'nerotech-common.mixins.json'
+        refMap = 'nerotech.refmap.json'
+    }
+    dependencies {
+        annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
+    }
+    tasks.named('jar', Jar) {
+        manifest.attributes('MixinConfigs': 'nerotech-common.mixins.json')
+    }
+    def bundled = tasks.named('jarJar', Jar) {
+        archiveClassifier = 'dev-all'
+    }
+    renamer.classes('renameReleaseJar', bundled) {
+        mappings renamer.mixin.generatedMappings
+        archiveClassifier = 'all'
+    }
+    tasks.named('assemble') { dependsOn 'renameReleaseJar' }
+}
+
+
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def props = [
         mod_id                    : rootProject.mod_id,

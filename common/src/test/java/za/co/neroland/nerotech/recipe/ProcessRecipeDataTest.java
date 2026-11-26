@@ -11,8 +11,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.minecraft.network.FriendlyByteBuf;
 
 import org.junit.jupiter.api.Test;
 
@@ -43,13 +43,13 @@ class ProcessRecipeDataTest {
         ProcessMedium medium = ProcessMedium.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
         assertEquals(new ProcessMedium("minecraft:water", 250), medium);
         assertTrue(ProcessMedium.CODEC.parse(JsonOps.INSTANCE,
-                JsonParser.parseString("{\"id\": \"minecraft:water\", \"amount\": 0}")).isError(),
+                JsonParser.parseString("{\"id\": \"minecraft:water\", \"amount\": 0}")).error().isPresent(),
                 "a zero amount is rejected");
     }
 
     @Test
     void mediumStreamRoundTrip() {
-        ByteBuf buf = Unpooled.buffer();
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         try {
             ProcessMedium medium = new ProcessMedium("#c:polymer_resin", 1_000);
             ProcessMedium.STREAM_CODEC.encode(buf, medium);

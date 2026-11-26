@@ -50,3 +50,9 @@ All changes — tab or wrench — are server-validated and synced, same as click
 - [Tier-1 Machines](Machines.md)
 - [Tech Guide](Tech-Guide.md)
 - [Home](Home.md)
+
+NeroLogistics and Nerospace Configurators can cycle and inspect basic machine faces. Keep a NeroTech
+Configurator for its copy/paste controls and Wireless Power Node pairing. The NeroTech
+Configurator can also operate NeroLogistics conduits and Nerospace Universal Pipes.
+Sneak-use any of the three Configurators on a Nero, Bio or Geothermal Generator to see its actual
+production in NE/t over the last 20 ticks.

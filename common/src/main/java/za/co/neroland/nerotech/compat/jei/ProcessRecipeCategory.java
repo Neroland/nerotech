@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
+import mezz.jei.api.gui.placement.IPlaceable;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -142,7 +143,9 @@ public final class ProcessRecipeCategory extends AbstractRecipeCategory<RecipeHo
     public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<ProcessRecipe> holder,
             IFocusGroup focuses) {
         builder.addRecipeArrow().setPosition(ARROW_X, ARROW_Y);
-        builder.addText(summary(holder.value()), WIDTH, TEXT_HEIGHT).setPosition(0, TEXT_Y);
+        // Older JEI exposes setPosition through IPlaceable.
+        IPlaceable<?> text = builder.addText(summary(holder.value()), WIDTH, TEXT_HEIGHT);
+        text.setPosition(0, TEXT_Y);
     }
 
     /** Energy and time, then any heat floor, atmosphere and tag-named fluids. */

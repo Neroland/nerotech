@@ -72,8 +72,13 @@ public record AnalyticsTerminalPayload(int containerId, int machineCount, int ac
     /** Power-history cap — matches the terminal's ring buffer, and keeps the strip inside one byte. */
     public static final int MAX_POWER_SAMPLES = AnalyticsTerminalBlockEntity.POWER_HISTORY;
 
+    //? if >=1.20.5 {
     public static final Type<AnalyticsTerminalPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "analytics_terminal"));
+    //?} else {
+    /*public static final Type<AnalyticsTerminalPayload> TYPE =
+            new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "analytics_terminal"), AnalyticsTerminalPayload.class);
+    *///?}
 
     public static final StreamCodec<RegistryFriendlyByteBuf, AnalyticsTerminalPayload> STREAM_CODEC =
             StreamCodec.of(AnalyticsTerminalPayload::write, AnalyticsTerminalPayload::read);

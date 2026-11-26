@@ -10,6 +10,10 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+//? if <1.20.5 {
+/*import net.minecraft.SharedConstants;
+import net.minecraft.server.Bootstrap;
+*///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -26,6 +30,13 @@ import za.co.neroland.nerotech.pollution.PollutionManager;
 
 /** Core's map-layer conformance fixture over the pollution layer, plus dimension isolation and banding. */
 class PollutionMapLayerTest {
+
+    //? if <1.20.5 {
+    /*static {
+        SharedConstants.tryDetectVersion();
+        Bootstrap.bootStrap();
+    }
+    *///?}
 
     static final ResourceKey<Level> OVERWORLD =
             ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("minecraft", "overworld"));

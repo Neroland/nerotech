@@ -5,7 +5,11 @@ import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
 
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponentType;
+//?} else {
+/*import za.co.neroland.nerotech.registry.LegacyItemComponent;
+*///?}
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -34,29 +38,59 @@ public final class ToolsContent {
 
     // --- data components -----------------------------------------------------------------------------
 
+    //? if >=1.20.5 {
     public static final RegistryEntry<DataComponentType<ToolCharge>> TOOL_CHARGE =
             ModDataComponents.COMPONENTS.register("tool_charge",
                     key -> DataComponentType.<ToolCharge>builder().persistent(ToolCharge.CODEC).build());
+    //?} else {
+    /*public static final LegacyItemComponent<ToolCharge> TOOL_CHARGE =
+            new LegacyItemComponent<>("nerotech:tool_charge", ToolCharge.CODEC);
+    *///?}
+    //? if >=1.20.5 {
     public static final RegistryEntry<DataComponentType<String>> FITTED_LENS =
             ModDataComponents.COMPONENTS.register("fitted_lens",
                     key -> DataComponentType.<String>builder().persistent(Codec.STRING).build());
+    //?} else {
+    /*public static final LegacyItemComponent<String> FITTED_LENS =
+            new LegacyItemComponent<>("nerotech:fitted_lens", Codec.STRING);
+    *///?}
+    //? if >=1.20.5 {
     public static final RegistryEntry<DataComponentType<Integer>> FITTED_FILTER =
             ModDataComponents.COMPONENTS.register("fitted_filter",
                     key -> DataComponentType.<Integer>builder().persistent(Codec.INT).build());
+    //?} else {
+    /*public static final LegacyItemComponent<Integer> FITTED_FILTER =
+            new LegacyItemComponent<>("nerotech:fitted_filter", Codec.INT);
+    *///?}
     /**
      * Client-visible look flags, derived from {@link #TOOL_CHARGE} every time it is set (item models read
      * them with {@code has_component} / {@code select}): the Power Drill's mode when it is not single
      * ("area" or "vein"), and whether a charged tool holds any charge (the Arc Wrench's idle model).
      */
+    //? if >=1.20.5 {
     public static final RegistryEntry<DataComponentType<String>> DRILL_MODE =
             ModDataComponents.COMPONENTS.register("drill_mode",
                     key -> DataComponentType.<String>builder().persistent(Codec.STRING).build());
+    //?} else {
+    /*public static final LegacyItemComponent<String> DRILL_MODE =
+            new LegacyItemComponent<>("nerotech:drill_mode", Codec.STRING);
+    *///?}
+    //? if >=1.20.5 {
     public static final RegistryEntry<DataComponentType<Boolean>> TOOL_CHARGED =
             ModDataComponents.COMPONENTS.register("tool_charged",
                     key -> DataComponentType.<Boolean>builder().persistent(Codec.BOOL).build());
+    //?} else {
+    /*public static final LegacyItemComponent<Boolean> TOOL_CHARGED =
+            new LegacyItemComponent<>("nerotech:tool_charged", Codec.BOOL);
+    *///?}
+    //? if >=1.20.5 {
     public static final RegistryEntry<DataComponentType<CarriedMachine>> CARRIED_MACHINE =
             ModDataComponents.COMPONENTS.register("carried_machine",
                     key -> DataComponentType.<CarriedMachine>builder().persistent(CarriedMachine.CODEC).build());
+    //?} else {
+    /*public static final LegacyItemComponent<CarriedMachine> CARRIED_MACHINE =
+            new LegacyItemComponent<>("nerotech:carried_machine", CarriedMachine.CODEC);
+    *///?}
 
     // --- items ---------------------------------------------------------------------------------------
 

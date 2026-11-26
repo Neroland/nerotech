@@ -34,7 +34,18 @@ class PowerDrillVeinTagTest {
 
     @Test
     void defaultTagIsOresGravelClayGlowstone() {
+        //? if >=1.20.5 {
         assertEquals(Set.of("#c:ores", "minecraft:gravel", "minecraft:clay", "minecraft:glowstone"), veinTag());
+        //?} else {
+        /*assertEquals(Set.of("#c:ores", "#forge:ores", "minecraft:gravel", "minecraft:clay", "minecraft:glowstone"), veinTag());
+        var tag = RecipeFixture.resource("data/nerotech/tags/block/power_drill/vein.json").orElseThrow();
+        for (JsonElement value : tag.getAsJsonArray("values")) {
+            if (value.isJsonObject()) {
+                var entry = value.getAsJsonObject();
+                assertFalse(entry.get("required").getAsBoolean(), entry.get("id").getAsString());
+            }
+        }
+        *///?}
         assertEquals("power_drill/vein", ToolRules.DRILL_VEIN_TAG_PATH, "PowerDrillItem.VEIN_BLOCKS reads this path");
     }
 

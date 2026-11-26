@@ -241,6 +241,17 @@ public class AutoCrafterBlockEntity extends NeroTechMachineBlockEntity {
             super(grid);
         }
 
+        //? if <1.20.5 {
+        @Override
+        public net.minecraft.core.NonNullList<ItemStack> getItems() {
+            var stacks = net.minecraft.core.NonNullList.<ItemStack>create();
+            for (int i = 0; i < getContainerSize(); i++) {
+                stacks.add(getItem(i));
+            }
+            return stacks;
+        }
+        //?}
+
         @Override
         public int getWidth() {
             return 3;

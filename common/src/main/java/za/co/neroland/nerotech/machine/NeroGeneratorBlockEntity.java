@@ -1,6 +1,7 @@
 package za.co.neroland.nerotech.machine;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -10,6 +11,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
+import za.co.neroland.nerolandcore.energy.EnergyRate;
+import za.co.neroland.nerolandcore.sideconfig.ConfiguratorTool;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SlotGroup;
@@ -26,7 +29,25 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  * through Core's {@link za.co.neroland.nerolandcore.platform.EnergyLookup} seam. Generation stays
  * thin (it talks only to Core's energy surface), per the NeroPower split discipline.
  */
-public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
+public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity implements ConfiguratorTool.PowerReadout {
+
+    private final EnergyRate production = new EnergyRate();
+
+    @Override
+    public void showPower(ServerPlayer player, long tick) {
+        player.sendSystemMessage(Component.translatable("block.nerolandcore.power.production",
+                Math.round(this.production.perTick(tick))), true);
+    }
+
+    private void generateMeasured(int amount) {
+        var buffer = energyBuffer();
+        long before = buffer.getAmount();
+        buffer.generate(amount);
+        if (this.level != null) {
+            this.production.record(this.level.getGameTime(), buffer.getAmount() - before);
+        }
+    }
+
 
     public static final int FUEL_SLOT = 0;
 
@@ -84,7 +105,7 @@ public class NeroGeneratorBlockEntity extends NeroTechMachineBlockEntity {
             addHeat(NeroTechConfig.heatPerOperation());
             emitPollution(level, pos);
             if (roomToStore) {
-                energyBuffer().generate(rate);
+                generateMeasured(rate);
             }
         } else {
             ItemStack fuel = this.items.get(FUEL_SLOT);

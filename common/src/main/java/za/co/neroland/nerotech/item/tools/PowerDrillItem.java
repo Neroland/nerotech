@@ -70,6 +70,16 @@ public class PowerDrillItem extends ChargedToolItem {
         return state.is(BlockTags.MINEABLE_WITH_PICKAXE) || state.is(BlockTags.MINEABLE_WITH_SHOVEL);
     }
 
+    static boolean diamondCanHarvest(BlockState state) {
+        //? if >=1.20.5 {
+        return !state.is(BlockTags.INCORRECT_FOR_DIAMOND_TOOL);
+        //?} else {
+        /*var vanillaTool = state.is(BlockTags.MINEABLE_WITH_PICKAXE)
+                ? net.minecraft.world.item.Items.DIAMOND_PICKAXE : net.minecraft.world.item.Items.DIAMOND_SHOVEL;
+        return new ItemStack(vanillaTool).isCorrectToolForDrops(state);
+        *///?}
+    }
+
     private static boolean charged(ItemStack stack) {
         return charge(stack).energy() >= Math.max(1, NeroTechConfig.powerDrillEnergyPerBlock());
     }
@@ -79,9 +89,11 @@ public class PowerDrillItem extends ChargedToolItem {
         return charged(stack) && mineable(state) ? 10.0F : 1.0F;
     }
 
+    //? if >=1.20.5 {
     @Override
+    //?}
     public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
-        return charged(stack) && mineable(state) && !state.is(BlockTags.INCORRECT_FOR_DIAMOND_TOOL);
+        return charged(stack) && mineable(state) && diamondCanHarvest(state);
     }
 
     @Override
@@ -130,7 +142,7 @@ public class PowerDrillItem extends ChargedToolItem {
         }
         BlockState state = level.getBlockState(at);
         return !state.isAir() && state.getDestroySpeed(level, at) >= 0.0F && level.getBlockEntity(at) == null
-                && mineable(state) && !state.is(BlockTags.INCORRECT_FOR_DIAMOND_TOOL)
+                && mineable(state) && diamondCanHarvest(state)
                 && level.mayInteract(player, at)
                 && !player.blockActionRestricted(level, at, player.gameMode.getGameModeForPlayer());
     }

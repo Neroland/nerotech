@@ -12,7 +12,8 @@ plugins {
 
 // MC version comes from the Stonecutter node (e.g. :neoforge:26.1.2), not a global property.
 def mc = stonecutter.current.version
-def economyApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
+def preComponents = stonecutter.eval(mc, '<1.20.5')
+def economyApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
 // Minecraft before 26.1 ships obfuscated (NeoForge 1.21.x still runs Mojang-named in dev).
 def legacyMc = mc.startsWith('1.')
 // Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
@@ -24,7 +25,7 @@ def emiFile = project.findProperty("emi_file_neoforge_${mc}")
 // Official EMI (dev.emi on the TerraformersMC maven) for lines the unofficial 26.x port does not cover (1.21.1).
 def emiVersion = project.findProperty("emi_version_${mc}")
 def nerolandcoreVersion = project.findProperty('nerolandcore_version')
-def neroeconomyVersion = project.findProperty('neroeconomy_version')
+def neroeconomyVersion = project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // templates live in the BRANCH root (neoforge/). Resolve branch-root paths via the parent.
@@ -184,6 +185,13 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
     inputs.properties(props)
     expand(props)
     from "${branchDir}/src/main/templates"
+    if (stonecutter.eval(mc, '<1.20.5')) {
+        filesMatching('META-INF/neoforge.mods.toml') {
+            name = 'mods.toml'
+            filter { line -> line.replace('type = "required"', 'mandatory = true')
+                                 .replace('type = "optional"', 'mandatory = false') }
+        }
+    }
     into layout.buildDirectory.dir('generated/sources/modMetadata')
 }
 sourceSets.main.resources.srcDir generateModMetadata
@@ -224,6 +232,31 @@ def generateWikiResources = tasks.register('generateWikiResources', Copy) {
     }
 }
 sourceSets.main.resources.srcDir generateWikiResources
+
+// NeoForge 20.5's POM predates the ModDevGradle variants. The original userdev jar supplies the
+// game patches and the original POM supplies dependencies for the compile and test classpaths.
+if (mc == '1.20.5') {
+    dependencies.components.withModule('net.neoforged:neoforge') { details ->
+        if (details.id.version == neoVersion) {
+            details.withVariant('sources') {
+                withDependencies { clear() }
+            }
+            details.addVariant('legacyModDevBundle') {
+                withCapabilities { addCapability('net.neoforged', 'neoforge-moddev-bundle', neoVersion) }
+                withFiles { addFile("neoforge-${neoVersion}-userdev.jar") }
+            }
+            ['compile', 'runtime'].each { pomVariant ->
+                details.addVariant("legacyModDev-${pomVariant}", pomVariant) {
+                    withCapabilities {
+                        removeCapability('net.neoforged', 'neoforge')
+                        addCapability('net.neoforged', 'neoforge-dependencies', neoVersion)
+                    }
+                    withFiles { removeAllFiles() }
+                }
+            }
+        }
+    }
+}
 
 neoForge {
     version = neoVersion

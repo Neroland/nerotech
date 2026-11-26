@@ -3,6 +3,7 @@ package za.co.neroland.nerotech.compat.jei;
 import java.util.List;
 
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.placement.IPlaceable;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -70,9 +71,10 @@ public final class ColliderRecipeCategory extends AbstractRecipeCategory<RecipeH
     public void createRecipeExtras(IRecipeExtrasBuilder builder, RecipeHolder<ColliderRecipe> recipe,
             IFocusGroup focuses) {
         builder.addRecipeArrow().setPosition(ARROW_X, ARROW_Y);
-        builder.addText(List.of(Component.translatable("gui.nerotech.jei.collider.energy",
+        // Older JEI exposes setPosition through IPlaceable.
+        IPlaceable<?> text = builder.addText(List.of(Component.translatable("gui.nerotech.jei.collider.energy",
                                 Integer.toString(recipe.value().minEnergy()))),
-                        WIDTH - TEXT_X * 2, TEXT_HEIGHT)
-                .setPosition(TEXT_X, TEXT_Y);
+                        WIDTH - TEXT_X * 2, TEXT_HEIGHT);
+        text.setPosition(TEXT_X, TEXT_Y);
     }
 }

@@ -53,7 +53,11 @@ public record VaultContents(ItemStack type, long count) {
 
     @Override
     public int hashCode() {
+        //? if >=1.20.5 {
         return 31 * ItemStack.hashItemAndComponents(this.type) + Long.hashCode(this.count);
+        //?} else {
+        return 31 * java.util.Objects.hash(this.type.getItem(), this.type.getTag()) + Long.hashCode(this.count);
+        //?}
     }
 }
 *///?}

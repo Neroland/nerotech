@@ -86,6 +86,18 @@ public class ProcessTankBlock extends NeroTechMachineBlock {
         return CODEC;
     }
 
+    //? if <1.20.5 {
+    /*@Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state,
+            @Nullable net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ProcessTankBlockEntity blockEntity) {
+            blockEntity.readCarriedContents(stack);
+            blockEntity.setChanged();
+        }
+    }
+    *///?}
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

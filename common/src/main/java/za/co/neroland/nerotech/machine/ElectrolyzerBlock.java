@@ -57,25 +57,34 @@ public class ElectrolyzerBlock extends NeroTechMachineBlock {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
     *///?}
         if (stack.is(Items.WATER_BUCKET)) {
             if (level.isClientSide()) {
                 //? if >=1.21.2 {
                 return InteractionResult.SUCCESS;
-                //?} else {
+                //?} else if >=1.20.5 {
                 /*return net.minecraft.world.ItemInteractionResult.SUCCESS;
+                *///?} else {
+                /*return InteractionResult.SUCCESS;
                 *///?}
             }
             if (!(level.getBlockEntity(pos) instanceof ElectrolyzerBlockEntity electrolyzer)
                     || !electrolyzer.fillFromBucket()) {
                 //? if >=1.21.2 {
                 return InteractionResult.CONSUME;   // tank full — no bucket eaten
-                //?} else {
+                //?} else if >=1.20.5 {
                 /*return net.minecraft.world.ItemInteractionResult.CONSUME;
+                *///?} else {
+                /*return InteractionResult.CONSUME;
                 *///?}
             }
             if (!player.getAbilities().instabuild) {
@@ -93,10 +102,16 @@ public class ElectrolyzerBlock extends NeroTechMachineBlock {
             }
             //? if >=1.21.2 {
             return InteractionResult.SUCCESS;
-            //?} else {
+            //?} else if >=1.20.5 {
             /*return net.minecraft.world.ItemInteractionResult.SUCCESS;
+            *///?} else {
+            /*return InteractionResult.SUCCESS;
             *///?}
         }
+        //? if >=1.20.5 {
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        //?} else {
+        /*return super.use(state, level, pos, player, hand, hit);
+        *///?}
     }
 }

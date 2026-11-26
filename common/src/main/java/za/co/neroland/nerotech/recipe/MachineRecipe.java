@@ -63,7 +63,7 @@ public class MachineRecipe extends SingleItemRecipe {
     public ItemStackTemplate result() {
         return super.result();
     }
-    //?} else {
+    //?} else if >=1.20.5 {
     /*// Before 26.1 a single-item recipe is (group, ingredient, result stack); 1.21.1 also passes the
     // type and serializer to the superclass, which this class overrides anyway.
     private MachineRecipe(Supplier<RecipeType<MachineRecipe>> type,
@@ -73,10 +73,10 @@ public class MachineRecipe extends SingleItemRecipe {
     //? if >=1.21.2 && <26.1 {
         /*super(group, ingredient, result);
         *///?}
-    //? if <1.21.2 {
+    //? if >=1.20.5 && <1.21.2 {
         /*super(null, null, group, ingredient, result);
         *///?}
-    //? if <26.1 {
+    //? if >=1.20.5 && <26.1 {
         /*this.type = type;
         this.serializer = serializer;
     }
@@ -88,6 +88,64 @@ public class MachineRecipe extends SingleItemRecipe {
         return (group, ingredient, result) -> new MachineRecipe(type, serializer, group, ingredient, result);
     }
     *///?}
+    //? if <1.20.5 {
+    /*private MachineRecipe(Supplier<RecipeType<MachineRecipe>> type,
+            Supplier<RecipeSerializer<MachineRecipe>> serializer,
+            net.minecraft.resources.ResourceLocation id, String group, Ingredient ingredient, ItemStack result) {
+        //? if <1.20.2 {
+        super(type.get(), serializer.get(), id, group, ingredient, result);
+        //?} else {
+        super(type.get(), serializer.get(), group, ingredient, result);
+        //?}
+        this.type = type;
+        this.serializer = serializer;
+    }
+
+    public static RecipeSerializer<MachineRecipe> legacySerializer(Supplier<RecipeType<MachineRecipe>> type,
+            Supplier<RecipeSerializer<MachineRecipe>> serializer) {
+        //? if >=1.20.2 {
+        var codec = com.mojang.serialization.codecs.RecordCodecBuilder.<MachineRecipe>create(instance -> instance.group(
+                com.mojang.serialization.Codec.STRING.optionalFieldOf("group", "").forGetter(MachineRecipe::getGroup),
+                LegacyRecipeData.INGREDIENT.fieldOf("ingredient").forGetter(MachineRecipe::input),
+                LegacyRecipeData.RESULT.fieldOf("result").forGetter(MachineRecipe::result)
+        ).apply(instance, (group, ingredient, result) -> new MachineRecipe(type, serializer, null, group, ingredient, result)));
+        var wire = za.co.neroland.nerolandcore.network.legacy.LegacyStreamCodec
+                .<net.minecraft.network.FriendlyByteBuf, MachineRecipe>of(MachineRecipe::encodeLegacy,
+                        buffer -> new MachineRecipe(type, serializer, null, buffer.readUtf(),
+                                Ingredient.fromNetwork(buffer), buffer.readItem()));
+        return new LegacyRecipeSerializer<>(codec, wire, null);
+        //?} else {
+        return new RecipeSerializer<>() {
+            @Override
+            public MachineRecipe fromJson(net.minecraft.resources.ResourceLocation id, com.google.gson.JsonObject data) {
+                var ingredient = Ingredient.fromJson(data.get("ingredient"));
+                var result = net.minecraft.world.item.crafting.ShapedRecipe.itemStackFromJson(
+                        net.minecraft.util.GsonHelper.getAsJsonObject(data, "result"));
+                return new MachineRecipe(type, serializer, id,
+                        net.minecraft.util.GsonHelper.getAsString(data, "group", ""), ingredient, result);
+            }
+
+            @Override
+            public MachineRecipe fromNetwork(net.minecraft.resources.ResourceLocation id, net.minecraft.network.FriendlyByteBuf buffer) {
+                return new MachineRecipe(type, serializer, id, buffer.readUtf(), Ingredient.fromNetwork(buffer),
+                        buffer.readItem());
+            }
+
+            @Override
+            public void toNetwork(net.minecraft.network.FriendlyByteBuf buffer, MachineRecipe recipe) {
+                encodeLegacy(buffer, recipe);
+            }
+        };
+        //?}
+    }
+
+    private static void encodeLegacy(net.minecraft.network.FriendlyByteBuf buffer, MachineRecipe recipe) {
+        buffer.writeUtf(recipe.getGroup());
+        recipe.input().toNetwork(buffer);
+        buffer.writeItem(recipe.result());
+    }
+    *///?}
+
     //? if >=1.21.2 && <26.1 {
     /*// Widened to public for read-only consumers.
     @Override

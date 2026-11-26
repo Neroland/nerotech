@@ -9,9 +9,18 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+//? if >=1.20.5 {
 import net.minecraft.network.RegistryFriendlyByteBuf;
+//?}
+//? if >=1.20.5 {
 import net.minecraft.network.codec.ByteBufCodecs;
+//?}
+//? if >=1.20.5 {
 import net.minecraft.network.codec.StreamCodec;
+//?}
+//? if <1.20.2 {
+/*import net.minecraft.resources.Identifier;
+*///?}
 import net.minecraft.world.item.ItemStack;
 //? if >=26.1 {
 import net.minecraft.world.item.ItemStackTemplate;
@@ -56,6 +65,20 @@ import org.jetbrains.annotations.Nullable;
  * the balance surface and any world datapack may override or extend it file-by-file.
  */
 public class ColliderRecipe implements Recipe<ColliderRecipeInput> {
+
+    //? if <1.20.2 {
+    /*private Identifier legacyId;
+
+    @Override
+    public Identifier getId() {
+        return this.legacyId;
+    }
+
+    public void bindRecipeId(Identifier id) {
+        this.legacyId = java.util.Objects.requireNonNull(id, "recipe id");
+    }
+    *///?}
+
 
     private final Supplier<RecipeType<ColliderRecipe>> type;
     private final Supplier<RecipeSerializer<ColliderRecipe>> serializer;
@@ -228,6 +251,7 @@ public class ColliderRecipe implements Recipe<ColliderRecipeInput> {
         *///?}
     }
 
+    //? if >=1.20.5 {
     /** The network codec (the opt-in recipe sync that feeds recipe viewers). */
     public static StreamCodec<RegistryFriendlyByteBuf, ColliderRecipe> streamCodec(
             Supplier<RecipeType<ColliderRecipe>> type,
@@ -251,4 +275,18 @@ public class ColliderRecipe implements Recipe<ColliderRecipeInput> {
                         new ColliderRecipe(type, serializer, inputA, inputB, minEnergy, result));
         *///?}
     }
+    //?}
+    //? if <1.20.5 {
+    /*public static za.co.neroland.nerolandcore.network.legacy.LegacyStreamCodec<net.minecraft.network.FriendlyByteBuf, ColliderRecipe>
+            legacyStreamCodec(Supplier<RecipeType<ColliderRecipe>> type, Supplier<RecipeSerializer<ColliderRecipe>> serializer) {
+        return za.co.neroland.nerolandcore.network.legacy.LegacyStreamCodec.of((buffer, recipe) -> {
+            recipe.inputA.toNetwork(buffer);
+            recipe.inputB.toNetwork(buffer);
+            buffer.writeVarInt(recipe.minEnergy);
+            buffer.writeItem(recipe.result);
+        }, buffer -> new ColliderRecipe(type, serializer, Ingredient.fromNetwork(buffer), Ingredient.fromNetwork(buffer),
+                buffer.readVarInt(), buffer.readItem()));
+    }
+    *///?}
+
 }

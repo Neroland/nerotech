@@ -30,7 +30,7 @@ import za.co.neroland.nerolandcore.progression.CoreGates;
 import za.co.neroland.nerolandcore.progression.ProgressionGates;
 
 import za.co.neroland.nerotech.config.NeroTechConfig;
-import za.co.neroland.nerotech.item.ConfiguratorItem;
+import za.co.neroland.nerolandcore.sideconfig.ConfiguratorTool;
 import za.co.neroland.nerotech.menu.MachineMenu;
 import za.co.neroland.nerotech.network.MachineMenuPosPayload;
 import za.co.neroland.nerotech.network.NeroTechNetwork;
@@ -86,23 +86,37 @@ public abstract class NeroTechMachineBlock extends BaseEntityBlock {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
     *///?}
         noteOperator(level, pos, player);
-        if (stack.getItem() instanceof ConfiguratorItem) {
+        if (stack.getItem() instanceof ConfiguratorTool) {
             //? if >=1.21.2 {
             return InteractionResult.PASS;
-            //?} else {
+            //?} else if >=1.20.5 {
             /*return net.minecraft.world.ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+            *///?} else {
+            /*return InteractionResult.PASS;
             *///?}
         }
+        //? if >=1.20.5 {
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        //?} else {
+        /*return hand == InteractionHand.MAIN_HAND
+                ? useWithoutItem(state, level, pos, player, hit) : InteractionResult.PASS;
+        *///?}
     }
 
+    //? if >=1.20.5 {
     @Override
+    //?}
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hit) {
         // No progression gate ever blocks machine use: NeroTech plays fully standalone, and pacing is

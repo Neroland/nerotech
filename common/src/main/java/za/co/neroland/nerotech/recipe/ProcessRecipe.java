@@ -11,9 +11,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+//? if >=1.20.5 {
 import net.minecraft.network.RegistryFriendlyByteBuf;
+//?}
+//? if >=1.20.5 {
 import net.minecraft.network.codec.ByteBufCodecs;
+//?}
+//? if >=1.20.5 {
 import net.minecraft.network.codec.StreamCodec;
+//?}
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -68,6 +74,20 @@ import za.co.neroland.nerotech.gas.NeroTechGases;
  */
 public class ProcessRecipe implements Recipe<ProcessRecipeInput> {
 
+    //? if <1.20.2 {
+    /*private Identifier legacyId;
+
+    @Override
+    public Identifier getId() {
+        return this.legacyId;
+    }
+
+    public void bindRecipeId(Identifier id) {
+        this.legacyId = java.util.Objects.requireNonNull(id, "recipe id");
+    }
+    *///?}
+
+
     /** Most counted item inputs a recipe may list. */
     public static final int MAX_ITEMS = 6;
     /** Most item results a recipe may list. */
@@ -81,11 +101,13 @@ public class ProcessRecipe implements Recipe<ProcessRecipeInput> {
                 Codec.intRange(1, 64).optionalFieldOf("count", 1).forGetter(CountedIngredient::count)
         ).apply(inst, CountedIngredient::new));
 
+        //? if >=1.20.5 {
         public static final StreamCodec<RegistryFriendlyByteBuf, CountedIngredient> STREAM_CODEC =
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, CountedIngredient::ingredient,
                         ByteBufCodecs.VAR_INT, CountedIngredient::count,
                         CountedIngredient::new);
+        //?}
     }
 
     /** One item output, produced with probability {@code chancePermille}/1000. */
@@ -97,12 +119,14 @@ public class ProcessRecipe implements Recipe<ProcessRecipeInput> {
                 Codec.intRange(1, 1000).optionalFieldOf("chance_permille", 1000).forGetter(ChanceResult::chancePermille)
         ).apply(inst, ChanceResult::new));
 
+        //? if >=1.20.5 {
         public static final StreamCodec<RegistryFriendlyByteBuf, ChanceResult> STREAM_CODEC =
                 StreamCodec.composite(
                         ByteBufCodecs.registry(Registries.ITEM), ChanceResult::item,
                         ByteBufCodecs.VAR_INT, ChanceResult::count,
                         ByteBufCodecs.VAR_INT, ChanceResult::chancePermille,
                         ChanceResult::new);
+        //?}
 
         public ItemStack create() {
             return new ItemStack(this.item, this.count);
@@ -389,6 +413,7 @@ public class ProcessRecipe implements Recipe<ProcessRecipeInput> {
         *///?}
     }
 
+    //? if >=1.20.5 {
     /** The network codec (the opt-in recipe sync that feeds recipe viewers). Written by hand: too many fields for composite. */
     public static StreamCodec<RegistryFriendlyByteBuf, ProcessRecipe> streamCodec(
             Supplier<RecipeType<ProcessRecipe>> type, Supplier<RecipeSerializer<ProcessRecipe>> serializer) {
@@ -441,4 +466,62 @@ public class ProcessRecipe implements Recipe<ProcessRecipeInput> {
             *///?}
         });
     }
+    //?}
+    //? if <1.20.5 {
+    /*public static za.co.neroland.nerolandcore.network.legacy.LegacyStreamCodec<net.minecraft.network.FriendlyByteBuf, ProcessRecipe>
+            legacyStreamCodec(Supplier<RecipeType<ProcessRecipe>> type, Supplier<RecipeSerializer<ProcessRecipe>> serializer) {
+        return za.co.neroland.nerolandcore.network.legacy.LegacyStreamCodec.of((buffer, recipe) -> {
+            buffer.writeVarInt(recipe.items.size());
+            for (CountedIngredient input : recipe.items) {
+                input.ingredient().toNetwork(buffer);
+                buffer.writeVarInt(input.count());
+            }
+            writeMedium(buffer, recipe.fluidIn);
+            writeMedium(buffer, recipe.gasIn);
+            buffer.writeOptional(recipe.catalyst, (buf, ingredient) -> ingredient.toNetwork(buf));
+            buffer.writeVarInt(recipe.results.size());
+            for (ChanceResult result : recipe.results) {
+                buffer.writeId(BuiltInRegistries.ITEM, result.item());
+                buffer.writeVarInt(result.count());
+                buffer.writeVarInt(result.chancePermille());
+            }
+            writeMedium(buffer, recipe.fluidOut);
+            writeMedium(buffer, recipe.gasOut);
+            buffer.writeVarInt(recipe.energy);
+            buffer.writeVarInt(recipe.time);
+            buffer.writeVarInt(recipe.minHeat);
+            buffer.writeOptional(recipe.atmosphere, (buf, atmosphere) -> buf.writeUtf(atmosphere));
+        }, buffer -> {
+            int itemCount = LegacyRecipeData.size(buffer, MAX_ITEMS);
+            List<CountedIngredient> items = new ArrayList<>(itemCount);
+            for (int i = 0; i < itemCount; i++) {
+                items.add(new CountedIngredient(Ingredient.fromNetwork(buffer), buffer.readVarInt()));
+            }
+            Optional<ProcessMedium> fluidIn = readMedium(buffer);
+            Optional<ProcessMedium> gasIn = readMedium(buffer);
+            Optional<Ingredient> catalyst = buffer.readOptional(Ingredient::fromNetwork);
+            int resultCount = LegacyRecipeData.size(buffer, MAX_RESULTS);
+            List<ChanceResult> results = new ArrayList<>(resultCount);
+            for (int i = 0; i < resultCount; i++) {
+                results.add(new ChanceResult(buffer.readById(BuiltInRegistries.ITEM), buffer.readVarInt(), buffer.readVarInt()));
+            }
+            Optional<ProcessMedium> fluidOut = readMedium(buffer);
+            Optional<ProcessMedium> gasOut = readMedium(buffer);
+            int energy = buffer.readVarInt();
+            int time = buffer.readVarInt();
+            int minHeat = buffer.readVarInt();
+            return new ProcessRecipe(type, serializer, items, fluidIn, gasIn, catalyst, results,
+                    fluidOut, gasOut, energy, time, minHeat, buffer.readOptional(buf -> buf.readUtf()));
+        });
+    }
+
+    private static void writeMedium(net.minecraft.network.FriendlyByteBuf buffer, Optional<ProcessMedium> medium) {
+        buffer.writeOptional(medium, ProcessMedium.STREAM_CODEC::encode);
+    }
+
+    private static Optional<ProcessMedium> readMedium(net.minecraft.network.FriendlyByteBuf buffer) {
+        return buffer.readOptional(ProcessMedium.STREAM_CODEC::decode);
+    }
+    *///?}
+
 }

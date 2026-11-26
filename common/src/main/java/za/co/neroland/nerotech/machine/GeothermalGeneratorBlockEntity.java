@@ -1,6 +1,7 @@
 package za.co.neroland.nerotech.machine;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -9,6 +10,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
+import za.co.neroland.nerolandcore.energy.EnergyRate;
+import za.co.neroland.nerolandcore.sideconfig.ConfiguratorTool;
 import za.co.neroland.nerolandcore.sideconfig.Channel;
 import za.co.neroland.nerolandcore.sideconfig.SideConfig;
 import za.co.neroland.nerolandcore.sideconfig.SidePreset;
@@ -31,7 +34,25 @@ import za.co.neroland.nerotech.registry.ModBlockEntities;
  * {@value #SCAN_INTERVAL}-tick revalidation cadence — never per tick. Unloaded chunk columns are
  * skipped rather than force-loaded.
  */
-public class GeothermalGeneratorBlockEntity extends NeroTechMachineBlockEntity {
+public class GeothermalGeneratorBlockEntity extends NeroTechMachineBlockEntity implements ConfiguratorTool.PowerReadout {
+
+    private final EnergyRate production = new EnergyRate();
+
+    @Override
+    public void showPower(ServerPlayer player, long tick) {
+        player.sendSystemMessage(Component.translatable("block.nerolandcore.power.production",
+                Math.round(this.production.perTick(tick))), true);
+    }
+
+    private void generateMeasured(int amount) {
+        var buffer = energyBuffer();
+        long before = buffer.getAmount();
+        buffer.generate(amount);
+        if (this.level != null) {
+            this.production.record(this.level.getGameTime(), buffer.getAmount() - before);
+        }
+    }
+
 
     /** Re-count cadence (ticks) — the Analytics Terminal / Fusion Reactor revalidation cadence. */
     private static final int SCAN_INTERVAL = 100;
@@ -92,7 +113,7 @@ public class GeothermalGeneratorBlockEntity extends NeroTechMachineBlockEntity {
             int rate = (int) Math.round((long) NeroTechConfig.geothermalNePerTickPerSource() * this.sourceCount
                     * mods.speedMultiplier() * presetSpeedFactor());
             if (rate > 0) {
-                energyBuffer().generate(rate);
+                generateMeasured(rate);
             }
             // Drawing on the mantle runs the machine hot — the geothermal trade-off. No pollution:
             // nothing is burned, so the emission path is never touched.

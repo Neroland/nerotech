@@ -57,7 +57,12 @@ public final class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public boolean mayBreak(net.minecraft.server.level.ServerPlayer player, net.minecraft.server.level.ServerLevel level,
             net.minecraft.core.BlockPos pos) {
+        //? if >=1.20.6 {
         return !net.neoforged.neoforge.common.CommonHooks.fireBlockBreak(level,
                 player.gameMode.getGameModeForPlayer(), player, pos, level.getBlockState(pos)).isCanceled();
+        //?} else {
+        /*return net.neoforged.neoforge.common.CommonHooks.onBlockBreakEvent(
+                level, player.gameMode.getGameModeForPlayer(), player, pos) != -1;
+        *///?}
     }
 }

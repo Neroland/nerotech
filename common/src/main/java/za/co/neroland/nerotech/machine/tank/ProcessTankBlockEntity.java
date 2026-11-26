@@ -597,10 +597,15 @@ public class ProcessTankBlockEntity extends NeroTechMachineBlockEntity {
         signalColumn(members);
     }
 
+    //? if >=1.20.5 {
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
         TankContents contents = components.get(ModDataComponents.TANK_CONTENTS.get());
+    //?} else {
+    /*public void readCarriedContents(ItemStack stack) {
+        TankContents contents = ModDataComponents.TANK_CONTENTS.read(stack);
+    *///?}
         if (contents != null && contents.amount() > 0) {
             TankMedium carried = contents.asMedium();
             if (!carried.isEmpty()) {

@@ -82,9 +82,11 @@ public class CuttingLanceItem extends ChargedToolItem {
     }
 
     /** Correct for drops only inside a lance cut, for what a diamond pickaxe or shovel could take. */
+    //? if >=1.20.5 {
     @Override
+    //?}
     public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
-        return CUTTING.get() && PowerDrillItem.mineable(state) && !state.is(BlockTags.INCORRECT_FOR_DIAMOND_TOOL);
+        return CUTTING.get() && PowerDrillItem.mineable(state) && PowerDrillItem.diamondCanHarvest(state);
     }
 
     @Override

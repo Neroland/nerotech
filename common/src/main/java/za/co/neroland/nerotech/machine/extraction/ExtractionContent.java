@@ -3,7 +3,11 @@ package za.co.neroland.nerotech.machine.extraction;
 import java.util.List;
 import java.util.function.Supplier;
 
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponentType;
+//?} else {
+/*import za.co.neroland.nerotech.registry.LegacyItemComponent;
+*///?}
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -39,18 +43,28 @@ public final class ExtractionContent {
     // --- data components (item data only, no player data) --------------------------------------------
 
     /** The Survey Scanner's stored NE and next-scan time. */
+    //? if >=1.20.5 {
     public static final RegistryEntry<DataComponentType<ScannerState>> SCANNER_STATE =
             ModDataComponents.COMPONENTS.register("survey_scanner_state",
                     key -> DataComponentType.<ScannerState>builder().persistent(ScannerState.CODEC).build());
+    //?} else {
+    /*public static final LegacyItemComponent<ScannerState> SCANNER_STATE =
+            new LegacyItemComponent<>("nerotech:survey_scanner_state", ScannerState.CODEC);
+    *///?}
 
     /**
      * Operations a drill head has used. Wear lives on the head item, so it leaves the drill with the head
      * and cannot be reset by taking the head out or by breaking and re-placing the controller.
      */
+    //? if >=1.20.5 {
     public static final RegistryEntry<DataComponentType<Integer>> DRILL_HEAD_WEAR =
             ModDataComponents.COMPONENTS.register("drill_head_wear",
                     key -> DataComponentType.<Integer>builder()
                             .persistent(com.mojang.serialization.Codec.intRange(0, Integer.MAX_VALUE)).build());
+    //?} else {
+    /*public static final LegacyItemComponent<Integer> DRILL_HEAD_WEAR =
+            new LegacyItemComponent<>("nerotech:drill_head_wear", com.mojang.serialization.Codec.intRange(0, Integer.MAX_VALUE));
+    *///?}
 
     // --- blocks ---------------------------------------------------------------------------------------
 

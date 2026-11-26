@@ -7,8 +7,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.netty.buffer.ByteBuf;
 
+//? if >=1.20.5 {
 import net.minecraft.network.codec.ByteBufCodecs;
+//?}
+//? if >=1.20.5 {
 import net.minecraft.network.codec.StreamCodec;
+//?}
 
 /**
  * A fluid or gas amount in a {@link ProcessRecipe}: {@code {"id": "...", "amount": n}}. Fluids are in
@@ -23,10 +27,18 @@ public record ProcessMedium(String id, int amount) {
             Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(ProcessMedium::amount)
     ).apply(inst, ProcessMedium::new));
 
+    //? if >=1.20.5 {
     public static final StreamCodec<ByteBuf, ProcessMedium> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, ProcessMedium::id,
             ByteBufCodecs.VAR_INT, ProcessMedium::amount,
             ProcessMedium::new);
+    //?} else {
+    /*public static final za.co.neroland.nerolandcore.network.legacy.LegacyStreamCodec<net.minecraft.network.FriendlyByteBuf, ProcessMedium> STREAM_CODEC =
+            za.co.neroland.nerolandcore.network.legacy.LegacyStreamCodec.of((buffer, medium) -> {
+                buffer.writeUtf(medium.id());
+                buffer.writeVarInt(medium.amount());
+            }, buffer -> new ProcessMedium(buffer.readUtf(), buffer.readVarInt()));
+    *///?}
 
     /** Whether {@link #id} names a tag ({@code #namespace:path}). */
     public boolean isTag() {

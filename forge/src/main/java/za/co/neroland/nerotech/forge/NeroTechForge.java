@@ -22,7 +22,12 @@ import za.co.neroland.nerotech.telemetry.NeroTechTelemetry;
 @Mod(NeroTechCommon.MOD_ID)
 public final class NeroTechForge {
 
+    //? if >=1.20.5 {
     public NeroTechForge(FMLJavaModLoadingContext context) {
+    //?} else {
+    /*public NeroTechForge() {
+        FMLJavaModLoadingContext context = FMLJavaModLoadingContext.get();
+    *///?}
         NeroTechCommon.LOGGER.info("[NeroTech] Forge bootstrap");
         //? if >=1.21.6 {
         BusGroup modBusGroup = context.getModBusGroup();
@@ -51,9 +56,15 @@ public final class NeroTechForge {
         //? if >=1.21.6 && <1.21.9 {
         /*TickEvent.ServerTickEvent.Post.BUS.addListener(event -> NeroTechCommon.serverTick(event.getServer()));
         *///?}
-        //? if <1.21.6 {
+        //? if >=1.20.5 && <1.21.6 {
         /*MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) ->
                 NeroTechCommon.serverTick(event.getServer()));
+        *///?} else if <1.20.5 {
+        /*MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent event) -> {
+            if (event.phase == TickEvent.Phase.END) {
+                NeroTechCommon.serverTick(event.getServer());
+            }
+        });
         *///?}
         // Creative-only debug commands (/nerotech gallery); shared brigadier tree in common.
         //? if >=1.21.6 {

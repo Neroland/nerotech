@@ -50,6 +50,18 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
         return CODEC;
     }
 
+    //? if <1.20.5 {
+    /*@Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state,
+            @Nullable net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof SingularityVaultBlockEntity blockEntity) {
+            blockEntity.readCarriedContents(stack);
+            blockEntity.setChanged();
+        }
+    }
+    *///?}
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -65,31 +77,42 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    *///?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
     *///?}
         // The Configurator still reaches its own useOn (the machine base's rule).
         if (stack.getItem() instanceof ConfiguratorItem) {
             //? if >=1.21.2 {
             return InteractionResult.PASS;
-            //?} else {
+            //?} else if >=1.20.5 {
             /*return net.minecraft.world.ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+            *///?} else {
+            /*return InteractionResult.PASS;
             *///?}
         }
         if (stack.isEmpty()) {
             //? if >=1.21.2 {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
-            //?} else {
+            //?} else if >=1.20.5 {
             /*return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            *///?} else {
+            /*return hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hit) : InteractionResult.PASS;
             *///?}
         }
         if (level.isClientSide()) {
             //? if >=1.21.2 {
             return InteractionResult.SUCCESS;
-            //?} else {
+            //?} else if >=1.20.5 {
             /*return net.minecraft.world.ItemInteractionResult.SUCCESS;
+            *///?} else {
+            /*return InteractionResult.SUCCESS;
             *///?}
         }
         if (level.getBlockEntity(pos) instanceof SingularityVaultBlockEntity vault) {
@@ -103,8 +126,10 @@ public class SingularityVaultBlock extends NeroTechMachineBlock {
         }
         //? if >=1.21.2 {
         return InteractionResult.SUCCESS;
-        //?} else {
+        //?} else if >=1.20.5 {
         /*return net.minecraft.world.ItemInteractionResult.SUCCESS;
+        *///?} else {
+        /*return InteractionResult.SUCCESS;
         *///?}
     }
 

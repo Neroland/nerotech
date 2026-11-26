@@ -2,7 +2,9 @@ package za.co.neroland.nerotech.machine;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentGetter;
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponents;
+//?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
@@ -325,7 +327,9 @@ public class SingularityVaultBlockEntity extends NeroTechMachineBlockEntity {
         }
         vaultItem.setCount(1);
         vaultItem.set(ModDataComponents.VAULT_CONTENTS.get(), contents);
+        //? if >=1.20.5 {
         vaultItem.set(DataComponents.MAX_STACK_SIZE, 1);
+        //?}
         clearStore();
     }
 
@@ -375,12 +379,17 @@ public class SingularityVaultBlockEntity extends NeroTechMachineBlockEntity {
     }
 
     /** Placing a vault item that carries a store restores it (the store never exceeds a long). */
+    //? if >=1.20.5 {
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
         // Read (and so consume) the carrier's single-stack cap too, so it is not kept as a stray BE component.
         components.get(DataComponents.MAX_STACK_SIZE);
         VaultContents contents = components.get(ModDataComponents.VAULT_CONTENTS.get());
+    //?} else {
+    /*public void readCarriedContents(ItemStack stack) {
+        VaultContents contents = ModDataComponents.VAULT_CONTENTS.read(stack);
+    *///?}
         if (contents != null && contents.count() > 0) {
             ItemStack type = contents.prototype();
             if (!type.isEmpty()) {

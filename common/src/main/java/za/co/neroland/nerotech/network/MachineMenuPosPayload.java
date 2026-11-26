@@ -20,8 +20,13 @@ import za.co.neroland.nerotech.NeroTechCommon;
  */
 public record MachineMenuPosPayload(int containerId, BlockPos pos) implements CustomPacketPayload {
 
+    //? if >=1.20.5 {
     public static final Type<MachineMenuPosPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "machine_menu_pos"));
+    //?} else {
+    /*public static final Type<MachineMenuPosPayload> TYPE =
+            new Type<>(Identifier.fromNamespaceAndPath(NeroTechCommon.MOD_ID, "machine_menu_pos"), MachineMenuPosPayload.class);
+    *///?}
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineMenuPosPayload> STREAM_CODEC =
             StreamCodec.of(MachineMenuPosPayload::write, MachineMenuPosPayload::read);

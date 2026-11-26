@@ -161,7 +161,7 @@ public final class ModRecipeTypes {
             RecipeSerializer<ProcessRecipe> serializer = new RecipeSerializer<>(
                     ProcessRecipe.mapCodec(type::get, self::get),
                     ProcessRecipe.streamCodec(type::get, self::get));
-            //?} else {
+            //?} else if >=1.20.5 {
             /*com.mojang.serialization.MapCodec<ProcessRecipe> mapCodec = ProcessRecipe.mapCodec(type::get, self::get);
             net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, ProcessRecipe> streamCodec =
                     ProcessRecipe.streamCodec(type::get, self::get);
@@ -176,6 +176,16 @@ public final class ModRecipeTypes {
                     return streamCodec;
                 }
             };
+            *///?} else {
+            /*RecipeSerializer<ProcessRecipe> serializer = new za.co.neroland.nerotech.recipe.LegacyRecipeSerializer<>(
+                    ProcessRecipe.mapCodec(type::get, self::get).codec(),
+                    ProcessRecipe.legacyStreamCodec(type::get, self::get),
+                    //? if <1.20.2 {
+                    ProcessRecipe::bindRecipeId
+                    //?} else {
+                    null
+                    //?}
+            );
             *///?}
             self.set(serializer);
             return serializer;
@@ -203,16 +213,20 @@ public final class ModRecipeTypes {
                 new java.util.concurrent.atomic.AtomicReference<>();
         RegistrationProvider.RegistryEntry<RecipeSerializer<MachineRecipe>> entry =
                 SERIALIZERS.register(name, key -> {
+                    //? if >=1.20.5 {
                     var factory = MachineRecipe.factory(type::get, self::get);
+                    //?}
                     //? if >=26.1 {
                     RecipeSerializer<MachineRecipe> serializer = new RecipeSerializer<>(
                             net.minecraft.world.item.crafting.SingleItemRecipe.simpleMapCodec(factory),
                             net.minecraft.world.item.crafting.SingleItemRecipe.simpleStreamCodec(factory));
-                    //?} else {
+                    //?} else if >=1.20.5 {
                     /*// Before 26.1 the serializer is vanilla's single-item serializer (the stonecutter's).
                     RecipeSerializer<MachineRecipe> serializer =
                             new net.minecraft.world.item.crafting.SingleItemRecipe.Serializer<MachineRecipe>(factory) {
                             };
+                    *///?} else {
+                    /*RecipeSerializer<MachineRecipe> serializer = MachineRecipe.legacySerializer(type::get, self::get);
                     *///?}
                     self.set(serializer);
                     return serializer;
@@ -240,7 +254,7 @@ public final class ModRecipeTypes {
             RecipeSerializer<ColliderRecipe> serializer = new RecipeSerializer<>(
                     ColliderRecipe.mapCodec(type::get, self::get),
                     ColliderRecipe.streamCodec(type::get, self::get));
-            //?} else {
+            //?} else if >=1.20.5 {
             /*// Before 26.1 RecipeSerializer is an interface rather than a record of the two codecs.
             com.mojang.serialization.MapCodec<ColliderRecipe> mapCodec = ColliderRecipe.mapCodec(type::get, self::get);
             net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, ColliderRecipe> streamCodec =
@@ -256,6 +270,16 @@ public final class ModRecipeTypes {
                     return streamCodec;
                 }
             };
+            *///?} else {
+            /*RecipeSerializer<ColliderRecipe> serializer = new za.co.neroland.nerotech.recipe.LegacyRecipeSerializer<>(
+                    ColliderRecipe.mapCodec(type::get, self::get).codec(),
+                    ColliderRecipe.legacyStreamCodec(type::get, self::get),
+                    //? if <1.20.2 {
+                    ColliderRecipe::bindRecipeId
+                    //?} else {
+                    null
+                    //?}
+            );
             *///?}
             self.set(serializer);
             return serializer;

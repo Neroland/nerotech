@@ -49,7 +49,9 @@ than one tick of growth.
 Up to six item inputs and one fluid. Recipes include:
 
 - **Servo**: copper coil, cindersteel plate and parts.
-- **Capacitor**: cindersteel plate and polymer sheet with sulfuric acid.
+- **Capacitor** uses two polymer sheets, two copper wires, two redstone dust, two gold nuggets,
+  one iron ingot, one cindersteel plate and 250 mB of sulfuric acid. The Component Forge produces two
+  capacitors in 200 ticks at 40 energy per tick.
 - **Heat Sink**: cindersteel plate, or titanium plate (two out).
 - **Superconductor Coil**: four superconductor wire round a tier-2 coil, with a Heat Sink and 250 mB of cryo
   coolant.

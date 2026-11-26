@@ -256,8 +256,10 @@ public class ArcWrenchItem extends ChargedToolItem {
     static void load(NeroTechMachineBlockEntity machine, CompoundTag tag, HolderLookup.Provider registries) {
         //? if >=1.21.6 {
         machine.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, registries, tag));
-        //?} else {
+        //?} else if >=1.20.5 {
         /*machine.loadCustomOnly(tag, registries);
+        *///?} else {
+        /*machine.load(tag);
         *///?}
     }
 
