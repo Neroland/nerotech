@@ -27,7 +27,7 @@ def legacyMc = mc.startsWith('1.')
 // Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
 def mcCeiling = project.findProperty("mc_ceiling_${mc}")
 def mcFloor = project.findProperty("mc_floor_${mc}") ?: mc
-def neroeconomyVersion = project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')
+def neroeconomyVersion = rootProject.property('neroeconomy_version')
 
 if (!forgeVersion) {
     throw new GradleException("Missing forge_version_${mc} in gradle.properties")
