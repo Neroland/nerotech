@@ -13,7 +13,9 @@ plugins {
 // MC version comes from the Stonecutter node (e.g. :neoforge:26.1.2), not a global property.
 def mc = stonecutter.current.version
 def preComponents = stonecutter.eval(mc, '<1.20.5')
-def economyApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
+// A cell NeroEconomy has no build for compiles against a neighbouring line (neroeconomy_mc_* in gradle.properties).
+def economyApiMc = (rootProject.findProperty("neroeconomy_mc_neoforge_${mc}") ?: rootProject.findProperty("neroeconomy_mc_${mc}")
+        ?: (!preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc)).toString()
 // Minecraft before 26.1 ships obfuscated (NeoForge 1.21.x still runs Mojang-named in dev).
 def legacyMc = mc.startsWith('1.')
 // Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
@@ -77,7 +79,13 @@ sourceSets.main.resources.srcDir rootProject.ext.commonResources
 // compat/emi compiles only where an EMI API exists for this Minecraft line (the 26.x unofficial port, or official
 // EMI on 1.21.1). The other 1.21.x lines have no EMI at all, so the plugin is left out of their jars.
 if (!jeiVersion && !emiFile && !emiVersion) {
-    sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/jei/**')
+    if (stonecutter.eval(mc, '>=1.21.2')) {
+        // JeiSyncedRecipes imports no JEI: from 1.21.2 the loader's recipe-sync hook still feeds it on a line
+        // with no recipe viewer (1.21.3, 26.1, 26.1.1), so only the JEI plugin classes are left out.
+        sourceSets.main.java.exclude { e -> e.path.startsWith('za/co/neroland/nerotech/compat/jei/') && e.name != 'JeiSyncedRecipes.java' }
+    } else {
+        sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/jei/**')
+    }
 }
 if (!emiFile && !emiVersion) {
     sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/emi/**')
@@ -161,6 +169,7 @@ dependencies {
 // neoForge.ideSyncTask runs this on IDE sync so bin/main gets the EXPANDED manifest
 // and Run & Debug works — values stay dynamic (from gradle.properties).
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    def legacyMixins = stonecutter.eval(mc, '<1.20.4')
     // NeoForge 26.2 deprecated the `logoFile` property in favour of `bannerFile` (wide banner) and
     // `iconFile` (square icon); 26.2+ shows a dev-only warning screen for any mod still using it, while
     // 26.1.2's FML only understands `logoFile`. Our logo is a square 256x256 PNG, so emit `iconFile` on
@@ -190,6 +199,10 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
             name = 'mods.toml'
             filter { line -> line.replace('type = "required"', 'mandatory = true')
                                  .replace('type = "optional"', 'mandatory = false') }
+            // NeoForge before 20.4 has no [[mixins]] table: the config is declared in the jar manifest instead.
+            if (legacyMixins) {
+                filter { line -> line == '[[mixins]]' || line == 'config = "nerotech-common.mixins.json"' ? '' : line }
+            }
         }
     }
     into layout.buildDirectory.dir('generated/sources/modMetadata')
@@ -233,9 +246,15 @@ def generateWikiResources = tasks.register('generateWikiResources', Copy) {
 }
 sourceSets.main.resources.srcDir generateWikiResources
 
-// NeoForge 20.5's POM predates the ModDevGradle variants. The original userdev jar supplies the
-// game patches and the original POM supplies dependencies for the compile and test classpaths.
-if (mc == '1.20.5') {
+if (stonecutter.eval(mc, '<1.20.4')) {
+    tasks.named('jar', Jar) {
+        manifest.attributes('MixinConfigs': 'nerotech-common.mixins.json')
+    }
+}
+
+// These NeoForge POMs (20.2, 20.3, 20.5) predate the ModDevGradle variants. The original userdev jar supplies
+// the game patches and the original POM supplies dependencies for the compile and test classpaths.
+if (mc in ['1.20.2', '1.20.3', '1.20.5']) {
     dependencies.components.withModule('net.neoforged:neoforge') { details ->
         if (details.id.version == neoVersion) {
             details.withVariant('sources') {

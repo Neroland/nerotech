@@ -3,7 +3,7 @@
 Player- and contributor-facing documentation for **NeroTech**, part of the **Neroland ecosystem**
 of sci-fi mods. Built on **Neroland Core**.
 
-> Requires **Neroland Core 1.24.0 or newer** (below 2.0). Minecraft 1.20 through 1.20.6 runs on Fabric, 1.20 through 1.20.4 and 1.20.6 on Forge, and 1.20.4 through 1.20.6 on NeoForge. The NeoForge build for 1.20.5 uses loader 20.5.21-beta.
+> Requires **Neroland Core 1.25.0 or newer** (below 2.0). NeroTech runs on Minecraft 1.20 through 26.3: every line on Fabric, all but 1.20.5 on Forge, and 1.20.2 onwards on NeoForge (1.21.3, 26.1 and 26.1.1 included). The NeoForge builds for 1.20.3 and 1.20.5 use beta loaders (20.3.8-beta and 20.5.21-beta), and the 26.1 and 26.1.1 NeoForge builds use beta loaders too.
 > These versions use the in-game Tech Guide for recipe help.
 > Offworld Industry adds six production chains, 22 new
 > machines and blocks, a component ladder, seven powered tools, virtual deposits, heat you can pipe, a

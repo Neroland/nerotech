@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-27
+
+### Added
+
+- Builds for Minecraft 1.21.3, 26.1 and 26.1.1 on Fabric, Forge and NeoForge, and for NeoForge 1.20.2 and 1.20.3,
+  matching Neroland Core's cells. JEI and EMI have no build for 1.21.3, 26.1 or 26.1.1, so those builds have no
+  recipe-viewer pages, and NeroEconomy has no build for these lines, so per-operation charges stay off there.
+  On NeoForge 1.20.2 the machines' energy, item, fluid and gas surfaces use that loader's older capability system.
+
+### Changed
+
+- Planet deposits and the europium and resin input tags name the ores and raw materials by their new
+  Neroland Core ids (`nerolandcore:`), since every Nero ore moved to Core 1.25.0.
+- Requires Neroland Core 1.25.0 or newer.
+
 ## [0.10.1]
 
 ### Added

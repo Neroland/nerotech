@@ -43,6 +43,9 @@ recipes to the client itself. Where each build gets them:
 | Fabric, 1.21.9 and later (the 1.21.10, 1.21.11 and 26.x builds) | Complete |
 | **Fabric 1.21.4, 1.21.5 and 1.21.8** | **Can be empty.** Fabric has no way to send these recipes to the client on those versions. The machines work; only the viewer pages are missing. |
 
+The Minecraft 1.21.3, 26.1 and 26.1.1 builds have no recipe-viewer pages: neither JEI nor EMI is built
+against those lines. The machines work there as everywhere else.
+
 A server running an older NeroTech that does not send the recipes leaves the pages empty.
 
 ## EMI on Minecraft 26.x

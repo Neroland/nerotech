@@ -14,9 +14,9 @@
 - Mod id: **`nerotech`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.nerotech`. Author: **Neroland**.
 - Version: **0.8.0** "Offworld Industry" (requires Neroland Core **1.19.0**; `nerolandcore_version` in `gradle.properties`).
-- Targets **MC 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 AND 26.3** on **NeoForge,
-  MinecraftForge/Forge, and Fabric** → **27 cells** (the source is written for 26.x; older lines use `//?` blocks and the
-  `legacyRenames` list in `stonecutter.gradle`). **Java 25** for 26.x, **Java 21** for 1.21.x. Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
+- Targets **MC 1.20 through 26.3** (`mc_versions`) on **NeoForge (1.20.2+), MinecraftForge/Forge (all but
+  1.20.5), and Fabric** → **54 cells**, the same matrix as Neroland Core (the source is written for 26.x; older lines use `//?` blocks and the
+  `legacyRenames` list in `stonecutter.gradle`). **Java 25** for 26.x, **Java 21** for 1.20.5-1.21.x, **Java 17** for 1.20-1.20.4. Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 
 ## Working rules
 
@@ -34,17 +34,17 @@
   (ModDevGradle), `forge/` (ForgeGradle), `fabric/` (Fabric Loom). Root build files: `settings.gradle`,
   `stonecutter.gradle` (the REAL root build script — Stonecutter repoints `buildFileName` here; the root
   `build.gradle` is inert), `gradle.properties`, `gradlew`, `gradle/`.
-- **Version/loader axis = Stonecutter.** Each loader×MC is a real node `:<loader>:<mc>` — 27 in all
-  (`:{fabric,neoforge,forge}:{1.21.1,1.21.4,1.21.5,1.21.8,1.21.10,1.21.11,26.1.2,26.2,26.3}`). `common` is
+- **Version/loader axis = Stonecutter.** Each loader×MC is a real node `:<loader>:<mc>` — 54 in all
+  (`:{fabric,neoforge,forge}:<mc>` for every `mc_versions` entry, minus NeoForge 1.20/1.20.1 and Forge 1.20.5). `common` is
   NOT a node — its source is spliced via `rootProject.ext.commonJava` / `commonResources`. Dependency pins
-  live in `gradle.properties` as `*_version_<mc>` keys; `mc_versions=1.21.1,1.21.4,1.21.5,1.21.8,1.21.10,1.21.11,26.1.2,26.2,26.3`.
+  live in `gradle.properties` as `*_version_<mc>` keys; `mc_versions=1.20,1.20.1,1.20.2,1.20.3,1.20.4,1.20.5,1.20.6,1.21.1,1.21.3,1.21.4,1.21.5,1.21.8,1.21.10,1.21.11,26.1,26.1.1,26.1.2,26.2,26.3`.
 - **Version-specific code in `common/`.** Non-active nodes run `common/` through Stonecutter (`stonecutterProcessCommon`), so shared code uses the same `//? if >=26.3 {` blocks as the loader `src/` trees. Keep the files in the vcsVersion state, and never put a `*/` inside a disabled block. Datapack files whose format differs by version go in `common/src/main/resources-<mc>/`, which is merged over `common/src/main/resources` for every node at or above `<mc>` (`mergeCommonResources`).
 
 ## Build & verify
 
 - **Never run plain `./gradlew build`** — the root loader modules are vestigial and fail. Build the
-  Stonecutter cells by name. The full set is **27 cells** plus ecjCheck (26.x first, then 1.21.11 down
-  to 1.21.1):
+  Stonecutter cells by name. The full set is **54 cells** plus ecjCheck. The 1.21.x/26.x core of it (26.x first, then 1.21.11 down
+  to 1.21.1; add the 1.20.x, 1.21.3, 26.1 and 26.1.1 cells the same way):
 
   ```text
   :fabric:26.1.2:build :neoforge:26.1.2:build :forge:26.1.2:build

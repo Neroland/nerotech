@@ -3,7 +3,7 @@
   "entries": [
     {
       "ore": "#c:ores/hematite",
-      "output": "nerospace:raw_hematite",
+      "output": "nerolandcore:raw_hematite",
       "weight": 10,
       "capacity": [
         2000,
@@ -16,7 +16,7 @@
     },
     {
       "ore": "#c:ores/nerosium",
-      "output": "nerospace:raw_nerosium",
+      "output": "nerolandcore:raw_nerosium",
       "weight": 5,
       "capacity": [
         1500,
@@ -29,7 +29,7 @@
     },
     {
       "ore": "#c:ores/nerosteel",
-      "output": "nerospace:raw_nerosteel",
+      "output": "nerolandcore:raw_nerosteel",
       "weight": 5,
       "capacity": [
         1500,

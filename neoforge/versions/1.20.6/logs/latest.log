@@ -1,12 +1,12 @@
-[25Nov2026 16:58:18.819] [Test worker/WARN] [Neroland Core/]: [Neroland Core] Data eraser 'za.co.neroland.nerolandcore.data.ErasureConformance$$Lambda/0x0000020881357188' failed during erasure; continuing with the rest. This player's data may be only partially erased.
+[27Nov2026 12:22:10.650] [Test worker/WARN] [Neroland Core/]: [Neroland Core] Data eraser 'za.co.neroland.nerolandcore.data.ErasureConformance$$Lambda/0x0000025581355228' failed during erasure; continuing with the rest. This player's data may be only partially erased.
 java.lang.IllegalStateException: ErasureConformance canary: deliberate failure, safe to ignore
-	at za.co.neroland.nerolandcore.data.ErasureConformance.lambda$checkFailureIsolation$1(ErasureConformance.java:284) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.PlayerDataErasure.eraseAll(PlayerDataErasure.java:124) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.PlayerDataErasure.eraseAndReport(PlayerDataErasure.java:113) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.PlayerDataErasure.erase(PlayerDataErasure.java:95) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.ErasureConformance.checkFailureIsolation(ErasureConformance.java:299) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.ErasureConformance.run(ErasureConformance.java:204) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.ErasureConformance.verify(ErasureConformance.java:160) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
+	at za.co.neroland.nerolandcore.data.ErasureConformance.lambda$checkFailureIsolation$1(ErasureConformance.java:284) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.PlayerDataErasure.eraseAll(PlayerDataErasure.java:124) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.PlayerDataErasure.eraseAndReport(PlayerDataErasure.java:113) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.PlayerDataErasure.erase(PlayerDataErasure.java:95) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.ErasureConformance.checkFailureIsolation(ErasureConformance.java:299) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.ErasureConformance.run(ErasureConformance.java:204) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.ErasureConformance.verify(ErasureConformance.java:160) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
 	at za.co.neroland.nerotech.compliance.ErasureConformanceTest.erasurePurgesEveryPlayerStore(ErasureConformanceTest.java:71) ~[test/:?]
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
@@ -99,17 +99,17 @@ java.lang.IllegalStateException: ErasureConformance canary: deliberate failure, 
 	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72) [gradle-worker-main-9.9.1.jar:9.9.1]
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69) [gradle-worker.jar:?]
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74) [gradle-worker.jar:?]
-[25Nov2026 16:58:18.835] [Test worker/WARN] [Neroland Core/]: [Neroland Core] Player data erasure INCOMPLETE: 1 of 6 systems failed.
-[25Nov2026 16:58:18.836] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Player data erased on request (3 systems).
-[25Nov2026 16:58:19.440] [Test worker/WARN] [Neroland Core/]: [Neroland Core] Data eraser 'za.co.neroland.nerolandcore.data.ErasureConformance$$Lambda/0x0000020881357188' failed during erasure; continuing with the rest. This player's data may be only partially erased.
+[27Nov2026 12:22:10.688] [Test worker/WARN] [Neroland Core/]: [Neroland Core] Player data erasure INCOMPLETE: 1 of 6 systems failed.
+[27Nov2026 12:22:10.690] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Player data erased on request (3 systems).
+[27Nov2026 12:22:12.663] [Test worker/WARN] [Neroland Core/]: [Neroland Core] Data eraser 'za.co.neroland.nerolandcore.data.ErasureConformance$$Lambda/0x0000025581355228' failed during erasure; continuing with the rest. This player's data may be only partially erased.
 java.lang.IllegalStateException: ErasureConformance canary: deliberate failure, safe to ignore
-	at za.co.neroland.nerolandcore.data.ErasureConformance.lambda$checkFailureIsolation$1(ErasureConformance.java:284) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.PlayerDataErasure.eraseAll(PlayerDataErasure.java:124) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.PlayerDataErasure.eraseAndReport(PlayerDataErasure.java:113) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.PlayerDataErasure.erase(PlayerDataErasure.java:95) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.ErasureConformance.checkFailureIsolation(ErasureConformance.java:299) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.ErasureConformance.run(ErasureConformance.java:204) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
-	at za.co.neroland.nerolandcore.data.ErasureConformance.verify(ErasureConformance.java:160) ~[nerolandcore-neoforge-1.20.6-1.24.0.jar:?]
+	at za.co.neroland.nerolandcore.data.ErasureConformance.lambda$checkFailureIsolation$1(ErasureConformance.java:284) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.PlayerDataErasure.eraseAll(PlayerDataErasure.java:124) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.PlayerDataErasure.eraseAndReport(PlayerDataErasure.java:113) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.PlayerDataErasure.erase(PlayerDataErasure.java:95) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.ErasureConformance.checkFailureIsolation(ErasureConformance.java:299) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.ErasureConformance.run(ErasureConformance.java:204) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
+	at za.co.neroland.nerolandcore.data.ErasureConformance.verify(ErasureConformance.java:160) ~[nerolandcore-neoforge-1.20.6-1.25.0.jar:?]
 	at za.co.neroland.nerotech.link.LinkMemoryErasureTest.erasureDropsInMemoryLinkState(LinkMemoryErasureTest.java:33) ~[test/:?]
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
@@ -202,18 +202,18 @@ java.lang.IllegalStateException: ErasureConformance canary: deliberate failure, 
 	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72) [gradle-worker-main-9.9.1.jar:9.9.1]
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69) [gradle-worker.jar:?]
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74) [gradle-worker.jar:?]
-[25Nov2026 16:58:19.443] [Test worker/WARN] [Neroland Core/]: [Neroland Core] Player data erasure INCOMPLETE: 1 of 6 systems failed.
-[25Nov2026 16:58:19.444] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Player data erased on request (3 systems).
-[25Nov2026 16:58:19.512] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered a snapshot provider (schema 2, 5 section(s)).
-[25Nov2026 16:58:19.513] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered an action handler (2 action(s)).
-[25Nov2026 16:58:19.534] [Test worker/WARN] [Neroland Core/]: [Neroland Core] NeroLink snapshot provider for module 'nerotech' replaced.
-[25Nov2026 16:58:19.534] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered a snapshot provider (schema 2, 5 section(s)).
-[25Nov2026 16:58:19.535] [Test worker/WARN] [Neroland Core/]: [Neroland Core] NeroLink action handler for module 'nerotech' replaced.
-[25Nov2026 16:58:19.535] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered an action handler (2 action(s)).
-[25Nov2026 16:58:19.558] [Test worker/WARN] [Neroland Core/]: [Neroland Core] NeroLink snapshot provider for module 'nerotech' replaced.
-[25Nov2026 16:58:19.559] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered a snapshot provider (schema 2, 5 section(s)).
-[25Nov2026 16:58:19.559] [Test worker/WARN] [Neroland Core/]: [Neroland Core] NeroLink action handler for module 'nerotech' replaced.
-[25Nov2026 16:58:19.559] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered an action handler (2 action(s)).
-[25Nov2026 16:58:19.612] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Player data erased on request (4 systems).
-[25Nov2026 16:58:20.180] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Map layer provider 'nerotech' registered (1 layer(s)).
-[25Nov2026 16:58:20.203] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Player data erased on request (5 systems).
+[27Nov2026 12:22:12.667] [Test worker/WARN] [Neroland Core/]: [Neroland Core] Player data erasure INCOMPLETE: 1 of 6 systems failed.
+[27Nov2026 12:22:12.668] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Player data erased on request (3 systems).
+[27Nov2026 12:22:12.744] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered a snapshot provider (schema 2, 5 section(s)).
+[27Nov2026 12:22:12.744] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered an action handler (2 action(s)).
+[27Nov2026 12:22:12.774] [Test worker/WARN] [Neroland Core/]: [Neroland Core] NeroLink snapshot provider for module 'nerotech' replaced.
+[27Nov2026 12:22:12.774] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered a snapshot provider (schema 2, 5 section(s)).
+[27Nov2026 12:22:12.774] [Test worker/WARN] [Neroland Core/]: [Neroland Core] NeroLink action handler for module 'nerotech' replaced.
+[27Nov2026 12:22:12.775] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered an action handler (2 action(s)).
+[27Nov2026 12:22:12.791] [Test worker/WARN] [Neroland Core/]: [Neroland Core] NeroLink snapshot provider for module 'nerotech' replaced.
+[27Nov2026 12:22:12.791] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered a snapshot provider (schema 2, 5 section(s)).
+[27Nov2026 12:22:12.792] [Test worker/WARN] [Neroland Core/]: [Neroland Core] NeroLink action handler for module 'nerotech' replaced.
+[27Nov2026 12:22:12.792] [Test worker/INFO] [Neroland Core/]: [Neroland Core] NeroLink module 'nerotech' registered an action handler (2 action(s)).
+[27Nov2026 12:22:12.857] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Player data erased on request (4 systems).
+[27Nov2026 12:22:14.552] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Map layer provider 'nerotech' registered (1 layer(s)).
+[27Nov2026 12:22:14.619] [Test worker/INFO] [Neroland Core/]: [Neroland Core] Player data erased on request (5 systems).

@@ -15,7 +15,9 @@ def preComponents = stonecutter.eval(mc, '<1.20.5')
 if (preComponents) {
     apply plugin: 'net.minecraftforge.renamer'
 }
-def economyApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
+// A cell NeroEconomy has no build for compiles against a neighbouring line (neroeconomy_mc_* in gradle.properties).
+def economyApiMc = (rootProject.findProperty("neroeconomy_mc_forge_${mc}") ?: rootProject.findProperty("neroeconomy_mc_${mc}")
+        ?: (!preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc)).toString()
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
@@ -84,7 +86,13 @@ sourceSets.main.resources.srcDir rootProject.ext.commonResources
 // compat/emi compiles only where an EMI API exists for this Minecraft line (the 26.x unofficial port, or official
 // EMI on 1.21.1). The other 1.21.x lines have no EMI at all, so the plugin is left out of their jars.
 if (!jeiVersion && !emiFile && !emiVersion) {
-    sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/jei/**')
+    if (stonecutter.eval(mc, '>=1.21.2')) {
+        // JeiSyncedRecipes imports no JEI: from 1.21.2 the loader's recipe-sync hook still feeds it on a line
+        // with no recipe viewer (1.21.3, 26.1, 26.1.1), so only the JEI plugin classes are left out.
+        sourceSets.main.java.exclude { e -> e.path.startsWith('za/co/neroland/nerotech/compat/jei/') && e.name != 'JeiSyncedRecipes.java' }
+    } else {
+        sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/jei/**')
+    }
 }
 if (!emiFile && !emiVersion) {
     sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/emi/**')

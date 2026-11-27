@@ -107,7 +107,7 @@
     },
     {
       "ore": "#c:ores/nerosium",
-      "output": "nerospace:raw_nerosium",
+      "output": "nerolandcore:raw_nerosium",
       "weight": 4,
       "capacity": [
         1500,
@@ -120,7 +120,7 @@
     },
     {
       "ore": "#c:ores/nerosteel",
-      "output": "nerospace:raw_nerosteel",
+      "output": "nerolandcore:raw_nerosteel",
       "weight": 4,
       "capacity": [
         1500,

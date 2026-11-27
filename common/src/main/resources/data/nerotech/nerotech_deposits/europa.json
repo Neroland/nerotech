@@ -29,7 +29,7 @@
     },
     {
       "ore": "#c:ores/salt",
-      "output": "nerospace:brine_salt",
+      "output": "nerolandcore:brine_salt",
       "weight": 6,
       "capacity": [
         2000,
@@ -42,7 +42,7 @@
     },
     {
       "ore": "#c:ores/sulfide",
-      "output": "nerospace:raw_vent_sulfide",
+      "output": "nerolandcore:raw_vent_sulfide",
       "weight": 4,
       "capacity": [
         1500,
@@ -55,7 +55,7 @@
     },
     {
       "ore": "#c:ores/europium",
-      "output": "nerospace:raw_europium",
+      "output": "nerolandcore:raw_europium",
       "weight": 2,
       "capacity": [
         500,

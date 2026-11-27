@@ -3,7 +3,7 @@
   "entries": [
     {
       "ore": "#c:ores/cindrite",
-      "output": "nerospace:cindrite",
+      "output": "nerolandcore:cindrite",
       "weight": 10,
       "capacity": [
         1500,

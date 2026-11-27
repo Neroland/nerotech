@@ -14,7 +14,9 @@ plugins {
 // MC version comes from the Stonecutter node (e.g. :fabric:26.1.2), not a global property.
 def mc = stonecutter.current.version
 def preComponents = stonecutter.eval(mc, '<1.20.5')
-def economyApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
+// A cell NeroEconomy has no build for compiles against a neighbouring line (neroeconomy_mc_* in gradle.properties).
+def economyApiMc = (rootProject.findProperty("neroeconomy_mc_fabric_${mc}") ?: rootProject.findProperty("neroeconomy_mc_${mc}")
+        ?: (!preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc)).toString()
 // Minecraft before 26.1 ships obfuscated, so those cells need mappings and a remapped jar.
 def obfuscated = mc.startsWith('1.')
 apply plugin: obfuscated ? 'net.fabricmc.fabric-loom-remap' : 'net.fabricmc.fabric-loom'
@@ -80,7 +82,13 @@ sourceSets.main.resources.srcDir rootProject.ext.commonResources
 // EMI on 1.21.1). The other 1.21.x lines have no EMI at all, so the plugin is left out of their jars (and
 // fabric.mod.json does not list the emi entrypoint there; see recipe_viewer_entrypoints).
 if (!jeiVersion && !emiFile && !emiVersion) {
-    sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/jei/**')
+    if (stonecutter.eval(mc, '>=1.21.2')) {
+        // JeiSyncedRecipes imports no JEI: from 1.21.2 the loader's recipe-sync hook still feeds it on a line
+        // with no recipe viewer (1.21.3, 26.1, 26.1.1), so only the JEI plugin classes are left out.
+        sourceSets.main.java.exclude { e -> e.path.startsWith('za/co/neroland/nerotech/compat/jei/') && e.name != 'JeiSyncedRecipes.java' }
+    } else {
+        sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/jei/**')
+    }
 }
 if (!emiFile && !emiVersion) {
     sourceSets.main.java.exclude('za/co/neroland/nerotech/compat/emi/**')

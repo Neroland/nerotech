@@ -3,7 +3,7 @@
   "entries": [
     {
       "ore": "#c:ores/voidglass",
-      "output": "nerospace:voidglass",
+      "output": "nerolandcore:voidglass",
       "weight": 6,
       "capacity": [
         1000,
@@ -16,7 +16,7 @@
     },
     {
       "ore": "#c:ores/nerosium",
-      "output": "nerospace:raw_nerosium",
+      "output": "nerolandcore:raw_nerosium",
       "weight": 5,
       "capacity": [
         1500,

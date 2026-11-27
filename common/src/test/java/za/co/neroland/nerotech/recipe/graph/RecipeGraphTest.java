@@ -473,6 +473,18 @@ class RecipeGraphTest {
         return best;
     }
 
+    /**
+     * Whether an item only exists through Nerospace: its own ids, and the Nerospace ores and raw materials that moved
+     * to Neroland Core 1.25.0 (Core registers them but only Nerospace generates them).
+     */
+    private static boolean offworldOnly(String id) {
+        if (id.startsWith("nerospace:")) {
+            return true;
+        }
+        return id.startsWith("nerolandcore:")
+                && za.co.neroland.nerolandcore.registry.LegacyIds.movedOre("nerospace", id.substring(13));
+    }
+
     private static Optional<Double> leafCost(String node, Mode mode) {
         int colon = node.indexOf(':');
         String kind = node.substring(0, colon);
@@ -485,7 +497,7 @@ class RecipeGraphTest {
                     }
                     return Optional.of(LEAF * (NINE_LEAF_BLOCKS.contains(id) ? 9.0D : LEAF_WEIGHTS.getOrDefault(id, 1.0D)));
                 }
-                return mode == Mode.OFFWORLD && id.startsWith("nerospace:") ? Optional.of(LEAF) : Optional.empty();
+                return mode == Mode.OFFWORLD && offworldOnly(id) ? Optional.of(LEAF) : Optional.empty();
             case "mined":
                 return mode == Mode.OFFWORLD ? Optional.of(LEAF) : Optional.empty();
             case "core":
@@ -652,7 +664,7 @@ class RecipeGraphTest {
         for (String ref : RecipeFixture.references(ingredient)) {
             if (ref.startsWith("#")) {
                 out.addAll(itemTag(ref.substring(1), mode, false, new HashSet<>()));
-            } else if (mode == Mode.OFFWORLD || !ref.startsWith("nerospace:")) {
+            } else if (mode == Mode.OFFWORLD || !offworldOnly(ref)) {
                 out.add("item:" + ref);
             }
         }
@@ -685,7 +697,7 @@ class RecipeGraphTest {
             String id = value.isJsonObject() ? value.getAsJsonObject().get("id").getAsString() : value.getAsString();
             if (id.startsWith("#")) {
                 out.addAll(itemTag(id.substring(1), mode, childInputs, seen));
-            } else if (mode == Mode.OFFWORLD || !id.startsWith("nerospace:")) {
+            } else if (mode == Mode.OFFWORLD || !offworldOnly(id)) {
                 out.add("item:" + id);
             }
         }

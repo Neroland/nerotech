@@ -7,8 +7,10 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
+//? if >=1.20.3 {
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+//?}
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -60,7 +62,13 @@ public final class NeroTechNeoForge {
         NeoForgeRegistrationFactory.registerAll(modEventBus);
         // NeroTech's own payloads (menu → machine position sync); see network.NeroTechNetwork.
         NeoForgeNetwork.register(modEventBus);
+        //? if >=1.20.3 {
         modEventBus.addListener(NeroTechNeoForge::onRegisterCapabilities);
+        //?} else {
+        /*// NeoForge 20.2 predates RegisterCapabilitiesEvent: attach the same surfaces per block entity instead.
+        NeoForge.EVENT_BUS.addGenericListener(net.minecraft.world.level.block.entity.BlockEntity.class,
+                NeroTechNeoForge::onAttachBlockEntity);
+        *///?}
         // Periodic regional pollution decay + retention sweep and quest-hook delivery (game bus; gated inside).
         //? if >=1.20.5 {
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> NeroTechCommon.serverTick(event.getServer()));
@@ -77,8 +85,8 @@ public final class NeroTechNeoForge {
         // Recipe sync is opt-in on NeoForge (26.x clients hold no full recipe list): ask the server to
         // send NeroTech's machine recipes so recipe viewers — see compat.jei — can list them. Recipe
         // definitions only; no player data crosses the wire.
-        // Before 1.21.2 vanilla still syncs every recipe, and the event has no sendRecipes.
-        //? if >=1.21.2 {
+        // Before 1.21.2 vanilla still syncs every recipe; NeoForge 21.3 has no sendRecipes (and no recipe viewer).
+        //? if >=1.21.4 {
         // All sixteen machine recipe types (the five originals plus 0.8.0's eleven process types).
         NeoForge.EVENT_BUS.addListener((OnDatapackSyncEvent event) -> event.sendRecipes(
                 ModRecipeTypes.syncedTypes().toArray(new net.minecraft.world.item.crafting.RecipeType<?>[0])));
@@ -92,6 +100,7 @@ public final class NeroTechNeoForge {
         }
     }
 
+    //? if >=1.20.3 {
     /**
      * Expose every registered machine's surfaces on the loader capabilities, reading the public
      * {@link MachineTypeRegistry} (NeroTech's own machines seeded first in {@code NeroTechCommon.init()},
@@ -197,4 +206,91 @@ public final class NeroTechNeoForge {
             return views.isEmpty() ? null : NeoForgeFluidHandlers.asResourceHandler(views);
         });
     }
+    //?} else {
+    /*private static final net.minecraft.resources.ResourceLocation MACHINE_CAPS =
+            new net.minecraft.resources.ResourceLocation(NeroTechCommon.MOD_ID, "machine_caps");
+
+    /^*
+     * NeoForge 20.2: the Forge-style capability system. Every machine whose type is in the public
+     * {@link MachineTypeRegistry} gets the same surfaces the newer lines register through
+     * {@code RegisterCapabilitiesEvent} (Nero energy, items, Nero gas/fluid, standard fluid). The registry
+     * is read when each block entity is created, so add-on machine types registered at mod construction
+     * are always seen.
+     *^/
+    private static void onAttachBlockEntity(
+            net.neoforged.neoforge.event.AttachCapabilitiesEvent<net.minecraft.world.level.block.entity.BlockEntity> event) {
+        if (!(event.getObject() instanceof NeroTechMachineBlockEntity be)) {
+            return;
+        }
+        BlockEntityType<?> type = be.getType();
+        boolean energy = contains(MachineTypeRegistry.energyTypes(), type);
+        boolean item = contains(MachineTypeRegistry.itemTypes(), type);
+        boolean gas = contains(MachineTypeRegistry.gasTypes(), type);
+        boolean fluid = contains(MachineTypeRegistry.fluidTypes(), type);
+        if (!energy && !item && !gas && !fluid) {
+            return;
+        }
+        MachineCaps caps = new MachineCaps(be, energy, item, gas, fluid);
+        event.addCapability(MACHINE_CAPS, caps);
+        event.addListener(caps::invalidate);
+    }
+
+    private static boolean contains(List<Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>>> types,
+            BlockEntityType<?> type) {
+        for (Supplier<BlockEntityType<? extends NeroTechMachineBlockEntity>> candidate : types) {
+            if (candidate.get() == type) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static final class MachineCaps implements net.neoforged.neoforge.common.capabilities.ICapabilityProvider {
+        private final NeroTechMachineBlockEntity be;
+        private final boolean energy;
+        private final boolean item;
+        private final boolean gas;
+        private final boolean fluid;
+        private final List<net.neoforged.neoforge.common.util.LazyOptional<?>> handedOut = new java.util.ArrayList<>();
+
+        MachineCaps(NeroTechMachineBlockEntity be, boolean energy, boolean item, boolean gas, boolean fluid) {
+            this.be = be;
+            this.energy = energy;
+            this.item = item;
+            this.gas = gas;
+            this.fluid = fluid;
+        }
+
+        @Override
+        public <T> net.neoforged.neoforge.common.util.LazyOptional<T> getCapability(
+                net.neoforged.neoforge.common.capabilities.Capability<T> cap, @org.jetbrains.annotations.Nullable net.minecraft.core.Direction side) {
+            Object value = null;
+            if (energy && cap == NeoForgeEnergyLookup.ENERGY) {
+                value = be.sideConfig() != null ? be.sideConfig().energyView(side) : be.getEnergy();
+            } else if (item && cap == net.neoforged.neoforge.common.capabilities.Capabilities.ITEM_HANDLER) {
+                value = side != null ? new SidedInvWrapper(be, side) : new InvWrapper(be);
+            } else if (gas && cap == NeoForgeGasLookup.GAS) {
+                value = be.gasStorage(side);
+            } else if (fluid && cap == NeoForgeFluidLookup.FLUID) {
+                value = be.fluidStorage(side);
+            } else if ((fluid || gas) && cap == net.neoforged.neoforge.common.capabilities.Capabilities.FLUID_HANDLER) {
+                List<GatedFluidView> views = be.standardFluidViews(side);
+                value = views.isEmpty() ? null : NeoForgeFluidHandlers.asResourceHandler(views);
+            }
+            if (value == null) {
+                return net.neoforged.neoforge.common.util.LazyOptional.empty();
+            }
+            Object resolved = value;
+            net.neoforged.neoforge.common.util.LazyOptional<Object> optional =
+                    net.neoforged.neoforge.common.util.LazyOptional.of(() -> resolved);
+            handedOut.add(optional);
+            return optional.cast();
+        }
+
+        void invalidate() {
+            handedOut.forEach(net.neoforged.neoforge.common.util.LazyOptional::invalidate);
+            handedOut.clear();
+        }
+    }
+    *///?}
 }

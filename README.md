@@ -26,7 +26,7 @@ The 0.1.0-beta.1 tech tree also covers:
 
 ## Build targets
 
-- **Minecraft:** 1.21.1, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1.2, 26.2 and 26.3
+- **Minecraft:** 1.20 through 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.8 (also 1.21.7), 1.21.10 (also 1.21.9), 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2 and 26.3 (NeoForge from 1.20.2; no Forge build for 1.20.5)
 - **Loaders:** Fabric, Forge and NeoForge for the versions above.
 - **Minecraft 1.20 through 1.20.6** on Fabric, **1.20 through 1.20.4 and 1.20.6** on Forge, and **1.20.4 through 1.20.6** on NeoForge. The NeoForge build for 1.20.5 uses loader 20.5.21-beta.
 - **Java:** 17 for 1.20 through 1.20.4, 21 for 1.20.5 through 1.21.x, and 25 for 26.x.

@@ -3,7 +3,7 @@
   "entries": [
     {
       "ore": "#c:ores/xertz_quartz",
-      "output": "nerospace:xertz_quartz",
+      "output": "nerolandcore:xertz_quartz",
       "weight": 8,
       "capacity": [
         1500,
@@ -16,7 +16,7 @@
     },
     {
       "ore": "#c:ores/amber",
-      "output": "nerospace:amber_sap",
+      "output": "nerolandcore:amber_sap",
       "weight": 5,
       "capacity": [
         1500,
@@ -29,7 +29,7 @@
     },
     {
       "ore": "#c:ores/nerosteel",
-      "output": "nerospace:raw_nerosteel",
+      "output": "nerolandcore:raw_nerosteel",
       "weight": 4,
       "capacity": [
         1500,

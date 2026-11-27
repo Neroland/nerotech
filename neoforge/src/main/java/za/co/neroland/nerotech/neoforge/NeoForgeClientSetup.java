@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-//? if >=1.21.2 {
+//? if >=1.21.4 {
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 //?}
 //? if >=26.1 {
@@ -21,8 +21,10 @@ import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 //?} else if >=1.21 {
 /*import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 *///?}
+//? if >=1.20.4 {
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-//? if >=1.21.2 {
+//?}
+//? if >=1.21.4 {
 import net.neoforged.neoforge.common.NeoForge;
 //?}
 
@@ -49,7 +51,7 @@ import za.co.neroland.nerotech.client.TechGuideScreen;
 import za.co.neroland.nerotech.client.WindTurbineScreen;
 import za.co.neroland.nerotech.client.WirelessNodeScreen;
 import za.co.neroland.nerotech.NeroTechCommon;
-//? if >=1.21.2 {
+//? if >=1.21.4 {
 import za.co.neroland.nerotech.compat.jei.JeiSyncedRecipes;
 //?}
 //? if >=26.1 {
@@ -64,7 +66,31 @@ public final class NeoForgeClientSetup {
     }
 
     public static void init(IEventBus modEventBus) {
-        modEventBus.addListener(NeoForgeClientSetup::onRegisterScreens);
+        //? if >=1.20.4 {
+        modEventBus.addListener((RegisterMenuScreensEvent event) -> registerScreens(new za.co.neroland.nerotech.client.ScreenSink() {
+            @Override
+            public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
+                    U extends net.minecraft.client.gui.screens.Screen
+                            & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
+                    net.minecraft.world.inventory.MenuType<? extends M> type,
+                    net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
+                event.register(type, constructor);
+            }
+        }));
+        //?} else {
+        /*// NeoForge 20.2 / 20.3 have no RegisterMenuScreensEvent: register on the client-setup work queue.
+        modEventBus.addListener((net.neoforged.fml.event.lifecycle.FMLClientSetupEvent event) -> event.enqueueWork(() ->
+                registerScreens(new za.co.neroland.nerotech.client.ScreenSink() {
+            @Override
+            public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
+                    U extends net.minecraft.client.gui.screens.Screen
+                            & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
+                    net.minecraft.world.inventory.MenuType<? extends M> type,
+                    net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
+                net.minecraft.client.gui.screens.MenuScreens.register(type, constructor);
+            }
+        })));
+        *///?}
         modEventBus.addListener(NeoForgeClientSetup::onRegisterEntityRenderers);
         modEventBus.addListener((net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent event) ->
                 za.co.neroland.nerotech.client.particle.NeroTechParticles.registerAll(
@@ -78,7 +104,7 @@ public final class NeoForgeClientSetup {
         // Keep the client's copy of the server's synced recipes so recipe viewers (compat.jei) can
         // list NeroTech's machine recipes — from 1.21.2 clients hold no full recipe list of their own
         // (1.21.1 still receives every recipe; JeiSyncedRecipes reads the client level there).
-        //? if >=1.21.2 {
+        //? if >=1.21.4 {
         NeoForge.EVENT_BUS.addListener((RecipesReceivedEvent event) ->
                 JeiSyncedRecipes.accept(event.getRecipeMap()));
         //?}
@@ -103,39 +129,30 @@ public final class NeoForgeClientSetup {
         });
     }
 
-    private static void onRegisterScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenuTypes.NERO_GENERATOR.get(), NeroGeneratorScreen::new);
-        event.register(ModMenuTypes.SOLAR_ARRAY.get(), SolarArrayScreen::new);
-        event.register(ModMenuTypes.ORE_PROCESSOR.get(), OreProcessorScreen::new);
-        event.register(ModMenuTypes.FABRICATOR.get(), FabricatorScreen::new);
-        event.register(ModMenuTypes.COLLIDER.get(), ColliderScreen::new);
-        event.register(ModMenuTypes.ELECTROLYZER.get(), ElectrolyzerScreen::new);
-        event.register(ModMenuTypes.GAS_TURBINE.get(), GasTurbineScreen::new);
-        event.register(ModMenuTypes.CHEMICAL_PROCESSOR.get(), ChemicalProcessorScreen::new);
-        event.register(ModMenuTypes.WIND_TURBINE.get(), WindTurbineScreen::new);
-        event.register(ModMenuTypes.GEOTHERMAL_GENERATOR.get(), GeothermalGeneratorScreen::new);
-        event.register(ModMenuTypes.BIO_GENERATOR.get(), BioGeneratorScreen::new);
-        event.register(ModMenuTypes.BATTERY_BANK.get(), BatteryBankScreen::new);
-        event.register(ModMenuTypes.GRID_CONTROLLER.get(), GridControllerScreen::new);
-        event.register(ModMenuTypes.WIRELESS_NODE.get(), WirelessNodeScreen::new);
-        event.register(ModMenuTypes.AUTO_CRAFTER.get(), AutoCrafterScreen::new);
-        event.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
-        event.register(ModMenuTypes.ROBOTIC_ARM.get(), RoboticArmScreen::new);
-        event.register(ModMenuTypes.SCRUBBER.get(), ScrubberScreen::new);
-        event.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
-        event.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
-        event.register(ModMenuTypes.TECH_GUIDE.get(), TechGuideScreen::new);
+    private static void registerScreens(za.co.neroland.nerotech.client.ScreenSink sink) {
+        sink.register(ModMenuTypes.NERO_GENERATOR.get(), NeroGeneratorScreen::new);
+        sink.register(ModMenuTypes.SOLAR_ARRAY.get(), SolarArrayScreen::new);
+        sink.register(ModMenuTypes.ORE_PROCESSOR.get(), OreProcessorScreen::new);
+        sink.register(ModMenuTypes.FABRICATOR.get(), FabricatorScreen::new);
+        sink.register(ModMenuTypes.COLLIDER.get(), ColliderScreen::new);
+        sink.register(ModMenuTypes.ELECTROLYZER.get(), ElectrolyzerScreen::new);
+        sink.register(ModMenuTypes.GAS_TURBINE.get(), GasTurbineScreen::new);
+        sink.register(ModMenuTypes.CHEMICAL_PROCESSOR.get(), ChemicalProcessorScreen::new);
+        sink.register(ModMenuTypes.WIND_TURBINE.get(), WindTurbineScreen::new);
+        sink.register(ModMenuTypes.GEOTHERMAL_GENERATOR.get(), GeothermalGeneratorScreen::new);
+        sink.register(ModMenuTypes.BIO_GENERATOR.get(), BioGeneratorScreen::new);
+        sink.register(ModMenuTypes.BATTERY_BANK.get(), BatteryBankScreen::new);
+        sink.register(ModMenuTypes.GRID_CONTROLLER.get(), GridControllerScreen::new);
+        sink.register(ModMenuTypes.WIRELESS_NODE.get(), WirelessNodeScreen::new);
+        sink.register(ModMenuTypes.AUTO_CRAFTER.get(), AutoCrafterScreen::new);
+        sink.register(ModMenuTypes.ITEM_SORTER.get(), ItemSorterScreen::new);
+        sink.register(ModMenuTypes.ROBOTIC_ARM.get(), RoboticArmScreen::new);
+        sink.register(ModMenuTypes.SCRUBBER.get(), ScrubberScreen::new);
+        sink.register(ModMenuTypes.REMEDIATOR.get(), RemediatorScreen::new);
+        sink.register(ModMenuTypes.ANALYTICS_TERMINAL.get(), AnalyticsTerminalScreen::new);
+        sink.register(ModMenuTypes.TECH_GUIDE.get(), TechGuideScreen::new);
         // 0.8.0 machine families: each family's Content.screens(...) registers its own screens.
-        za.co.neroland.nerotech.registry.FamilyRegistry.screens(new za.co.neroland.nerotech.client.ScreenSink() {
-            @Override
-            public <M extends net.minecraft.world.inventory.AbstractContainerMenu,
-                    U extends net.minecraft.client.gui.screens.Screen
-                            & net.minecraft.client.gui.screens.inventory.MenuAccess<M>> void register(
-                    net.minecraft.world.inventory.MenuType<? extends M> type,
-                    net.minecraft.client.gui.screens.MenuScreens.ScreenConstructor<M, U> constructor) {
-                event.register(type, constructor);
-            }
-        });
+        za.co.neroland.nerotech.registry.FamilyRegistry.screens(sink);
     }
 
     /**

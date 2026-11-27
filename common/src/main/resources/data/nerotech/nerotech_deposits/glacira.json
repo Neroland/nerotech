@@ -3,7 +3,7 @@
   "entries": [
     {
       "ore": "#c:ores/glacite",
-      "output": "nerospace:glacite",
+      "output": "nerolandcore:glacite",
       "weight": 8,
       "capacity": [
         1500,
