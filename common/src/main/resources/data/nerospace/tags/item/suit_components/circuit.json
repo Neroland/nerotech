@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "nerotech:circuit_board",
+      "required": false
+    }
+  ]
+}

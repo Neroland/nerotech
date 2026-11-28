@@ -25,7 +25,8 @@
  *       place, as {@link za.co.neroland.nerotech.api.PlanetApi} reports it (no Nerospace class needed).</li>
  *   <li>{@link za.co.neroland.nerotech.api.WirelessCharging} — draw charge from Induction Chargers in
  *       reach for an entity's own energy, and register item-energy adapters for players' held or worn
- *       items. Takes a level, a position and an amount only.</li>
+ *       items. Items that store Neroland Core energy are charged with no adapter. Takes a level, a
+ *       position and an amount only.</li>
  *   <li>{@link za.co.neroland.nerotech.api.MachineSettings} — read {@code machineMaxTransfer} and
  *       {@code renderAnimationsEnabled} without the internal config class.</li>
  *   <li>{@link za.co.neroland.nerotech.api.Configurator} — read a Configurator stack: copy/paste mode

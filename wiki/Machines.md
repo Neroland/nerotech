@@ -115,7 +115,8 @@ starved and overheating apart, and working machines have their own sounds (with 
 A charging pad. It tops up energy items held or worn by players standing within `inductionChargerRadius`
 (4) blocks, and charges companions and other entities from mods that use NeroTech's charging API. It hands
 out at most `inductionChargerTransferPerTick` NE per tick, shared between everything in reach, and takes power
-from any side. Every NeroTech tool charges here. Players can be left out with
+from any side. Every NeroTech tool charges here, and so does any item from another mod that stores Neroland
+Core energy, such as a powered suit or a battery. Players can be left out with
 `inductionChargePlayers=false`; entity charging keeps working.
 
 The charger never records an owner and stores nothing about who it charged.

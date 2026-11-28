@@ -111,6 +111,35 @@ public final class ChargeMath {
         return Math.min(maxFe, fe >= Long.MAX_VALUE ? Long.MAX_VALUE : (long) fe);
     }
 
+    /**
+     * NE to offer an item that stores Neroland Core energy ({@code energy.ItemEnergyLookup}): what an
+     * offer of {@code maxFe} FE pays for (rounded down, as {@link #feOfferToNe}), never more than the
+     * item's free room ({@code capacity - stored}). 0 when the item is full, reports no room, or the offer
+     * or ratio is not positive.
+     */
+    public static long coreItemRequestNe(long maxFe, double ratio, long stored, long capacity) {
+        long offer = feOfferToNe(maxFe, ratio);
+        if (offer <= 0 || capacity <= 0) {
+            return 0L;
+        }
+        long room = capacity - Math.max(0L, stored);
+        if (room <= 0) {
+            return 0L;
+        }
+        return Math.min(offer, room);
+    }
+
+    /**
+     * What an item really took, as the charger counts it: never negative and never more than was asked,
+     * whatever the item's storage reports.
+     */
+    public static long clampAccepted(long reported, long requested) {
+        if (reported <= 0 || requested <= 0) {
+            return 0L;
+        }
+        return Math.min(reported, requested);
+    }
+
     /** {@code perTick} scaled by a speed factor, floored at 0 and saturated at {@code Long.MAX_VALUE / PASS_TICKS}. */
     public static long scaledPerTick(long perTick, double factor) {
         if (perTick <= 0 || !(factor > 0)) {

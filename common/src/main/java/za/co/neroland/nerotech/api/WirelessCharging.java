@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
 import za.co.neroland.nerotech.machine.utility.ChargeMath;
+import za.co.neroland.nerotech.machine.utility.CoreItemEnergyCharger;
 import za.co.neroland.nerotech.machine.utility.InductionChargerBlockEntity;
 import za.co.neroland.nerotech.machine.utility.InductionChargers;
 
@@ -21,10 +22,12 @@ import za.co.neroland.nerotech.machine.utility.InductionChargers;
  * that block contributes, nearest first, within its per-tick output cap. Use {@code simulate = true} to
  * ask how much is on offer without taking it.
  *
- * <p><b>Items:</b> Neroland Core has no item-energy API yet, so a charger fills a player's held or worn
- * items through the {@link ItemCharger} adapters registered here (a mod registers one for the items it
- * owns; NeroTech's loader modules may register one for their loader's item-energy capability). With no
- * adapter, players' items are simply not charged.
+ * <p><b>Items:</b> a charger fills a player's held or worn items through the {@link ItemCharger} adapters
+ * registered here (NeroTech registers one for its own tools; a mod may register one for items it owns),
+ * then, for any item none of them claims, through Neroland Core's item-energy seam
+ * ({@code za.co.neroland.nerolandcore.energy.ItemEnergyLookup}). So any item a mod exposes through Core
+ * (a battery, a suit, a tool) is charged with no adapter here and no dependency on NeroTech. That Core
+ * fallback is always asked last, after every registered adapter, whenever it was registered.
  *
  * <p>Privacy (POPIA/GDPR): no call here takes, returns or stores player data — a level, a block position
  * and an amount only. Server thread only. Stable within the 0.x minor, like the rest of this package.
@@ -43,6 +46,9 @@ public final class WirelessCharging {
     }
 
     private static final List<ItemCharger> ITEM_CHARGERS = new CopyOnWriteArrayList<>();
+
+    /** Asked after every registered adapter: items that store Neroland Core energy (since 0.12.0). */
+    private static final ItemCharger CORE_ITEM_ENERGY = CoreItemEnergyCharger::charge;
 
     private WirelessCharging() {
     }
@@ -73,7 +79,10 @@ public final class WirelessCharging {
         return level != null && near != null && !InductionChargers.reaching(level, near).isEmpty();
     }
 
-    /** Register an item adapter. Adapters are asked in registration order; the first that accepts wins. */
+    /**
+     * Register an item adapter. Adapters are asked in registration order; the first that accepts wins.
+     * Items no adapter accepts fall back to Neroland Core's item-energy seam, which is always asked last.
+     */
     public static void registerItemCharger(ItemCharger charger) {
         if (charger != null && !ITEM_CHARGERS.contains(charger)) {
             ITEM_CHARGERS.add(charger);
@@ -81,8 +90,8 @@ public final class WirelessCharging {
     }
 
     /**
-     * Charge one item through the registered adapters (what a charger does to a player's held and worn
-     * items). Returns FE accepted, never more than {@code maxFe}.
+     * Charge one item through the registered adapters, then Neroland Core's item-energy seam (what a
+     * charger does to a player's held and worn items). Returns FE accepted, never more than {@code maxFe}.
      */
     public static long chargeItem(ItemStack stack, long maxFe, boolean simulate) {
         if (stack == null || stack.isEmpty() || maxFe <= 0) {
@@ -94,11 +103,15 @@ public final class WirelessCharging {
                 return Math.min(accepted, maxFe);
             }
         }
-        return 0L;
+        long accepted = CORE_ITEM_ENERGY.charge(stack, maxFe, simulate);
+        return accepted > 0 ? Math.min(accepted, maxFe) : 0L;
     }
 
-    /** Whether any item adapter is registered (player charging is inert without one). */
+    /**
+     * Whether players' items can be charged at all. Always {@code true} since 0.12.0: the Neroland Core
+     * item-energy fallback is always present, even with no adapter registered.
+     */
     public static boolean hasItemChargers() {
-        return !ITEM_CHARGERS.isEmpty();
+        return true;
     }
 }

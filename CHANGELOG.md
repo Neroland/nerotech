@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-28
+
+### Added
+
+- Induction Chargers and other NeroTech chargers now charge any item that stores Neroland Core energy, such as
+  Nerospace's Pathfinder suit. NeroTech's own tools still charge first; any other item a mod powers through
+  Neroland Core is topped up at the charger's usual rate, with nothing extra to install.
+- NeroTech's Circuit Board is listed in the `nerospace:suit_components/circuit` item tag, so it can stand in for
+  a suit circuit where that mod accepts one. The entry is optional and does nothing without that mod.
+
 ## [0.11.0] - 2026-11-27
 
 ### Added

@@ -91,3 +91,6 @@ node_modules/
 /neoforge/versions/1.20.6/logs
 /neoforge/versions/1.21.3/logs
 /neoforge/versions/26.1.1/logs
+/neoforge/versions/1.20.5/logs
+*.log
+*.log
